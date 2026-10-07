@@ -30,11 +30,15 @@ def _fmt_duration(seconds: float) -> str:
     return f"{seconds / 86400:.1f} дн"
 
 
-def _extract_iocs(findings: list[dict]) -> dict:
-    """Простое извлечение IOC из findings.
+def _short(s: str, n: int = 40) -> str:
+    """Обрезать длинную строку с многоточием."""
+    if not s:
+        return ""
+    return s if len(s) <= n else s[: n - 1] + "…"
 
-    Пока без секции entities — только то, что явно в findings.
-    """
+
+def _extract_iocs(findings: list[dict]) -> dict:
+    """Простое извлечение IOC из findings."""
     domains: dict[str, list[str]] = {}
     ips: dict[str, list[str]] = {}
     ports: dict[int, list[str]] = {}
@@ -49,7 +53,6 @@ def _extract_iocs(findings: list[dict]) -> dict:
             domains.setdefault(value, []).append(ftype)
 
         elif ftype == "suspicious_port":
-            # value = "ip:port"
             if ":" in value:
                 ip, port_s = value.rsplit(":", 1)
                 ips.setdefault(ip, []).append(ftype)
@@ -73,6 +76,7 @@ def render_markdown(report: dict) -> str:
     findings = report.get("findings", [])
     flows = report.get("flows", {})
     entities = report.get("entities", {})
+    http = report.get("http", {})
     top_flows = flows.get("top_by_bytes", [])
 
     # --- header ---
@@ -95,17 +99,17 @@ def render_markdown(report: dict) -> str:
     lines.append(f"- **NXDOMAIN:** {summary.get('nxdomain_count', 0)}")
     lines.append(f"- **Findings:** {summary.get('findings', 0)}")
 
-    uploaded = summary.get("uploaded_bytes", 0)
-    downloaded = summary.get("downloaded_bytes", 0)
-    if uploaded or downloaded:
-        lines.append(f"- **Uploaded (internal → external):** {_fmt_bytes(uploaded)}")
-        lines.append(f"- **Downloaded (external → internal):** {_fmt_bytes(downloaded)}")
-
     first_ts = summary.get("first_ts")
     last_ts = summary.get("last_ts")
     if first_ts and last_ts:
         duration = last_ts - first_ts
         lines.append(f"- **Период:** {_fmt_duration(duration)}")
+
+    uploaded = summary.get("uploaded_bytes")
+    downloaded = summary.get("downloaded_bytes")
+    if uploaded is not None and downloaded is not None:
+        lines.append(f"- **Uploaded (internal → external):** {_fmt_bytes(uploaded)}")
+        lines.append(f"- **Downloaded (external → internal):** {_fmt_bytes(downloaded)}")
 
     extractor_errors = summary.get("extractor_errors") or {}
     if extractor_errors:
@@ -133,6 +137,11 @@ def render_markdown(report: dict) -> str:
         lines.append("## Findings")
         lines.append("")
         lines.append("_Ничего не найдено._")
+        lines.append("")
+
+    # --- HTTP ---
+    if http:
+        lines.extend(_render_http(http))
         lines.append("")
 
     # --- IOC ---
@@ -163,7 +172,6 @@ def render_markdown(report: dict) -> str:
             lines.append("")
 
     # --- top flows ---
-    # --- top flows ---
     if top_flows:
         lines.append("## Топ-10 flows по байтам")
         lines.append("")
@@ -172,7 +180,7 @@ def render_markdown(report: dict) -> str:
         for fl in top_flows[:10]:
             src = f"{fl.get('src_ip', '?')}:{fl.get('src_port') or '-'}"
             dst = f"{fl.get('dst_ip', '?')}:{fl.get('dst_port') or '-'}"
-            direction = fl.get("direction", "?")
+            direction = fl.get("direction") or "—"
             proto = fl.get("proto", "?")
             b = _fmt_bytes(fl.get("bytes", 0))
             sni = fl.get("sni") or "—"
@@ -204,7 +212,6 @@ def _render_entities(entities: dict) -> list[str]:
     lines.append("## Сущности")
     lines.append("")
 
-    # --- internal ---
     if internal:
         lines.append(f"### Внутренние хосты ({len(internal)})")
         lines.append("")
@@ -228,8 +235,8 @@ def _render_entities(entities: dict) -> list[str]:
 
             dns = e.get("dns_names", [])
             if dns:
-                shown = ", ".join(f"`{d}`" for d in dns[:5])
-                more = f" _(+{len(dns) - 5})_" if len(dns) > 5 else ""
+                shown = ", ".join(f"`{d}`" for d in dns[:10])
+                more = f" _(+{len(dns) - 10})_" if len(dns) > 10 else ""
                 lines.append(f"  DNS: {shown}{more}  ")
 
             fnd = e.get("findings_indices", [])
@@ -238,7 +245,6 @@ def _render_entities(entities: dict) -> list[str]:
 
             lines.append("")
 
-    # --- external с findings ---
     external_with_findings = [e for e in external if e.get("findings_indices")]
     if external_with_findings:
         lines.append(f"### Внешние IP с findings ({len(external_with_findings)})")
@@ -265,7 +271,6 @@ def _render_entities(entities: dict) -> list[str]:
 
             lines.append("")
 
-    # --- external без findings — только топ-5 ---
     external_clean = [e for e in external if not e.get("findings_indices")]
     if external_clean:
         lines.append("### Внешние IP без findings — топ-5")
@@ -275,6 +280,76 @@ def _render_entities(entities: dict) -> list[str]:
             fi = e.get("flows_in", 0)
             bi = _fmt_bytes(e.get("bytes_in", 0))
             lines.append(f"- `{ip}` — {fi} flows in, {bi}")
+        lines.append("")
+
+    return lines
+
+
+def _render_http(http: dict) -> list[str]:
+    """Секция 'HTTP' в Markdown."""
+    lines: list[str] = []
+
+    unique_hosts = http.get("unique_hosts", 0)
+    unique_uris = http.get("unique_uris", 0)
+    unique_ua = http.get("unique_user_agents", 0)
+
+    if not unique_hosts and not unique_uris:
+        return []
+
+    lines.append("## HTTP")
+    lines.append("")
+
+    # methods
+    methods = http.get("methods", []) or []
+    if methods:
+        method_str = ", ".join(
+            f"{m.get('method', '?')}×{m.get('count', 0)}" for m in methods
+        )
+        lines.append(f"**Methods:** {method_str}  ")
+    lines.append(f"**Hosts:** {unique_hosts} · **URIs:** {unique_uris} · "
+                 f"**User-Agents:** {unique_ua}  ")
+    lines.append("")
+
+    # top hosts
+    top_hosts = http.get("top_hosts", []) or []
+    if top_hosts:
+        lines.append("### Топ Hosts")
+        lines.append("")
+        lines.append("| Count | Host |")
+        lines.append("|---|---|")
+        for h in top_hosts[:10]:
+            lines.append(f"| {h.get('count', 0)} | `{h.get('host', '?')}` |")
+        lines.append("")
+
+    # top URIs
+    top_uris = http.get("top_uris", []) or []
+    if top_uris:
+        lines.append("### Топ URIs")
+        lines.append("")
+        lines.append("| Method | Host | URI | Src → Dst | UA | Bytes |")
+        lines.append("|---|---|---|---|---|---|")
+        for u in top_uris[:15]:
+            method = u.get("method") or "?"
+            host = u.get("host") or "?"
+            uri = u.get("uri") or "?"
+            src = f"{u.get('src_ip', '?')}:?"
+            dst = f"{u.get('dst_ip', '?')}:{u.get('dst_port') or '-'}"
+            ua = _short(u.get("user_agent") or "", 40)
+            b = _fmt_bytes(u.get("bytes", 0))
+            lines.append(
+                f"| `{method}` | `{host}` | `{uri}` | `{src}` → `{dst}` | {ua} | {b} |"
+            )
+        lines.append("")
+
+    # top user agents
+    top_ua = http.get("top_user_agents", []) or []
+    if top_ua:
+        lines.append("### Топ User-Agents")
+        lines.append("")
+        for ua in top_ua[:10]:
+            count = ua.get("count", 0)
+            agent = _short(ua.get("user_agent") or "?", 80)
+            lines.append(f"- ×{count} — `{agent}`")
         lines.append("")
 
     return lines
