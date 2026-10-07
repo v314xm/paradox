@@ -2,9 +2,8 @@
 
 ## Модель
 
-Конвейер преобразований. Каждый слой решает одну задачу и передаёт
-результат следующему. Слои не знают друг о друге, общаются только
-через структуры данных.
+Конвейер преобразований. Слои не знают друг о друге, общаются
+только через структуры данных.
 
     PCAP
       │
@@ -21,180 +20,132 @@
                                                 Detectors
                                                     │
                                                     ▼
-                                                 Findings
+                                            Findings + Entities
                                                     │
                                                     ▼
-                                                 Reporters → JSON
+                                            Reporters (JSON, MD)
 
 ## Принципы
 
-1. Разделение extract / detect / correlate / report.
-2. Данные текут в одном направлении.
-3. Каждый слой — реестр плагинов.
+1. Разделение extract / detect / aggregate / report.
+2. Односторонний поток данных.
+3. Реестр плагинов для каждого слоя.
 4. Finding — на сущность, не на инцидент одного flow.
+5. Отчёт — расширяемая схема с reserved-полями.
 
 ## Парсинг: почему не scapy
 
-Профилирование на 334 МБ pcap показало: 74% времени уходило
-на `scapy.packet.Packet.dissect` — построение дерева слоёв для
-каждого пакета. Мы используем 6 полей из пакета, а scapy строит
-полную объектную модель.
+Профилирование на 334 МБ pcap: 74% времени уходило на
+`scapy.packet.Packet.dissect`. Решение — `RawPcapReader` +
+`struct.unpack`. Все L2-L4 заголовки разбираются за наносекунды.
 
-Решение: `RawPcapReader` + свой парсер через `struct.unpack`.
-Все L2-L4 заголовки разбираются дёшево (наносекунды на пакет),
-`raw` сохраняется как escape hatch, `payload` не парсится —
-это работа экстракторов по требованию.
+Скорость: **458 → 12 секунд** (39x).
 
-Скорость на 334 МБ: **458 сек → 12 сек** (39x).
+Scapy остаётся точечно — для DNS payload (сложная структура,
+пакетов мало). TLS ClientHello уже разбирается вручную.
 
-Scapy остаётся для payload сложной структуры. Сейчас — только
-DNS (порт 53, пакетов мало). В будущем — TLS ClientHello уже
-ручной, остальное по потребности.
+## Модули
 
-## Слои
+### `parsers.py` — PacketRecord
 
-### PacketRecord (parsers.py)
-
-Нормализованный пакет. Все поля — простые типы:
+Все L2-L4 заголовки разобраны сразу. Поля:
 - мета: `ts`, `length`, `raw`
 - L2: `eth_src`, `eth_dst`, `ethertype`, `vlan_id`
 - L3: `src_ip`, `dst_ip`, `ip_proto`, `ip_id`, `ip_frag_offset`, `ip_mf`
 - L4: `proto`, `src_port`, `dst_port`
 - TCP: `tcp_seq`, `tcp_ack`, `tcp_flags`
-- ARP: `arp_op`, `arp_sender_mac`, `arp_sender_ip`,
-  `arp_target_mac`, `arp_target_ip`
-- `payload: bytes`
+- ARP: `arp_op`, `arp_sender_mac`, `arp_sender_ip`, `arp_target_mac`, `arp_target_ip`
+- `payload: bytes` (не парсим — экстракторы по требованию)
 
-Поддерживается: Ethernet, 802.1Q VLAN, IPv4 (+фрагментация),
-TCP, UDP, ICMP, ARP. IPv6 — заглушка (`proto="other"`).
+### `models.py` — контракты
 
-### Extractors
+**`FlowKey`** — направленный 5-tuple. A→B и B→A — разные ключи.
 
-Единственное место, где живут scapy/struct. Реестр независимых
-экстракторов, по одному на протокол или тип данных.
+**`SessionKey`** — двунаправленный ключ. A→B и B→A дают один ключ.
+Строится через `make_session_key()`. Используется для `session_sni`.
 
-**Уровни (план):**
-- L0 пакетные: DNS, ARP, DHCP, NBNS, Flow
-- L1 потоковые: StreamReassembler
-- L2 протокольные: TLS, HTTP, SMB, Kerberos, LDAP, DCE/RPC
-- L3 объектные: HTTPObject, SMBObject, FileCarve
-- L4 склейка: HostIdentity
+**`FlowStats`** — статистика flow: packets, bytes_sent, first_ts,
+last_ts, timestamps, initiated_by_src, sni, ja3, http_*.
 
-**Сейчас реализованы L0:** Flow, DNS, TLS (SNI).
-
-**Порядок важен:** `FlowExtractor` идёт **первым**. Остальные
-экстракторы, пишущие в `FlowStats`, ищут существующий flow
-по `FlowKey` и **падают явно**, если его нет. Это ловит ошибку
-порядка регистрации сразу, а не молча теряет данные.
-
-**Изоляция ошибок:** падение одного экстрактора не роняет проход,
-ошибки считаются в `state.extractor_errors`.
-
-### CaptureState
-
-Нормализованное представление захвата. Никакого scapy внутри.
-
-**Содержит:**
+**`CaptureState`** — состояние захвата:
 - `dns_queries`, `dns_nxdomain`, `dns_nxdomain_by_src`
+- `dns_queries_by_src: dict[str, Counter]`
 - `flows: dict[FlowKey, FlowStats]`
-- мета: `packet_count`, `first_ts`, `last_ts`, `extractor_errors`
+- `session_sni: dict[SessionKey, str]`
+- `packet_count`, `first_ts`, `last_ts`, `extractor_errors`
+- `unsupported: dict[str, int]`
+- `enrichment_budget_exhausted: bool` (заготовка VT)
 
-**FlowStats** — точка сборки контекста сессии:
-- базовая телеметрия: `packets`, `bytes_sent`, `first_ts`,
-  `last_ts`, `timestamps`
-- протокол-специфичные поля: `sni`, `ja3`, `http_host`,
-  `http_user_agent` (заполняются L2)
+**`get_session_sni(key, flow, state)`** — SNI flow из `flow.sni`
+или через `session_sni`. Так SNI виден обоим направлениям.
 
-**FlowKey** — направленный 5-tuple. A→B и B→A — разные ключи.
+### `extractors/` — L0 пакетные
 
-**Windowing** — отложено. Нужно для nxdomain_burst по окну,
-FastFlux, объёмного exfil. Не критично для текущих детекторов.
+Порядок **важен**: `FlowExtractor` идёт первым. Остальные ищут
+существующий `FlowStats` по `FlowKey` и **падают явно**, если его нет.
 
-### Detectors
+- `FlowExtractor` — базовая телеметрия + `initiated_by_src` по SYN
+- `DNSExtractor` — только порт 53, scapy DNS(payload), `dns_queries_by_src`
+- `TLSExtractor` — SNI, пишет в `flow.sni` и `session_sni`
 
-Чистые функции над `CaptureState`. Никакого scapy.
+### `detectors/` — чистые функции
 
-**Две семьи по стоимости (план):**
-- **LocalDetector** — над state, локально, дёшево.
-- **EnrichmentDetector** — над `EntityRisk`, сетевой вызов,
-  rate limit. Threat Intel.
+Никакого scapy. Читают `CaptureState`, возвращают `Finding[]`.
 
-**Сейчас реализованы 7 LocalDetector:**
-- `DGADetector` — энтропия label, игнор дефисов, allowlist
-- `SuspiciousPortDetector` — приватные dst игнорируются,
-  агрегация по (dst_ip, dst_port)
-- `NXDOMAINBurstDetector` — count по src_ip
-- `CloudTunnelDetector` — суффиксы cloud-туннелей
-- `IPCheckServiceDetector` — точные домены
-- `TyposquattingDetector` — contains + Levenshtein
-- `SNIMismatchDetector` — SNI не в DNS, allowlist по суффиксу
+Семь детекторов:
+- `DGADetector`, `SuspiciousPortDetector`, `NXDOMAINBurstDetector`,
+  `CloudTunnelDetector`, `IPCheckServiceDetector`,
+  `TyposquattingDetector`, `SNIMismatchDetector`
 
-**Пороги и списки** — в `Config`, не в коде детекторов.
+Принцип агрегации: **finding на сущность**. Пример:
+474 соединения к 192.168.1.12:21 → 1 finding, а не 474.
 
-### Findings
+### `aggregators/entities.py` — сущности
 
-Структурированный результат. `type`, `value`, `confidence`,
-`evidence`, `first_seen`, `last_seen`.
+`build_entities(state, findings, config)` группирует flows и findings
+по IP. Роли: `internal`/`external`, `gateway_candidate`,
+`victim_candidate`, `c2_candidate`.
 
-**Принцип:** finding — на **сущность**, не на инцидент одного flow.
-Пример: 474 соединения к одному серверу → 1 finding.
-Пример: 8 TLS-сессий к одному SNI → 1 finding.
+Special-IP фильтр: multicast, loopback, link-local, broadcast
+(включая x.x.x.0 и x.x.x.255 для /24).
 
-### Reporters
+### `reporters/` — сериализация
 
-Превращают findings + flows в артефакты.
+**JSON** — `write_json(report_dict, path)`. Детерминирован через
+`sort_keys=True`.
 
-**Сейчас:** JSON-отчёт, flow report (conn.log-стиль с SNI для TLS).
-**План:** CLI-таблица, SIEM, IncidentReport, IOCExport, Markdown.
+**Markdown** — `write_markdown(report_dict, path)`. Человекочитаемая
+версия для тикета: header, сводка, сущности, findings, IOC, топ flows.
 
-**Provenance обязателен:** версия инструмента, sha256 pcap.
-**Детерминизм обязателен:** сортировка полей и списков.
+**Flow report** — `build_flow_report` (топ по байтам и пакетам,
+с direction и SNI) + `build_dns_report`.
 
-### Correlator (план)
+## Схема отчёта v0.2
 
-Группирует findings по сущности, считает композитный риск.
-Две работы: entity scoring и timeline. Разные структуры.
-
-### FlowAggregator + Beaconing (план)
-
-Группировка flows по (src_ip, dst_ip, dst_port) со статистикой
-интервалов (CV), duration, packets, bytes. Композитный suspicion
-score. Beaconing detector — поверх агрегатора.
-
-## Порядок внедрения
-
-1. DNS + DGA + JSON — **сделано**
-2. FlowExtractor + flow report — **сделано**
-3. 5 детекторов (SuspiciousPort, NXDOMAINBurst, CloudTunnel,
-   IPCheckService, Typosquatting) — **сделано**
-4. Прогон на реальных pcap, фиксы false positives — **сделано**
-5. Raw parser, 39x ускорение — **сделано**
-6. TLSExtractor + SNIMismatch — **сделано**
-7. Прогон на CTF, baseline 0 findings — **сделано**
-8. Threat Intel enrichment (VT + SQLite) — **следующее**
-9. FlowAggregator + BeaconingDetector
-10. Windowing + nxdomain_burst по окну
-11. StreamReassembler (для HTTP/SMB)
-12. HTTPExtractor + HTTPObject + FileCarve
-13. Correlator (entity scoring)
-14. Kerberos + LDAP + HostIdentity + AD-детекторы
-15. Timeline + IncidentReport + IOCExport
-16. Streamlit → FastAPI
-
-## Известные долги
-
-- **Threat Intel отсутствует.** Домены вроде `salam-spbsed-*.rtbcdn.ru`
-  (реальный C2 с CTF) не ловятся — резолвятся через DNS,
-  паттерн читаемый. Это класс задач для VT.
-- **Beaconing отсутствует.** В FIRST-2015 pcap 4 C2-серии,
-  детектора нет.
-- **`timestamps` в FlowStats** — на 334 МБ дают 106 МБ RAM,
-  не критично. Welford отложен.
-- **FlowKey не нормализует направление** — нужно для exfil.
-- **IPv6 не поддерживается** в парсере (только заглушка).
-- **TLS ClientHello только в одном сегменте** — без reassembly.
-  Покрытие ~95%, редкие фрагментированные пропущены.
-- **JA3 отсутствует** — только SNI.
-- **`nxdomain_burst` считает за весь файл** — должен быть по окну.
-- **Malformed packets не считаются.**
-- **Роль хостов и направление трафика** не показываются в отчёте.
+```json
+{
+  "schema_version": "0.2.0",
+  "provenance": {"tool_version", "pcap_path", "pcap_sha256"},
+  "summary": {
+    "packets", "flows", "findings", "nxdomain_count",
+    "unique_dns_queries", "extractor_errors",
+    "uploaded_bytes", "downloaded_bytes",
+    "internal_bytes", "external_bytes"
+  },
+  "entities": {
+    "internal": [{"ip", "roles", "flows_out", "flows_in",
+                  "bytes_out", "bytes_in", "sni_domains",
+                  "dns_names", "findings_indices",
+                  "mac", "hostname", "username", "asn", "country"}],
+    "external": [...]
+  },
+  "dns": {
+    "unique_count", "total_queries",
+    "top_by_count": [{"name", "count"}],
+    "nxdomain": [{"name", "count"}]
+  },
+  "flows": {
+    "total_flows", "top_by_bytes", "top_by_packets"
+  },
+  "findings": [...]
+}
