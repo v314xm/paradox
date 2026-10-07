@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from scapy.all import PcapReader
+from scapy.utils import RawPcapReader
 
 from pcap_triage import __version__
 from pcap_triage.config import Config
@@ -10,11 +10,13 @@ from pcap_triage.detectors.dga import DGADetector
 from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
 from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
+from pcap_triage.detectors.typosquatting import TyposquattingDetector
 from pcap_triage.extractors.dns import DNSExtractor
 from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.models import CaptureState
+from pcap_triage.parsers import parse_packet
 from pcap_triage.reporters.flow_report import build_flow_report
-from pcap_triage.detectors.typosquatting import TyposquattingDetector
+
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные L0-экстракторы независимы, но будущие L2 (TLS/HTTP/SMB)
@@ -25,9 +27,6 @@ EXTRACTORS = [
 ]
 
 # Порядок детекторов не важен — они независимы.
-# Группировка по семьям для читаемости:
-#   сигнатуры по DNS  : dga, cloud_tunnel, ip_check_service, nxdomain_burst
-#   сигнатуры по flow : suspicious_port
 DETECTORS = [
     DGADetector(),
     SuspiciousPortDetector(),
@@ -36,6 +35,7 @@ DETECTORS = [
     IPCheckServiceDetector(),
     TyposquattingDetector(),
 ]
+
 
 def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
     h = hashlib.sha256()
@@ -46,14 +46,51 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
 
 
 def _extract(pcap_path: Path, state: CaptureState) -> None:
-    with PcapReader(str(pcap_path)) as reader:
-        for pkt in reader:
+    import sys
+    import time
+
+    file_size = pcap_path.stat().st_size
+    last_update = time.monotonic()
+    update_interval = 2.0
+    start = last_update
+    show_progress = sys.stdout.isatty()
+
+    reader = RawPcapReader(str(pcap_path))
+    try:
+        for raw_data, metadata in reader:
             state.packet_count += 1
+            bytes_read = reader.f.tell()
+
+            ts = metadata.sec + metadata.usec / 1_000_000
+            record = parse_packet(raw_data, ts)
+
+            now = time.monotonic()
+            if show_progress and now - last_update >= update_interval:
+                pct = min(100.0, bytes_read * 100.0 / file_size) if file_size else 0.0
+                elapsed = now - start
+                print(
+                    f"\r  {pct:5.1f}%  "
+                    f"{state.packet_count:>10,} packets  "
+                    f"{elapsed:6.1f}s",
+                    end="",
+                    flush=True,
+                )
+                last_update = now
+
             for ex in EXTRACTORS:
                 try:
-                    ex.process(pkt, state)
+                    ex.process(record, state)
                 except Exception:
                     state.extractor_errors[ex.name] += 1
+    finally:
+        reader.close()
+
+    if show_progress:
+        elapsed = time.monotonic() - start
+        print(
+            f"\r  done: {state.packet_count:,} packets in {elapsed:.1f}s"
+            + " " * 20
+        )
 
 
 def _detect(state: CaptureState, config: Config):

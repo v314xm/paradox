@@ -92,12 +92,11 @@ def test_dga_still_detects_no_hyphen_dga():
 
 
 # ---------- SuspiciousPortDetector ----------
-
-def test_suspicious_port_detects_4444():
+def test_suspicious_port_detects_external_4444():
     state = CaptureState()
     key = FlowKey(
         proto="tcp",
-        src_ip="192.168.1.100", dst_ip="203.0.113.66",
+        src_ip="192.168.1.100", dst_ip="203.0.113.66",  # TEST-NET-3, не private
         src_port=53000, dst_port=4444,
     )
     state.flows[key] = FlowStats(packets=3, bytes_sent=180)
@@ -107,9 +106,25 @@ def test_suspicious_port_detects_4444():
     assert len(findings) == 1
     assert findings[0].type == "suspicious_port"
     assert findings[0].value == "203.0.113.66:4444"
+    assert findings[0].evidence["flow_count"] == 1
 
 
-def test_suspicious_port_ignores_normal():
+def test_suspicious_port_ignores_internal():
+    """474 flow'а к 192.168.1.12:21 — это внутренний FTP, не сигнал."""
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.0.5", dst_ip="192.168.1.12",  # private dst
+        src_port=54000, dst_port=21,
+    )
+    state.flows[key] = FlowStats(packets=3, bytes_sent=180)
+
+    findings = SuspiciousPortDetector().run(state, Config())
+
+    assert findings == []
+
+
+def test_suspicious_port_ignores_normal_port():
     state = CaptureState()
     key = FlowKey(
         proto="tcp",
@@ -137,6 +152,40 @@ def test_suspicious_port_ignores_no_port():
     assert findings == []
 
 
+def test_suspicious_port_aggregates_same_dst():
+    """Много flow'ов к одной паре dst_ip:dst_port → один finding."""
+    state = CaptureState()
+    for sport in (54000, 54001, 54002):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="192.168.1.100", dst_ip="203.0.113.66",
+            src_port=sport, dst_port=4444,
+        )
+        state.flows[key] = FlowStats(packets=2, bytes_sent=100)
+
+    findings = SuspiciousPortDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].value == "203.0.113.66:4444"
+    assert findings[0].evidence["flow_count"] == 3
+
+
+def test_suspicious_port_separate_dst():
+    """Разные dst_ip → разные findings."""
+    state = CaptureState()
+    for dst in ("203.0.113.66", "203.0.113.77"):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="192.168.1.100", dst_ip=dst,
+            src_port=54000, dst_port=4444,
+        )
+        state.flows[key] = FlowStats(packets=2, bytes_sent=100)
+
+    findings = SuspiciousPortDetector().run(state, Config())
+
+    assert len(findings) == 2
+    values = sorted(f.value for f in findings)
+    assert values == ["203.0.113.66:4444", "203.0.113.77:4444"]
 # ---------- NXDOMAINBurstDetector ----------
 
 def test_nxdomain_burst_detects():

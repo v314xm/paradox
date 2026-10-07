@@ -1,36 +1,24 @@
-from scapy.layers.inet import IP, TCP, UDP
-
 from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from pcap_triage.parsers import PacketRecord
 
 
 class FlowExtractor:
     name = "flow"
     layer = 0
 
-    def process(self, pkt, state: CaptureState) -> None:
-        if not pkt.haslayer(IP):
+    def process(self, record: PacketRecord, state: CaptureState) -> None:
+        # ARP — не IP-flow, для него отдельный экстрактор (позже)
+        if record.proto == "arp":
+            return
+        if record.src_ip is None or record.dst_ip is None:
             return
 
-        ip = pkt[IP]
-
-        if pkt.haslayer(TCP):
-            proto = "tcp"
-            l4 = pkt[TCP]
-            sport, dport = int(l4.sport), int(l4.dport)
-        elif pkt.haslayer(UDP):
-            proto = "udp"
-            l4 = pkt[UDP]
-            sport, dport = int(l4.sport), int(l4.dport)
-        else:
-            proto = "other"
-            sport = dport = None
-
         key = FlowKey(
-            proto=proto,
-            src_ip=ip.src,
-            dst_ip=ip.dst,
-            src_port=sport,
-            dst_port=dport,
+            proto=record.proto,
+            src_ip=record.src_ip,
+            dst_ip=record.dst_ip,
+            src_port=record.src_port,
+            dst_port=record.dst_port,
         )
 
         flow = state.flows.get(key)
@@ -38,9 +26,9 @@ class FlowExtractor:
             flow = FlowStats()
             state.flows[key] = flow
 
-        ts = float(pkt.time)
+        ts = record.ts
         flow.packets += 1
-        flow.bytes_sent += len(pkt)
+        flow.bytes_sent += record.length
         flow.timestamps.append(ts)
 
         if flow.first_ts is None:

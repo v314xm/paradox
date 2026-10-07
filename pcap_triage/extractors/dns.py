@@ -1,18 +1,31 @@
 from scapy.layers.dns import DNS
-from scapy.layers.inet import IP
 
 from pcap_triage.models import CaptureState
+from pcap_triage.parsers import PacketRecord
 
 
 class DNSExtractor:
+    """
+    DNS-экстрактор.
+
+    Работает поверх PacketRecord. DNS payload парсит через scapy,
+    но только для пакетов на порт 53 — таких в реальных pcap'ах
+    сотни из сотен тысяч, накладные расходы незаметны.
+    """
     name = "dns"
     layer = 0
 
-    def process(self, pkt, state: CaptureState) -> None:
-        if not pkt.haslayer(DNS):
+    def process(self, record: PacketRecord, state: CaptureState) -> None:
+        if record.src_port != 53 and record.dst_port != 53:
+            return
+        if not record.payload:
             return
 
-        dns = pkt[DNS]
+        try:
+            dns = DNS(record.payload)
+        except Exception:
+            return
+
         if dns.qdcount < 1 or dns.qd is None:
             return
 
@@ -27,6 +40,5 @@ class DNSExtractor:
         state.dns_queries[name] += 1
         if dns.rcode == 3:  # NXDOMAIN
             state.dns_nxdomain[name] += 1
-            if pkt.haslayer(IP):
-                src_ip = pkt[IP].src
-                state.dns_nxdomain_by_src[src_ip] += 1
+            if record.src_ip:
+                state.dns_nxdomain_by_src[record.src_ip] += 1
