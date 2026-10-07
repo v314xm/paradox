@@ -95,6 +95,12 @@ def render_markdown(report: dict) -> str:
     lines.append(f"- **NXDOMAIN:** {summary.get('nxdomain_count', 0)}")
     lines.append(f"- **Findings:** {summary.get('findings', 0)}")
 
+    uploaded = summary.get("uploaded_bytes", 0)
+    downloaded = summary.get("downloaded_bytes", 0)
+    if uploaded or downloaded:
+        lines.append(f"- **Uploaded (internal → external):** {_fmt_bytes(uploaded)}")
+        lines.append(f"- **Downloaded (external → internal):** {_fmt_bytes(downloaded)}")
+
     first_ts = summary.get("first_ts")
     last_ts = summary.get("last_ts")
     if first_ts and last_ts:

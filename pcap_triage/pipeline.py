@@ -18,7 +18,7 @@ from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
-from pcap_triage.reporters.flow_report import build_flow_report
+from pcap_triage.reporters.flow_report import build_dns_report, build_flow_report
 
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
@@ -138,6 +138,7 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
     _extract(pcap_path, state)
     findings = _detect(state, config)
     flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
+    dns_report = build_dns_report(state, top_n=config.flow_report_top_n)
     entities = build_entities(state, findings, config)
     direction_summary = _summarize_direction(state, config)
 
@@ -161,6 +162,7 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
             "internal": [e.to_dict() for e in entities.internal],
             "external": [e.to_dict() for e in entities.external],
         },
+        "dns": dns_report,
         "flows": flow_report,
         "findings": [f.to_dict() for f in findings],
     }

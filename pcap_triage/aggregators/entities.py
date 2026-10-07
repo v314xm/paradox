@@ -93,6 +93,15 @@ def _is_special_ip(ip: str) -> bool:
         return True
     if str(addr) == "255.255.255.255":
         return True
+
+    # Сетевой и broadcast для /24 подсетей — не хосты.
+    # Часто встречается в приватных сетях: 192.168.1.0, 192.168.1.255.
+    # Точнее — через CIDR в config, но для /24 это покрывает 95% случаев.
+    if addr.version == 4:
+        last_octet = int(str(addr).rsplit(".", 1)[1])
+        if last_octet == 0 or last_octet == 255:
+            return True
+
     return False
 
 

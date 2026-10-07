@@ -77,3 +77,35 @@ def build_flow_report(
         "top_by_bytes": by_bytes,
         "top_by_packets": by_packets,
     }
+def build_dns_report(
+    state: CaptureState,
+    top_n: int = 100,
+) -> dict:
+    """
+    DNS-секция отчёта.
+
+    Возвращает полный список уникальных запросов + топ по частоте.
+    Плюс NXDOMAIN отдельно.
+    """
+    all_queries = [
+        {"name": name, "count": count}
+        for name, count in state.dns_queries.items()
+    ]
+
+    by_count = sorted(
+        all_queries,
+        key=lambda d: (-d["count"], d["name"]),
+    )[:top_n]
+
+    nxdomain = [
+        {"name": name, "count": count}
+        for name, count in state.dns_nxdomain.items()
+    ]
+    nxdomain.sort(key=lambda d: (-d["count"], d["name"]))
+
+    return {
+        "unique_count": len(state.dns_queries),
+        "total_queries": sum(state.dns_queries.values()),
+        "top_by_count": by_count,
+        "nxdomain": nxdomain,
+    }
