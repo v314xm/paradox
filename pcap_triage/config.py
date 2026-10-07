@@ -131,6 +131,30 @@ class Config:
     })
 
     typosquatting_levenshtein_threshold: int = 2
+
+    # --- SNI mismatch ---
+    # Минимум flows с одинаковым SNI, чтобы сработать. 1 — срабатывать
+    # на первое же соединение. Можно поднять, если шумит.
+    sni_mismatch_min_flows: int = 1
+
+    # SNI, которые не проверяем на совпадение с DNS.
+    # DoH-сервисы — их SNI по определению не в DNS (это их работа).
+    # Легитимные трекеры/телеметрия, чьи DNS-запросы могут быть
+    # вне окна захвата.
+    sni_mismatch_allowlist: set[str] = field(default_factory=lambda: {
+        # DNS over HTTPS
+        "dns.google",
+        "cloudflare-dns.com",
+        "mozilla.cloudflare-dns.com",
+        "doh.opendns.com",
+        "dns.quad9.net",
+        "nextdns.io",
+        # Certificate / OCSP (часто идут до/после основного запроса)
+        "ocsp.digicert.com",
+        "ocsp.pki.goog",
+        "crl.microsoft.com",
+        "smartscreen.microsoft.com",
+    })
     # --- flow report ---
     flow_report_top_n: int = 100
 

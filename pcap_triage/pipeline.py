@@ -17,7 +17,7 @@ from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reporters.flow_report import build_flow_report
-
+from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные L0-экстракторы независимы, но будущие L2 (TLS/HTTP/SMB)
@@ -36,6 +36,7 @@ DETECTORS = [
     CloudTunnelDetector(),
     IPCheckServiceDetector(),
     TyposquattingDetector(),
+    SNIMismatchDetector(),
 ]
 
 
