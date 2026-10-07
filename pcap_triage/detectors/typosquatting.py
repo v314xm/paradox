@@ -63,6 +63,14 @@ class TyposquattingDetector:
         return findings
 
     def _is_legitimate(self, name: str, config: Config) -> bool:
+        # mDNS-зона (.local) — служебная, не DNS. Сюда попадают
+        # сервисные записи вроде _googlecast._tcp.local.
+        # Сейчас mDNS не парсится (порт 5353 не 53), но на будущее —
+        # когда вернём mDNS отдельным экстрактором — эта защита
+        # избавит от ложных срабатываний.
+        if name.endswith(".local"):
+            return True
+
         for legit in config.legitimate_brand_domains:
             if name == legit or name.endswith("." + legit):
                 return True

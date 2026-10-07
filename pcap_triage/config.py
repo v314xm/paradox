@@ -7,6 +7,12 @@ class Config:
     # --- DGA ---
     dga_entropy_threshold: float = 3.5
     dga_min_label_length: int = 12
+    # DGA по энтропии не отличает легитимный Azure VM
+    # (onedscolprdeus06.eastus.cloudapp.azure.com) от C2 на Azure
+    # (evil-abc123.cloudapp.azure.com). Allowlist убирает ложные
+    # срабатывания DGA, но НЕ означает доверие: такие домены
+    # проверяются другими детекторами (suspicious_port, beaconing)
+    # и threat intel.
     dga_allowlist: set[str] = field(default_factory=lambda: {
          "amazonaws.com",
         "cloudfront.net",
@@ -32,6 +38,8 @@ class Config:
         "ipify.org",
         "myexternalip.com",
         "checkip.amazonaws.com",
+        "cloudapp.azure.com",
+        "cloudapp.azure.com",
     })
 
     # --- suspicious ports ---
@@ -119,7 +127,7 @@ class Config:
         "facebook.com", "fb.com", "instagram.com", "whatsapp.com",
         "telegram.org", "paypal.com", "netflix.com",
         "office365.com", "windowsupdate.com", "update.microsoft.com",
-        "dropbox.com", "binance.com", "metamask.io", "coinbase.com",
+        "dropbox.com", "binance.com", "metamask.io", "coinbase.com", "msedge.net", "ax-msedge.net",
     })
 
     typosquatting_levenshtein_threshold: int = 2
