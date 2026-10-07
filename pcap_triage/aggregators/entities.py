@@ -7,7 +7,9 @@
 Роли:
   internal / external        — базовая классификация
   gateway_candidate          — internal с большим числом исходящих
-  victim_candidate           — internal с findings
+  victim_candidate           — internal, который жертва (brute_force dst,
+                               nxdomain_burst src, suspicious_port src)
+  attacker_candidate         — internal, который атакует (brute_force src)
   c2_candidate               — external с findings
 """
 from dataclasses import dataclass, field
@@ -64,7 +66,6 @@ class Entity:
             "sni_domains": sorted(self.sni_domains),
             "dns_names": sorted(self.dns_names),
             "findings_indices": list(self.findings_indices),
-            # зарезервировано — заполняется будущими экстракторами
             "mac": self.mac,
             "hostname": self.hostname,
             "username": self.username,
@@ -87,21 +88,14 @@ def _is_special_ip(ip: str) -> bool:
         return True
     if addr.is_multicast or addr.is_loopback or addr.is_link_local:
         return True
-    if addr.is_unspecified:
-        return True
-    if addr.is_reserved:
+    if addr.is_unspecified or addr.is_reserved:
         return True
     if str(addr) == "255.255.255.255":
         return True
-
-    # Сетевой и broadcast для /24 подсетей — не хосты.
-    # Часто встречается в приватных сетях: 192.168.1.0, 192.168.1.255.
-    # Точнее — через CIDR в config, но для /24 это покрывает 95% случаев.
     if addr.version == 4:
         last_octet = int(str(addr).rsplit(".", 1)[1])
         if last_octet == 0 or last_octet == 255:
             return True
-
     return False
 
 
@@ -114,31 +108,43 @@ def _touch_times(entity: Entity, ts: float | None) -> None:
         entity.last_seen = ts
 
 
-def _ip_from_finding(f: Finding) -> list[str]:
-    """Извлечь IP-адреса, к которым относится finding.
-
-    Возвращает список IP для привязки к сущностям.
-    Пока поддерживаются:
-      nxdomain_burst    — value = src_ip
-      suspicious_port   — evidence: dst_ip, src_ip
+def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
     """
-    ips: list[str] = []
+    Извлечь IP-адреса + указание стороны (src/dst) из finding.
+
+    Возвращает список (ip, side), где side = "src" или "dst".
+
+    Поддерживаются:
+      nxdomain_burst    — value = src_ip (сторона src)
+      suspicious_port   — value = "dst_ip:port" + evidence.src_ip
+      brute_force       — evidence.src_ip (attacker) + evidence.dst_ip (victim)
+    """
+    result: list[tuple[str, str]] = []
     ftype = f.type
     value = f.value or ""
 
     if ftype == "nxdomain_burst":
         if value:
-            ips.append(value)
+            result.append((value, "src"))
 
     elif ftype == "suspicious_port":
         if ":" in value:
             dst_ip = value.rsplit(":", 1)[0]
-            ips.append(dst_ip)
+            result.append((dst_ip, "dst"))
         src_ip = f.evidence.get("src_ip") if f.evidence else None
         if src_ip:
-            ips.append(src_ip)
+            result.append((src_ip, "src"))
 
-    return ips
+    elif ftype == "brute_force":
+        ev = f.evidence or {}
+        src_ip = ev.get("src_ip")
+        dst_ip = ev.get("dst_ip")
+        if src_ip:
+            result.append((src_ip, "src"))
+        if dst_ip:
+            result.append((dst_ip, "dst"))
+
+    return result
 
 
 def build_entities(
@@ -196,20 +202,32 @@ def build_entities(
             ent.dns_names.add(name)
 
     # --- findings ---
+    role_tags: dict[str, set[str]] = {}
+
     for idx, f in enumerate(findings):
-        for ip in _ip_from_finding(f):
+        for ip, side in _ips_from_finding(f):
             ent = get(ip)
-            if ent is not None and idx not in ent.findings_indices:
+            if ent is None:
+                continue
+            if idx not in ent.findings_indices:
                 ent.findings_indices.append(idx)
+            if f.type == "brute_force":
+                tags = role_tags.setdefault(ip, set())
+                tags.add("brute_force_src" if side == "src" else "brute_force_dst")
 
     # --- роли ---
     for ent in buckets.values():
         ent.roles.append("internal" if ent.is_internal else "external")
 
         has_findings = bool(ent.findings_indices)
+        tags = role_tags.get(ent.ip, set())
 
         if ent.is_internal:
-            if has_findings:
+            if "brute_force_src" in tags:
+                ent.roles.append("attacker_candidate")
+            if "brute_force_dst" in tags:
+                ent.roles.append("victim_candidate")
+            elif has_findings and "attacker_candidate" not in ent.roles:
                 ent.roles.append("victim_candidate")
             if (ent.flows_out >= config.gateway_min_flows
                     and len(ent.unique_dsts) >= config.gateway_min_unique_dsts):

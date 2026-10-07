@@ -77,11 +77,13 @@ class FlowStats:
     # None если первый пакет захвата — не SYN (mid-stream)
     initiated_by_src: bool | None = None
 
-    # протокол-специфичные поля — заполняются L2-экстракторами
+        # протокол-специфичные поля — заполняются L2-экстракторами
     sni: str | None = None
     ja3: str | None = None
     http_host: str | None = None
     http_user_agent: str | None = None
+    http_method: str | None = None
+    http_uri: str | None = None
 
     @property
     def duration(self) -> float:

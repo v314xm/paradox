@@ -19,7 +19,8 @@ from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reporters.flow_report import build_dns_report, build_flow_report
-
+from pcap_triage.detectors.brute_force import BruteForceDetector
+from pcap_triage.extractors.http import HTTPExtractor
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
@@ -27,6 +28,7 @@ EXTRACTORS = [
     FlowExtractor(),
     DNSExtractor(),
     TLSExtractor(),
+    HTTPExtractor(),
 ]
 
 # Порядок детекторов не важен — они независимы.
@@ -38,6 +40,7 @@ DETECTORS = [
     IPCheckServiceDetector(),
     TyposquattingDetector(),
     SNIMismatchDetector(),
+    BruteForceDetector(),
 ]
 
 

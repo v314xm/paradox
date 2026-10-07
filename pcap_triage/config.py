@@ -155,6 +155,14 @@ class Config:
         "crl.microsoft.com",
         "smartscreen.microsoft.com",
     })
+    # --- brute force ---
+    # Много коротких flows с одного src_ip к одной паре dst_ip:dst_port.
+    # Не срабатывает на: длинную сессию (много пакетов на flow),
+    # port scan (много портов, но по 1-3 пакета и разным dst_port).
+    brute_force_min_flows: int = 20
+    brute_force_max_avg_packets: int = 20
+    brute_force_min_unique_src_ports: int = 10
+
     # --- entities ---
     entities_top_n: int = 50
     gateway_min_flows: int = 50

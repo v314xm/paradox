@@ -145,7 +145,6 @@ def test_special_ips_excluded():
 
 def test_gateway_candidate_role():
     state = CaptureState()
-    # 60 flows к 15 разным dst — превышает пороги 50/10
     for i in range(60):
         dst = f"203.0.113.{i % 15 + 1}"
         _add_flow(state, "192.168.1.1", dst, 54000 + i, 443)
@@ -154,3 +153,54 @@ def test_gateway_candidate_role():
 
     gw = next(e for e in entities.internal if e.ip == "192.168.1.1")
     assert "gateway_candidate" in gw.roles
+
+
+# ---------- brute_force roles ----------
+
+def test_brute_force_creates_attacker_and_victim():
+    """brute_force finding → src_ip=attacker_candidate, dst_ip=victim_candidate."""
+    state = CaptureState()
+    findings = [Finding(
+        type="brute_force",
+        value="10.0.1.50 -> 192.168.1.12:80",
+        confidence=0.95,
+        evidence={
+            "src_ip": "10.0.1.50",
+            "dst_ip": "192.168.1.12",
+            "dst_port": 80,
+            "flow_count": 230,
+        },
+    )]
+
+    entities = build_entities(state, findings, Config())
+
+    attacker = next(e for e in entities.internal if e.ip == "10.0.1.50")
+    victim = next(e for e in entities.internal if e.ip == "192.168.1.12")
+
+    assert "attacker_candidate" in attacker.roles
+    assert "victim_candidate" in victim.roles
+    assert "attacker_candidate" not in victim.roles
+
+
+def test_suspicious_port_src_is_victim_not_attacker():
+    """suspicious_port → src_ip=victim_candidate (жертва стучится наружу)."""
+    state = CaptureState()
+    findings = [Finding(
+        type="suspicious_port",
+        value="203.0.113.66:4444",
+        confidence=0.5,
+        evidence={
+            "src_ip": "192.168.1.10",
+            "dst_ip": "203.0.113.66",
+            "dst_port": 4444,
+        },
+    )]
+
+    entities = build_entities(state, findings, Config())
+
+    victim = next(e for e in entities.internal if e.ip == "192.168.1.10")
+    c2 = next(e for e in entities.external if e.ip == "203.0.113.66")
+
+    assert "victim_candidate" in victim.roles
+    assert "attacker_candidate" not in victim.roles
+    assert "c2_candidate" in c2.roles
