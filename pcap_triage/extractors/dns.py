@@ -1,3 +1,5 @@
+from collections import Counter
+
 from scapy.layers.dns import DNS
 
 from pcap_triage.models import CaptureState
@@ -38,7 +40,23 @@ class DNSExtractor:
             return
 
         state.dns_queries[name] += 1
+
+        # DNS по источнику: клиент — тот, кто спрашивал.
+        # Если src_port == 53 — это ответ, клиент = dst_ip.
+        # Иначе клиент = src_ip.
+        if record.src_port == 53:
+            client_ip = record.dst_ip
+        else:
+            client_ip = record.src_ip
+
+        if client_ip:
+            bucket = state.dns_queries_by_src.get(client_ip)
+            if bucket is None:
+                bucket = Counter()
+                state.dns_queries_by_src[client_ip] = bucket
+            bucket[name] += 1
+
         if dns.rcode == 3:  # NXDOMAIN
             state.dns_nxdomain[name] += 1
-            if record.src_ip:
-                state.dns_nxdomain_by_src[record.src_ip] += 1
+            if client_ip:
+                state.dns_nxdomain_by_src[client_ip] += 1

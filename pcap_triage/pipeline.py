@@ -4,11 +4,13 @@ from pathlib import Path
 from scapy.utils import RawPcapReader
 
 from pcap_triage import __version__
+from pcap_triage.aggregators.entities import build_entities
 from pcap_triage.config import Config
 from pcap_triage.detectors.cloud_tunnel import CloudTunnelDetector
 from pcap_triage.detectors.dga import DGADetector
 from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
 from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
+from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
 from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
 from pcap_triage.detectors.typosquatting import TyposquattingDetector
 from pcap_triage.extractors.dns import DNSExtractor
@@ -17,13 +19,12 @@ from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reporters.flow_report import build_flow_report
-from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
+
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
-# остальные L0-экстракторы независимы, но будущие L2 (TLS/HTTP/SMB)
-# будут искать существующий FlowStats по FlowKey и падать, если его нет.
+# остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
 EXTRACTORS = [
-    FlowExtractor(),   # ДОЛЖЕН идти первым: TLSExtractor пишет в его flows
+    FlowExtractor(),
     DNSExtractor(),
     TLSExtractor(),
 ]
@@ -103,15 +104,45 @@ def _detect(state: CaptureState, config: Config):
     return findings
 
 
+def _summarize_direction(state: CaptureState, config: Config) -> dict:
+    """Суммы байт по направлениям: uploaded / downloaded / internal."""
+    from pcap_triage.net_utils import classify_direction
+
+    uploaded = 0     # internal → external
+    downloaded = 0   # external → internal
+    internal = 0     # internal → internal
+    external = 0     # external → external
+
+    for key, flow in state.flows.items():
+        direction = classify_direction(key.src_ip, key.dst_ip, config)
+        if direction == "outbound":
+            uploaded += flow.bytes_sent
+        elif direction == "inbound":
+            downloaded += flow.bytes_sent
+        elif direction == "internal":
+            internal += flow.bytes_sent
+        else:
+            external += flow.bytes_sent
+
+    return {
+        "uploaded_bytes": uploaded,
+        "downloaded_bytes": downloaded,
+        "internal_bytes": internal,
+        "external_bytes": external,
+    }
+
+
 def run_pipeline(pcap_path: Path, config: Config) -> dict:
     state = CaptureState()
 
     _extract(pcap_path, state)
     findings = _detect(state, config)
-    flow_report = build_flow_report(state, top_n=config.flow_report_top_n)
+    flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
+    entities = build_entities(state, findings, config)
+    direction_summary = _summarize_direction(state, config)
 
     return {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "provenance": {
             "tool_version": __version__,
             "pcap_path": str(pcap_path),
@@ -124,6 +155,11 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
             "flows": len(state.flows),
             "findings": len(findings),
             "extractor_errors": dict(state.extractor_errors),
+            **direction_summary,
+        },
+        "entities": {
+            "internal": [e.to_dict() for e in entities.internal],
+            "external": [e.to_dict() for e in entities.external],
         },
         "flows": flow_report,
         "findings": [f.to_dict() for f in findings],

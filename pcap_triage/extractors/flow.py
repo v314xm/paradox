@@ -2,6 +2,11 @@ from pcap_triage.models import CaptureState, FlowKey, FlowStats
 from pcap_triage.parsers import PacketRecord
 
 
+# флаги TCP
+TCP_FLAG_SYN = 0x02
+TCP_FLAG_ACK = 0x10
+
+
 class FlowExtractor:
     name = "flow"
     layer = 0
@@ -22,7 +27,8 @@ class FlowExtractor:
         )
 
         flow = state.flows.get(key)
-        if flow is None:
+        is_new = flow is None
+        if is_new:
             flow = FlowStats()
             state.flows[key] = flow
 
@@ -34,6 +40,13 @@ class FlowExtractor:
         if flow.first_ts is None:
             flow.first_ts = ts
         flow.last_ts = ts
+
+        # определяем инициатора по первому SYN без ACK
+        if is_new and flow.initiated_by_src is None:
+            if record.proto == "tcp" and record.tcp_flags is not None:
+                flags = record.tcp_flags
+                if (flags & TCP_FLAG_SYN) and not (flags & TCP_FLAG_ACK):
+                    flow.initiated_by_src = True
 
         if state.first_ts is None:
             state.first_ts = ts

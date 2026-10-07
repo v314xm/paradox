@@ -1,21 +1,33 @@
+from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from pcap_triage.net_utils import classify_direction
 
 
-def _flow_to_dict(key: FlowKey, flow: FlowStats) -> dict:
+def _flow_to_dict(
+    key: FlowKey,
+    flow: FlowStats,
+    state: CaptureState,
+    config: Config,
+) -> dict:
+    from pcap_triage.models import get_session_sni
+
     d = {
         "proto": key.proto,
         "src_ip": key.src_ip,
         "src_port": key.src_port,
         "dst_ip": key.dst_ip,
         "dst_port": key.dst_port,
+        "direction": classify_direction(key.src_ip, key.dst_ip, config),
         "packets": flow.packets,
         "bytes": flow.bytes_sent,
         "duration": round(flow.duration, 6),
         "first_ts": flow.first_ts,
         "last_ts": flow.last_ts,
     }
-    if flow.sni:
-        d["sni"] = flow.sni
+
+    sni = get_session_sni(key, flow, state)
+    if sni:
+        d["sni"] = sni
     if flow.ja3:
         d["ja3"] = flow.ja3
     if flow.http_host:
@@ -47,8 +59,15 @@ def _sort_key_packets(f: dict) -> tuple:
     )
 
 
-def build_flow_report(state: CaptureState, top_n: int = 100) -> dict:
-    all_flows = [_flow_to_dict(k, v) for k, v in state.flows.items()]
+def build_flow_report(
+    state: CaptureState,
+    config: Config,
+    top_n: int = 100,
+) -> dict:
+    all_flows = [
+        _flow_to_dict(k, v, state, config)
+        for k, v in state.flows.items()
+    ]
 
     by_bytes = sorted(all_flows, key=_sort_key_bytes)[:top_n]
     by_packets = sorted(all_flows, key=_sort_key_packets)[:top_n]

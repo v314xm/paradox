@@ -1,6 +1,7 @@
 from pcap_triage.models import CaptureState, FlowKey
 from pcap_triage.parsers import PacketRecord
 from pcap_triage.tls_parse import extract_sni
+from pcap_triage.models import CaptureState, FlowKey, make_session_key
 
 
 class TLSExtractor:
@@ -59,6 +60,9 @@ class TLSExtractor:
                 f"no flow for key {key}"
             )
 
-        # не перезаписываем, если уже установлен
+        # пишем и в flow, и в сессию (для обратного направления)
         if flow.sni is None:
             flow.sni = sni
+        sk = make_session_key(key)
+        if sk not in state.session_sni:
+            state.session_sni[sk] = sni

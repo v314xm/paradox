@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pcap_triage.config import Config
 from pcap_triage.pipeline import run_pipeline
-from pcap_triage.reporters.json_reporter import write_json
+from pcap_triage.reporters.json_reporter import write_json, write_markdown
 
 
 def _ask_pcap_path() -> Path:
@@ -46,9 +46,13 @@ def main(argv: list[str] | None = None) -> None:
 
     config = Config()
     report = run_pipeline(pcap_path, config)
+
     safe_name = pcap_path.name.replace(".", "_")[:80]
     out = args.output or (config.output_dir / f"{safe_name}.report.json")
     write_json(report, out)
+
+    md_out = out.with_suffix(".md")
+    write_markdown(report, md_out)
 
     s = report["summary"]
     print()
@@ -59,4 +63,5 @@ def main(argv: list[str] | None = None) -> None:
     print(f"findings:           {s['findings']}")
     if s["extractor_errors"]:
         print(f"extractor errors:   {s['extractor_errors']}")
-    print(f"report:             {out}")
+    print(f"report JSON:        {out}")
+    print(f"report Markdown:    {md_out}")

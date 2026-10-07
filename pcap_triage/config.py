@@ -155,8 +155,13 @@ class Config:
         "crl.microsoft.com",
         "smartscreen.microsoft.com",
     })
+    # --- entities ---
+    entities_top_n: int = 50
+    gateway_min_flows: int = 50
+    gateway_min_unique_dsts: int = 10
+
     # --- flow report ---
-    flow_report_top_n: int = 100
+    flow_report_top_n: int = 500
 
     # --- output ---
     output_dir: Path = Path("reports")
