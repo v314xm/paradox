@@ -46,8 +46,8 @@ def main(argv: list[str] | None = None) -> None:
 
     config = Config()
     report = run_pipeline(pcap_path, config)
-
-    out = args.output or (config.output_dir / f"{pcap_path.stem}.report.json")
+    safe_name = pcap_path.name.replace(".", "_")[:80]
+    out = args.output or (config.output_dir / f"{safe_name}.report.json")
     write_json(report, out)
 
     s = report["summary"]

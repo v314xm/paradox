@@ -69,6 +69,28 @@ def test_dga_ignores_short_label():
     assert findings == []
 
 
+def test_dga_ignores_label_with_hyphen():
+    """Регрессия с реального pcap: safebrowsing-cache.google.com
+    не должен ловиться как DGA, несмотря на высокую энтропию."""
+    state = CaptureState()
+    state.dns_queries["safebrowsing-cache.google.com"] = 294
+
+    findings = DGADetector().run(state, Config())
+
+    assert findings == []
+
+
+def test_dga_still_detects_no_hyphen_dga():
+    """Гипотетический DGA без дефисов всё ещё ловится."""
+    state = CaptureState()
+    state.dns_queries["kq3jf9zxqp1mwv7n.ru"] = 1
+
+    findings = DGADetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].type == "dga_domain"
+
+
 # ---------- SuspiciousPortDetector ----------
 
 def test_suspicious_port_detects_4444():

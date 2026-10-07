@@ -8,12 +8,13 @@ class Config:
     dga_entropy_threshold: float = 3.5
     dga_min_label_length: int = 12
     dga_allowlist: set[str] = field(default_factory=lambda: {
-        "amazonaws.com",
+         "amazonaws.com",
         "cloudfront.net",
         "azureedge.net",
         "akamaiedge.net",
         "googleusercontent.com",
         "windowsupdate.com",
+        "google.com",           # ← добавили
         # cloud tunnels — легитимные поддомены, но энтропия высокая
         "trycloudflare.com",
         "ngrok.io",

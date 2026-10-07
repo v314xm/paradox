@@ -24,7 +24,14 @@ class DGADetector:
                 continue
 
             label = name.split(".")[0]
+
             if len(label) < config.dga_min_label_length:
+                continue
+
+            # DGA-домены почти никогда не содержат дефисов.
+            # Дефис — признак человекочитаемого домена
+            # (safebrowsing-cache.google.com и т.п.).
+            if "-" in label:
                 continue
 
             entropy = shannon_entropy(label)
