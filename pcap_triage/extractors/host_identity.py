@@ -36,10 +36,14 @@ class HostIdentityExtractor:
     def _set_mac(
         self, state: CaptureState, ip: str, mac: str, overwrite: bool,
     ) -> None:
+        # пропускаем невалидные IP (DHCP-запросы идут с 0.0.0.0)
+        if not ip or ip == "0.0.0.0":
+            return
+        # пропускаем broadcast/multicast MAC
         if not mac or mac in ("00:00:00:00:00:00", "ff:ff:ff:ff:ff:ff"):
             return
         if mac.startswith("01:00:5e") or mac.startswith("33:33"):
-            return  # multicast
+            return
 
         ident = state.host_identities.get(ip)
         if ident is None:

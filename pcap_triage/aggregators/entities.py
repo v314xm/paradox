@@ -222,11 +222,7 @@ def build_entities(
         for name in counter.keys():
             ent.dns_names.add(name)
 
-    # --- host identity: MAC ---
-    for ip, ident in state.host_identities.items():
-        ent = get(ip)
-        if ent is not None and ident.mac:
-            ent.mac = ident.mac
+
 
 
     # --- findings ---
@@ -244,6 +240,16 @@ def build_entities(
                 tags.add("brute_force_src" if side == "src" else "brute_force_dst")
             elif f.type in ("vulnerable_path", "script_download"):
                 tags.add("attack_src" if side == "src" else "attack_dst")
+
+        # --- host identity: MAC + hostname ---
+    for ip, ident in state.host_identities.items():
+        ent = get(ip)
+        if ent is None:
+            continue
+        if ident.mac:
+            ent.mac = ident.mac
+        if ident.hostnames:
+            ent.hostname = sorted(ident.hostnames)[0]
 
     # --- роли ---
     for ent in buckets.values():
@@ -277,6 +283,7 @@ def build_entities(
                 ent.roles.append("attacker_candidate")
             elif has_findings:
                 ent.roles.append("c2_candidate")
+
 
     # --- сортировка и разделение ---
     internal = sorted(
