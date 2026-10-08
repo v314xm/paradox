@@ -163,6 +163,44 @@ class Config:
     brute_force_max_avg_packets: int = 20
     brute_force_min_unique_src_ports: int = 10
 
+    # --- vulnerable paths ---
+    # Подстроки в http_uri. Если URI содержит одну из них — finding.
+    # Сигнал: обращение к известной уязвимой точке (сканер, эксплуатация,
+    # либо легитимная работа с устаревшим плагином — решать аналитику).
+    # ВАЖНО: расширения скриптов здесь НЕ дублируем — они в
+    # suspicious_download_extensions ниже.
+    vulnerable_paths: dict[str, str] = field(default_factory=lambda: {
+        # WordPress-плагины с известными CVE
+        "wp-content/plugins/post-content-shortcodes": "WP post-content-shortcodes",
+        "wp-content/plugins/revslider": "Revslider RCE",
+        "wp-content/plugins/contact-form-7": "CF7 arbitrary file upload",
+        "wp-content/plugins/woocommerce": "WooCommerce",
+        "wp-content/plugins/elementor": "Elementor",
+        "wp-content/plugins/wp-file-manager": "WP File Manager RCE",
+        "wp-content/plugins/duplicator": "Duplicator path traversal",
+        # Управление WordPress
+        "wp-login.php": "WP login",
+        "wp-admin/": "WP admin",
+        "xmlrpc.php": "WP xmlrpc pingback",
+        # Утечки
+        "/.env": "dotenv exposure",
+        "/.git/": "git repo leak",
+        "/.aws/credentials": "AWS credentials",
+        "/phpmyadmin/": "phpMyAdmin",
+        "/phpinfo.php": "phpinfo leak",
+        "/cgi-bin/": "CGI",
+    })
+
+    # --- suspicious download extensions ---
+    # Расширения, скачивание которых — отдельный сигнал script_download.
+    # Проверяются в VulnerablePathDetector, если URI не совпал
+    # ни с одним vulnerable_path.
+    suspicious_download_extensions: set[str] = field(default_factory=lambda: {
+        ".ps1", ".vbs", ".hta", ".js", ".jar", ".sh",
+        ".exe", ".dll", ".scr", ".iso", ".img", ".lnk",
+    })
+
+
     # --- entities ---
     entities_top_n: int = 50
     gateway_min_flows: int = 50

@@ -462,3 +462,128 @@ def test_sni_mismatch_separate_sni():
     assert len(findings) == 2
     values = sorted(f.value for f in findings)
     assert values == ["c2-a.evil.com", "c2-b.evil.com"]
+
+    # ---------- VulnerablePathDetector ----------
+
+
+def test_vulnerable_path_wp_plugin():
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.50.3.8", dst_ip="10.100.18.5",
+        src_port=49510, dst_port=80,
+    )
+    fs = FlowStats(packets=1, bytes_sent=25500)
+    fs.http_uri = "/wp-content/plugins/post-content-shortcodes/styles/default-styles.css"
+    fs.http_host = "nasledie.samregion.ru"
+    fs.http_method = "GET"
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].type == "vulnerable_path"
+    assert findings[0].evidence["matched_paths"][0]["path"] == \
+           "wp-content/plugins/post-content-shortcodes"
+
+
+def test_vulnerable_path_script_download_ps1():
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.0.1.50", dst_ip="192.168.1.1",
+        src_port=54000, dst_port=80,
+    )
+    fs = FlowStats(packets=1, bytes_sent=500)
+    fs.http_uri = "/watch_movie.ps1"
+    fs.http_host = "10.0.1.152"
+    fs.http_method = "GET"
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].type in ("vulnerable_path", "script_download")
+    assert findings[0].value == "/watch_movie.ps1"
+
+
+def test_vulnerable_path_script_download_sh():
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.0.1.50", dst_ip="10.0.1.152",
+        src_port=55000, dst_port=80,
+    )
+    fs = FlowStats(packets=1, bytes_sent=500)
+    fs.http_uri = "/ftp_update.sh"
+    fs.http_host = "10.0.1.152"
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].type == "script_download"
+    assert findings[0].evidence["extension"] == ".sh"
+
+
+def test_vulnerable_path_ignores_normal_uri():
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.0.1.50", dst_ip="8.8.8.8",
+        src_port=54000, dst_port=80,
+    )
+    fs = FlowStats(packets=1, bytes_sent=500)
+    fs.http_uri = "/api/v1/users"
+    fs.http_host = "example.com"
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert findings == []
+
+
+def test_vulnerable_path_ignores_no_uri():
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.0.1.50", dst_ip="8.8.8.8",
+        src_port=54000, dst_port=443,
+    )
+    fs = FlowStats(packets=1, bytes_sent=500)
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert findings == []
+
+
+def test_vulnerable_path_queries_in_uri():
+    """Расширение с ?query — тоже должно ловиться."""
+    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="10.0.1.50", dst_ip="8.8.8.8",
+        src_port=54000, dst_port=80,
+    )
+    fs = FlowStats(packets=1, bytes_sent=500)
+    fs.http_uri = "/script.ps1?param=1"
+    fs.http_host = "example.com"
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].type == "script_download"
