@@ -118,6 +118,8 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
       nxdomain_burst    — value = src_ip (сторона src)
       suspicious_port   — value = "dst_ip:port" + evidence.src_ip
       brute_force       — evidence.src_ip (attacker) + evidence.dst_ip (victim)
+      vulnerable_path   — evidence.src_ip + evidence.dst_ip
+      script_download   — evidence.src_ip + evidence.dst_ip
     """
     result: list[tuple[str, str]] = []
     ftype = f.type
@@ -135,7 +137,7 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
         if src_ip:
             result.append((src_ip, "src"))
 
-    elif ftype == "brute_force":
+    elif ftype in ("brute_force", "vulnerable_path", "script_download"):
         ev = f.evidence or {}
         src_ip = ev.get("src_ip")
         dst_ip = ev.get("dst_ip")
@@ -145,6 +147,7 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
             result.append((dst_ip, "dst"))
 
     return result
+
 
 
 def build_entities(
@@ -211,9 +214,11 @@ def build_entities(
                 continue
             if idx not in ent.findings_indices:
                 ent.findings_indices.append(idx)
+            tags = role_tags.setdefault(ip, set())
             if f.type == "brute_force":
-                tags = role_tags.setdefault(ip, set())
                 tags.add("brute_force_src" if side == "src" else "brute_force_dst")
+            elif f.type in ("vulnerable_path", "script_download"):
+                tags.add("attack_src" if side == "src" else "attack_dst")
 
     # --- роли ---
     for ent in buckets.values():
@@ -223,9 +228,9 @@ def build_entities(
         tags = role_tags.get(ent.ip, set())
 
         if ent.is_internal:
-            if "brute_force_src" in tags:
+            if "brute_force_src" in tags or "attack_src" in tags:
                 ent.roles.append("attacker_candidate")
-            if "brute_force_dst" in tags:
+            if "brute_force_dst" in tags or "attack_dst" in tags:
                 ent.roles.append("victim_candidate")
             elif has_findings and "attacker_candidate" not in ent.roles:
                 ent.roles.append("victim_candidate")
@@ -233,7 +238,9 @@ def build_entities(
                     and len(ent.unique_dsts) >= config.gateway_min_unique_dsts):
                 ent.roles.append("gateway_candidate")
         else:
-            if has_findings:
+            if "attack_src" in tags:
+                ent.roles.append("attacker_candidate")
+            elif has_findings:
                 ent.roles.append("c2_candidate")
 
     # --- сортировка и разделение ---
