@@ -48,6 +48,7 @@ class Entity:
     mac: str | None = None
     hostname: str | None = None
     username: str | None = None
+    realm: str | None = None
     asn: str | None = None
     country: str | None = None
 
@@ -73,6 +74,7 @@ class Entity:
             "mac": self.mac,
             "hostname": self.hostname,
             "username": self.username,
+            "realm": self.realm,
             "asn": self.asn,
             "country": self.country,
         }
@@ -237,19 +239,38 @@ def build_entities(
                 ent.findings_indices.append(idx)
             tags = role_tags.setdefault(ip, set())
             if f.type == "brute_force":
-                tags.add("brute_force_src" if side == "src" else "brute_force_dst")
-            elif f.type in ("vulnerable_path", "script_download"):
-                tags.add("attack_src" if side == "src" else "attack_dst")
+                # src = атакующий, dst = цель
+                if side == "src":
+                    tags.add("attacker_tag")
+                else:
+                    tags.add("victim_tag")
+            elif f.type == "vulnerable_path":
+                # src = сканер (attacker), dst = цель (victim)
+                if side == "src":
+                    tags.add("attacker_tag")
+                else:
+                    tags.add("victim_tag")
+            elif f.type == "script_download":
+                # ИНВЕРТИРОВАНО: src = жертва (качает payload),
+                # dst = источник malware (attacker)
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
 
-        # --- host identity: MAC + hostname ---
-    for ip, ident in state.host_identities.items():
-        ent = get(ip)
-        if ent is None:
-            continue
-        if ident.mac:
-            ent.mac = ident.mac
-        if ident.hostnames:
-            ent.hostname = sorted(ident.hostnames)[0]
+        # --- host identity: MAC + hostname + username + realm ---
+        for ip, ident in state.host_identities.items():
+            ent = get(ip)
+            if ent is None:
+                continue
+            if ident.mac:
+                ent.mac = ident.mac
+            if ident.hostnames:
+                ent.hostname = sorted(ident.hostnames)[0]
+            if ident.username:
+                ent.username = ident.username
+            if ident.realm:
+                ent.realm = ident.realm
 
     # --- роли ---
     for ent in buckets.values():
@@ -264,12 +285,12 @@ def build_entities(
                     and len(ent.service_unique_srcs) >= config.dc_min_unique_srcs):
                 ent.roles.append("domain_controller")
 
-            # 2. Роли по findings
-            elif "brute_force_src" in tags or "attack_src" in tags:
+            # 2. Роли по findings — семантические теги
+            elif "attacker_tag" in tags:
                 ent.roles.append("attacker_candidate")
-            elif "brute_force_dst" in tags or "attack_dst" in tags:
+            elif "victim_tag" in tags:
                 ent.roles.append("victim_candidate")
-            elif has_findings and "attacker_candidate" not in ent.roles:
+            elif has_findings:
                 ent.roles.append("victim_candidate")
 
             # 3. Gateway — только если не DC и не attacker
@@ -279,7 +300,7 @@ def build_entities(
                     and len(ent.unique_dsts) >= config.gateway_min_unique_dsts):
                 ent.roles.append("gateway_candidate")
         else:
-            if "attack_src" in tags:
+            if "attacker_tag" in tags:
                 ent.roles.append("attacker_candidate")
             elif has_findings:
                 ent.roles.append("c2_candidate")

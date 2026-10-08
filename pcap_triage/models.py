@@ -3,18 +3,24 @@ from dataclasses import dataclass, field, asdict
 from typing import Any
 
 
+
+
 @dataclass
 class HostIdentity:
-    """Профиль хоста: IP ↔ MAC ↔ hostname."""
+    """Профиль хоста: IP ↔ MAC ↔ hostname ↔ username ↔ realm."""
     ip: str
     mac: str | None = None
     hostnames: set[str] = field(default_factory=set)
+    username: str | None = None
+    realm: str | None = None
 
     def to_dict(self) -> dict:
         return {
             "ip": self.ip,
             "mac": self.mac,
             "hostnames": sorted(self.hostnames),
+            "username": self.username,
+            "realm": self.realm,
         }
 
 @dataclass

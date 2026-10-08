@@ -1,13 +1,15 @@
 """
-HostIdentityExtractor — связывает IP ↔ MAC.
+HostIdentityExtractor — IP ↔ MAC.
 
-Источники:
-  1. ARP — авторитетный. arp_sender_mac ↔ arp_sender_ip.
-  2. Ethernet IPv4 — fallback. eth_src ↔ src_ip.
-     (В routed-сетях eth_src — MAC шлюза, поэтому fallback слабее.)
+Источник: только ARP. Это авторитетный источник —
+arp_sender_ip ↔ arp_sender_mac.
 
-Приоритет: ARP перезаписывает fallback. Fallback не перезаписывает
-уже установленный MAC.
+Fallback из Ethernet (eth_src ↔ src_ip) НЕ используется:
+в routed-сетях eth_src — MAC шлюза, а не хоста. Это приводило
+к тому, что один MAC (шлюза) записывался на десятки IP.
+
+Если MAC не найден в ARP — оставляем None. Это честнее, чем
+неверный MAC.
 """
 from pcap_triage.models import CaptureState, HostIdentity
 from pcap_triage.parsers import PacketRecord
@@ -18,23 +20,17 @@ class HostIdentityExtractor:
     layer = 0
 
     def process(self, record: PacketRecord, state: CaptureState) -> None:
-        # ARP — авторитетный источник
-        if record.proto == "arp":
-            if record.arp_sender_ip and record.arp_sender_mac:
-                self._set_mac(
-                    state, record.arp_sender_ip, record.arp_sender_mac,
-                    overwrite=True,
-                )
+        if record.proto != "arp":
+            return
+        if not record.arp_sender_ip or not record.arp_sender_mac:
             return
 
-        # Fallback: Ethernet src MAC для IPv4-пакета
-        if record.src_ip and record.eth_src:
-            self._set_mac(
-                state, record.src_ip, record.eth_src, overwrite=False,
-            )
+        self._set_mac(
+            state, record.arp_sender_ip, record.arp_sender_mac,
+        )
 
     def _set_mac(
-        self, state: CaptureState, ip: str, mac: str, overwrite: bool,
+        self, state: CaptureState, ip: str, mac: str,
     ) -> None:
         # пропускаем невалидные IP (DHCP-запросы идут с 0.0.0.0)
         if not ip or ip == "0.0.0.0":
@@ -50,5 +46,5 @@ class HostIdentityExtractor:
             ident = HostIdentity(ip=ip)
             state.host_identities[ip] = ident
 
-        if ident.mac is None or overwrite:
-            ident.mac = mac
+        # ARP — авторитетный, всегда перезаписываем
+        ident.mac = mac

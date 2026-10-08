@@ -28,7 +28,7 @@ from pcap_triage.extractors.http import HTTPExtractor
 from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
 from pcap_triage.extractors.host_identity import HostIdentityExtractor
 from pcap_triage.extractors.nbns import NBNSExtractor
-
+from pcap_triage.extractors.kerberos import KerberosExtractor
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
@@ -39,6 +39,7 @@ EXTRACTORS = [
     HTTPExtractor(),
     HostIdentityExtractor(),
     NBNSExtractor(),
+    KerberosExtractor(),
 ]
 
 # Порядок детекторов не важен — они независимы.
