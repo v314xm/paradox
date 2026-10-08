@@ -222,6 +222,13 @@ def build_entities(
         for name in counter.keys():
             ent.dns_names.add(name)
 
+    # --- host identity: MAC ---
+    for ip, ident in state.host_identities.items():
+        ent = get(ip)
+        if ent is not None and ident.mac:
+            ent.mac = ident.mac
+
+
     # --- findings ---
     role_tags: dict[str, set[str]] = {}
 

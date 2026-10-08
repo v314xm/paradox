@@ -4,6 +4,20 @@ from typing import Any
 
 
 @dataclass
+class HostIdentity:
+    """Профиль хоста: IP ↔ MAC ↔ hostname."""
+    ip: str
+    mac: str | None = None
+    hostnames: set[str] = field(default_factory=set)
+
+    def to_dict(self) -> dict:
+        return {
+            "ip": self.ip,
+            "mac": self.mac,
+            "hostnames": sorted(self.hostnames),
+        }
+
+@dataclass
 class Finding:
     type: str
     value: str
@@ -119,6 +133,9 @@ class CaptureState:
 
     # заготовка под rate limit VT
     enrichment_budget_exhausted: bool = False
+
+    # IP → HostIdentity (MAC, hostname)
+    host_identities: dict[str, HostIdentity] = field(default_factory=dict)
 
 
 def get_session_sni(

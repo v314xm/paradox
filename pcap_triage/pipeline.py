@@ -26,6 +26,7 @@ from pcap_triage.reporters.flow_report import (
 from pcap_triage.detectors.brute_force import BruteForceDetector
 from pcap_triage.extractors.http import HTTPExtractor
 from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+from pcap_triage.extractors.host_identity import HostIdentityExtractor
 
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
@@ -35,6 +36,7 @@ EXTRACTORS = [
     DNSExtractor(),
     TLSExtractor(),
     HTTPExtractor(),
+    HostIdentityExtractor(),
 ]
 
 # Порядок детекторов не важен — они независимы.
