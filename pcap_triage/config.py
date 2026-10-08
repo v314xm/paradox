@@ -199,7 +199,19 @@ class Config:
         ".ps1", ".vbs", ".hta", ".js", ".jar", ".sh",
         ".exe", ".dll", ".scr", ".iso", ".img", ".lnk",
     })
-
+    # --- domain controller detection ---
+    # Порты, по которым определяем DC.
+    dc_service_ports: set[int] = field(default_factory=lambda: {
+        88,    # Kerberos
+        389,   # LDAP
+        445,   # SMB
+        3268,  # LDAP Global Catalog
+        636,   # LDAPS
+    })
+    # Сколько сервисных flows к хосту, чтобы считать его DC.
+    dc_min_service_flows: int = 20
+    # От скольки разных внутренних src.
+    dc_min_unique_srcs: int = 1
 
     # --- entities ---
     entities_top_n: int = 50

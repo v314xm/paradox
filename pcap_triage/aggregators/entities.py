@@ -39,7 +39,9 @@ class Entity:
 
     sni_domains: set[str] = field(default_factory=set)
     dns_names: set[str] = field(default_factory=set)
-
+    # статистика для роли domain_controller
+    service_flows_in: int = 0                     # flows на порты DC
+    service_unique_srcs: set[str] = field(default_factory=set)
     findings_indices: list[int] = field(default_factory=list)
 
     # --- зарезервировано под будущие экстракторы ---
@@ -66,6 +68,8 @@ class Entity:
             "sni_domains": sorted(self.sni_domains),
             "dns_names": sorted(self.dns_names),
             "findings_indices": list(self.findings_indices),
+            "service_flows_in": self.service_flows_in,
+            "service_unique_srcs": sorted(self.service_unique_srcs),
             "mac": self.mac,
             "hostname": self.hostname,
             "username": self.username,
@@ -184,6 +188,20 @@ def build_entities(
             _touch_times(dst, flow.first_ts)
             _touch_times(dst, flow.last_ts)
 
+    # --- сервисный трафик к DC: порты 88, 389, 445, 3268, 636 ---
+    dc_ports = config.dc_service_ports
+    for key, flow in state.flows.items():
+        if key.dst_port not in dc_ports:
+            continue
+        dst = get(key.dst_ip)
+        src = get(key.src_ip)
+        if dst is None or src is None:
+            continue
+        if not src.is_internal:
+            continue
+        dst.service_flows_in += 1
+        dst.service_unique_srcs.add(key.src_ip)
+
     # --- SNI: пишем обоим концам (через session_sni) ---
     from pcap_triage.models import get_session_sni
 
@@ -228,13 +246,23 @@ def build_entities(
         tags = role_tags.get(ent.ip, set())
 
         if ent.is_internal:
-            if "brute_force_src" in tags or "attack_src" in tags:
+            # 1. Приоритет: DC
+            if (ent.service_flows_in >= config.dc_min_service_flows
+                    and len(ent.service_unique_srcs) >= config.dc_min_unique_srcs):
+                ent.roles.append("domain_controller")
+
+            # 2. Роли по findings
+            elif "brute_force_src" in tags or "attack_src" in tags:
                 ent.roles.append("attacker_candidate")
-            if "brute_force_dst" in tags or "attack_dst" in tags:
+            elif "brute_force_dst" in tags or "attack_dst" in tags:
                 ent.roles.append("victim_candidate")
             elif has_findings and "attacker_candidate" not in ent.roles:
                 ent.roles.append("victim_candidate")
-            if (ent.flows_out >= config.gateway_min_flows
+
+            # 3. Gateway — только если не DC и не attacker
+            if ("domain_controller" not in ent.roles
+                    and "attacker_candidate" not in ent.roles
+                    and ent.flows_out >= config.gateway_min_flows
                     and len(ent.unique_dsts) >= config.gateway_min_unique_dsts):
                 ent.roles.append("gateway_candidate")
         else:
