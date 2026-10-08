@@ -32,7 +32,16 @@
 - [x] P0 SNI — проверен на MTA 2025-06-13, совпадает
       с Wireshark (windows.php.net), false positive ревьюера
       (спутал Host HTTP с SNI TLS)
-
+## Сделано (продолжение)
+- [x] P0 SNI — false positive ревьюера, проверено Wireshark
+- [x] C. Классификация DC / victim / attacker
+- [x] B. HostIdentityExtractor (ARP + Ethernet) + NBNSExtractor
+## Следующее
+- [ ] A. KerberosExtractor (username, realm, msg_type)
+- [ ] False positive: `footprintdns.com` в dga_allowlist
+- [ ] False positive: brute_force игнорирует порты DC (88, 389, 445, 3268, 636)
+- [ ] Семантика attack_src для script_download (жертва ≠ attacker)
+- 
 ## В работе
 - [ ] (ничего не начато)
 
