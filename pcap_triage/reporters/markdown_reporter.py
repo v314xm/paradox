@@ -227,6 +227,16 @@ def _render_entities(entities: dict) -> list[str]:
             bi = _fmt_bytes(e.get("bytes_in", 0))
             lines.append(f"  {fo} flows out · {fi} in · ↓ {bi} · ↑ {bo}  ")
 
+            mac = e.get("mac")
+            hostname = e.get("hostname")
+            if mac or hostname:
+                parts = []
+                if hostname:
+                    parts.append(f"hostname: `{hostname}`")
+                if mac:
+                    parts.append(f"MAC: `{mac}`")
+                lines.append("  " + " · ".join(parts) + "  ")
+
             sni = e.get("sni_domains", [])
             if sni:
                 shown = ", ".join(f"`{d}`" for d in sni[:5])
@@ -260,6 +270,16 @@ def _render_entities(entities: dict) -> list[str]:
             bi = _fmt_bytes(e.get("bytes_in", 0))
             bo = _fmt_bytes(e.get("bytes_out", 0))
             lines.append(f"  {fi} flows in · {fo} out · ↓ {bi} · ↑ {bo}  ")
+
+            mac = e.get("mac")
+            hostname = e.get("hostname")
+            if mac or hostname:
+                parts = []
+                if hostname:
+                    parts.append(f"hostname: `{hostname}`")
+                if mac:
+                    parts.append(f"MAC: `{mac}`")
+                lines.append("  " + " · ".join(parts) + "  ")
 
             sni = e.get("sni_domains", [])
             if sni:
