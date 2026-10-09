@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1425892560.55389,
         "last_seen": 1425892797.666762,
@@ -272,7 +273,6 @@
           "x.bidswitch.net"
         ],
         "findings_indices": [
-          6,
           7
         ],
         "service_flows_in": 0,
@@ -309,7 +309,6 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          6,
           7
         ],
         "service_flows_in": 0,
@@ -3449,14 +3448,115 @@
   },
   "findings": [
     {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:80",
+      "confidence": 0.9,
       "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 2
+        "src_ip": "192.168.0.54",
+        "dst_port": 80,
+        "distinct_dsts": 54,
+        "total_flows": 118,
+        "thin_targets": 50,
+        "top_dsts": [
+          {
+            "ip": "85.235.246.2",
+            "flows": 8
+          },
+          {
+            "ip": "23.53.42.121",
+            "flows": 6
+          },
+          {
+            "ip": "107.22.231.125",
+            "flows": 4
+          },
+          {
+            "ip": "85.235.246.3",
+            "flows": 4
+          },
+          {
+            "ip": "94.245.117.42",
+            "flows": 3
+          },
+          {
+            "ip": "178.255.83.1",
+            "flows": 3
+          },
+          {
+            "ip": "204.79.197.203",
+            "flows": 2
+          },
+          {
+            "ip": "23.53.38.135",
+            "flows": 2
+          },
+          {
+            "ip": "137.135.179.251",
+            "flows": 2
+          },
+          {
+            "ip": "207.46.194.10",
+            "flows": 2
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:443",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 443,
+        "distinct_dsts": 21,
+        "total_flows": 57,
+        "thin_targets": 17,
+        "top_dsts": [
+          {
+            "ip": "216.58.209.142",
+            "flows": 10
+          },
+          {
+            "ip": "173.194.32.239",
+            "flows": 7
+          },
+          {
+            "ip": "74.125.232.121",
+            "flows": 6
+          },
+          {
+            "ip": "173.194.67.103",
+            "flows": 6
+          },
+          {
+            "ip": "216.58.209.109",
+            "flows": 3
+          },
+          {
+            "ip": "216.58.209.110",
+            "flows": 3
+          },
+          {
+            "ip": "131.253.61.82",
+            "flows": 2
+          },
+          {
+            "ip": "31.13.91.2",
+            "flows": 2
+          },
+          {
+            "ip": "54.229.127.37",
+            "flows": 2
+          },
+          {
+            "ip": "37.235.106.14",
+            "flows": 2
+          }
+        ],
+        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null
@@ -3550,26 +3650,6 @@
       },
       "first_seen": 1425892779.274822,
       "last_seen": 1425892779.469303
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 192.168.0.1:8080",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 8080,
-        "flow_count": 1200,
-        "unique_src_ports": 1200,
-        "unique_uris": 2,
-        "packets_total": 7020,
-        "bytes_sent_total": 1070160,
-        "avg_packets_per_flow": 5.85,
-        "duration_sec": 236.59,
-        "rate_flows_per_sec": 5.07206
-      },
-      "first_seen": 1425892560.676338,
-      "last_seen": 1425892797.266587
     },
     {
       "type": "brute_force",

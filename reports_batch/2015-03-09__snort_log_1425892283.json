@@ -10,7 +10,7 @@
     "unique_dns_queries": 14,
     "nxdomain_count": 0,
     "flows": 2736,
-    "findings": 4,
+    "findings": 5,
     "extractor_errors": {},
     "uploaded_bytes": 3364977,
     "downloaded_bytes": 151761502,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1425892283.667526,
         "last_seen": 1425892560.553888,
@@ -189,8 +190,7 @@
           "x-0.19-a3800081.0.1644.1e36.2f4a.210.0.4cc5f6ldt8teurnz2u8srv5z3j.avts.mcafee.com"
         ],
         "findings_indices": [
-          2,
-          3
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -225,8 +225,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2,
-          3
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2523,6 +2522,120 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 80,
+        "distinct_dsts": 47,
+        "total_flows": 107,
+        "thin_targets": 41,
+        "top_dsts": [
+          {
+            "ip": "23.53.42.121",
+            "flows": 9
+          },
+          {
+            "ip": "54.187.193.60",
+            "flows": 6
+          },
+          {
+            "ip": "204.79.197.200",
+            "flows": 5
+          },
+          {
+            "ip": "107.22.231.125",
+            "flows": 5
+          },
+          {
+            "ip": "195.12.232.177",
+            "flows": 4
+          },
+          {
+            "ip": "23.53.38.135",
+            "flows": 4
+          },
+          {
+            "ip": "80.239.217.49",
+            "flows": 3
+          },
+          {
+            "ip": "23.53.42.73",
+            "flows": 3
+          },
+          {
+            "ip": "216.58.209.99",
+            "flows": 3
+          },
+          {
+            "ip": "208.71.122.72",
+            "flows": 2
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:443",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 443,
+        "distinct_dsts": 28,
+        "total_flows": 84,
+        "thin_targets": 22,
+        "top_dsts": [
+          {
+            "ip": "216.58.209.99",
+            "flows": 12
+          },
+          {
+            "ip": "216.58.209.142",
+            "flows": 7
+          },
+          {
+            "ip": "173.194.67.103",
+            "flows": 7
+          },
+          {
+            "ip": "74.125.232.121",
+            "flows": 6
+          },
+          {
+            "ip": "68.232.34.200",
+            "flows": 5
+          },
+          {
+            "ip": "173.194.40.249",
+            "flows": 4
+          },
+          {
+            "ip": "74.125.232.106",
+            "flows": 3
+          },
+          {
+            "ip": "216.58.209.109",
+            "flows": 3
+          },
+          {
+            "ip": "216.58.209.134",
+            "flows": 3
+          },
+          {
+            "ip": "173.194.71.95",
+            "flows": 3
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "sni_without_dns",
       "value": "fe2.update.microsoft.com",
       "confidence": 0.6,
@@ -2557,26 +2670,6 @@
       },
       "first_seen": 1425892311.728959,
       "last_seen": 1425892551.897959
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 192.168.0.1:8080",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 8080,
-        "flow_count": 1085,
-        "unique_src_ports": 1085,
-        "unique_uris": 2,
-        "packets_total": 6354,
-        "bytes_sent_total": 978327,
-        "avg_packets_per_flow": 5.86,
-        "duration_sec": 243.62,
-        "rate_flows_per_sec": 4.453599
-      },
-      "first_seen": 1425892316.707596,
-      "last_seen": 1425892560.330805
     },
     {
       "type": "brute_force",

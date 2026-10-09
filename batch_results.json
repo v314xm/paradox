@@ -7,7 +7,7 @@
     "flows": 1255,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 6.29
+    "elapsed_sec": 4.94
   },
   {
     "path": "2015-03-05\\snort.log.1425572414",
@@ -17,7 +17,7 @@
     "flows": 580,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 1.6
+    "elapsed_sec": 0.77
   },
   {
     "path": "2015-03-05\\snort.log.pcap",
@@ -25,13 +25,12 @@
     "size_mb": 152.59,
     "packets": 169742,
     "flows": 1824,
-    "findings": 3,
+    "findings": 4,
     "finding_types": {
-      "nxdomain_burst": 1,
-      "typosquatting": 1,
-      "brute_force": 1
+      "port_scan": 3,
+      "nxdomain_burst": 1
     },
-    "elapsed_sec": 5.46
+    "elapsed_sec": 4.74
   },
   {
     "path": "2015-03-06\\snort.log.1425600057",
@@ -39,16 +38,14 @@
     "size_mb": 153.71,
     "packets": 243416,
     "flows": 13303,
-    "findings": 17,
+    "findings": 8,
     "finding_types": {
       "dga_domain": 1,
       "nxdomain_burst": 1,
-      "typosquatting": 4,
-      "brute_force": 5,
       "script_download": 3,
       "vulnerable_path": 3
     },
-    "elapsed_sec": 13.11
+    "elapsed_sec": 10.79
   },
   {
     "path": "2015-03-06\\snort.log.1425650399",
@@ -59,14 +56,13 @@
     "findings": 11,
     "finding_types": {
       "dga_domain": 1,
+      "port_scan": 3,
       "nxdomain_burst": 1,
-      "typosquatting": 1,
       "sni_without_dns": 1,
-      "brute_force": 2,
       "script_download": 4,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 5.86
+    "elapsed_sec": 5.38
   },
   {
     "path": "2015-03-07\\snort.log.1425686433",
@@ -74,12 +70,11 @@
     "size_mb": 14.5,
     "packets": 81880,
     "flows": 16741,
-    "findings": 4,
+    "findings": 3,
     "finding_types": {
-      "brute_force": 1,
       "vulnerable_path": 3
     },
-    "elapsed_sec": 10.87
+    "elapsed_sec": 9.3
   },
   {
     "path": "2015-03-08\\snort.log.1425772833",
@@ -87,11 +82,9 @@
     "size_mb": 14.6,
     "packets": 82718,
     "flows": 16869,
-    "findings": 1,
-    "finding_types": {
-      "brute_force": 1
-    },
-    "elapsed_sec": 10.19
+    "findings": 0,
+    "finding_types": {},
+    "elapsed_sec": 9.19
   },
   {
     "path": "2015-03-09\\snort.log.1425859232",
@@ -99,16 +92,15 @@
     "size_mb": 153.05,
     "packets": 199895,
     "flows": 8747,
-    "findings": 15,
+    "findings": 14,
     "finding_types": {
       "dga_domain": 1,
+      "port_scan": 2,
       "nxdomain_burst": 1,
-      "typosquatting": 1,
-      "brute_force": 2,
       "script_download": 9,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 8.83
+    "elapsed_sec": 8.79
   },
   {
     "path": "2015-03-09\\snort.log.1425892283",
@@ -116,12 +108,13 @@
     "size_mb": 152.63,
     "packets": 172672,
     "flows": 2736,
-    "findings": 4,
+    "findings": 5,
     "finding_types": {
+      "port_scan": 2,
       "sni_without_dns": 2,
-      "brute_force": 2
+      "brute_force": 1
     },
-    "elapsed_sec": 5.32
+    "elapsed_sec": 4.59
   },
   {
     "path": "2015-03-09\\snort.log.1425892560",
@@ -131,12 +124,12 @@
     "flows": 3116,
     "findings": 15,
     "finding_types": {
-      "typosquatting": 1,
+      "port_scan": 2,
       "sni_without_dns": 5,
-      "brute_force": 2,
+      "brute_force": 1,
       "script_download": 7
     },
-    "elapsed_sec": 4.73
+    "elapsed_sec": 4.8
   },
   {
     "path": "2015-03-09\\snort.log.1425892797",
@@ -144,15 +137,17 @@
     "size_mb": 153.38,
     "packets": 221448,
     "flows": 8281,
-    "findings": 25,
+    "findings": 15,
     "finding_types": {
       "dga_domain": 4,
+      "port_scan": 3,
       "typosquatting": 1,
-      "brute_force": 4,
-      "script_download": 13,
-      "vulnerable_path": 3
+      "brute_force": 1,
+      "script_download": 2,
+      "vulnerable_path": 3,
+      "web_scanner": 1
     },
-    "elapsed_sec": 7.3
+    "elapsed_sec": 7.92
   },
   {
     "path": "2015-03-09\\snort.log.1425894726",
@@ -160,15 +155,15 @@
     "size_mb": 153.13,
     "packets": 205308,
     "flows": 7560,
-    "findings": 22,
+    "findings": 16,
     "finding_types": {
-      "dga_domain": 8,
+      "dga_domain": 7,
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 3,
-      "brute_force": 5,
+      "typosquatting": 1,
       "vulnerable_path": 4
     },
-    "elapsed_sec": 8.86
+    "elapsed_sec": 7.89
   },
   {
     "path": "2015-03-09\\snort.log.1425900311",
@@ -176,12 +171,13 @@
     "size_mb": 152.21,
     "packets": 144683,
     "flows": 363,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
+      "port_scan": 1,
       "sni_without_dns": 1,
       "script_download": 1
     },
-    "elapsed_sec": 3.94
+    "elapsed_sec": 4.46
   },
   {
     "path": "2015-03-09\\snort.log.1425901238",
@@ -189,12 +185,13 @@
     "size_mb": 37.28,
     "packets": 82558,
     "flows": 12854,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
       "dga_domain": 1,
+      "port_scan": 1,
       "nxdomain_burst": 1
     },
-    "elapsed_sec": 10.15
+    "elapsed_sec": 8.68
   },
   {
     "path": "2015-03-10\\snort.log.1425945610",
@@ -202,15 +199,14 @@
     "size_mb": 153.97,
     "packets": 259923,
     "flows": 15794,
-    "findings": 14,
+    "findings": 9,
     "finding_types": {
       "dga_domain": 2,
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 2,
-      "brute_force": 5,
       "vulnerable_path": 3
     },
-    "elapsed_sec": 14.18
+    "elapsed_sec": 13.91
   },
   {
     "path": "2015-03-10\\snort.log.1425987061",
@@ -218,16 +214,15 @@
     "size_mb": 40.46,
     "packets": 108884,
     "flows": 7000,
-    "findings": 7,
+    "findings": 8,
     "finding_types": {
-      "dga_domain": 1,
+      "port_scan": 3,
       "suspicious_port": 2,
       "nxdomain_burst": 1,
-      "typosquatting": 1,
       "sni_without_dns": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 5.22
+    "elapsed_sec": 5.33
   },
   {
     "path": "2015-03-11\\snort.log.1426032013",
@@ -235,17 +230,16 @@
     "size_mb": 154.02,
     "packets": 263364,
     "flows": 18301,
-    "findings": 15,
+    "findings": 12,
     "finding_types": {
-      "dga_domain": 3,
+      "dga_domain": 2,
+      "port_scan": 3,
       "suspicious_port": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 3,
       "sni_without_dns": 1,
-      "brute_force": 2,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 12.95
+    "elapsed_sec": 13.55
   },
   {
     "path": "2015-03-11\\snort.log.1426068001",
@@ -253,16 +247,15 @@
     "size_mb": 37.5,
     "packets": 124574,
     "flows": 10030,
-    "findings": 11,
+    "findings": 9,
     "finding_types": {
-      "dga_domain": 1,
+      "port_scan": 2,
       "suspicious_port": 3,
       "nxdomain_burst": 1,
-      "typosquatting": 1,
       "sni_without_dns": 1,
-      "brute_force": 4
+      "brute_force": 2
     },
-    "elapsed_sec": 6.69
+    "elapsed_sec": 6.73
   },
   {
     "path": "2015-03-12\\snort.log.1426118407",
@@ -273,13 +266,13 @@
     "findings": 9,
     "finding_types": {
       "dga_domain": 1,
+      "port_scan": 2,
       "suspicious_port": 2,
       "nxdomain_burst": 2,
       "sni_without_dns": 1,
-      "brute_force": 2,
       "script_download": 1
     },
-    "elapsed_sec": 8.03
+    "elapsed_sec": 7.88
   },
   {
     "path": "2015-03-13\\snort.log.1426204807",
@@ -287,17 +280,15 @@
     "size_mb": 153.87,
     "packets": 253899,
     "flows": 9489,
-    "findings": 20,
+    "findings": 15,
     "finding_types": {
       "dga_domain": 1,
       "nxdomain_burst": 2,
-      "typosquatting": 3,
       "sni_without_dns": 2,
-      "brute_force": 2,
       "script_download": 9,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 9.62
+    "elapsed_sec": 9.75
   },
   {
     "path": "2015-03-13\\snort.log.1426247520",
@@ -305,17 +296,16 @@
     "size_mb": 79.94,
     "packets": 156929,
     "flows": 8708,
-    "findings": 11,
+    "findings": 9,
     "finding_types": {
+      "port_scan": 2,
       "suspicious_port": 2,
       "nxdomain_burst": 1,
-      "typosquatting": 3,
       "sni_without_dns": 1,
-      "brute_force": 1,
       "script_download": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 6.62
+    "elapsed_sec": 6.26
   },
   {
     "path": "2015-03-14\\snort.log.1426291215",
@@ -325,12 +315,12 @@
     "flows": 11568,
     "findings": 5,
     "finding_types": {
+      "port_scan": 1,
       "suspicious_port": 2,
       "nxdomain_burst": 1,
-      "typosquatting": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 6.96
+    "elapsed_sec": 7.06
   },
   {
     "path": "2015-03-15\\snort.log.1426377613",
@@ -343,7 +333,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 6.8
+    "elapsed_sec": 6.49
   },
   {
     "path": "2015-03-16\\snort.log.1426464007",
@@ -351,16 +341,15 @@
     "size_mb": 55.21,
     "packets": 128243,
     "flows": 11419,
-    "findings": 11,
+    "findings": 8,
     "finding_types": {
       "dga_domain": 1,
+      "port_scan": 2,
       "suspicious_port": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 2,
-      "sni_without_dns": 1,
-      "brute_force": 3
+      "sni_without_dns": 1
     },
-    "elapsed_sec": 7.22
+    "elapsed_sec": 7.33
   },
   {
     "path": "2015-03-17\\snort.log.1426550408",
@@ -368,15 +357,15 @@
     "size_mb": 155.02,
     "packets": 329168,
     "flows": 35321,
-    "findings": 441,
+    "findings": 22,
     "finding_types": {
-      "dga_domain": 3,
+      "dga_domain": 2,
+      "port_scan": 2,
       "suspicious_port": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 6,
-      "brute_force": 25,
-      "script_download": 113,
-      "vulnerable_path": 290
+      "script_download": 8,
+      "vulnerable_path": 5,
+      "web_scanner": 1
     },
     "elapsed_sec": 18.07
   },
@@ -386,13 +375,13 @@
     "size_mb": 65.61,
     "packets": 116969,
     "flows": 3518,
-    "findings": 6,
+    "findings": 4,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 2,
-      "typosquatting": 3,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 4.05
+    "elapsed_sec": 3.88
   },
   {
     "path": "2015-03-18\\snort.log.1426636809",
@@ -400,15 +389,14 @@
     "size_mb": 37.82,
     "packets": 189757,
     "flows": 49571,
-    "findings": 26,
+    "findings": 10,
     "finding_types": {
+      "port_scan": 6,
       "nxdomain_burst": 2,
-      "typosquatting": 2,
-      "brute_force": 20,
       "script_download": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 26.65
+    "elapsed_sec": 26.06
   },
   {
     "path": "2015-03-19\\snort.log.1426723211",
@@ -416,16 +404,15 @@
     "size_mb": 39.34,
     "packets": 140943,
     "flows": 11041,
-    "findings": 12,
+    "findings": 11,
     "finding_types": {
       "dga_domain": 3,
+      "port_scan": 4,
       "nxdomain_burst": 2,
-      "typosquatting": 2,
-      "brute_force": 3,
       "script_download": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.22
+    "elapsed_sec": 6.87
   },
   {
     "path": "2015-03-20\\snort.log.1426809609",
@@ -433,15 +420,14 @@
     "size_mb": 36.85,
     "packets": 162775,
     "flows": 13733,
-    "findings": 7,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 2,
       "sni_without_dns": 1,
-      "brute_force": 1,
       "script_download": 1
     },
-    "elapsed_sec": 8.25
+    "elapsed_sec": 8.43
   },
   {
     "path": "2015-03-21\\snort.log.1426896008",
@@ -449,13 +435,13 @@
     "size_mb": 26.51,
     "packets": 144766,
     "flows": 10931,
-    "findings": 5,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.42
+    "elapsed_sec": 7.09
   },
   {
     "path": "2015-03-22\\snort.log.1426982408",
@@ -465,11 +451,11 @@
     "flows": 10988,
     "findings": 5,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.48
+    "elapsed_sec": 7.54
   },
   {
     "path": "2015-03-23\\snort.log.1427068809",
@@ -477,13 +463,13 @@
     "size_mb": 26.62,
     "packets": 146429,
     "flows": 11530,
-    "findings": 5,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.57
+    "elapsed_sec": 7.2
   },
   {
     "path": "2015-03-24\\snort.log.1427155207",
@@ -491,14 +477,14 @@
     "size_mb": 26.25,
     "packets": 145816,
     "flows": 11893,
-    "findings": 6,
+    "findings": 7,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.52
+    "elapsed_sec": 8.29
   },
   {
     "path": "2015-03-25\\snort.log.1427241610",
@@ -506,14 +492,14 @@
     "size_mb": 39.66,
     "packets": 158840,
     "flows": 11389,
-    "findings": 6,
+    "findings": 8,
     "finding_types": {
+      "port_scan": 3,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.9
+    "elapsed_sec": 7.65
   },
   {
     "path": "2015-03-26\\snort.log.1427328007",
@@ -521,15 +507,15 @@
     "size_mb": 27.43,
     "packets": 141126,
     "flows": 10722,
-    "findings": 9,
+    "findings": 10,
     "finding_types": {
       "dga_domain": 2,
+      "port_scan": 2,
       "suspicious_port": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.52
+    "elapsed_sec": 8.01
   },
   {
     "path": "2015-03-27\\snort.log.1427414408",
@@ -537,14 +523,14 @@
     "size_mb": 25.73,
     "packets": 138207,
     "flows": 10167,
-    "findings": 6,
+    "findings": 7,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.12
+    "elapsed_sec": 6.85
   },
   {
     "path": "2015-03-28\\snort.log.1427500807",
@@ -552,14 +538,14 @@
     "size_mb": 26.23,
     "packets": 138379,
     "flows": 10099,
-    "findings": 9,
+    "findings": 10,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 4
     },
-    "elapsed_sec": 7.11
+    "elapsed_sec": 7.43
   },
   {
     "path": "2015-03-29\\snort.log.1427587208",
@@ -569,11 +555,11 @@
     "flows": 10535,
     "findings": 5,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.21
+    "elapsed_sec": 6.88
   },
   {
     "path": "2015-03-30\\snort.log.1427673608",
@@ -583,12 +569,12 @@
     "flows": 10706,
     "findings": 6,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 8.46
+    "elapsed_sec": 7.85
   },
   {
     "path": "2015-03-31\\snort.log.1427760010",
@@ -596,13 +582,13 @@
     "size_mb": 26.22,
     "packets": 141467,
     "flows": 10737,
-    "findings": 5,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 8.85
+    "elapsed_sec": 7.06
   },
   {
     "path": "2015-04-01\\snort.log.1427846410",
@@ -610,13 +596,13 @@
     "size_mb": 154.18,
     "packets": 273758,
     "flows": 8305,
-    "findings": 4,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 3,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 11.7
+    "elapsed_sec": 9.85
   },
   {
     "path": "2015-04-01\\snort.log.1427907050",
@@ -624,12 +610,13 @@
     "size_mb": 153.01,
     "packets": 197062,
     "flows": 798,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 5.34
+    "elapsed_sec": 4.9
   },
   {
     "path": "2015-04-01\\snort.log.1427908260",
@@ -637,9 +624,11 @@
     "size_mb": 153.04,
     "packets": 198834,
     "flows": 895,
-    "findings": 0,
-    "finding_types": {},
-    "elapsed_sec": 6.51
+    "findings": 1,
+    "finding_types": {
+      "port_scan": 1
+    },
+    "elapsed_sec": 5.43
   },
   {
     "path": "2015-04-01\\snort.log.1427909436",
@@ -647,12 +636,13 @@
     "size_mb": 153.02,
     "packets": 197751,
     "flows": 637,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 5.77
+    "elapsed_sec": 4.83
   },
   {
     "path": "2015-04-01\\snort.log.1427910641",
@@ -660,13 +650,13 @@
     "size_mb": 21.32,
     "packets": 56116,
     "flows": 3009,
-    "findings": 5,
+    "findings": 6,
     "finding_types": {
+      "port_scan": 2,
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 3.24
+    "elapsed_sec": 2.38
   },
   {
     "path": "2015-04-02\\snort.log.1427932811",
@@ -674,12 +664,11 @@
     "size_mb": 29.14,
     "packets": 171949,
     "flows": 24350,
-    "findings": 3,
+    "findings": 2,
     "finding_types": {
-      "nxdomain_burst": 2,
-      "typosquatting": 1
+      "nxdomain_burst": 2
     },
-    "elapsed_sec": 13.76
+    "elapsed_sec": 12.32
   },
   {
     "path": "2015-04-03\\snort.log.1428019208",
@@ -687,15 +676,13 @@
     "size_mb": 28.84,
     "packets": 148456,
     "flows": 10620,
-    "findings": 7,
+    "findings": 5,
     "finding_types": {
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
-      "brute_force": 1,
       "script_download": 1
     },
-    "elapsed_sec": 8.93
+    "elapsed_sec": 7.45
   },
   {
     "path": "2015-04-04\\snort.log.1428105608",
@@ -703,14 +690,13 @@
     "size_mb": 26.35,
     "packets": 140413,
     "flows": 9621,
-    "findings": 6,
+    "findings": 5,
     "finding_types": {
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.91
+    "elapsed_sec": 6.96
   },
   {
     "path": "2015-04-05\\snort.log.1428192010",
@@ -718,13 +704,13 @@
     "size_mb": 29.19,
     "packets": 181558,
     "flows": 29775,
-    "findings": 5,
+    "findings": 12,
     "finding_types": {
+      "port_scan": 8,
       "suspicious_port": 2,
-      "nxdomain_burst": 2,
-      "typosquatting": 1
+      "nxdomain_burst": 2
     },
-    "elapsed_sec": 15.91
+    "elapsed_sec": 13.68
   },
   {
     "path": "2015-04-06\\snort.log.1428278410",
@@ -732,13 +718,12 @@
     "size_mb": 26.71,
     "packets": 141145,
     "flows": 9839,
-    "findings": 5,
+    "findings": 4,
     "finding_types": {
       "nxdomain_burst": 2,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 8.37
+    "elapsed_sec": 6.93
   },
   {
     "path": "2015-04-07\\snort.log.1428364808",
@@ -746,17 +731,15 @@
     "size_mb": 142.22,
     "packets": 304348,
     "flows": 15430,
-    "findings": 91,
+    "findings": 15,
     "finding_types": {
       "dga_domain": 5,
-      "suspicious_port": 71,
+      "port_scan": 3,
       "nxdomain_burst": 3,
-      "typosquatting": 3,
       "sni_without_dns": 2,
-      "brute_force": 5,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 14.45
+    "elapsed_sec": 13.13
   },
   {
     "path": "2015-04-08\\snort.log.1428451217",
@@ -764,17 +747,15 @@
     "size_mb": 155.02,
     "packets": 329059,
     "flows": 15221,
-    "findings": 62,
+    "findings": 16,
     "finding_types": {
       "dga_domain": 4,
-      "suspicious_port": 44,
+      "port_scan": 3,
       "nxdomain_burst": 3,
-      "typosquatting": 2,
       "sni_without_dns": 4,
-      "brute_force": 3,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 15.39
+    "elapsed_sec": 13.73
   },
   {
     "path": "2015-04-08\\snort.log.1428535715",
@@ -782,12 +763,13 @@
     "size_mb": 17.12,
     "packets": 22015,
     "flows": 416,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
+      "port_scan": 1,
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 0.7
+    "elapsed_sec": 0.66
   },
   {
     "path": "2015-04-09\\snort.log.1428537608",
@@ -795,18 +777,16 @@
     "size_mb": 60.73,
     "packets": 232653,
     "flows": 15726,
-    "findings": 341,
+    "findings": 17,
     "finding_types": {
       "dga_domain": 4,
-      "suspicious_port": 53,
+      "port_scan": 3,
       "nxdomain_burst": 3,
-      "typosquatting": 2,
       "sni_without_dns": 2,
-      "brute_force": 2,
-      "script_download": 2,
-      "vulnerable_path": 273
+      "vulnerable_path": 2,
+      "web_scanner": 3
     },
-    "elapsed_sec": 13.28
+    "elapsed_sec": 12.21
   },
   {
     "path": "2015-04-10\\snort.log.1428624009",
@@ -814,14 +794,13 @@
     "size_mb": 41.87,
     "packets": 190316,
     "flows": 11647,
-    "findings": 51,
+    "findings": 7,
     "finding_types": {
-      "suspicious_port": 45,
+      "port_scan": 2,
       "nxdomain_burst": 3,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 11.09
+    "elapsed_sec": 9.84
   },
   {
     "path": "2015-04-11\\snort.log.1428710407",
@@ -829,14 +808,13 @@
     "size_mb": 44.35,
     "packets": 206629,
     "flows": 12452,
-    "findings": 59,
+    "findings": 8,
     "finding_types": {
-      "suspicious_port": 52,
+      "port_scan": 2,
       "nxdomain_burst": 4,
-      "typosquatting": 1,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 10.75
+    "elapsed_sec": 9.72
   },
   {
     "path": "2015-04-12\\snort.log.1428796808",
@@ -844,16 +822,15 @@
     "size_mb": 41.32,
     "packets": 191309,
     "flows": 11825,
-    "findings": 75,
+    "findings": 9,
     "finding_types": {
-      "suspicious_port": 46,
+      "port_scan": 2,
       "nxdomain_burst": 3,
-      "typosquatting": 1,
       "sni_without_dns": 2,
-      "script_download": 1,
-      "vulnerable_path": 22
+      "vulnerable_path": 1,
+      "web_scanner": 1
     },
-    "elapsed_sec": 11.65
+    "elapsed_sec": 10.1
   },
   {
     "path": "2015-04-13\\snort.log.1428883207",
@@ -861,13 +838,12 @@
     "size_mb": 17.81,
     "packets": 80106,
     "flows": 5626,
-    "findings": 43,
+    "findings": 10,
     "finding_types": {
-      "suspicious_port": 35,
+      "port_scan": 3,
       "nxdomain_burst": 3,
-      "typosquatting": 1,
       "sni_without_dns": 4
     },
-    "elapsed_sec": 4.99
+    "elapsed_sec": 4.33
   }
 ]

@@ -10,7 +10,7 @@
     "unique_dns_queries": 58,
     "nxdomain_count": 435,
     "flows": 9621,
-    "findings": 6,
+    "findings": 5,
     "extractor_errors": {},
     "uploaded_bytes": 10088944,
     "downloaded_bytes": 11344566,
@@ -3674,19 +3674,6 @@
         "src_ip": "192.168.0.54",
         "nxdomain_count": 72,
         "threshold": 5
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 8
       },
       "first_seen": null,
       "last_seen": null

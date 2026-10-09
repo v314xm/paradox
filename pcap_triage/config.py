@@ -52,6 +52,17 @@ class Config:
         "serverfault.com",
         "superuser.com",
         "askubuntu.com",
+        # Live Messenger — поддомены с цифрами дают высокую энтропию
+        "messenger.live.com",
+        # Легитимные блоги и сервисы с длинными именами
+        "acuityplatform.com",
+        "sourceforge.net",
+        "windowsteamblog.com",
+        "mysqlperformanceblog.com",
+        "hotpropertydesigns.com",
+        "thrivinglifestylez.com",
+        "hdwallpapersfactory.com",
+        "migratoryspecies.org",
     ))
     dga_allowlist: frozenset[str] = field(default_factory=frozenset, init=False)
 
@@ -68,8 +79,6 @@ class Config:
         12132,  # STRRAT из примеров
     }))
 
-
-
     private_networks: tuple[str, ...] = (
         "10.",
         "172.16.", "172.17.", "172.18.", "172.19.",
@@ -82,6 +91,7 @@ class Config:
         "224.", "239.",
         "255.255.255.255",
     )
+
     # --- port scan ---
     # Если один src_ip стучится к >= N разным dst_ip на один dst_port —
     # это сканирование, а не «много подозрительных соединений».
@@ -91,7 +101,11 @@ class Config:
     # Минимальный порог flow_count per (src, dst) — если у пары много
     # flow'ов, это уже не скан, а что-то осмысленное (сессия, retry).
     port_scan_max_flows_per_dst: int = 3
-
+    # Порты, на которых массовые соединения — норма (браузер).
+    # Скан на 80/443 неотличим от браузера, поэтому не детектируется.
+    port_scan_excluded_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({80, 443}),
+    )
 
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
@@ -101,25 +115,7 @@ class Config:
         "microsoft", "google", "amazon", "apple", "facebook",
         "instagram", "whatsapp", "telegram", "paypal", "netflix",
         "gmail", "outlook", "office365", "windowsupdate", "dropbox",
-        "binance", "metamask", "coinbase"
-
-    # Google — легитимные домены и CDN
-    "doubleclick.net", "google-analytics.com", "googleadservices.com",
-    "googlesyndication.com", "googletagmanager.com", "googleapis.com",
-    "gstatic.com", "googlevideo.com", "youtube.com", "googlecode.com",
-    "googleusercontent.com", "withgoogle.com",
-
-    # Apple
-    "apple.com", "icloud.com", "mzstatic.com", "apple-cloudkit.com",
-
-    # Microsoft
-    "microsoft.com", "microsoftonline.com", "live.com", "office.com",
-    "msn.com", "bing.com", "windowsupdate.com", "msedge.net",
-    "smartscreen.microsoft.com",
-
-    # Analytics / monitoring (FP-триггеры на app.*)
-    "loadimpact.com", "webinspector.com",
-
+        "binance", "metamask", "coinbase",
     ))
 
     legitimate_brand_domains: frozenset[str] = field(default_factory=lambda: _frozen(
@@ -242,6 +238,7 @@ class Config:
     # к >= N разным уязвимым путям/скриптам к одной цели — это
     # сканер, а не набор отдельных атак.
     web_scanner_min_distinct_paths: int = 10
+
     # --- entities ---
     entities_top_n: int = 50
     gateway_min_flows: int = 50
@@ -314,6 +311,12 @@ class Config:
             errors.append("port_scan_min_distinct_dsts must be > 0")
         if self.port_scan_max_flows_per_dst <= 0:
             errors.append("port_scan_max_flows_per_dst must be > 0")
+        if not self.port_scan_excluded_ports:
+            errors.append("port_scan_excluded_ports must not be empty")
+        if any(p <= 0 or p > 65535 for p in self.port_scan_excluded_ports):
+            errors.append(
+                "port_scan_excluded_ports must be in range 1..65535"
+            )
         if not self.suspicious_ports:
             errors.append("suspicious_ports must not be empty")
         if not self.dc_service_ports:

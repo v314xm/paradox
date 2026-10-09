@@ -10,7 +10,7 @@
     "unique_dns_queries": 58,
     "nxdomain_count": 432,
     "flows": 10737,
-    "findings": 5,
+    "findings": 6,
     "extractor_errors": {},
     "uploaded_bytes": 9908657,
     "downloaded_bytes": 11411428,
@@ -1481,7 +1481,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          1
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1588,7 +1588,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          0
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4616,6 +4616,120 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:443",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 443,
+        "distinct_dsts": 120,
+        "total_flows": 1294,
+        "thin_targets": 88,
+        "top_dsts": [
+          {
+            "ip": "31.13.64.1",
+            "flows": 295
+          },
+          {
+            "ip": "173.194.66.99",
+            "flows": 168
+          },
+          {
+            "ip": "173.194.66.147",
+            "flows": 85
+          },
+          {
+            "ip": "173.194.66.106",
+            "flows": 84
+          },
+          {
+            "ip": "216.58.209.101",
+            "flows": 47
+          },
+          {
+            "ip": "216.58.209.133",
+            "flows": 46
+          },
+          {
+            "ip": "64.4.61.94",
+            "flows": 44
+          },
+          {
+            "ip": "31.13.91.2",
+            "flows": 41
+          },
+          {
+            "ip": "213.155.151.151",
+            "flows": 33
+          },
+          {
+            "ip": "213.155.151.181",
+            "flows": 32
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 80,
+        "distinct_dsts": 64,
+        "total_flows": 198,
+        "thin_targets": 53,
+        "top_dsts": [
+          {
+            "ip": "198.199.14.135",
+            "flows": 32
+          },
+          {
+            "ip": "195.12.232.177",
+            "flows": 22
+          },
+          {
+            "ip": "80.239.237.10",
+            "flows": 14
+          },
+          {
+            "ip": "23.223.41.68",
+            "flows": 14
+          },
+          {
+            "ip": "68.232.34.200",
+            "flows": 13
+          },
+          {
+            "ip": "198.199.14.134",
+            "flows": 12
+          },
+          {
+            "ip": "198.199.14.14",
+            "flows": 11
+          },
+          {
+            "ip": "198.199.14.15",
+            "flows": 8
+          },
+          {
+            "ip": "157.56.114.104",
+            "flows": 6
+          },
+          {
+            "ip": "195.12.232.178",
+            "flows": 6
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",
       "confidence": 0.9,
@@ -4635,19 +4749,6 @@
         "src_ip": "192.168.0.54",
         "nxdomain_count": 72,
         "threshold": 5
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 8
       },
       "first_seen": null,
       "last_seen": null

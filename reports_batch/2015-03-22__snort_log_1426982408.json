@@ -1555,7 +1555,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          1
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1659,7 +1659,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          0
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4671,6 +4671,63 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 80,
+        "distinct_dsts": 56,
+        "total_flows": 171,
+        "thin_targets": 45,
+        "top_dsts": [
+          {
+            "ip": "198.199.14.134",
+            "flows": 20
+          },
+          {
+            "ip": "198.199.14.135",
+            "flows": 17
+          },
+          {
+            "ip": "68.232.34.200",
+            "flows": 13
+          },
+          {
+            "ip": "198.199.14.14",
+            "flows": 12
+          },
+          {
+            "ip": "2.23.159.132",
+            "flows": 12
+          },
+          {
+            "ip": "198.199.14.10",
+            "flows": 10
+          },
+          {
+            "ip": "195.12.232.178",
+            "flows": 9
+          },
+          {
+            "ip": "195.12.232.177",
+            "flows": 9
+          },
+          {
+            "ip": "198.199.14.136",
+            "flows": 8
+          },
+          {
+            "ip": "23.223.41.68",
+            "flows": 6
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",
       "confidence": 0.9,
@@ -4690,19 +4747,6 @@
         "src_ip": "192.168.0.54",
         "nxdomain_count": 74,
         "threshold": 5
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 9
       },
       "first_seen": null,
       "last_seen": null

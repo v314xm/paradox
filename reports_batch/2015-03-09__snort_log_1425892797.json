@@ -10,7 +10,7 @@
     "unique_dns_queries": 471,
     "nxdomain_count": 3,
     "flows": 8281,
-    "findings": 25,
+    "findings": 15,
     "extractor_errors": {},
     "uploaded_bytes": 7455466,
     "downloaded_bytes": 146230497,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1425892797.666763,
         "last_seen": 1425894653.363143,
@@ -1130,9 +1131,6 @@
           "zor.livefyre.com"
         ],
         "findings_indices": [
-          5,
-          6,
-          7,
           8
         ],
         "service_flows_in": 0,
@@ -1171,8 +1169,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          5,
-          6
+          8
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1700,72 +1697,6 @@
       }
     ],
     "external": [
-      {
-        "ip": "54.175.107.169",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1425893311.646863,
-        "last_seen": 1425894592.56259,
-        "flows_out": 24,
-        "flows_in": 24,
-        "bytes_out": 20239,
-        "bytes_in": 19082,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          7
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "107.22.231.125",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1425892803.324292,
-        "last_seen": 1425894295.218034,
-        "flows_out": 21,
-        "flows_in": 21,
-        "bytes_out": 10240,
-        "bytes_in": 25248,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          8
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
       {
         "ip": "191.234.4.50",
         "is_internal": false,
@@ -2337,6 +2268,68 @@
         ],
         "unique_srcs": [
           "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.0.72.2",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425893167.608861,
+        "last_seen": 1425893542.750441,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 1141104,
+        "bytes_in": 29658,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "codecreationsuk.files.wordpress.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.237.49",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425893749.941937,
+        "last_seen": 1425894724.920695,
+        "flows_out": 18,
+        "flows_in": 18,
+        "bytes_out": 1059966,
+        "bytes_in": 58762,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
         ],
         "sni_domains": [],
         "dns_names": [],
@@ -4739,37 +4732,188 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
+      "type": "port_scan",
+      "value": "192.168.0.53 -> *:80",
+      "confidence": 0.9,
       "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 16
+        "src_ip": "192.168.0.53",
+        "dst_port": 80,
+        "distinct_dsts": 49,
+        "total_flows": 180,
+        "thin_targets": 41,
+        "top_dsts": [
+          {
+            "ip": "204.79.197.200",
+            "flows": 43
+          },
+          {
+            "ip": "80.239.237.49",
+            "flows": 18
+          },
+          {
+            "ip": "80.239.254.17",
+            "flows": 17
+          },
+          {
+            "ip": "80.239.254.11",
+            "flows": 13
+          },
+          {
+            "ip": "23.43.133.163",
+            "flows": 11
+          },
+          {
+            "ip": "195.12.232.161",
+            "flows": 7
+          },
+          {
+            "ip": "216.58.209.98",
+            "flows": 6
+          },
+          {
+            "ip": "198.41.207.36",
+            "flows": 4
+          },
+          {
+            "ip": "64.18.20.10",
+            "flows": 3
+          },
+          {
+            "ip": "93.184.220.29",
+            "flows": 3
+          }
+        ],
+        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null
     },
     {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 192.168.0.1:8080",
-      "confidence": 0.95,
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:443",
+      "confidence": 0.9,
       "evidence": {
         "src_ip": "192.168.0.54",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 8080,
-        "flow_count": 1704,
-        "unique_src_ports": 1704,
-        "unique_uris": 2,
-        "packets_total": 10005,
-        "bytes_sent_total": 1549860,
-        "avg_packets_per_flow": 5.87,
-        "duration_sec": 1166.25,
-        "rate_flows_per_sec": 1.461098
+        "dst_port": 443,
+        "distinct_dsts": 75,
+        "total_flows": 233,
+        "thin_targets": 54,
+        "top_dsts": [
+          {
+            "ip": "216.58.209.110",
+            "flows": 17
+          },
+          {
+            "ip": "216.58.209.99",
+            "flows": 17
+          },
+          {
+            "ip": "216.58.209.142",
+            "flows": 16
+          },
+          {
+            "ip": "216.58.209.129",
+            "flows": 9
+          },
+          {
+            "ip": "31.13.91.2",
+            "flows": 6
+          },
+          {
+            "ip": "131.253.61.82",
+            "flows": 6
+          },
+          {
+            "ip": "195.12.232.155",
+            "flows": 5
+          },
+          {
+            "ip": "199.16.156.241",
+            "flows": 5
+          },
+          {
+            "ip": "216.58.209.138",
+            "flows": 5
+          },
+          {
+            "ip": "98.137.201.232",
+            "flows": 5
+          }
+        ],
+        "threshold": 10
       },
-      "first_seen": 1425892797.925303,
-      "last_seen": 1425893964.171494
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.51 -> *:80",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "dst_port": 80,
+        "distinct_dsts": 19,
+        "total_flows": 69,
+        "thin_targets": 14,
+        "top_dsts": [
+          {
+            "ip": "216.58.209.98",
+            "flows": 13
+          },
+          {
+            "ip": "54.187.109.244",
+            "flows": 10
+          },
+          {
+            "ip": "216.58.209.102",
+            "flows": 8
+          },
+          {
+            "ip": "216.58.209.130",
+            "flows": 6
+          },
+          {
+            "ip": "54.187.115.34",
+            "flows": 4
+          },
+          {
+            "ip": "195.12.232.160",
+            "flows": 3
+          },
+          {
+            "ip": "195.12.232.161",
+            "flows": 3
+          },
+          {
+            "ip": "2.22.241.231",
+            "flows": 3
+          },
+          {
+            "ip": "74.125.232.124",
+            "flows": 3
+          },
+          {
+            "ip": "213.165.65.170",
+            "flows": 2
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "typosquatting",
+      "value": "ecx.images-amazon.com",
+      "confidence": 0.65,
+      "evidence": {
+        "brand": "amazon",
+        "kind": "contains",
+        "label": "images-amazon",
+        "queries": 2
+      },
+      "first_seen": null,
+      "last_seen": null
     },
     {
       "type": "brute_force",
@@ -4790,46 +4934,6 @@
       },
       "first_seen": 1425892798.636272,
       "last_seen": 1425893941.350394
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 54.175.107.169:80",
-      "confidence": 0.644,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "54.175.107.169",
-        "dst_port": 80,
-        "flow_count": 24,
-        "unique_src_ports": 24,
-        "unique_uris": 1,
-        "packets_total": 118,
-        "bytes_sent_total": 19082,
-        "avg_packets_per_flow": 4.92,
-        "duration_sec": 1280.76,
-        "rate_flows_per_sec": 0.018739
-      },
-      "first_seen": 1425893311.646863,
-      "last_seen": 1425894592.40492
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 107.22.231.125:80",
-      "confidence": 0.626,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "107.22.231.125",
-        "dst_port": 80,
-        "flow_count": 21,
-        "unique_src_ports": 21,
-        "unique_uris": 1,
-        "packets_total": 174,
-        "bytes_sent_total": 25248,
-        "avg_packets_per_flow": 8.29,
-        "duration_sec": 1491.89,
-        "rate_flows_per_sec": 0.014076
-      },
-      "first_seen": 1425892803.324322,
-      "last_seen": 1425894295.218034
     },
     {
       "type": "script_download",
@@ -4908,413 +5012,6 @@
       },
       "first_seen": 1425892797.66702,
       "last_seen": 1425893049.404564
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9svvg.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9svvg.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9sVvG.img?h=75&w=100&m=6&q=60&u=t&o=t&l=f&f=jpg&x=347&y=148"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425893378.909914,
-      "last_seen": 1425893547.922396
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9udyn.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9udyn.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9uDyn.img?h=75&w=100&m=6&q=60&u=t&o=t&l=f&f=jpg"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425893378.909906,
-      "last_seen": 1425893547.936605
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9wpmh.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9wpmh.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9wPMh.img?h=333&w=311&m=6&q=60&u=t&o=t&l=f&f=jpg"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425892798.204064,
-      "last_seen": 1425892944.548463
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9xaj3.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9xaj3.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9xaJ3.img?h=194&w=300&m=6&q=60&u=t&o=t&l=f"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894582.895649,
-      "last_seen": 1425894582.966458
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9xh4i.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9xh4i.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9xH4i.img?h=75&w=100&m=6&q=60&u=t&o=t&l=f"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894582.893084,
-      "last_seen": 1425894582.967821
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9xvtr.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9xvtr.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9xVTr.img?h=75&w=100&m=6&q=60&u=t&o=t&l=f"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894582.891995,
-      "last_seen": 1425894582.996894
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9xxpn.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9xxpn.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9xXpn.img?h=75&w=100&m=6&q=60&u=t&o=t&l=f"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894582.894722,
-      "last_seen": 1425894582.997263
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9xxru.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9xxru.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9xXRu.img?h=166&w=310&m=6&q=60&u=t&o=t&l=f&f=jpg"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425892798.204266,
-      "last_seen": 1425892944.560545
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9y3zh.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9y3zh.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9y3zh.img?h=194&w=300&m=6&q=60&u=t&o=t&l=f"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894581.92278,
-      "last_seen": 1425894582.988782
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/aa9y7nb.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/aa9y7nb.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/AA9y7NB.img?h=166&w=310&m=6&q=60&u=t&o=t&l=f&f=jpg&x=465&y=339"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425892798.204271,
-      "last_seen": 1425892944.559998
-    },
-    {
-      "type": "script_download",
-      "value": "/tenant/amp/entityid/bb1kvzy.img",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/tenant/amp/entityid/bb1kvzy.img",
-        "uri_samples": [
-          "/tenant/amp/entityid/BB1kvzy.img?m=6&o=true&u=true&n=true&w=30&h=30"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "192.168.0.54",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "23.53.42.121"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "img.s-msn.com"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
-        ],
-        "extension": ".img"
-      },
-      "first_seen": 1425894581.923194,
-      "last_seen": 1425894583.001345
     },
     {
       "type": "vulnerable_path",
@@ -5444,6 +5141,75 @@
       },
       "first_seen": 1425893367.797379,
       "last_seen": 1425893367.906784
+    },
+    {
+      "type": "web_scanner",
+      "value": "192.168.0.54 -> 23.53.42.121",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "23.53.42.121",
+        "distinct_paths": 11,
+        "total_requests": 11,
+        "top_paths": [
+          {
+            "path": "/tenant/amp/entityid/aa9wpmh.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9xxru.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9y7nb.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9udyn.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9svvg.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9y3zh.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/bb1kvzy.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9xvtr.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9xh4i.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9xxpn.img",
+            "count": 1
+          },
+          {
+            "path": "/tenant/amp/entityid/aa9xaj3.img",
+            "count": 1
+          }
+        ],
+        "hosts": [
+          "img.s-msn.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko"
+        ],
+        "threshold": 10
+      },
+      "first_seen": 1425892798.204064,
+      "last_seen": 1425894582.895649
     }
   ]
 }

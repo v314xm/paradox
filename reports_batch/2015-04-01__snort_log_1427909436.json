@@ -10,7 +10,7 @@
     "unique_dns_queries": 14,
     "nxdomain_count": 8,
     "flows": 637,
-    "findings": 2,
+    "findings": 3,
     "extractor_errors": {},
     "uploaded_bytes": 6471170,
     "downloaded_bytes": 150750049,
@@ -61,7 +61,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          0
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2928,6 +2928,63 @@
     ]
   },
   "findings": [
+    {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:443",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 443,
+        "distinct_dsts": 11,
+        "total_flows": 23,
+        "thin_targets": 9,
+        "top_dsts": [
+          {
+            "ip": "31.13.64.1",
+            "flows": 7
+          },
+          {
+            "ip": "74.125.71.106",
+            "flows": 4
+          },
+          {
+            "ip": "64.4.61.94",
+            "flows": 2
+          },
+          {
+            "ip": "104.46.52.74",
+            "flows": 2
+          },
+          {
+            "ip": "74.125.232.118",
+            "flows": 2
+          },
+          {
+            "ip": "108.160.170.50",
+            "flows": 1
+          },
+          {
+            "ip": "193.149.88.43",
+            "flows": 1
+          },
+          {
+            "ip": "213.155.151.154",
+            "flows": 1
+          },
+          {
+            "ip": "66.87.18.123",
+            "flows": 1
+          },
+          {
+            "ip": "213.155.151.181",
+            "flows": 1
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
     {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",

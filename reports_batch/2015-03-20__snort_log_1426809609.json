@@ -10,7 +10,7 @@
     "unique_dns_queries": 155,
     "nxdomain_count": 443,
     "flows": 13733,
-    "findings": 7,
+    "findings": 6,
     "extractor_errors": {},
     "uploaded_bytes": 10424861,
     "downloaded_bytes": 20772046,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1426809610.666177,
         "last_seen": 1426896007.243566,
@@ -2424,8 +2425,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          1,
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2771,7 +2771,7 @@
           "zeustracker.abuse.ch"
         ],
         "findings_indices": [
-          0
+          2
         ],
         "service_flows_in": 1,
         "service_unique_srcs": [
@@ -2788,8 +2788,7 @@
         "ip": "192.168.0.1",
         "is_internal": true,
         "roles": [
-          "internal",
-          "victim_candidate"
+          "internal"
         ],
         "first_seen": 1426809610.666177,
         "last_seen": 1426895847.05843,
@@ -2810,9 +2809,7 @@
         ],
         "sni_domains": [],
         "dns_names": [],
-        "findings_indices": [
-          5
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "78:54:2e:9f:10:28",
@@ -5934,6 +5931,120 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.51 -> *:443",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "dst_port": 443,
+        "distinct_dsts": 61,
+        "total_flows": 216,
+        "thin_targets": 47,
+        "top_dsts": [
+          {
+            "ip": "213.155.151.151",
+            "flows": 23
+          },
+          {
+            "ip": "213.155.151.186",
+            "flows": 16
+          },
+          {
+            "ip": "213.155.151.180",
+            "flows": 15
+          },
+          {
+            "ip": "213.155.151.185",
+            "flows": 12
+          },
+          {
+            "ip": "213.155.151.148",
+            "flows": 12
+          },
+          {
+            "ip": "216.58.209.110",
+            "flows": 12
+          },
+          {
+            "ip": "63.245.217.160",
+            "flows": 11
+          },
+          {
+            "ip": "67.207.202.9",
+            "flows": 11
+          },
+          {
+            "ip": "27.122.15.28",
+            "flows": 10
+          },
+          {
+            "ip": "23.235.43.130",
+            "flows": 7
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.54 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_port": 80,
+        "distinct_dsts": 66,
+        "total_flows": 188,
+        "thin_targets": 54,
+        "top_dsts": [
+          {
+            "ip": "198.199.14.134",
+            "flows": 25
+          },
+          {
+            "ip": "2.23.159.132",
+            "flows": 17
+          },
+          {
+            "ip": "198.199.14.14",
+            "flows": 13
+          },
+          {
+            "ip": "68.232.34.200",
+            "flows": 13
+          },
+          {
+            "ip": "195.12.232.178",
+            "flows": 13
+          },
+          {
+            "ip": "198.199.14.136",
+            "flows": 11
+          },
+          {
+            "ip": "198.199.14.135",
+            "flows": 10
+          },
+          {
+            "ip": "198.199.14.10",
+            "flows": 8
+          },
+          {
+            "ip": "23.223.41.68",
+            "flows": 6
+          },
+          {
+            "ip": "157.56.114.104",
+            "flows": 6
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",
       "confidence": 0.9,
@@ -5958,32 +6069,6 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 11
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 12
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
       "type": "sni_without_dns",
       "value": "flex.msn.com",
       "confidence": 0.6,
@@ -6000,26 +6085,6 @@
       },
       "first_seen": 1426809671.485852,
       "last_seen": 1426849676.726602
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 192.168.0.1:8080",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 8080,
-        "flow_count": 287,
-        "unique_src_ports": 287,
-        "unique_uris": 3,
-        "packets_total": 1714,
-        "bytes_sent_total": 276349,
-        "avg_packets_per_flow": 5.97,
-        "duration_sec": 25311.79,
-        "rate_flows_per_sec": 0.011339
-      },
-      "first_seen": 1426839297.97427,
-      "last_seen": 1426864609.760978
     },
     {
       "type": "script_download",

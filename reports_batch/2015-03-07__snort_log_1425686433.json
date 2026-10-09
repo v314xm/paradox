@@ -10,7 +10,7 @@
     "unique_dns_queries": 18,
     "nxdomain_count": 0,
     "flows": 16741,
-    "findings": 4,
+    "findings": 3,
     "extractor_errors": {},
     "uploaded_bytes": 4709755,
     "downloaded_bytes": 6557190,
@@ -24,7 +24,7 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "gateway_candidate"
         ],
         "first_seen": 1425686434.089771,
         "last_seen": 1425772833.960816,
@@ -123,9 +123,7 @@
           "vidtech.cbsima.com",
           "www.tomshardware.co.uk"
         ],
-        "findings_indices": [
-          0
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "ec:f4:bb:4f:b2:45",
@@ -309,39 +307,6 @@
     ],
     "external": [
       {
-        "ip": "80.239.178.187",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1425686435.715953,
-        "last_seen": 1425772830.650419,
-        "flows_out": 948,
-        "flows_in": 948,
-        "bytes_out": 448151,
-        "bytes_in": 523461,
-        "unique_dsts": [
-          "192.168.0.51"
-        ],
-        "unique_srcs": [
-          "192.168.0.51"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          0
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "217.72.201.130",
         "is_internal": false,
         "roles": [
@@ -417,6 +382,36 @@
         "flows_in": 405,
         "bytes_out": 490368,
         "bytes_in": 558182,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.178.187",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425686435.715953,
+        "last_seen": 1425772830.650419,
+        "flows_out": 948,
+        "flows_in": 948,
+        "bytes_out": 448151,
+        "bytes_in": 523461,
         "unique_dsts": [
           "192.168.0.51"
         ],
@@ -2970,26 +2965,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "brute_force",
-      "value": "192.168.0.51 -> 80.239.178.187:80",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_ip": "80.239.178.187",
-        "dst_port": 80,
-        "flow_count": 948,
-        "unique_src_ports": 948,
-        "unique_uris": 2,
-        "packets_total": 6551,
-        "bytes_sent_total": 523461,
-        "avg_packets_per_flow": 6.91,
-        "duration_sec": 86394.93,
-        "rate_flows_per_sec": 0.010973
-      },
-      "first_seen": 1425686435.715953,
-      "last_seen": 1425772830.650419
-    },
     {
       "type": "vulnerable_path",
       "value": "/blog//wp-login.php",

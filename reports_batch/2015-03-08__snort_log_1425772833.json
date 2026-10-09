@@ -10,7 +10,7 @@
     "unique_dns_queries": 17,
     "nxdomain_count": 0,
     "flows": 16869,
-    "findings": 1,
+    "findings": 0,
     "extractor_errors": {},
     "uploaded_bytes": 4707505,
     "downloaded_bytes": 6643867,
@@ -24,7 +24,7 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "gateway_candidate"
         ],
         "first_seen": 1425772833.554279,
         "last_seen": 1425859233.554012,
@@ -119,12 +119,10 @@
           "vidtech.cbsima.com",
           "www.tomshardware.co.uk"
         ],
-        "findings_indices": [
-          0
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:b2:45",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -157,7 +155,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "78:54:2e:9f:10:28",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -240,7 +238,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:c0:d7",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -301,7 +299,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "00:60:6e:00:9d:f9",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -310,39 +308,6 @@
       }
     ],
     "external": [
-      {
-        "ip": "80.239.178.178",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1425782429.683754,
-        "last_seen": 1425847637.083082,
-        "flows_out": 913,
-        "flows_in": 913,
-        "bytes_out": 447293,
-        "bytes_in": 521743,
-        "unique_dsts": [
-          "192.168.0.51"
-        ],
-        "unique_srcs": [
-          "192.168.0.51"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          0
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
       {
         "ip": "217.72.201.130",
         "is_internal": false,
@@ -396,6 +361,36 @@
         "sni_domains": [
           "navigator-bs.gmx.com"
         ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.178.178",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425782429.683754,
+        "last_seen": 1425847637.083082,
+        "flows_out": 913,
+        "flows_in": 913,
+        "bytes_out": 447293,
+        "bytes_in": 521743,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
         "dns_names": [],
         "findings_indices": [],
         "service_flows_in": 0,
@@ -2957,26 +2952,5 @@
       }
     ]
   },
-  "findings": [
-    {
-      "type": "brute_force",
-      "value": "192.168.0.51 -> 80.239.178.178:80",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_ip": "80.239.178.178",
-        "dst_port": 80,
-        "flow_count": 913,
-        "unique_src_ports": 913,
-        "unique_uris": 1,
-        "packets_total": 6526,
-        "bytes_sent_total": 521743,
-        "avg_packets_per_flow": 7.15,
-        "duration_sec": 65207.37,
-        "rate_flows_per_sec": 0.014001
-      },
-      "first_seen": 1425782429.683754,
-      "last_seen": 1425847637.049975
-    }
-  ]
+  "findings": []
 }

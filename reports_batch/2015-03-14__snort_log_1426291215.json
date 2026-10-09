@@ -272,7 +272,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          2
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -717,7 +717,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          0
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -750,7 +750,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          1
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -3417,6 +3417,63 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.2 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.2",
+        "dst_port": 80,
+        "distinct_dsts": 71,
+        "total_flows": 74,
+        "thin_targets": 71,
+        "top_dsts": [
+          {
+            "ip": "88.150.173.218",
+            "flows": 3
+          },
+          {
+            "ip": "147.251.48.205",
+            "flows": 2
+          },
+          {
+            "ip": "193.1.193.64",
+            "flows": 1
+          },
+          {
+            "ip": "212.83.32.25",
+            "flows": 1
+          },
+          {
+            "ip": "129.143.116.10",
+            "flows": 1
+          },
+          {
+            "ip": "192.87.102.42",
+            "flows": 1
+          },
+          {
+            "ip": "194.54.81.27",
+            "flows": 1
+          },
+          {
+            "ip": "132.180.15.2",
+            "flows": 1
+          },
+          {
+            "ip": "130.239.18.173",
+            "flows": 1
+          },
+          {
+            "ip": "217.31.202.63",
+            "flows": 1
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "suspicious_port",
       "value": "194.105.226.20:21",
       "confidence": 0.5,
@@ -3456,19 +3513,6 @@
         "src_ip": "192.168.0.54",
         "nxdomain_count": 9,
         "threshold": 5
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 2
       },
       "first_seen": null,
       "last_seen": null

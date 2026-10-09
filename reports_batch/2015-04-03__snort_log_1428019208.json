@@ -10,7 +10,7 @@
     "unique_dns_queries": 58,
     "nxdomain_count": 440,
     "flows": 10620,
-    "findings": 7,
+    "findings": 5,
     "extractor_errors": {},
     "uploaded_bytes": 10291008,
     "downloaded_bytes": 12903442,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1428019208.504168,
         "last_seen": 1428105609.133391,
@@ -558,8 +559,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          1,
-          5
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -682,8 +682,7 @@
         "ip": "192.168.0.1",
         "is_internal": true,
         "roles": [
-          "internal",
-          "victim_candidate"
+          "internal"
         ],
         "first_seen": 1428019242.984456,
         "last_seen": 1428105500.58669,
@@ -704,9 +703,7 @@
         ],
         "sni_domains": [],
         "dns_names": [],
-        "findings_indices": [
-          5
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "78:54:2e:9f:10:28",
@@ -3750,19 +3747,6 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 8
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
       "type": "sni_without_dns",
       "value": "imap.gmail.com",
       "confidence": 0.6,
@@ -3797,26 +3781,6 @@
       },
       "first_seen": 1428099223.456595,
       "last_seen": 1428099224.879398
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 192.168.0.1:8080",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 8080,
-        "flow_count": 362,
-        "unique_src_ports": 362,
-        "unique_uris": 3,
-        "packets_total": 2165,
-        "bytes_sent_total": 350338,
-        "avg_packets_per_flow": 5.98,
-        "duration_sec": 3681.06,
-        "rate_flows_per_sec": 0.098341
-      },
-      "first_seen": 1428081334.483545,
-      "last_seen": 1428085015.54843
     },
     {
       "type": "script_download",

@@ -10,7 +10,7 @@
     "unique_dns_queries": 54,
     "nxdomain_count": 24,
     "flows": 12854,
-    "findings": 2,
+    "findings": 3,
     "extractor_errors": {},
     "uploaded_bytes": 7605458,
     "downloaded_bytes": 27909183,
@@ -133,7 +133,7 @@
           "x-0.19-a3800081.0.1644.1e36.2f4a.210.0.av29v4cznpad76hgcslkqi4sdv.avts.mcafee.com"
         ],
         "findings_indices": [
-          1
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -3131,6 +3131,63 @@
         "label": "hximwdzcbdaqse",
         "entropy": 3.664,
         "queries": 2
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.51 -> *:443",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "dst_port": 443,
+        "distinct_dsts": 14,
+        "total_flows": 65,
+        "thin_targets": 10,
+        "top_dsts": [
+          {
+            "ip": "213.155.151.187",
+            "flows": 14
+          },
+          {
+            "ip": "216.58.209.142",
+            "flows": 13
+          },
+          {
+            "ip": "74.125.232.104",
+            "flows": 11
+          },
+          {
+            "ip": "216.58.209.110",
+            "flows": 11
+          },
+          {
+            "ip": "63.245.216.134",
+            "flows": 3
+          },
+          {
+            "ip": "63.245.217.160",
+            "flows": 3
+          },
+          {
+            "ip": "23.23.144.76",
+            "flows": 2
+          },
+          {
+            "ip": "63.245.216.132",
+            "flows": 2
+          },
+          {
+            "ip": "63.245.217.161",
+            "flows": 1
+          },
+          {
+            "ip": "63.245.217.113",
+            "flows": 1
+          }
+        ],
+        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null

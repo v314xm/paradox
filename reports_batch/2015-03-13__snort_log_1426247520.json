@@ -10,7 +10,7 @@
     "unique_dns_queries": 345,
     "nxdomain_count": 9,
     "flows": 8708,
-    "findings": 11,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 10999360,
     "downloaded_bytes": 68433928,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1426247520.351992,
         "last_seen": 1426291214.047982,
@@ -795,8 +796,7 @@
           "x.bidswitch.net"
         ],
         "findings_indices": [
-          2,
-          7
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1351,41 +1351,6 @@
     ],
     "external": [
       {
-        "ip": "173.194.67.94",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426247525.538042,
-        "last_seen": 1426249988.191027,
-        "flows_out": 40,
-        "flows_in": 40,
-        "bytes_out": 655521,
-        "bytes_in": 243842,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [
-          "www.google.se"
-        ],
-        "dns_names": [],
-        "findings_indices": [
-          7
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "212.219.56.184",
         "is_internal": false,
         "roles": [
@@ -1407,7 +1372,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          1
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1440,7 +1405,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          0
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1794,6 +1759,38 @@
         ],
         "sni_domains": [
           "www.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "173.194.67.94",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247525.538042,
+        "last_seen": 1426249988.191027,
+        "flows_out": 40,
+        "flows_in": 40,
+        "bytes_out": 655521,
+        "bytes_in": 243842,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.se"
         ],
         "dns_names": [],
         "findings_indices": [],
@@ -4408,6 +4405,120 @@
   },
   "findings": [
     {
+      "type": "port_scan",
+      "value": "192.168.0.2 -> *:80",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.2",
+        "dst_port": 80,
+        "distinct_dsts": 72,
+        "total_flows": 75,
+        "thin_targets": 72,
+        "top_dsts": [
+          {
+            "ip": "108.61.16.227",
+            "flows": 3
+          },
+          {
+            "ip": "147.251.48.205",
+            "flows": 2
+          },
+          {
+            "ip": "193.1.193.64",
+            "flows": 1
+          },
+          {
+            "ip": "130.239.18.163",
+            "flows": 1
+          },
+          {
+            "ip": "91.221.151.185",
+            "flows": 1
+          },
+          {
+            "ip": "192.87.102.42",
+            "flows": 1
+          },
+          {
+            "ip": "129.143.116.10",
+            "flows": 1
+          },
+          {
+            "ip": "129.177.13.120",
+            "flows": 1
+          },
+          {
+            "ip": "193.142.108.20",
+            "flows": 1
+          },
+          {
+            "ip": "194.54.81.27",
+            "flows": 1
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.53 -> *:443",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.53",
+        "dst_port": 443,
+        "distinct_dsts": 30,
+        "total_flows": 146,
+        "thin_targets": 21,
+        "top_dsts": [
+          {
+            "ip": "31.13.64.1",
+            "flows": 41
+          },
+          {
+            "ip": "195.12.232.192",
+            "flows": 23
+          },
+          {
+            "ip": "217.72.201.130",
+            "flows": 11
+          },
+          {
+            "ip": "157.55.233.125",
+            "flows": 9
+          },
+          {
+            "ip": "31.13.91.2",
+            "flows": 6
+          },
+          {
+            "ip": "216.58.209.98",
+            "flows": 6
+          },
+          {
+            "ip": "80.239.178.32",
+            "flows": 5
+          },
+          {
+            "ip": "195.12.232.178",
+            "flows": 4
+          },
+          {
+            "ip": "216.58.209.129",
+            "flows": 4
+          },
+          {
+            "ip": "212.227.111.53",
+            "flows": 3
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
       "type": "suspicious_port",
       "value": "194.105.226.20:21",
       "confidence": 0.5,
@@ -4452,45 +4563,6 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 8
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "google-cm.p.veruta.com",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "google-cm",
-        "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "googleads4.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads4",
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
       "type": "sni_without_dns",
       "value": "imap.gmail.com",
       "confidence": 0.6,
@@ -4507,26 +4579,6 @@
       },
       "first_seen": 1426247890.580363,
       "last_seen": 1426290748.130572
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 173.194.67.94:443",
-      "confidence": 0.704,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "173.194.67.94",
-        "dst_port": 443,
-        "flow_count": 34,
-        "unique_src_ports": 34,
-        "unique_uris": 0,
-        "packets_total": 593,
-        "bytes_sent_total": 229358,
-        "avg_packets_per_flow": 17.44,
-        "duration_sec": 2337.47,
-        "rate_flows_per_sec": 0.014546
-      },
-      "first_seen": 1426247650.465278,
-      "last_seen": 1426249987.936099
     },
     {
       "type": "script_download",

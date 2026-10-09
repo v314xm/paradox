@@ -10,7 +10,7 @@
     "unique_dns_queries": 361,
     "nxdomain_count": 184,
     "flows": 9489,
-    "findings": 20,
+    "findings": 15,
     "extractor_errors": {},
     "uploaded_bytes": 11794072,
     "downloaded_bytes": 143465107,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1426204812.31496,
         "last_seen": 1426247520.351649,
@@ -1052,9 +1053,7 @@
           "zendesk.sp1.convertro.com"
         ],
         "findings_indices": [
-          2,
-          8,
-          9
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1340,77 +1339,6 @@
       }
     ],
     "external": [
-      {
-        "ip": "31.186.225.24",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426246579.169696,
-        "last_seen": 1426247496.944973,
-        "flows_out": 27,
-        "flows_in": 27,
-        "bytes_out": 139389,
-        "bytes_in": 212594,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [
-          "pixel.rubiconproject.com"
-        ],
-        "dns_names": [],
-        "findings_indices": [
-          9
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "216.58.209.130",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426246577.682277,
-        "last_seen": 1426247495.738053,
-        "flows_out": 24,
-        "flows_in": 24,
-        "bytes_out": 90128,
-        "bytes_in": 67677,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [
-          "cm.g.doubleclick.net",
-          "securepubads.g.doubleclick.net"
-        ],
-        "dns_names": [],
-        "findings_indices": [
-          8
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
       {
         "ip": "80.239.250.218",
         "is_internal": false,
@@ -1954,6 +1882,66 @@
           "s.ytimg.com",
           "safebrowsing-cache.google.com"
         ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.144.213.95",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426204832.349971,
+        "last_seen": 1426247513.166466,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 211503,
+        "bytes_in": 332106,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.227.111.53",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426205128.641633,
+        "last_seen": 1426247249.702717,
+        "flows_out": 79,
+        "flows_in": 79,
+        "bytes_out": 386172,
+        "bytes_in": 146983,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
         "dns_names": [],
         "findings_indices": [],
         "service_flows_in": 0,
@@ -4367,45 +4355,6 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 6
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "googleads4.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads4",
-        "queries": 6
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "typosquatting",
-      "value": "google-cm.p.veruta.com",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "google-cm",
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
       "type": "sni_without_dns",
       "value": "imap.gmail.com",
       "confidence": 0.6,
@@ -4440,46 +4389,6 @@
       },
       "first_seen": 1426247059.500415,
       "last_seen": 1426247066.800503
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 216.58.209.130:80",
-      "confidence": 0.632,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "216.58.209.130",
-        "dst_port": 80,
-        "flow_count": 22,
-        "unique_src_ports": 22,
-        "unique_uris": 5,
-        "packets_total": 262,
-        "bytes_sent_total": 61914,
-        "avg_packets_per_flow": 11.91,
-        "duration_sec": 918.02,
-        "rate_flows_per_sec": 0.023965
-      },
-      "first_seen": 1426246577.682277,
-      "last_seen": 1426247495.706733
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 31.186.225.24:80",
-      "confidence": 0.626,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "31.186.225.24",
-        "dst_port": 80,
-        "flow_count": 21,
-        "unique_src_ports": 21,
-        "unique_uris": 1,
-        "packets_total": 351,
-        "bytes_sent_total": 154542,
-        "avg_packets_per_flow": 16.71,
-        "duration_sec": 915.61,
-        "rate_flows_per_sec": 0.022936
-      },
-      "first_seen": 1426246579.169696,
-      "last_seen": 1426247494.775462
     },
     {
       "type": "script_download",

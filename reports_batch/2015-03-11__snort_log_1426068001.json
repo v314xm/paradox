@@ -10,7 +10,7 @@
     "unique_dns_queries": 368,
     "nxdomain_count": 275,
     "flows": 10030,
-    "findings": 11,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 7562760,
     "downloaded_bytes": 22357644,
@@ -24,7 +24,8 @@
         "is_internal": true,
         "roles": [
           "internal",
-          "attacker_candidate"
+          "victim_candidate",
+          "gateway_candidate"
         ],
         "first_seen": 1426068006.019379,
         "last_seen": 1426118394.313726,
@@ -529,8 +530,7 @@
           "wymeditor.github.io"
         ],
         "findings_indices": [
-          4,
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -684,51 +684,12 @@
           "www.gstatic.com"
         ],
         "findings_indices": [
-          9,
-          10
+          8
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "ec:f4:bb:4f:b0:96",
         "hostname": "WPAD",
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "192.168.0.1",
-        "is_internal": true,
-        "roles": [
-          "internal",
-          "victim_candidate"
-        ],
-        "first_seen": 1426068002.039784,
-        "last_seen": 1426118187.671597,
-        "flows_out": 2854,
-        "flows_in": 2853,
-        "bytes_out": 4929475,
-        "bytes_in": 784437,
-        "unique_dsts": [
-          "192.168.0.51",
-          "192.168.0.53",
-          "192.168.0.54",
-          "239.255.255.250"
-        ],
-        "unique_srcs": [
-          "192.168.0.51",
-          "192.168.0.53",
-          "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          7
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": "78:54:2e:9f:10:28",
-        "hostname": null,
         "username": null,
         "realm": null,
         "asn": null,
@@ -1046,11 +1007,46 @@
           "www.pwned.se.pwned.se"
         ],
         "findings_indices": [
-          8
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "ec:f4:bb:4f:c0:d7",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.1",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426068002.039784,
+        "last_seen": 1426118187.671597,
+        "flows_out": 2854,
+        "flows_in": 2853,
+        "bytes_out": 4929475,
+        "bytes_in": 784437,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "78:54:2e:9f:10:28",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -1184,8 +1180,8 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          3,
-          9
+          4,
+          8
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1218,40 +1214,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          8
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "80.239.216.59",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426095826.947398,
-        "last_seen": 1426095839.482274,
-        "flows_out": 25,
-        "flows_in": 25,
-        "bytes_out": 130101,
-        "bytes_in": 13467,
-        "unique_dsts": [
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          10
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1284,7 +1247,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          1
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1317,7 +1280,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1801,6 +1764,41 @@
         ],
         "sni_domains": [
           "safebrowsing.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.185",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426068003.453205,
+        "last_seen": 1426118075.52984,
+        "flows_out": 33,
+        "flows_in": 33,
+        "bytes_out": 178289,
+        "bytes_in": 121215,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "safebrowsing-cache.google.com",
+          "www.gstatic.com"
         ],
         "dns_names": [],
         "findings_indices": [],
@@ -4230,13 +4228,115 @@
   },
   "findings": [
     {
-      "type": "dga_domain",
-      "value": "stackoverflow.com",
-      "confidence": 0.523,
+      "type": "port_scan",
+      "value": "192.168.0.2 -> *:80",
+      "confidence": 0.9,
       "evidence": {
-        "label": "stackoverflow",
-        "entropy": 3.547,
-        "queries": 33
+        "src_ip": "192.168.0.2",
+        "dst_port": 80,
+        "distinct_dsts": 73,
+        "total_flows": 82,
+        "thin_targets": 72,
+        "top_dsts": [
+          {
+            "ip": "216.58.209.98",
+            "flows": 7
+          },
+          {
+            "ip": "108.61.16.227",
+            "flows": 3
+          },
+          {
+            "ip": "147.251.48.205",
+            "flows": 2
+          },
+          {
+            "ip": "129.177.13.120",
+            "flows": 1
+          },
+          {
+            "ip": "130.239.18.165",
+            "flows": 1
+          },
+          {
+            "ip": "193.1.193.64",
+            "flows": 1
+          },
+          {
+            "ip": "194.54.81.27",
+            "flows": 1
+          },
+          {
+            "ip": "192.87.102.43",
+            "flows": 1
+          },
+          {
+            "ip": "212.83.32.25",
+            "flows": 1
+          },
+          {
+            "ip": "129.143.116.10",
+            "flows": 1
+          }
+        ],
+        "threshold": 10
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "port_scan",
+      "value": "192.168.0.51 -> *:443",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "dst_port": 443,
+        "distinct_dsts": 44,
+        "total_flows": 157,
+        "thin_targets": 34,
+        "top_dsts": [
+          {
+            "ip": "68.232.35.121",
+            "flows": 29
+          },
+          {
+            "ip": "213.155.151.185",
+            "flows": 16
+          },
+          {
+            "ip": "213.155.151.148",
+            "flows": 14
+          },
+          {
+            "ip": "213.155.151.155",
+            "flows": 13
+          },
+          {
+            "ip": "213.155.151.149",
+            "flows": 12
+          },
+          {
+            "ip": "173.194.66.94",
+            "flows": 7
+          },
+          {
+            "ip": "63.245.217.161",
+            "flows": 7
+          },
+          {
+            "ip": "74.125.71.147",
+            "flows": 5
+          },
+          {
+            "ip": "213.155.151.150",
+            "flows": 4
+          },
+          {
+            "ip": "213.155.151.187",
+            "flows": 4
+          }
+        ],
+        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null
@@ -4302,19 +4402,6 @@
       "last_seen": null
     },
     {
-      "type": "typosquatting",
-      "value": "googleads.g.doubleclick.net",
-      "confidence": 0.65,
-      "evidence": {
-        "kind": "contains",
-        "brand": "google",
-        "label": "googleads",
-        "queries": 13
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
       "type": "sni_without_dns",
       "value": "imap.gmail.com",
       "confidence": 0.6,
@@ -4331,26 +4418,6 @@
       },
       "first_seen": 1426068986.091135,
       "last_seen": 1426118405.072558
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.51 -> 192.168.0.1:80",
-      "confidence": 0.95,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_ip": "192.168.0.1",
-        "dst_port": 80,
-        "flow_count": 589,
-        "unique_src_ports": 589,
-        "unique_uris": 58,
-        "packets_total": 5912,
-        "bytes_sent_total": 577416,
-        "avg_packets_per_flow": 10.04,
-        "duration_sec": 896.28,
-        "rate_flows_per_sec": 0.657161
-      },
-      "first_seen": 1426075912.412113,
-      "last_seen": 1426076808.691532
     },
     {
       "type": "brute_force",
@@ -4391,26 +4458,6 @@
       },
       "first_seen": 1426095841.337056,
       "last_seen": 1426095883.459517
-    },
-    {
-      "type": "brute_force",
-      "value": "192.168.0.54 -> 80.239.216.59:80",
-      "confidence": 0.65,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "80.239.216.59",
-        "dst_port": 80,
-        "flow_count": 25,
-        "unique_src_ports": 25,
-        "unique_uris": 7,
-        "packets_total": 165,
-        "bytes_sent_total": 13467,
-        "avg_packets_per_flow": 6.6,
-        "duration_sec": 12.53,
-        "rate_flows_per_sec": 1.994435
-      },
-      "first_seen": 1426095826.947398,
-      "last_seen": 1426095839.482274
     }
   ]
 }
