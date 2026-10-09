@@ -106,7 +106,17 @@ class Config:
     port_scan_excluded_ports: frozenset[int] = field(
         default_factory=lambda: frozenset({80, 443}),
     )
+    # --- large transfer ---
+    # Один flow с объёмом больше порога — аномалия. Нормальный
+    # браузерный/серверный трафик редко превышает 50 МБ за сессию.
+    # 100 МБ — точно сигнал, не FP на легитимные видео/апдейты.
+    large_transfer_min_bytes: int = 100 * 1024 * 1024
 
+    # Байты считаем по полю FlowStats.bytes_sent. У нас один FlowKey —
+    # одно направление. Но интересен суммарный объём (send+recv).
+    # large_transfer_include_reverse: если True, ищем парный flow
+    # (dst → src) и суммируем байты. Если False — только одно направление.
+    large_transfer_include_reverse: bool = True
     # --- lateral movement ---
     # Порты, на которых внутренние → внутренние соединения — признак
     # lateral movement (WinRM, SMB, RPC, RDP). В корпоративной сети
@@ -311,6 +321,8 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.large_transfer_min_bytes <= 0:
+            errors.append("large_transfer_min_bytes must be > 0")
         if self.lateral_movement_min_flows_port_only <= 0:
             errors.append("lateral_movement_min_flows_port_only must be > 0")
         if not self.lateral_movement_ports:

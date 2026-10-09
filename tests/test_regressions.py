@@ -328,3 +328,66 @@ def test_lateral_movement_aggregates_flows():
     assert findings[0].evidence["flow_count"] == 3
 
 
+# ---------- LargeTransferDetector ----------
+
+def test_large_transfer_detects_single_huge_flow():
+    """123 MB в одном flow — finding."""
+    from pcap_triage.detectors.large_transfer import LargeTransferDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="80.64.102.71", dst_ip="192.168.1.1",
+        src_port=443, dst_port=53427,
+    )
+    fs = FlowStats(packets=57845, bytes_sent=123 * 1024 * 1024)
+    fs.sni = "salam-spbsed-ras-d83.rtbcdn.ru"
+    state.flows[key] = fs
+
+    findings = LargeTransferDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].type == "large_transfer"
+    assert findings[0].evidence["total_bytes"] >= 100 * 1024 * 1024
+
+
+def test_large_transfer_below_threshold():
+    """10 MB — не finding."""
+    from pcap_triage.detectors.large_transfer import LargeTransferDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.1.1", dst_ip="8.8.8.8",
+        src_port=50000, dst_port=443,
+    )
+    state.flows[key] = FlowStats(packets=5000, bytes_sent=10 * 1024 * 1024)
+
+    findings = LargeTransferDetector().run(state, Config())
+    assert findings == []
+
+
+def test_large_transfer_pair_sums_both_directions():
+    """Прямой 60 MB + обратный 50 MB = 110 MB > 100 MB."""
+    from pcap_triage.detectors.large_transfer import LargeTransferDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    fwd = FlowKey(
+        proto="tcp",
+        src_ip="80.64.102.71", dst_ip="192.168.1.1",
+        src_port=443, dst_port=53427,
+    )
+    rev = FlowKey(
+        proto="tcp",
+        src_ip="192.168.1.1", dst_ip="80.64.102.71",
+        src_port=53427, dst_port=443,
+    )
+    state.flows[fwd] = FlowStats(packets=30000, bytes_sent=60 * 1024 * 1024)
+    state.flows[rev] = FlowStats(packets=25000, bytes_sent=50 * 1024 * 1024)
+
+    findings = LargeTransferDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].evidence["total_bytes"] >= 110 * 1024 * 1024
+    assert findings[0].evidence["flow_count"] == 2
