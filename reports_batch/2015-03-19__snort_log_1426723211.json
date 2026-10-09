@@ -10,7 +10,7 @@
     "unique_dns_queries": 224,
     "nxdomain_count": 451,
     "flows": 11041,
-    "findings": 11,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 9142009,
     "downloaded_bytes": 25740777,
@@ -1391,7 +1391,7 @@
           "xqqykipeyow.pwned.se"
         ],
         "findings_indices": [
-          8
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1707,7 +1707,7 @@
           "www.wtp101.com"
         ],
         "findings_indices": [
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -5119,30 +5119,6 @@
         "label": "bfowmvcyksmqsj",
         "entropy": 3.522,
         "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "baymsgr2011907.gateway.messenger.live.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "baymsgr2011907",
-        "entropy": 3.522,
-        "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "baymsgr1020617.gateway.messenger.live.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "baymsgr1020617",
-        "entropy": 3.522,
-        "queries": 4
       },
       "first_seen": null,
       "last_seen": null

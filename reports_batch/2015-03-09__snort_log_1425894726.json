@@ -10,7 +10,7 @@
     "unique_dns_queries": 605,
     "nxdomain_count": 96,
     "flows": 7560,
-    "findings": 16,
+    "findings": 14,
     "extractor_errors": {},
     "uploaded_bytes": 7826171,
     "downloaded_bytes": 148234063,
@@ -1026,7 +1026,7 @@
           "z-na.amazon-adsystem.com"
         ],
         "findings_indices": [
-          9
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1162,7 +1162,7 @@
           "yqishdkus.pwned.se"
         ],
         "findings_indices": [
-          10
+          8
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4851,30 +4851,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "windowsteamblog.com",
-      "confidence": 0.57,
-      "evidence": {
-        "label": "windowsteamblog",
-        "entropy": 3.64,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "mysqlperformanceblog.com",
-      "confidence": 0.661,
-      "evidence": {
-        "label": "mysqlperformanceblog",
-        "entropy": 3.822,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "dga_domain",
       "value": "everythingsysadmin.com",

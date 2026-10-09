@@ -10,7 +10,7 @@
     "unique_dns_queries": 413,
     "nxdomain_count": 568,
     "flows": 15430,
-    "findings": 15,
+    "findings": 14,
     "extractor_errors": {},
     "uploaded_bytes": 19418345,
     "downloaded_bytes": 120501965,
@@ -965,7 +965,7 @@
           "www.youtube.com"
         ],
         "findings_indices": [
-          8
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2526,7 +2526,7 @@
           "y.analytics.yahoo.com"
         ],
         "findings_indices": [
-          10
+          9
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2633,7 +2633,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          9
+          8
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -5977,18 +5977,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "baymsgr1020617.gateway.messenger.live.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "baymsgr1020617",
-        "entropy": 3.522,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "dga_domain",
       "value": "onlineservice2013.org",

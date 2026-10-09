@@ -10,7 +10,7 @@
     "unique_dns_queries": 471,
     "nxdomain_count": 3,
     "flows": 8281,
-    "findings": 15,
+    "findings": 14,
     "extractor_errors": {},
     "uploaded_bytes": 7455466,
     "downloaded_bytes": 146230497,
@@ -1131,7 +1131,7 @@
           "zor.livefyre.com"
         ],
         "findings_indices": [
-          8
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1169,7 +1169,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          8
+          7
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4714,18 +4714,6 @@
       "evidence": {
         "label": "lifestylejournal",
         "entropy": 3.578,
-        "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "thrivinglifestylez.com",
-      "confidence": 0.536,
-      "evidence": {
-        "label": "thrivinglifestylez",
-        "entropy": 3.572,
         "queries": 2
       },
       "first_seen": null,

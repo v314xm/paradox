@@ -10,7 +10,7 @@
     "unique_dns_queries": 221,
     "nxdomain_count": 31,
     "flows": 8865,
-    "findings": 11,
+    "findings": 10,
     "extractor_errors": {},
     "uploaded_bytes": 3742223,
     "downloaded_bytes": 24306061,
@@ -533,7 +533,7 @@
           "z.moatads.com"
         ],
         "findings_indices": [
-          4
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -3841,18 +3841,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "acuityplatform.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "acuityplatform",
-        "entropy": 3.522,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "port_scan",
       "value": "192.168.0.51 -> *:443",

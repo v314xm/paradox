@@ -16,6 +16,9 @@ PortScanDetector — горизонтальное сканирование: од
 
 Если у src_ip много flow'ов ко многим dst_ip — это в основном браузер
 с параллельными соединениями. Отсеиваем через max_flows_per_dst.
+
+Порты 80/443 исключены полностью: скан на них неотличим от браузера
+(675 сайтов за день — норма), а rate/flow_count сигналы там бесполезны.
 """
 from collections import Counter, defaultdict
 
@@ -39,6 +42,10 @@ class PortScanDetector:
 
         findings: list[Finding] = []
         for (src_ip, dst_port), dst_counts in scans.items():
+            # 80/443 — браузер, не скан. См. docstring.
+            if dst_port in config.port_scan_excluded_ports:
+                continue
+
             distinct_dsts = len(dst_counts)
             if distinct_dsts < config.port_scan_min_distinct_dsts:
                 continue

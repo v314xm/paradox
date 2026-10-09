@@ -10,7 +10,7 @@
     "unique_dns_queries": 361,
     "nxdomain_count": 184,
     "flows": 9489,
-    "findings": 15,
+    "findings": 14,
     "extractor_errors": {},
     "uploaded_bytes": 11794072,
     "downloaded_bytes": 143465107,
@@ -1053,7 +1053,7 @@
           "zendesk.sp1.convertro.com"
         ],
         "findings_indices": [
-          2
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1133,7 +1133,7 @@
           "www.wymeditor.org"
         ],
         "findings_indices": [
-          1
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4318,18 +4318,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "acuityplatform.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "acuityplatform",
-        "entropy": 3.522,
-        "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",

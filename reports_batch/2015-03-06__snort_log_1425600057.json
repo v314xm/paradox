@@ -10,7 +10,7 @@
     "unique_dns_queries": 604,
     "nxdomain_count": 54,
     "flows": 13303,
-    "findings": 8,
+    "findings": 7,
     "extractor_errors": {},
     "uploaded_bytes": 10444003,
     "downloaded_bytes": 132400674,
@@ -1594,7 +1594,7 @@
           "x.ligatus.com"
         ],
         "findings_indices": [
-          1
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4893,18 +4893,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "hdwallpapersfactory.com",
-      "confidence": 0.591,
-      "evidence": {
-        "label": "hdwallpapersfactory",
-        "entropy": 3.682,
-        "queries": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",

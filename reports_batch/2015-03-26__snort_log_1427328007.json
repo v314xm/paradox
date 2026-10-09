@@ -10,7 +10,7 @@
     "unique_dns_queries": 148,
     "nxdomain_count": 433,
     "flows": 10722,
-    "findings": 10,
+    "findings": 8,
     "extractor_errors": {},
     "uploaded_bytes": 9633647,
     "downloaded_bytes": 12965101,
@@ -1209,7 +1209,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1318,7 +1318,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          6
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1803,7 +1803,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          4
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1836,7 +1836,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4603,30 +4603,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "baymsgr1020516.gateway.messenger.live.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "baymsgr1020516",
-        "entropy": 3.522,
-        "queries": 3
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "baymsgr1020617.gateway.messenger.live.com",
-      "confidence": 0.511,
-      "evidence": {
-        "label": "baymsgr1020617",
-        "entropy": 3.522,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "port_scan",
       "value": "192.168.0.2 -> *:80",

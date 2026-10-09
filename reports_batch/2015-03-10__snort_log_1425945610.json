@@ -10,7 +10,7 @@
     "unique_dns_queries": 268,
     "nxdomain_count": 36,
     "flows": 15794,
-    "findings": 9,
+    "findings": 8,
     "extractor_errors": {},
     "uploaded_bytes": 16302452,
     "downloaded_bytes": 138595483,
@@ -686,7 +686,7 @@
           "x.bidswitch.net"
         ],
         "findings_indices": [
-          4
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -946,7 +946,7 @@
           "www.useit.com"
         ],
         "findings_indices": [
-          5
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4496,18 +4496,6 @@
         "label": "nhedvcleifpabc",
         "entropy": 3.522,
         "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "migratoryspecies.org",
-      "confidence": 0.5,
-      "evidence": {
-        "label": "migratoryspecies",
-        "entropy": 3.5,
-        "queries": 4
       },
       "first_seen": null,
       "last_seen": null

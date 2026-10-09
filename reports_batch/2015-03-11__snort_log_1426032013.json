@@ -10,7 +10,7 @@
     "unique_dns_queries": 633,
     "nxdomain_count": 107,
     "flows": 18301,
-    "findings": 12,
+    "findings": 10,
     "extractor_errors": {},
     "uploaded_bytes": 11171669,
     "downloaded_bytes": 141255183,
@@ -906,7 +906,7 @@
           "zh.sourceforge.jp"
         ],
         "findings_indices": [
-          8
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1888,7 +1888,7 @@
           "z.moatads.com"
         ],
         "findings_indices": [
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2176,7 +2176,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2209,7 +2209,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          6
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -5224,30 +5224,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "dga_domain",
-      "value": "hotpropertydesigns.com",
-      "confidence": 0.502,
-      "evidence": {
-        "label": "hotpropertydesigns",
-        "entropy": 3.503,
-        "queries": 4
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "dga_domain",
-      "value": "ibmsoftwaredelivery.sourceforge.net",
-      "confidence": 0.644,
-      "evidence": {
-        "label": "ibmsoftwaredelivery",
-        "entropy": 3.787,
-        "queries": 12
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "port_scan",
       "value": "192.168.0.51 -> *:443",
