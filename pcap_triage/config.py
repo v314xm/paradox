@@ -1,27 +1,17 @@
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
+from typing import Mapping
 
 
-@dataclass
+def _frozen(*items: str) -> frozenset[str]:
+    return frozenset(items)
+
+
+@dataclass(frozen=True)
 class Config:
-    # --- DGA ---
-    dga_entropy_threshold: float = 3.5
-    dga_min_label_length: int = 12
-    # DGA по энтропии не отличает легитимный Azure VM
-    # (onedscolprdeus06.eastus.cloudapp.azure.com) от C2 на Azure
-    # (evil-abc123.cloudapp.azure.com). Allowlist убирает ложные
-    # срабатывания DGA, но НЕ означает доверие: такие домены
-    # проверяются другими детекторами (suspicious_port, beaconing)
-    # и threat intel.
-    dga_allowlist: set[str] = field(default_factory=lambda: {
-         "amazonaws.com",
-        "cloudfront.net",
-        "azureedge.net",
-        "akamaiedge.net",
-        "googleusercontent.com",
-        "windowsupdate.com",
-        "google.com",           # ← добавили
-        # cloud tunnels — легитимные поддомены, но энтропия высокая
+    # --- cloud tunnel domains (источник правды) ---
+    cloud_tunnel_domains: frozenset[str] = field(default_factory=lambda: _frozen(
         "trycloudflare.com",
         "ngrok.io",
         "ngrok-free.app",
@@ -29,7 +19,10 @@ class Config:
         "localtunnel.me",
         "lhr.life",
         "pinggy.io",
-        # ip check services
+    ))
+
+    # --- ip check services (источник правды) ---
+    ip_check_services: frozenset[str] = field(default_factory=lambda: _frozen(
         "ip-api.com",
         "ipinfo.io",
         "ifconfig.me",
@@ -38,25 +31,38 @@ class Config:
         "ipify.org",
         "myexternalip.com",
         "checkip.amazonaws.com",
+    ))
+
+    # --- DGA ---
+    dga_entropy_threshold: float = 3.5
+    dga_min_label_length: int = 12
+    _dga_allowlist_extra: frozenset[str] = field(default_factory=lambda: _frozen(
+        "amazonaws.com",
+        "cloudfront.net",
+        "azureedge.net",
+        "akamaiedge.net",
+        "googleusercontent.com",
+        "windowsupdate.com",
         "cloudapp.azure.com",
-        "cloudapp.azure.com",
-    })
+        # Cisco Umbrella / OpenDNS
+        "footprintdns.com",
+        "opendns.com",
+    ))
+    dga_allowlist: frozenset[str] = field(default_factory=frozenset, init=False)
 
     # --- suspicious ports ---
-    suspicious_ports: set[int] = field(default_factory=lambda: {
-        21,  # FTP
-        22,  # SSH (наружу)
-        23,  # Telnet
-        4444,  # Metasploit default
-        1337,  # leet
+    suspicious_ports: frozenset[int] = field(default_factory=lambda: frozenset({
+        21,     # FTP
+        22,     # SSH (наружу)
+        23,     # Telnet
+        4444,   # Metasploit default
+        1337,   # leet
         31337,  # Back Orifice / leet
-        8080,  # alt-http
-        8443,  # alt-https
+        8080,   # alt-http
+        8443,   # alt-https
         12132,  # STRRAT из примеров
-    })
-    # Приватные сети — адреса, для которых suspicious_port НЕ срабатывает.
-    # Смысл сигнала — «внутренний клиент стучится наружу на нестандартный порт».
-    # Внутренний → внутренний — это нормальная работа, не сигнал.
+    }))
+
     private_networks: tuple[str, ...] = (
         "10.",
         "172.16.", "172.17.", "172.18.", "172.19.",
@@ -65,60 +71,23 @@ class Config:
         "172.28.", "172.29.", "172.30.", "172.31.",
         "192.168.",
         "127.",
-        "169.254.",  # link-local
-        "224.", "239.",  # multicast
+        "169.254.",
+        "224.", "239.",
         "255.255.255.255",
     )
+
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
 
-    # --- cloud tunnel domains ---
-    cloud_tunnel_domains: set[str] = field(default_factory=lambda: {
-        "trycloudflare.com",
-        "ngrok.io",
-        "ngrok-free.app",
-        "serveo.net",
-        "localtunnel.me",
-        "lhr.life",
-        "pinggy.io",
-    })
-
-    # --- ip check services ---
-    ip_check_services: set[str] = field(default_factory=lambda: {
-        "ip-api.com",
-        "ipinfo.io",
-        "ifconfig.me",
-        "icanhazip.com",
-        "api.ipify.org",
-        "ipify.org",
-        "myexternalip.com",
-        "checkip.amazonaws.com",
-    })
     # --- typosquatting ---
-    protected_brands: set[str] = field(default_factory=lambda: {
-        "microsoft",
-        "google",
-        "amazon",
-        "apple",
-        "facebook",
-        "instagram",
-        "whatsapp",
-        "telegram",
-        "paypal",
-        "netflix",
-        "gmail",
-        "outlook",
-        "office365",
-        "windowsupdate",
-        "dropbox",
-        "binance",
-        "metamask",
-        "coinbase",
-    })
+    protected_brands: frozenset[str] = field(default_factory=lambda: _frozen(
+        "microsoft", "google", "amazon", "apple", "facebook",
+        "instagram", "whatsapp", "telegram", "paypal", "netflix",
+        "gmail", "outlook", "office365", "windowsupdate", "dropbox",
+        "binance", "metamask", "coinbase",
+    ))
 
-    # Официальные домены брендов, которые НЕ должны флагаться.
-    # Совпадение по точному имени или по суффиксу.
-    legitimate_brand_domains: set[str] = field(default_factory=lambda: {
+    legitimate_brand_domains: frozenset[str] = field(default_factory=lambda: _frozen(
         "microsoft.com", "live.com", "office.com", "outlook.com",
         "microsoftonline.com", "sharepoint.com", "microsoft365.com",
         "google.com", "gmail.com", "youtube.com", "googleapis.com",
@@ -127,50 +96,59 @@ class Config:
         "facebook.com", "fb.com", "instagram.com", "whatsapp.com",
         "telegram.org", "paypal.com", "netflix.com",
         "office365.com", "windowsupdate.com", "update.microsoft.com",
-        "dropbox.com", "binance.com", "metamask.io", "coinbase.com", "msedge.net", "ax-msedge.net",
-    })
-
+        "dropbox.com", "binance.com", "metamask.io", "coinbase.com",
+        "msedge.net", "ax-msedge.net",
+    ))
     typosquatting_levenshtein_threshold: int = 2
 
     # --- SNI mismatch ---
-    # Минимум flows с одинаковым SNI, чтобы сработать. 1 — срабатывать
-    # на первое же соединение. Можно поднять, если шумит.
     sni_mismatch_min_flows: int = 1
-
-    # SNI, которые не проверяем на совпадение с DNS.
-    # DoH-сервисы — их SNI по определению не в DNS (это их работа).
-    # Легитимные трекеры/телеметрия, чьи DNS-запросы могут быть
-    # вне окна захвата.
-    sni_mismatch_allowlist: set[str] = field(default_factory=lambda: {
-        # DNS over HTTPS
+    sni_mismatch_allowlist: frozenset[str] = field(default_factory=lambda: _frozen(
         "dns.google",
         "cloudflare-dns.com",
         "mozilla.cloudflare-dns.com",
         "doh.opendns.com",
         "dns.quad9.net",
         "nextdns.io",
-        # Certificate / OCSP (часто идут до/после основного запроса)
         "ocsp.digicert.com",
         "ocsp.pki.goog",
         "crl.microsoft.com",
         "smartscreen.microsoft.com",
-    })
+    ))
+
+    # --- domain controller detection ---
+    dc_service_ports: frozenset[int] = field(default_factory=lambda: frozenset({
+        88,    # Kerberos
+        389,   # LDAP
+        445,   # SMB
+        3268,  # LDAP Global Catalog
+        636,   # LDAPS
+    }))
+    dc_min_service_flows: int = 20
+    dc_min_unique_srcs: int = 1
+
     # --- brute force ---
-    # Много коротких flows с одного src_ip к одной паре dst_ip:dst_port.
-    # Не срабатывает на: длинную сессию (много пакетов на flow),
-    # port scan (много портов, но по 1-3 пакета и разным dst_port).
     brute_force_min_flows: int = 20
     brute_force_max_avg_packets: int = 20
     brute_force_min_unique_src_ports: int = 10
+    # Порог отсеивания по уникальным URI: при подборе пароля URI
+    # один и тот же (/login.php), ratio близко к 0. При нормальной
+    # работе URI разные, ratio ближе к 1.
+    brute_force_uri_ratio_threshold: float = 0.3
+    # Минимальная скорость попыток (flow/s). Настоящий подбор
+    # пароля либо быстрый (десятки попыток в секунду), либо
+    # с rate limiting на сервере (одна попытка в 30 секунд ≈ 0.03).
+    # Если реже — это поллинг (Firefox Safe Browsing переоткрывает
+    # соединение раз в 15 минут), а не подбор.
+    brute_force_min_rate_flows_per_sec: float = 0.01
+    # Порты, которые brute_force НЕ проверяет. В __post_init__
+    # устанавливается как alias на dc_service_ports.
+    brute_force_excluded_ports: frozenset[int] = field(
+        default_factory=frozenset, init=False,
+    )
 
     # --- vulnerable paths ---
-    # Подстроки в http_uri. Если URI содержит одну из них — finding.
-    # Сигнал: обращение к известной уязвимой точке (сканер, эксплуатация,
-    # либо легитимная работа с устаревшим плагином — решать аналитику).
-    # ВАЖНО: расширения скриптов здесь НЕ дублируем — они в
-    # suspicious_download_extensions ниже.
-    vulnerable_paths: dict[str, str] = field(default_factory=lambda: {
-        # WordPress-плагины с известными CVE
+    vulnerable_paths: Mapping[str, str] = field(default_factory=lambda: MappingProxyType({
         "wp-content/plugins/post-content-shortcodes": "WP post-content-shortcodes",
         "wp-content/plugins/revslider": "Revslider RCE",
         "wp-content/plugins/contact-form-7": "CF7 arbitrary file upload",
@@ -178,40 +156,22 @@ class Config:
         "wp-content/plugins/elementor": "Elementor",
         "wp-content/plugins/wp-file-manager": "WP File Manager RCE",
         "wp-content/plugins/duplicator": "Duplicator path traversal",
-        # Управление WordPress
         "wp-login.php": "WP login",
         "wp-admin/": "WP admin",
         "xmlrpc.php": "WP xmlrpc pingback",
-        # Утечки
         "/.env": "dotenv exposure",
         "/.git/": "git repo leak",
         "/.aws/credentials": "AWS credentials",
         "/phpmyadmin/": "phpMyAdmin",
         "/phpinfo.php": "phpinfo leak",
         "/cgi-bin/": "CGI",
-    })
+    }))
 
     # --- suspicious download extensions ---
-    # Расширения, скачивание которых — отдельный сигнал script_download.
-    # Проверяются в VulnerablePathDetector, если URI не совпал
-    # ни с одним vulnerable_path.
-    suspicious_download_extensions: set[str] = field(default_factory=lambda: {
+    suspicious_download_extensions: frozenset[str] = field(default_factory=lambda: _frozen(
         ".ps1", ".vbs", ".hta", ".js", ".jar", ".sh",
         ".exe", ".dll", ".scr", ".iso", ".img", ".lnk",
-    })
-    # --- domain controller detection ---
-    # Порты, по которым определяем DC.
-    dc_service_ports: set[int] = field(default_factory=lambda: {
-        88,    # Kerberos
-        389,   # LDAP
-        445,   # SMB
-        3268,  # LDAP Global Catalog
-        636,   # LDAPS
-    })
-    # Сколько сервисных flows к хосту, чтобы считать его DC.
-    dc_min_service_flows: int = 20
-    # От скольки разных внутренних src.
-    dc_min_unique_srcs: int = 1
+    ))
 
     # --- entities ---
     entities_top_n: int = 50
@@ -223,3 +183,72 @@ class Config:
 
     # --- output ---
     output_dir: Path = Path("reports")
+
+    def __post_init__(self) -> None:
+        # dga_allowlist = extra + tunnel-домены + ip-check сервисы.
+        merged_dga = set(self._dga_allowlist_extra)
+        merged_dga |= self.cloud_tunnel_domains
+        merged_dga |= self.ip_check_services
+        object.__setattr__(self, "dga_allowlist", frozenset(merged_dga))
+
+        # brute_force_excluded_ports = alias на dc_service_ports.
+        object.__setattr__(
+            self, "brute_force_excluded_ports",
+            frozenset(self.dc_service_ports),
+        )
+
+        self._validate()
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def _validate(self) -> None:
+        errors: list[str] = []
+
+        if self.dga_entropy_threshold <= 0:
+            errors.append("dga_entropy_threshold must be > 0")
+        if self.dga_min_label_length <= 0:
+            errors.append("dga_min_label_length must be > 0")
+        if self.nxdomain_burst_threshold <= 0:
+            errors.append("nxdomain_burst_threshold must be > 0")
+        if self.typosquatting_levenshtein_threshold < 0:
+            errors.append("typosquatting_levenshtein_threshold must be >= 0")
+        if self.sni_mismatch_min_flows <= 0:
+            errors.append("sni_mismatch_min_flows must be > 0")
+        if self.brute_force_min_flows <= 0:
+            errors.append("brute_force_min_flows must be > 0")
+        if self.brute_force_max_avg_packets <= 0:
+            errors.append("brute_force_max_avg_packets must be > 0")
+        if self.brute_force_min_unique_src_ports <= 0:
+            errors.append("brute_force_min_unique_src_ports must be > 0")
+        if not (0.0 < self.brute_force_uri_ratio_threshold <= 1.0):
+            errors.append(
+                "brute_force_uri_ratio_threshold must be in (0, 1]"
+            )
+        if self.brute_force_min_rate_flows_per_sec <= 0:
+            errors.append(
+                "brute_force_min_rate_flows_per_sec must be > 0"
+            )
+        if self.dc_min_service_flows <= 0:
+            errors.append("dc_min_service_flows must be > 0")
+        if self.dc_min_unique_srcs <= 0:
+            errors.append("dc_min_unique_srcs must be > 0")
+        if self.entities_top_n <= 0:
+            errors.append("entities_top_n must be > 0")
+        if self.gateway_min_flows <= 0:
+            errors.append("gateway_min_flows must be > 0")
+        if self.gateway_min_unique_dsts <= 0:
+            errors.append("gateway_min_unique_dsts must be > 0")
+        if self.flow_report_top_n <= 0:
+            errors.append("flow_report_top_n must be > 0")
+        if not self.suspicious_ports:
+            errors.append("suspicious_ports must not be empty")
+        if not self.dc_service_ports:
+            errors.append("dc_service_ports must not be empty")
+        if any(p <= 0 or p > 65535 for p in self.suspicious_ports):
+            errors.append("suspicious_ports must be in range 1..65535")
+        if any(p <= 0 or p > 65535 for p in self.dc_service_ports):
+            errors.append("dc_service_ports must be in range 1..65535")
+
+        if errors:
+            raise ValueError(
+                "Invalid Config:\n" + "\n".join(f"  - {e}" for e in errors)
+            )

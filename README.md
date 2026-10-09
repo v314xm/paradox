@@ -1,99 +1,169 @@
 # pcap-triage
 
-Инструмент для первичного триажа pcap-файлов. Превращает захват
-в структурированный отчёт (JSON + Markdown) с сущностями, findings
-и IOC по подозрительным сущностям.
+Инструмент для первичного триажа pcap-файлов. Превращает сетевой
+захват в структурированный JSON + человекочитаемый Markdown-отчёт
+за секунды.
 
-## Установка
+**Задача:** избавить аналитика от ручного перебора 500+ flow'ов.
+Инструмент сам собирает профиль жертвы (IP, MAC, hostname, username,
+realm), находит C2, скачанные скрипты, подозрительные домены и
+строит компактный список сущностей для тикета.
 
-    pip install -e .
+## Что делает
 
-## Запуск
+Из одного pcap-файла:
 
-    python -m pcap_triage capture.pcap
+- **Профиль жертвы.** IP, MAC, hostname, username, realm — из ARP,
+  NBNS, Kerberos. Собирается автоматически.
+- **C2-инфраструктура.** DGA, cloud tunnels, typosquatting,
+  IP-check сервисы, SNI без DNS.
+- **Payload download.** Скрипты (.ps1, .sh, .vbs, .hta), бинарники
+  из HTTP-запросов.
+- **Направление трафика.** Uploaded / downloaded / internal —
+  сразу видно, загрузка это или эксфильтрация.
+- **Роли хостов.** `domain_controller`, `victim_candidate`,
+  `attacker_candidate`, `c2_candidate`, `gateway_candidate`.
 
-Или без аргумента — спросит путь интерактивно.
+Работает оффлайн. Никаких внешних API — только локальный разбор.
 
-Во время парсинга показывается прогресс-бар (процент, пакеты, время).
-Отчёт кладётся в `reports/<имя>.report.json` и `reports/<имя>.report.md`.
+## Быстрый старт
 
-## Тесты
+```powershell
+# Установка (один раз)
+pip install -e .
 
-    pytest tests/ -v
+# Запуск
+python -m pcap_triage capture.pcap
+```
 
-## Что в отчёте
+Отчёт появится в `reports/capture.report.json` и `reports/capture.report.md`.
 
-- `provenance` — версия, sha256 pcap, путь
-- `summary` — пакеты, flows, findings, uploaded/downloaded bytes
-- `entities` — хосты: internal/external, роли, flows, bytes, SNI, DNS
-- `dns` — список DNS-запросов + топ по частоте + NXDOMAIN
-- `flows` — топ-100 по байтам и пакетам, с direction и SNI
-- `findings` — список находок детекторов
-- Markdown-версия — то же, но человекочитаемо (для тикета)
+Без аргументов — спросит путь интерактивно:
 
-## Текущие экстракторы
+```powershell
+python -m pcap_triage
+```
 
-- **FlowExtractor** — 5-tuple, bytes, timestamps, `initiated_by_src`
-- **DNSExtractor** — DNS-запросы и NXDOMAIN; `dns_queries_by_src`
-- **TLSExtractor** — SNI из ClientHello, ручной парсер; пишет в оба
-  направления через `session_sni`
+## Пример вывода
 
-## Текущие детекторы
+```
+packets:            627694
+unique DNS queries: 117
+NXDOMAIN count:     0
+flows:              2328
+findings:           9
+report JSON:        reports\capture.report.json
+report Markdown:    reports\capture.report.md
+```
 
-- `dga_domain` — высокая энтропия label (игнорирует дефисы)
-- `suspicious_port` — исходящие на подозрительные порты
-  (игнорирует приватные dst, агрегирует по (dst_ip, dst_port))
-- `nxdomain_burst` — >= N NXDOMAIN с одного IP
-- `cloud_tunnel_domain` — trycloudflare, ngrok, serveo
-- `ip_check_service` — ip-api.com, ifconfig.me
-- `typosquatting` — contains + Levenshtein
-- `sni_without_dns` — SNI, которого нет в DNS (DoH, fronting, hardcode)
+В Markdown-отчёте — сущности с ролями и профилем:
 
-## Сущности (Entities)
-
-Один IP = одна сущность. Вместо 500 flow-строк — 20-50 хостов
-с ролями:
-
-- `internal` / `external` — базовая классификация
-- `gateway_candidate` — internal с большим числом исходящих
-- `victim_candidate` — internal с findings
-- `c2_candidate` — external с findings
-
-Для каждого хоста: flows in/out, bytes in/out, SNI-домены,
-DNS-имена, references на findings.
-
-## Direction
-
-Для каждой flow-записи:
-- `inbound` — внешний → внутренний (download)
-- `outbound` — внутренний → внешний (upload)
-- `internal` — внутренний → внутренний
-- `external` — внешний → внешний
-
-В summary — суммы `uploaded_bytes` / `downloaded_bytes` /
-`internal_bytes` / `external_bytes`.
+```markdown
+**`10.6.13.133`** — internal, victim_candidate
+  359 flows out · 353 in · ↓ 36.6 MB · ↑ 3.6 MB
+  hostname: `DESKTOP-5AVE44C`
+  MAC: `24:77:03:ac:97:df`
+  username: `rgaines`
+  realm: `MASSFRICTION.COM`
+```
 
 ## Производительность
 
-Парсинг — собственный, на `RawPcapReader` + `struct`, без scapy
-для L2-L4. Scapy только для DNS payload (порт 53).
+- **334 МБ pcap** (627k пакетов) — **12 секунд**
+- **50 МБ pcap** (48k пакетов) — **1.5 секунды**
+- **Память** — 106 МБ на 334 МБ файл
 
-На 334 МБ pcap (627 694 пакетов): **~12 секунд**. Через scapy
-было бы ~460 секунд (39x разница).
+В основе — собственный парсер пакетов на `struct.unpack`,
+без scapy dissect. Это даёт **39x ускорение** против чистого scapy.
+Scapy используется точечно — только для DNS-payload.
 
-## Проверено на
+## Что внутри
 
-- Синтетика (`make_test_pcap.py`) — 36 пакетов, 14 findings
-- FIRST-2015 Hands-on Network Forensics — snort.log.*
-- CTF CyberCampTask — 627 694 пакета, 334 МБ, 2328 flows.
-  C2-домены `salam-spbsed-*.rtbcdn.ru` видны в entities и SNI,
-  но не флагуются эвристиками — резолвятся через DNS.
-  Это класс задач для Threat Intel.
+### Экстракторы (7)
+
+| Слой | Модуль | Что извлекает |
+|---|---|---|
+| L0 | `flow.py` | 5-tuple, байты, timestamps, инициатор |
+| L0 | `dns.py` | DNS-запросы, NXDOMAIN, по источнику |
+| L0 | `host_identity.py` | MAC из ARP |
+| L0 | `nbns.py` | Hostname из NBNS (NetBIOS) |
+| L0 | `kerberos.py` | Username, realm, sname из Kerberos |
+| L0 | `tls.py` | SNI из TLS ClientHello |
+| L0 | `http.py` | Host, URI, Method, User-Agent |
+
+### Детекторы (10)
+
+| Детектор | Что ловит |
+|---|---|
+| `dga` | Высокая энтропия label в DNS |
+| `suspicious_port` | Исходящие на нестандартные порты |
+| `nxdomain_burst` | Много NXDOMAIN с одного IP |
+| `cloud_tunnel` | trycloudflare, ngrok, serveo |
+| `ip_check_service` | ip-api.com, ifconfig.me |
+| `typosquatting` | Подделки под бренды (Levenshtein) |
+| `sni_mismatch` | SNI без DNS-запроса |
+| `brute_force` | Перебор паролей к одному endpoint |
+| `vulnerable_path` | Обращения к уязвимым путям (wp-login, .env) |
+| `script_download` | Скачивание .ps1/.sh/.vbs/.jar |
+
+### Отчёты (3)
+
+- **JSON** — с `schema_version`, `provenance` (sha256 pcap), для SIEM.
+- **Markdown** — для копирования в тикет или вики.
+- **Flow report** — conn.log-стиль, для ручного пивота в Wireshark.
 
 ## Архитектура
 
+```
 PCAP → Extractors → CaptureState → Detectors → Findings
-                                       ↓
-                                  Entities → Reporters (JSON+MD)
+                                              ↓
+                                       Aggregators (entities)
+                                              ↓
+                                       Reporters → JSON + Markdown
+```
 
-Подробнее — в `ARCHITECTURE.md`.
+Полная модель — в `ARCHITECTURE.md`. Справочник по модулям — в
+`MODULES.md`. История версий — в `CHANGELOG.md`.
+
+## Тесты
+
+```powershell
+pytest tests/ -v
+```
+
+**106 тестов** в 9 файлах. Всё зелёное.
+
+| Файл | Тестов | Что покрывает |
+|---|---|---|
+| `test_detectors.py` | 41 | 9 детекторов, регрессии |
+| `test_parsers.py` | 11 | Разбор L2-L4 заголовков |
+| `test_aggregators_entities.py` | 10 | Роли, сущности, findings |
+| `test_tls_parse.py` | 10 | TLS ClientHello |
+| `test_brute_force.py` | 9 | Детектор перебора |
+| `test_extractors_http.py` | 8 | HTTP-экстрактор |
+| `test_net_utils.py` | 6 | Направление трафика |
+| `test_extractors_tls.py` | 6 | TLS-экстрактор |
+| `test_nbns_parse.py` | 5 | NBNS (NetBIOS) |
+
+## Проверено на
+
+- **MTA 2025-06-13** — упражнение malware-traffic-analysis.net.
+  Инструмент собрал профиль жертвы **5 из 5** (IP, MAC, hostname,
+  username, realm) за 1.5 секунды. Ручной разбор занимает 30–40 мин.
+- **CTF CyberCampTask** (334 МБ) — подбор пароля + скачивание
+  скриптов + C2. Все findings корректные.
+- **FIRST-2015 Hands-on Network Forensics** — 3 pcap'а.
+- **IDS-пакет** (WordPress `/.env`) — сканирование уязвимости.
+- **MTA Simple C2** — сканер `78.153.140.203`.
+
+## Требования
+
+- Python 3.11+
+- `scapy` ≥ 2.5 (только для DNS + fallback pcapng)
+- `pyyaml` ≥ 6.0
+
+Windows / Linux / macOS. Разрабатывалось под Windows.
+
+## Лицензия
+
+Проект 314 

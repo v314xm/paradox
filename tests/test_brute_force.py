@@ -115,7 +115,7 @@ def test_port_scan_not_detected():
 # ---------- кастомные пороги ----------
 
 def test_custom_thresholds():
-    """Понижаем min_flows до 5 → срабатывает на 5 flow'ах."""
+    """Понижаем пороги → срабатывает на 5 flow'ах."""
     state = CaptureState()
     for i in range(5):
         _add_flow(
@@ -124,9 +124,12 @@ def test_custom_thresholds():
             packets=2,
         )
 
-    config = Config()
-    config.brute_force_min_flows = 5
-    config.brute_force_min_unique_src_ports = 3
+    # Config — frozen dataclass, поля передаются в конструктор
+    config = Config(
+        brute_force_min_flows=5,
+        brute_force_min_unique_src_ports=5,
+        brute_force_max_avg_packets=3,
+    )
 
     findings = BruteForceDetector().run(state, config)
 
