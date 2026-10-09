@@ -30,6 +30,7 @@ from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
 from pcap_triage.extractors.host_identity import HostIdentityExtractor
 from pcap_triage.extractors.nbns import NBNSExtractor
 from pcap_triage.extractors.kerberos import KerberosExtractor
+from pcap_triage.detectors.lateral_movement import LateralMovementDetector
 
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
@@ -56,8 +57,8 @@ DETECTORS = [
     TyposquattingDetector(),
     SNIMismatchDetector(),
     BruteForceDetector(),
+    LateralMovementDetector(),
     VulnerablePathDetector(),
-
 ]
 
 

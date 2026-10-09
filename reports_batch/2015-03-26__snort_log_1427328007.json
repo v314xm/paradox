@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-26\\snort.log.1427328007",
     "pcap_sha256": "92c19649e2f46be469182bf85d62192f05f4b9419576f0e98cd9a5879a309e93"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 148,
     "nxdomain_count": 433,
     "flows": 10722,
-    "findings": 8,
+    "findings": 6,
     "extractor_errors": {},
     "uploaded_bytes": 9633647,
     "downloaded_bytes": 12965101,
@@ -1209,7 +1209,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1318,7 +1318,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          4
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1803,7 +1803,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1836,7 +1836,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          3
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4603,120 +4603,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.2 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.2",
-        "dst_port": 80,
-        "distinct_dsts": 84,
-        "total_flows": 91,
-        "thin_targets": 84,
-        "top_dsts": [
-          {
-            "ip": "88.150.173.218",
-            "flows": 3
-          },
-          {
-            "ip": "130.236.100.79",
-            "flows": 2
-          },
-          {
-            "ip": "130.236.254.50",
-            "flows": 2
-          },
-          {
-            "ip": "129.177.13.120",
-            "flows": 2
-          },
-          {
-            "ip": "147.251.48.205",
-            "flows": 2
-          },
-          {
-            "ip": "213.179.58.107",
-            "flows": 2
-          },
-          {
-            "ip": "83.223.14.210",
-            "flows": 1
-          },
-          {
-            "ip": "109.205.222.4",
-            "flows": 1
-          },
-          {
-            "ip": "194.71.11.69",
-            "flows": 1
-          },
-          {
-            "ip": "217.75.106.99",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 80,
-        "distinct_dsts": 74,
-        "total_flows": 195,
-        "thin_targets": 65,
-        "top_dsts": [
-          {
-            "ip": "198.199.14.136",
-            "flows": 31
-          },
-          {
-            "ip": "68.232.34.200",
-            "flows": 22
-          },
-          {
-            "ip": "198.199.14.10",
-            "flows": 18
-          },
-          {
-            "ip": "195.12.232.178",
-            "flows": 15
-          },
-          {
-            "ip": "2.23.159.132",
-            "flows": 11
-          },
-          {
-            "ip": "198.199.14.134",
-            "flows": 10
-          },
-          {
-            "ip": "23.223.41.68",
-            "flows": 6
-          },
-          {
-            "ip": "157.56.114.104",
-            "flows": 6
-          },
-          {
-            "ip": "195.12.232.177",
-            "flows": 4
-          },
-          {
-            "ip": "23.78.127.162",
-            "flows": 3
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "suspicious_port",
       "value": "194.105.226.20:21",

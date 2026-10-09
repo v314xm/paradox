@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-22\\snort.log.1426982408",
     "pcap_sha256": "c73656cbdad611b7b988e8a389159c26eae17a9175f4e5b141a70d7ca611cf1d"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 58,
     "nxdomain_count": 434,
     "flows": 10988,
-    "findings": 5,
+    "findings": 4,
     "extractor_errors": {},
     "uploaded_bytes": 9867435,
     "downloaded_bytes": 11341645,
@@ -1555,7 +1555,7 @@
           "www.wajam.com"
         ],
         "findings_indices": [
-          2
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1659,7 +1659,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          1
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4670,63 +4670,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 80,
-        "distinct_dsts": 56,
-        "total_flows": 171,
-        "thin_targets": 45,
-        "top_dsts": [
-          {
-            "ip": "198.199.14.134",
-            "flows": 20
-          },
-          {
-            "ip": "198.199.14.135",
-            "flows": 17
-          },
-          {
-            "ip": "68.232.34.200",
-            "flows": 13
-          },
-          {
-            "ip": "198.199.14.14",
-            "flows": 12
-          },
-          {
-            "ip": "2.23.159.132",
-            "flows": 12
-          },
-          {
-            "ip": "198.199.14.10",
-            "flows": 10
-          },
-          {
-            "ip": "195.12.232.178",
-            "flows": 9
-          },
-          {
-            "ip": "195.12.232.177",
-            "flows": 9
-          },
-          {
-            "ip": "198.199.14.136",
-            "flows": 8
-          },
-          {
-            "ip": "23.223.41.68",
-            "flows": 6
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",

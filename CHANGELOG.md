@@ -11,19 +11,97 @@
 ### Запланировано
 - Threat Intel enrichment (VirusTotal + SQLite-кэш, rate limit).
 - FlowAggregator + BeaconingDetector.
-- Windowing в CaptureState.
+- Windowing в CaptureState (fix nxdomain_burst долга).
 - StreamReassembler (TCP reassembly).
 - HTTPObjectExtractor + FileCarve.
 - Correlator (entity scoring, timeline).
 - Streamlit / FastAPI обёртка.
 
 ### Известные проблемы
-- `brute_force` даёт false positive на Google Safe Browsing и на
-  LDAP-порт 389 (не исключены порты DC).
-- `footprintdns.com` (Cisco Umbrella) — false positive в DGA.
+- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
+  на FIN-2015, часть могут быть FP.
 - TCP reassembly отсутствует — Kerberos и большие HTTP читаются
   частично (первый сегмент).
 - JA3/JA3S fingerprinting отсутствует.
+- `suspicious_port` и `brute_force` могут давать FP на редкие
+  легитимные сервисы.
+- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении.
+
+## [0.4.0] — 2026-10-09
+
+Массовая чистка FP. 5872 findings → 343 на датасете FIRST-2015
+(58 pcap'ов, 9.5M пакетов). Новый детектор port_scan. 127 тестов.
+
+### Добавлено
+- `detectors/port_scan.py` — `PortScanDetector`. Горизонтальное
+  сканирование: один src_ip, много dst_ip, один dst_port.
+  Агрегация: `(src_ip, dst_port) → set[dst_ip]`. Порог — 10 dsts,
+  доля «тонких» целей ≥ 0.7.
+- `tests/test_regressions.py` — 21 регрессионный тест на FP из
+  FIRST-2015. Каждый тест привязан к конкретному домену/сценарию.
+- Combo-сигнал `web_scanner` в `VulnerablePathDetector` —
+  агрегирует 290 URI от одного сканера в 1 finding.
+- `config.port_scan_excluded_ports: {80, 443}` — браузер неотличим
+  от скана, исключаем полностью.
+- `config.login_endpoint_hints` — список подстрок login-endpoint'ов
+  для brute_force.
+- `config.brute_force_skip_tls_ports: {443, 8443}`.
+- DGA allowlist расширен: Stack Exchange, Live Messenger поддомены
+  с цифрами, длинные блоги (acuityplatform, sourceforge,
+  mysqlperformanceblog, hotpropertydesigns, thrivinglifestylez,
+  hdwallpapersfactory, migratoryspecies).
+
+### Изменено
+- **`TyposquattingDetector` — переписан целиком.** Матчинг только
+  по SLD (registered domain). Поддомены игнорируются.
+  `googleads.g.doubleclick.net` → SLD `doubleclick`, не `google`.
+  Levenshtein дополнительно ограничен: длина ≥ 5, разница длин ≤ 1,
+  первый и последний символ совпадают, distance / max_len ≤ 0.25.
+  Это убирает FP на `app.loadimpact.com`, `app.webinspector.com`,
+  `behance.net` vs `binance`.
+- **`VulnerablePathDetector` — агрегация по нормализованному URI.**
+  `urlsplit(uri).path`, percent-decode, lowercase. `/WP-LOGIN.PHP?n=1`
+  и `/wp-login.php?n=2` → один bucket. Две стратегии: individual
+  (для одиночных) и web_scanner (для ≥ 10 разных URI от одного
+  (src, dst)).
+- **`BruteForceDetector` — три новых фильтра.** Skip TLS-портов
+  (443/8443), login-hint в URI, корректный rate-check (был
+  недостижимый код). Фильтры вынесены на верхний уровень цикла.
+- **`SuspiciousPortDetector` — фильтр `scan_pairs`.** Пары
+  `(src_ip, dst_port)`, покрытые `PortScanDetector`, пропускаются.
+- `.js` исключён из `suspicious_download_extensions` — JavaScript
+  есть на каждом сайте, тысячи FP.
+- `dns.py` — strict ASCII decode qname. Не-ASCII → запрос
+  отбрасывается целиком.
+
+### Исправлено
+- **Typosquatting FP (6 доменов):** googleads.g.doubleclick.net,
+  googleads4.g.doubleclick.net, google-analytics.com,
+  google-code-prettify.googlecode.com, app.loadimpact.com,
+  app.webinspector.com.
+- **Typosquatting FP после SLD-фикса (10 доменов):** id.google.se,
+  www.google.se, rcp.c.appier.net, www.behance.net,
+  aax.amazon-adsystem.com, c.amazon-adsystem.com, i.s-microsoft.com,
+  www.googletagservices.com, www.microsoftstore.com,
+  www.paypalobjects.com.
+- **DGA FP:** stackoverflow.com, baymsgr*.*.gateway.messenger.live.com,
+  acuityplatform.com, ibmsoftwaredelivery.sourceforge.net,
+  windowsteamblog.com, mysqlperformanceblog.com.
+- **Brute force FP:** 25 findings на 2015-03-17 (CDN-трафик на
+  80/443 от браузера). Все ушли через TLS/login-фильтры.
+- **Port scan FP:** 53 findings на порту 80 + 34 на 443 на 2015-04-07
+  (браузер `192.168.0.53`, 675 сайтов за день). Ушли через
+  `port_scan_excluded_ports`.
+- **Port scan в `EXTRACTORS` вместо `DETECTORS`** — детектор
+  вызывался per-packet, отсюда 304k "extractor errors".
+
+### Производительность
+- FIN-2015 полный батч: 58 файлов, 9.5M пакетов, 4.7 ГБ — 8 минут.
+  Ни одной ошибки.
+- findings: 5872 → 430 → **343** (после port_scan fix).
+
+### Тесты
+- 106 → 127 (+21 в test_regressions.py).
 
 ## [0.3.0] — 2026-10-08
 

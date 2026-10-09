@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-01\\snort.log.1427908260",
     "pcap_sha256": "6dacca12b365231f081fadb1eddc8aecea0ee997fe45f3c5bd47a19c7c115ae6"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 12,
     "nxdomain_count": 0,
     "flows": 895,
-    "findings": 1,
+    "findings": 0,
     "extractor_errors": {},
     "uploaded_bytes": 6746045,
     "downloaded_bytes": 150481286,
@@ -60,7 +60,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:c0:d7",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -165,8 +165,8 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:b0:96",
-        "hostname": "WPAD",
+        "mac": null,
+        "hostname": null,
         "username": null,
         "realm": null,
         "asn": null,
@@ -212,7 +212,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:b2:45",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -247,7 +247,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "78:54:2e:9f:10:28",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -309,7 +309,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": "00:60:6e:00:9d:f9",
+        "mac": null,
         "hostname": null,
         "username": null,
         "realm": null,
@@ -2901,63 +2901,5 @@
       }
     ]
   },
-  "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:443",
-      "confidence": 0.75,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 443,
-        "distinct_dsts": 13,
-        "total_flows": 24,
-        "thin_targets": 11,
-        "top_dsts": [
-          {
-            "ip": "31.13.64.1",
-            "flows": 6
-          },
-          {
-            "ip": "74.125.71.106",
-            "flows": 5
-          },
-          {
-            "ip": "213.155.151.154",
-            "flows": 2
-          },
-          {
-            "ip": "74.125.232.118",
-            "flows": 2
-          },
-          {
-            "ip": "216.58.209.109",
-            "flows": 1
-          },
-          {
-            "ip": "193.149.88.43",
-            "flows": 1
-          },
-          {
-            "ip": "108.160.170.50",
-            "flows": 1
-          },
-          {
-            "ip": "104.46.52.74",
-            "flows": 1
-          },
-          {
-            "ip": "64.4.61.94",
-            "flows": 1
-          },
-          {
-            "ip": "216.58.209.110",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    }
-  ]
+  "findings": []
 }

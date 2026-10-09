@@ -217,7 +217,7 @@ def test_port_scan_ignores_browser_like_traffic():
 
     state = CaptureState()
     for i in range(15):
-        for j in range(10):   # 10 flow'ов к каждому dst
+        for j in range(10):
             key = FlowKey(
                 proto="tcp",
                 src_ip="192.168.0.53", dst_ip=f"203.0.113.{i}",
@@ -227,3 +227,104 @@ def test_port_scan_ignores_browser_like_traffic():
 
     findings = PortScanDetector().run(state, Config())
     assert findings == []
+
+
+# ---------- LateralMovementDetector ----------
+
+def _lm_state(flows):
+    """flows: list of (src, dst, dport, ua, uri)."""
+    from pcap_triage.models import FlowKey, FlowStats
+    state = CaptureState()
+    for i, (src, dst, dport, ua, uri) in enumerate(flows):
+        key = FlowKey(
+            proto="tcp", src_ip=src, dst_ip=dst,
+            src_port=40000 + i, dst_port=dport,
+        )
+        fs = FlowStats(packets=5, bytes_sent=500)
+        fs.http_user_agent = ua
+        fs.http_uri = uri
+        state.flows[key] = fs
+    return state
+
+
+def test_lateral_movement_winrm_ruby_ua():
+    """Ruby WinRM Client на 5985 — точно lateral movement, score 0.8."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    state = _lm_state([
+        ("192.168.1.12", "192.168.1.1", 5985,
+         "Ruby WinRM Client (2.8.3, ruby 3.3.7)", "/wsman"),
+    ])
+    findings = LateralMovementDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].type == "lateral_movement"
+    assert findings[0].confidence == 0.8
+    assert "user_agent" in findings[0].evidence["match_reasons"]
+
+
+def test_lateral_movement_smb_internal_many_flows():
+    """5+ flows на 445 internal → internal, score 0.6."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    state = _lm_state([
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+    ])
+    findings = LateralMovementDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].confidence == 0.6
+    assert findings[0].evidence["match_reasons"] == ["port"]
+
+
+def test_lateral_movement_single_rdp_not_flagged():
+    """Один RDP-сеанс к jump-host — норма, не finding."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    state = _lm_state([
+        ("192.168.0.1", "192.168.0.51", 3389, None, None),
+    ])
+    findings = LateralMovementDetector().run(state, Config())
+    assert findings == []
+
+
+def test_lateral_movement_external_src_not_flagged():
+    """Внешний src на 445 — это не lateral movement (другой детектор)."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    state = _lm_state([
+        ("203.0.113.5", "192.168.1.12", 445, None, None),
+    ])
+    findings = LateralMovementDetector().run(state, Config())
+    assert findings == []
+
+
+def test_lateral_movement_admin_allowlist():
+    """Allowlist: jump-host не флагуется."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from dataclasses import replace
+    config = replace(
+        Config(),
+        lateral_movement_admin_srcs=frozenset({"10.0.1.50"}),
+    )
+    state = _lm_state([
+        ("10.0.1.50", "192.168.1.12", 445, None, None),
+    ])
+    findings = LateralMovementDetector().run(state, config)
+    assert findings == []
+
+
+def test_lateral_movement_aggregates_flows():
+    """3 flow к одному (src, dst, dport) → один finding."""
+    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    state = _lm_state([
+        ("10.0.1.50", "192.168.1.12", 5985,
+         "Ruby WinRM Client", "/wsman"),
+        ("10.0.1.50", "192.168.1.12", 5985,
+         "Ruby WinRM Client", "/wsman"),
+        ("10.0.1.50", "192.168.1.12", 5985,
+         "Ruby WinRM Client", "/wsman"),
+    ])
+    findings = LateralMovementDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].evidence["flow_count"] == 3
+
+

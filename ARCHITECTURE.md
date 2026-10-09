@@ -22,7 +22,7 @@ Extractors (Flow, DNS, TLS, HTTP, HostIdentity, NBNS, Kerberos)
 CaptureState (flows, dns, host_identities)
   │
   ▼
-Detectors (10) → Findings
+Detectors (11) → Findings
   │
   ▼
 build_entities → Entities (internal / external)
@@ -47,6 +47,14 @@ Reporters → JSON + Markdown
 4. **Finding — на сущность, не на инцидент.**
    Один finding = одна логическая находка, а не одна строка
    на каждый flow или пакет.
+
+5. **Пороги и списки — в `Config`.**
+   Никаких магических чисел в коде детекторов.
+
+6. **FP-фильтр важнее recall.**
+   Инструмент для триажа — 100 findings из которых 80 ложных хуже,
+   чем 20 findings из которых 5 ложных. После 0.4.0 приоритет
+   смещён в сторону точности.
 
 ## Слой 1. Парсинг (`parsers.py`)
 
@@ -99,7 +107,9 @@ scapy (для сложных payload) и ручные парсеры.
 | `http.py` | TCP payload (HTTP-запрос) | `flow.http_host/uri/method/ua` |
 
 **Изоляция ошибок:** падение одного экстрактора не роняет проход.
-Ошибки считаются в `state.extractor_errors[имя]`.
+Ошибки считаются в `state.extractor_errors[имя]`. Если в отчёте
+видно большое число ошибок одного экстрактора — это баг регистрации
+(например, детектор попал в `EXTRACTORS`), а не проблема данных.
 
 **Известное ограничение:** TLS ClientHello и Kerberos-сообщения
 могут быть фрагментированы через несколько TCP-сегментов.
@@ -167,28 +177,61 @@ class LocalDetector(Protocol):
     def run(self, state: CaptureState, config: Config) -> list[Finding]: ...
 ```
 
-### Реализованы (10)
+### Реализованы (11)
 
 | Детектор | Источник данных | Логика |
 |---|---|---|
 | `dga` | `dns_queries` | Энтропия label > порога, игнор дефисов, allowlist |
 | `suspicious_port` | `flows` | Порт из списка, dst_ip внешний, агрегация по (dst_ip, dst_port) |
+| `port_scan` | `flows` | Один src → много dst на один dst_port, тонкие цели |
 | `nxdomain_burst` | `dns_nxdomain_by_src` | Count > порога с одного IP |
 | `cloud_tunnel` | `dns_queries` | Суффиксы trycloudflare/ngrok/serveo |
 | `ip_check_service` | `dns_queries` | Точные домены (ip-api.com и т.п.) |
-| `typosquatting` | `dns_queries` | Contains + Levenshtein к списку брендов |
+| `typosquatting` | `dns_queries` | SLD-only, contains + Levenshtein к списку брендов |
 | `sni_mismatch` | `flows.sni` × `dns_queries` | SNI не в DNS, allowlist по суффиксу |
 | `brute_force` | `flows` | Много коротких flows к одной паре (src, dst_ip, dst_port) |
-| `vulnerable_path` | `flows.http_uri` | Подстроки в URI (wp-login, .env, /.git) |
-| `script_download` | `flows.http_uri` | Расширения .ps1/.sh/.vbs/.jar |
+| `vulnerable_path` | `flows.http_uri` | Подстроки в URI + web_scanner агрегация |
+| `script_download` | `flows.http_uri` | Расширения .ps1/.sh/.vbs/.exe/.dll |
+
+### Cross-detector связи
+
+Детекторы независимы, но два **фильтруют findings друг друга**:
+
+- **`port_scan` → `suspicious_port`.** `SuspiciousPortDetector`
+  собирает `scan_pairs: set[(src_ip, dst_port)]` — пары, где один
+  src стучится к ≥ `port_scan_min_distinct_dsts` разным dst. Если
+  все src в finding'е — сканеры на этом порту, finding пропускается
+  (покрыт `PortScanDetector`'ом).
+- **`vulnerable_path` → `web_scanner`.** `VulnerablePathDetector`
+  собирает пары `(src_ip, dst_ip)` с ≥ `web_scanner_min_distinct_paths`
+  разными URI. Для таких пар генерируется один `web_scanner` finding
+  вместо N individual `vulnerable_path` / `script_download`.
+
+Порядок регистрации в `DETECTORS` для этого не важен: каждый детектор
+сам собирает нужные ему счётчики из `state.flows`, а не из findings
+другого детектора.
+
+### Пороги FP-фильтров (0.4.0)
+
+| Фильтр | Значение | Что отсеивает |
+|---|---|---|
+| `port_scan_excluded_ports` | `{80, 443}` | Браузер = скан на веб-портах |
+| `port_scan_max_flows_per_dst` | 3 | Браузер с параллельными соединениями |
+| `port_scan_min_distinct_dsts` | 10 | Одиночные соединения |
+| `web_scanner_min_distinct_paths` | 10 | Одиночные обращения к уязвимым путям |
+| `brute_force_skip_tls_ports` | `{443, 8443}` | HTTPS-браузер к CDN |
+| `brute_force_min_rate_flows_per_sec` | 0.01 | Поллинг (Safe Browsing) |
+| `typosquatting_levenshtein_threshold` | 2 | Разные слова (behance/binance) |
+| `dga_entropy_threshold` | 3.5 | Человекочитаемые домены |
 
 ### Принципы
 
-- **Пороги и списки — в `Config`.** Никаких магических чисел в коде.
 - **Агрегация по сущности.** 474 соединения к одному серверу → один
   finding, а не 474.
 - **Cross-layer detectors** — самые ценные (`sni_mismatch` читает
   и `dns_queries`, и `flows.sni`).
+- **Allowlist важнее порога.** DGA, typosquatting, brute_force —
+  whack-a-mole. Allowlist надёжнее тюнинга порогов.
 
 ## Слой 5. Агрегаторы (`aggregators/`)
 
@@ -222,7 +265,7 @@ def build_entities(state, findings, config) -> Entities
 |---|---|
 | `internal` / `external` | Всегда |
 | `domain_controller` | Много flows на порты 88/389/445 от разных внутренних src |
-| `attacker_candidate` | `attacker_tag` из findings (brute_force src, vulnerable_path src) |
+| `attacker_candidate` | `attacker_tag` из findings (brute_force src, vulnerable_path src, web_scanner src) |
 | `victim_candidate` | `victim_tag` из findings (brute_force dst, script_download src) |
 | `c2_candidate` | External с findings |
 | `gateway_candidate` | Внутренний, много flows и уникальных dst, не DC и не attacker |
@@ -232,6 +275,8 @@ def build_entities(state, findings, config) -> Entities
 Finding → IP → тег. Теги взаимоисключающие:
 - `brute_force`: src → `attacker_tag`, dst → `victim_tag`
 - `vulnerable_path`: src → `attacker_tag` (сканер), dst → `victim_tag` (цель)
+- `web_scanner`: src → `attacker_tag` (сканер), dst → `victim_tag`
+- `port_scan`: src → `attacker_tag`, dst не выделяется (много целей)
 - `script_download`: src → `victim_tag` (**инверсия**, жертва качает),
   dst → `attacker_tag`
 
@@ -302,6 +347,7 @@ EXTRACTORS = [
 
 DETECTORS = [
     DGADetector(),
+    PortScanDetector(),
     SuspiciousPortDetector(),
     NXDOMAINBurstDetector(),
     CloudTunnelDetector(),
@@ -313,7 +359,15 @@ DETECTORS = [
 ]
 ```
 
-Порядок детекторов не важен — они независимы.
+Порядок детекторов не важен — они независимы. `PortScanDetector`
+стоит рядом с `SuspiciousPortDetector` для читаемости (логически
+связаны).
+
+**Известная ошибка:** если случайно поместить детектор в `EXTRACTORS`,
+он будет вызываться per-packet с сигнатурой `process(record, state)`,
+которой у него нет. Исключение поймается в `_extract`, но
+`state.extractor_errors[name]` будет равен числу пакетов. Признак —
+аномально большое число ошибок одного "экстрактора" в summary.
 
 ## Расширение
 
@@ -329,7 +383,8 @@ DETECTORS = [
 1. Файл `detectors/<name>.py`. Класс с атрибутом `name`, методом
    `run(state, config) -> list[Finding]`.
 2. Регистрация в `DETECTORS`.
-3. Тесты в `tests/test_detectors.py`.
+3. Тесты в `tests/test_detectors.py`. FP-регрессия —
+   в `tests/test_regressions.py`.
 
 ### Новый reporter
 
@@ -348,27 +403,46 @@ DETECTORS = [
   разбираются частично (только первый TCP-сегмент).
 - **JA3/JA3S отсутствует.**
 - **`nxdomain_burst` считает за весь файл** — должен быть по окну.
-- **`brute_force` даёт false positive** на Google Safe Browsing
-  (Firefox качает много разных URI с одного IP) и на LDAP-порт 389.
+  93 findings на FIN-2015, часть могут быть FP от distributed
+  resolvers.
+- **`sni_without_dns` может давать FP** на CDN, где DNS-запрос был
+  в другом файле захвата. 73 findings на FIN-2015.
+- **Двухуровневые TLD** (co.uk, com.au) не поддержаны в SLD-извлечении
+  `typosquatting`. `bbc.co.uk` → SLD определится как `co`.
+  Решение — public suffix list.
 - **Threat Intel отсутствует** — нет VT/AbuseIPDB enrichment.
 - **Correlator / Timeline отсутствуют** — нет сквозной хронологии
   инцидента.
 
-## Порядок внедрения (что сделано)
+## История версий (архитектурно значимые)
 
-1. Raw parser + 39x ускорение — **сделано**
-2. Flow, DNS, TLS (SNI), HTTP экстракторы — **сделано**
-3. 10 детекторов — **сделано**
-4. Entities с ролями — **сделано**
-5. HostIdentity (ARP), NBNS, Kerberos — **сделано**
-6. JSON + Markdown отчёты — **сделано**
-7. MTA-задание 5/5 — **сделано**
+### 0.1.x
+- Raw parser + 39x ускорение.
+- Flow, DNS экстракторы.
+- 6 детекторов.
+
+### 0.2.x
+- TLS, HTTP экстракторы.
+- SNI mismatch, brute_force, vulnerable_path.
+- Entities с ролями.
+
+### 0.3.x
+- HostIdentity (ARP), NBNS, Kerberos.
+- MTA-задание 5/5.
+
+### 0.4.0
+- **PortScanDetector** — 11-й детектор.
+- **Typosquatting SLD-only** — переписан.
+- **VulnerablePathDetector** — агрегация + web_scanner.
+- **BruteForceDetector** — TLS/login-hint фильтры.
+- **Massовая FP-чистка.** 5872 → 343 findings на FIN-2015.
+- 127 тестов.
 
 ## Что дальше
 
 - Threat Intel (VT + SQLite-кэш, rate limit).
 - FlowAggregator + BeaconingDetector.
-- Windowing в CaptureState.
+- Windowing в CaptureState (fix nxdomain_burst).
 - StreamReassembler (TCP reassembly).
 - HTTPObjectExtractor + FileCarve.
 - Correlator (entity scoring, timeline).

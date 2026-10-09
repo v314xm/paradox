@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-10\\snort.log.1425987061",
     "pcap_sha256": "8def52bf0cbc61de82bcd9bc95000fdbda62be6eca08c1926bf29d559cd27dfb"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 296,
     "nxdomain_count": 18,
     "flows": 7000,
-    "findings": 8,
+    "findings": 5,
     "extractor_errors": {},
     "uploaded_bytes": 5375725,
     "downloaded_bytes": 33174743,
@@ -510,7 +510,7 @@
           "z.moatads.com"
         ],
         "findings_indices": [
-          5
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1106,7 +1106,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          3
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1139,7 +1139,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          4
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4054,177 +4054,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.2 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.2",
-        "dst_port": 80,
-        "distinct_dsts": 81,
-        "total_flows": 221,
-        "thin_targets": 75,
-        "top_dsts": [
-          {
-            "ip": "213.155.151.149",
-            "flows": 27
-          },
-          {
-            "ip": "213.155.151.151",
-            "flows": 25
-          },
-          {
-            "ip": "130.236.100.79",
-            "flows": 11
-          },
-          {
-            "ip": "193.142.108.20",
-            "flows": 5
-          },
-          {
-            "ip": "93.184.220.29",
-            "flows": 5
-          },
-          {
-            "ip": "147.251.48.205",
-            "flows": 4
-          },
-          {
-            "ip": "84.22.180.89",
-            "flows": 3
-          },
-          {
-            "ip": "130.239.18.165",
-            "flows": 2
-          },
-          {
-            "ip": "195.220.108.108",
-            "flows": 2
-          },
-          {
-            "ip": "217.31.202.63",
-            "flows": 2
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.51 -> *:443",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_port": 443,
-        "distinct_dsts": 64,
-        "total_flows": 238,
-        "thin_targets": 48,
-        "top_dsts": [
-          {
-            "ip": "213.155.151.182",
-            "flows": 26
-          },
-          {
-            "ip": "216.58.209.142",
-            "flows": 26
-          },
-          {
-            "ip": "68.232.35.121",
-            "flows": 25
-          },
-          {
-            "ip": "216.58.209.100",
-            "flows": 16
-          },
-          {
-            "ip": "140.211.11.131",
-            "flows": 12
-          },
-          {
-            "ip": "140.211.11.121",
-            "flows": 10
-          },
-          {
-            "ip": "213.155.151.148",
-            "flows": 9
-          },
-          {
-            "ip": "213.155.151.185",
-            "flows": 9
-          },
-          {
-            "ip": "63.245.217.160",
-            "flows": 8
-          },
-          {
-            "ip": "64.233.167.94",
-            "flows": 6
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:443",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 443,
-        "distinct_dsts": 30,
-        "total_flows": 160,
-        "thin_targets": 23,
-        "top_dsts": [
-          {
-            "ip": "213.155.151.148",
-            "flows": 33
-          },
-          {
-            "ip": "213.155.151.182",
-            "flows": 26
-          },
-          {
-            "ip": "216.58.209.142",
-            "flows": 25
-          },
-          {
-            "ip": "216.58.209.110",
-            "flows": 20
-          },
-          {
-            "ip": "216.58.209.109",
-            "flows": 9
-          },
-          {
-            "ip": "213.155.151.150",
-            "flows": 9
-          },
-          {
-            "ip": "216.58.209.141",
-            "flows": 4
-          },
-          {
-            "ip": "108.160.165.138",
-            "flows": 3
-          },
-          {
-            "ip": "108.160.166.139",
-            "flows": 3
-          },
-          {
-            "ip": "108.160.165.8",
-            "flows": 3
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "suspicious_port",
       "value": "194.105.226.20:21",

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425892797",
     "pcap_sha256": "85e40b7436860699b756a9aa959fabf00654bc3182c66dbc19e23ea8804017c8"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 471,
     "nxdomain_count": 3,
     "flows": 8281,
-    "findings": 14,
+    "findings": 11,
     "extractor_errors": {},
     "uploaded_bytes": 7455466,
     "downloaded_bytes": 146230497,
@@ -1131,7 +1131,7 @@
           "zor.livefyre.com"
         ],
         "findings_indices": [
-          7
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1169,7 +1169,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          7
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4715,177 +4715,6 @@
         "label": "lifestylejournal",
         "entropy": 3.578,
         "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.53 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.53",
-        "dst_port": 80,
-        "distinct_dsts": 49,
-        "total_flows": 180,
-        "thin_targets": 41,
-        "top_dsts": [
-          {
-            "ip": "204.79.197.200",
-            "flows": 43
-          },
-          {
-            "ip": "80.239.237.49",
-            "flows": 18
-          },
-          {
-            "ip": "80.239.254.17",
-            "flows": 17
-          },
-          {
-            "ip": "80.239.254.11",
-            "flows": 13
-          },
-          {
-            "ip": "23.43.133.163",
-            "flows": 11
-          },
-          {
-            "ip": "195.12.232.161",
-            "flows": 7
-          },
-          {
-            "ip": "216.58.209.98",
-            "flows": 6
-          },
-          {
-            "ip": "198.41.207.36",
-            "flows": 4
-          },
-          {
-            "ip": "64.18.20.10",
-            "flows": 3
-          },
-          {
-            "ip": "93.184.220.29",
-            "flows": 3
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:443",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 443,
-        "distinct_dsts": 75,
-        "total_flows": 233,
-        "thin_targets": 54,
-        "top_dsts": [
-          {
-            "ip": "216.58.209.110",
-            "flows": 17
-          },
-          {
-            "ip": "216.58.209.99",
-            "flows": 17
-          },
-          {
-            "ip": "216.58.209.142",
-            "flows": 16
-          },
-          {
-            "ip": "216.58.209.129",
-            "flows": 9
-          },
-          {
-            "ip": "31.13.91.2",
-            "flows": 6
-          },
-          {
-            "ip": "131.253.61.82",
-            "flows": 6
-          },
-          {
-            "ip": "195.12.232.155",
-            "flows": 5
-          },
-          {
-            "ip": "199.16.156.241",
-            "flows": 5
-          },
-          {
-            "ip": "216.58.209.138",
-            "flows": 5
-          },
-          {
-            "ip": "98.137.201.232",
-            "flows": 5
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.51 -> *:80",
-      "confidence": 0.75,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_port": 80,
-        "distinct_dsts": 19,
-        "total_flows": 69,
-        "thin_targets": 14,
-        "top_dsts": [
-          {
-            "ip": "216.58.209.98",
-            "flows": 13
-          },
-          {
-            "ip": "54.187.109.244",
-            "flows": 10
-          },
-          {
-            "ip": "216.58.209.102",
-            "flows": 8
-          },
-          {
-            "ip": "216.58.209.130",
-            "flows": 6
-          },
-          {
-            "ip": "54.187.115.34",
-            "flows": 4
-          },
-          {
-            "ip": "195.12.232.160",
-            "flows": 3
-          },
-          {
-            "ip": "195.12.232.161",
-            "flows": 3
-          },
-          {
-            "ip": "2.22.241.231",
-            "flows": 3
-          },
-          {
-            "ip": "74.125.232.124",
-            "flows": 3
-          },
-          {
-            "ip": "213.165.65.170",
-            "flows": 2
-          }
-        ],
-        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null

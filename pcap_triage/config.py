@@ -107,6 +107,48 @@ class Config:
         default_factory=lambda: frozenset({80, 443}),
     )
 
+    # --- lateral movement ---
+    # Порты, на которых внутренние → внутренние соединения — признак
+    # lateral movement (WinRM, SMB, RPC, RDP). В корпоративной сети
+    # эти порты используются легитимно, поэтому finding со score 0.6,
+    # не 0.9 — аналитик смотрит глазами.
+    lateral_movement_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({
+            445,    # SMB
+            135,    # MSRPC
+            139,    # NetBIOS
+            3389,   # RDP
+            5985,   # WinRM HTTP
+            5986,   # WinRM HTTPS
+        }),
+    )
+    # Минимум flows к одному (src, dst, dst_port), чтобы порт сам по
+    # себе (без UA/URI) давал finding. Один RDP/WinRM-сеанс — норма,
+    # много flows — перебор или скан.
+    lateral_movement_min_flows_port_only: int = 5
+
+    # Подстроки в User-Agent, которые однозначно указывают на
+    # инструменты lateral movement. Ruby WinRM Client — именно такой
+    # случай: легитимные клиенты не используют Ruby.
+    lateral_movement_ua_markers: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "WinRM", "PsExec", "Impacket", "wmiexec", "psexec",
+            "evil-winrm", "ruby winrm", "Ruby WinRM",
+        ),
+    )
+    # URI, характерные для remote management протоколов.
+    lateral_movement_uri_markers: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "/wsman", "/cimv2", "/root/cimv2", "/wmi",
+        ),
+    )
+    # IP-адреса администраторов / jump-хостов, которые легитимно
+    # ходят по этим портам. Пусто по умолчанию — заполнять вручную.
+    lateral_movement_admin_srcs: frozenset[str] = field(
+        default_factory=frozenset,
+    )
+
+
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
 
@@ -269,6 +311,10 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.lateral_movement_min_flows_port_only <= 0:
+            errors.append("lateral_movement_min_flows_port_only must be > 0")
+        if not self.lateral_movement_ports:
+            errors.append("lateral_movement_ports must not be empty")
         if self.dga_entropy_threshold <= 0:
             errors.append("dga_entropy_threshold must be > 0")
         if self.dga_min_label_length <= 0:

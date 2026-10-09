@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-04\\snort.log.1428105608",
     "pcap_sha256": "f77066f7c5c88ffa9797e9bfd743e2839d749da83cb2e83a58204e137e68979d"
   },

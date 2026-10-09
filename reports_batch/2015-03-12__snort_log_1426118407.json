@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-12\\snort.log.1426118407",
     "pcap_sha256": "5272b725ba1276ab02b09e43180895e4cd2c0832caf2f5c1794cbff2abba5ab1"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 162,
     "nxdomain_count": 376,
     "flows": 11941,
-    "findings": 9,
+    "findings": 7,
     "extractor_errors": {},
     "uploaded_bytes": 9355073,
     "downloaded_bytes": 21065108,
@@ -253,7 +253,7 @@
           "zkygedkpyzdll.pwned.se"
         ],
         "findings_indices": [
-          6
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -380,7 +380,7 @@
           "www.zend.com"
         ],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -882,7 +882,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          4
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -915,7 +915,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          3
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -3789,120 +3789,6 @@
         "label": "ltynerolirvuzj",
         "entropy": 3.522,
         "queries": 2
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.2 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.2",
-        "dst_port": 80,
-        "distinct_dsts": 75,
-        "total_flows": 84,
-        "thin_targets": 74,
-        "top_dsts": [
-          {
-            "ip": "93.184.220.29",
-            "flows": 4
-          },
-          {
-            "ip": "88.150.173.218",
-            "flows": 3
-          },
-          {
-            "ip": "216.58.209.110",
-            "flows": 2
-          },
-          {
-            "ip": "216.58.209.102",
-            "flows": 2
-          },
-          {
-            "ip": "147.251.48.205",
-            "flows": 2
-          },
-          {
-            "ip": "193.142.108.20",
-            "flows": 2
-          },
-          {
-            "ip": "193.1.193.64",
-            "flows": 1
-          },
-          {
-            "ip": "192.87.102.43",
-            "flows": 1
-          },
-          {
-            "ip": "50.7.230.130",
-            "flows": 1
-          },
-          {
-            "ip": "130.239.18.173",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:80",
-      "confidence": 0.75,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 80,
-        "distinct_dsts": 11,
-        "total_flows": 21,
-        "thin_targets": 10,
-        "top_dsts": [
-          {
-            "ip": "80.239.216.74",
-            "flows": 8
-          },
-          {
-            "ip": "134.170.189.4",
-            "flows": 2
-          },
-          {
-            "ip": "65.55.252.71",
-            "flows": 2
-          },
-          {
-            "ip": "213.155.151.145",
-            "flows": 2
-          },
-          {
-            "ip": "195.12.232.146",
-            "flows": 1
-          },
-          {
-            "ip": "65.55.54.42",
-            "flows": 1
-          },
-          {
-            "ip": "108.162.232.202",
-            "flows": 1
-          },
-          {
-            "ip": "216.58.209.110",
-            "flows": 1
-          },
-          {
-            "ip": "213.155.151.150",
-            "flows": 1
-          },
-          {
-            "ip": "213.155.151.149",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
       },
       "first_seen": null,
       "last_seen": null

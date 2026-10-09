@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-11\\snort.log.1426068001",
     "pcap_sha256": "3977308fd23e30a1714989dd3052cf18751c3077c200f51164b50f24178f82c2"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 368,
     "nxdomain_count": 275,
     "flows": 10030,
-    "findings": 9,
+    "findings": 7,
     "extractor_errors": {},
     "uploaded_bytes": 7562760,
     "downloaded_bytes": 22357644,
@@ -530,7 +530,7 @@
           "wymeditor.github.io"
         ],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -684,7 +684,7 @@
           "www.gstatic.com"
         ],
         "findings_indices": [
-          8
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1007,7 +1007,7 @@
           "www.pwned.se.pwned.se"
         ],
         "findings_indices": [
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1180,8 +1180,8 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          4,
-          8
+          2,
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1214,7 +1214,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          7
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1247,7 +1247,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1280,7 +1280,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          3
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4227,120 +4227,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.2 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.2",
-        "dst_port": 80,
-        "distinct_dsts": 73,
-        "total_flows": 82,
-        "thin_targets": 72,
-        "top_dsts": [
-          {
-            "ip": "216.58.209.98",
-            "flows": 7
-          },
-          {
-            "ip": "108.61.16.227",
-            "flows": 3
-          },
-          {
-            "ip": "147.251.48.205",
-            "flows": 2
-          },
-          {
-            "ip": "129.177.13.120",
-            "flows": 1
-          },
-          {
-            "ip": "130.239.18.165",
-            "flows": 1
-          },
-          {
-            "ip": "193.1.193.64",
-            "flows": 1
-          },
-          {
-            "ip": "194.54.81.27",
-            "flows": 1
-          },
-          {
-            "ip": "192.87.102.43",
-            "flows": 1
-          },
-          {
-            "ip": "212.83.32.25",
-            "flows": 1
-          },
-          {
-            "ip": "129.143.116.10",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.51 -> *:443",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.51",
-        "dst_port": 443,
-        "distinct_dsts": 44,
-        "total_flows": 157,
-        "thin_targets": 34,
-        "top_dsts": [
-          {
-            "ip": "68.232.35.121",
-            "flows": 29
-          },
-          {
-            "ip": "213.155.151.185",
-            "flows": 16
-          },
-          {
-            "ip": "213.155.151.148",
-            "flows": 14
-          },
-          {
-            "ip": "213.155.151.155",
-            "flows": 13
-          },
-          {
-            "ip": "213.155.151.149",
-            "flows": 12
-          },
-          {
-            "ip": "173.194.66.94",
-            "flows": 7
-          },
-          {
-            "ip": "63.245.217.161",
-            "flows": 7
-          },
-          {
-            "ip": "74.125.71.147",
-            "flows": 5
-          },
-          {
-            "ip": "213.155.151.150",
-            "flows": 4
-          },
-          {
-            "ip": "213.155.151.187",
-            "flows": 4
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "suspicious_port",
       "value": "194.105.226.20:21",

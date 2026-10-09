@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-18\\snort.log.1426636809",
     "pcap_sha256": "8f7db4b01d20add5c0b45366712d7c6ca0832760e510b4928b121a8ec49e8e55"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 161,
     "nxdomain_count": 340,
     "flows": 49571,
-    "findings": 10,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 6232136,
     "downloaded_bytes": 15921449,
@@ -737,7 +737,7 @@
           "yajhozsd.pwned.se"
         ],
         "findings_indices": [
-          7
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -882,7 +882,7 @@
           "www.google.com"
         ],
         "findings_indices": [
-          6
+          5
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -4105,63 +4105,6 @@
           {
             "ip": "111.221.77.150",
             "flows": 3
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:80",
-      "confidence": 0.9,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 80,
-        "distinct_dsts": 200,
-        "total_flows": 514,
-        "thin_targets": 159,
-        "top_dsts": [
-          {
-            "ip": "80.239.217.26",
-            "flows": 23
-          },
-          {
-            "ip": "64.4.23.151",
-            "flows": 8
-          },
-          {
-            "ip": "213.199.179.162",
-            "flows": 7
-          },
-          {
-            "ip": "157.55.56.156",
-            "flows": 7
-          },
-          {
-            "ip": "157.56.116.203",
-            "flows": 6
-          },
-          {
-            "ip": "157.55.130.151",
-            "flows": 6
-          },
-          {
-            "ip": "65.55.223.19",
-            "flows": 6
-          },
-          {
-            "ip": "64.4.23.156",
-            "flows": 6
-          },
-          {
-            "ip": "111.221.77.150",
-            "flows": 5
-          },
-          {
-            "ip": "157.56.116.204",
-            "flows": 5
           }
         ],
         "threshold": 10

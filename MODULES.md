@@ -10,7 +10,7 @@
 Версия пакета.
 
 ```python
-__version__ = "0.1.0"
+__version__ = "0.4.0"
 ```
 
 ### `__main__.py`
@@ -39,25 +39,37 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 Все настройки и пороги в одном месте. Датакласс `Config`.
 
 **Секции:**
-- **DGA:** `dga_entropy_threshold`, `dga_min_label_length`,
-  `dga_allowlist` (CDN, cloud, Azure, Google, cloud tunnels)
-- **Suspicious ports:** список портов 21, 22, 4444, 1337, 31337, 8080,
-  8443, 12132
+- **DGA:** `dga_entropy_threshold: 3.5`, `dga_min_label_length: 12`,
+  `dga_allowlist` (CDN, cloud, Azure, Google, cloud tunnels,
+  Stack Exchange, Live Messenger, blogs)
+- **Suspicious ports:** 21, 22, 23, 4444, 1337, 31337, 8080, 8443, 12132
 - **Private networks:** префиксы для определения internal
+- **Port scan:** `port_scan_min_distinct_dsts: 10`,
+  `port_scan_max_flows_per_dst: 3`,
+  `port_scan_excluded_ports: {80, 443}` (браузер неотличим от скана)
 - **NXDOMAIN burst:** `nxdomain_burst_threshold: 5`
 - **Cloud tunnels:** суффиксы trycloudflare/ngrok/serveo
 - **IP check services:** точные домены ip-api.com/ifconfig.me
-- **Typosquatting:** `protected_brands` (microsoft, google, …),
-  `legitimate_brand_domains`, `typosquatting_levenshtein_threshold: 2`
+- **Typosquatting:** `protected_brands` (18 брендов),
+  `legitimate_brand_domains` (~50 доменов),
+  `typosquatting_levenshtein_threshold: 2`
 - **SNI mismatch:** `sni_mismatch_min_flows: 1`,
   `sni_mismatch_allowlist` (DoH, OCSP, smartscreen)
 - **Entities:** `entities_top_n: 50`, `gateway_min_flows: 50`,
   `gateway_min_unique_dsts: 10`
 - **Domain controller:** `dc_service_ports` (88, 389, 445, 3268, 636),
   `dc_min_service_flows: 20`, `dc_min_unique_srcs: 1`
+- **Brute force:** `brute_force_min_flows: 20`,
+  `brute_force_max_avg_packets: 20`,
+  `brute_force_min_unique_src_ports: 10`,
+  `brute_force_uri_ratio_threshold: 0.3`,
+  `brute_force_min_rate_flows_per_sec: 0.01`,
+  `brute_force_skip_tls_ports: {443, 8443}`,
+  `login_endpoint_hints` (login/admin/wp-login/…)
 - **Vulnerable paths:** `vulnerable_paths` (wp-login, .env, /.git),
-  `suspicious_download_extensions` (.ps1, .sh, .vbs, .jar)
-- **Flow report:** `flow_report_top_n: 100`
+  `suspicious_download_extensions` (.ps1, .sh, .vbs, .exe, .dll)
+- **Web scanner:** `web_scanner_min_distinct_paths: 10`
+- **Flow report:** `flow_report_top_n: 500`
 
 **Связи:** передаётся во все слои (extractors, detectors, aggregators).
 
@@ -229,6 +241,9 @@ DNS-экстрактор. Работает на UDP/53.
 
 Использует scapy для парсинга DNS-payload (только для порта 53).
 
+**Strict decode:** qname декодируется через `decode("ascii")`, при
+ошибке запрос отбрасывается. Без этого битые qname дают DGA-FP.
+
 ### `tls.py`
 
 TLS-экстрактор. Извлекает SNI из ClientHello.
@@ -282,10 +297,6 @@ HTTP-запросов.
 **Обрабатывает оба направления:** запросы клиента (dst_port=88) и
 ответы KDC (src_port=88).
 
-### `extractors.py` (дубликат)
-
-Старая версия `HTTPExtractor`. Не используется. **Удалить.**
-
 ## Слой детекторов `pcap_triage/detectors/`
 
 ### `base.py`
@@ -306,7 +317,8 @@ DGA-детектор по энтропии label.
 - Длина label ≥ `dga_min_label_length`
 - Энтропия Шеннона > `dga_entropy_threshold`
 - Игнор дефисов (признак человекочитаемого домена)
-- Allowlist через `endswith`
+- Allowlist через `endswith` (CDN, cloud, Azure, Google,
+  Stack Exchange, Live Messenger, blogs)
 
 **Класс:** `DGADetector`. Функция `shannon_entropy(s)`.
 
@@ -318,6 +330,32 @@ DGA-детектор по энтропии label.
 - Порт в `config.suspicious_ports`
 - `dst_ip` **не** приватный
 - Агрегация по `(dst_ip, dst_port)` — один finding на пару
+- **Фильтр `port_scan`:** если все src в finding'е — сканеры
+  (у каждого ≥ `port_scan_min_distinct_dsts` разных dst на этот порт),
+  finding пропускается — его покрывает `PortScanDetector`.
+
+### `port_scan.py`
+
+Горизонтальное сканирование: один src_ip, много dst_ip, один dst_port.
+
+**Логика:**
+- Группировка flows по `(src_ip, dst_port)`
+- Порты 80/443 исключены (`port_scan_excluded_ports`) — браузер
+  неотличим от скана
+- Порог: ≥ `port_scan_min_distinct_dsts` (10) разных dst_ip
+- Дополнительно: доля «тонких» целей (≤ `port_scan_max_flows_per_dst`
+  flow'ов) должна быть ≥ 0.7 — иначе это браузер с параллельными
+  соединениями
+
+**Отличие от `suspicious_port`:**
+- `suspicious_port` → finding per `(dst_ip, dst_port)`, много findings
+- `port_scan` → finding per `(src_ip, dst_port)`, один finding
+
+**Отличие от `brute_force`:**
+- `brute_force` → много flow'ов к ОДНОМУ dst_ip
+- `port_scan` → по 1-2 flow к КАЖДОМУ из многих dst_ip
+
+**Класс:** `PortScanDetector`.
 
 ### `nxdomain_burst.py`
 
@@ -325,7 +363,8 @@ DGA-детектор по энтропии label.
 
 **Логика:** `dns_nxdomain_by_src[src_ip] >= threshold`.
 
-**Известный долг:** считает за весь файл, не по окну.
+**Известный долг:** считает за весь файл, не по окну. Windowing — в
+TODO (см. CHANGELOG).
 
 ### `cloud_tunnel.py`
 
@@ -344,13 +383,28 @@ DGA-детектор по энтропии label.
 
 Подделки под известные бренды.
 
-**Логика:**
-- `contains`: бренд как часть label (`event-datamicrosoft.live`)
-- `levenshtein`: label близок к бренду (`micr0soft`)
-- Allowlist `legitimate_brand_domains`
+**Логика (v0.4.0):**
+- Матчинг идёт **только по SLD** (registered domain, второй уровень
+  справа). Поддомены игнорируются: `googleads.g.doubleclick.net` →
+  SLD `doubleclick`, не `google`.
+- **contains:** бренд — подстрока в SLD, но **не** в начале (sub-brand
+  `microsoftstore`) и не в конце с очень коротким префиксом
+  (tracking `s-microsoft`)
+- **levenshtein:** SLD близок к бренду, при условии:
+  - длина ≥ 5 (`app` не считается)
+  - не короче бренда на 2+
+  - первый и последний символ совпадают (`appier` vs `apple` — разные
+    концы, не считается)
+  - расстояние ≤ threshold и ≤ 25% длины (`behance` vs `binance` — 2/7
+    = 0.29 > 0.25, не считается)
+- Allowlist `legitimate_brand_domains` через `endswith`
 
-**Функция:** `levenshtein(a, b) -> int` — классический
-редакторский distance.
+**Функции:**
+- `_registered_label(domain)` — SLD
+- `_check_squat(sld, brand, lev_threshold)` — основная проверка
+- `levenshtein(a, b)` — классический редакторский distance
+
+**Класс:** `TyposquattingDetector`.
 
 ### `sni_mismatch.py`
 
@@ -366,25 +420,45 @@ SNI без DNS-запроса.
 
 Перебор паролей к одной паре.
 
-**Логика:**
+**Логика (v0.4.0):**
 - Много flows к одной `(src_ip, dst_ip, dst_port)`
-- Средний размер flow маленький
+- Средний размер flow маленький (`max_avg_packets`)
 - Много уникальных src_ports
+- **Ratio URI:** если много разных URI → браузер, не подбор
+- **Rate:** слишком редко (< 0.01 flow/s) → поллинг, не подбор
+- **Skip TLS:** порты 443/8443 пропускаются — массовые TCP-соединения
+  туда = браузер к CDN
+- **Login hint:** если HTTP-трафик и ни один URI не содержит
+  login/admin/wp-login → это браузер, не подбор
 
-**Известный долг:** false positive на Google Safe Browsing,
-LDAP-порт 389.
+**Известное ограничение:** SSH/FTP/RDP-подбор не оставляет URI —
+фильтр login-hint там не применяется (нет URI). Rate-фильтр
+работает.
 
 ### `vulnerable_path.py`
 
-Обращения к уязвимым путям в HTTP.
+Обращения к уязвимым путям в HTTP + скачивание опасных файлов +
+детекция web-сканеров.
 
-**Логика:**
-- URI содержит подстроку из `config.vulnerable_paths`
-  (wp-login, .env, /.git)
-- ИЛИ URI заканчивается на расширение из
-  `config.suspicious_download_extensions` (.ps1, .sh, .vbs)
+**Логика (v0.4.0):**
+- Нормализация URI: `urlsplit(uri).path`, percent-decode, lowercase.
+  `/WP-LOGIN.PHP?nonce=123` и `/wp-login.php?nonce=456` попадают в
+  один bucket.
+- **vulnerable_path:** URI содержит `config.vulnerable_paths`
+- **script_download:** URI заканчивается на
+  `config.suspicious_download_extensions`
+- **Combo-сигнал:** `/wp-content/uploads/shell.php` даст оба finding
+- **Две стратегии агрегации:**
+  - individual — если у пары `(src, dst)` < `web_scanner_min_distinct_paths`
+    разных URI
+  - web_scanner — если ≥ порога. Один finding с `top_paths`,
+    `distinct_paths`, `total_requests`. Individual findings для этой
+    пары не генерируются.
 
-**Два типа finding:** `vulnerable_path` и `script_download`.
+### `web_scanner` (не отдельный файл)
+
+Тип finding, генерируется `VulnerablePathDetector`. Агрегация
+горизонтального перебора URI от одного `(src, dst)`. Confidence 0.9.
 
 ## Слой агрегаторов `pcap_triage/aggregators/`
 
@@ -437,7 +511,14 @@ conn.log-стиль.
 
 ## Тесты `tests/`
 
-9 файлов, 106 тестов. См. таблицу в `README.md`.
+10 файлов, 127 тестов. См. таблицу в `README.md`.
+
+**Ключевые файлы:**
+- `test_detectors.py` — базовое поведение детекторов
+- `test_regressions.py` — FP-регрессии из FIRST-2015.
+  Каждый тест привязан к конкретному домену/сценарию, который был FP,
+  и к фиксу, который его закрыл. Если регрессия вернётся — тест
+  упадёт.
 
 ## Известные проблемы в структуре
 
@@ -446,3 +527,9 @@ conn.log-стиль.
 2. **`diag_nbns.py`, `diag_kerberos.py`** — одноразовые диагностические
    скрипты. Не входят в пакет, лежат в корне. Можно удалить или
    вынести в `tools/`.
+3. **`nxdomain_burst` windowing** — считает за весь файл. Требует
+   правки `CaptureState` (time-bucketed counts).
+4. **`vulnerable_path` и `script_download`** — остаются ~96 findings
+   в батче FIN-2015. Это остатки сканеров после web_scanner
+   агрегации, не FP. Дальнейшее сокращение требует анализа
+   домен-специфичных паттернов.

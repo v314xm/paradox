@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.1.0",
+    "tool_version": "0.4.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425900311",
     "pcap_sha256": "703062b837fb8130efdce30b571ef27533120d25f2075718d0a087cbf6618213"
   },
@@ -10,7 +10,7 @@
     "unique_dns_queries": 12,
     "nxdomain_count": 0,
     "flows": 363,
-    "findings": 3,
+    "findings": 2,
     "extractor_errors": {},
     "uploaded_bytes": 2400035,
     "downloaded_bytes": 154817519,
@@ -2350,63 +2350,6 @@
     ]
   },
   "findings": [
-    {
-      "type": "port_scan",
-      "value": "192.168.0.54 -> *:443",
-      "confidence": 0.75,
-      "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_port": 443,
-        "distinct_dsts": 12,
-        "total_flows": 29,
-        "thin_targets": 9,
-        "top_dsts": [
-          {
-            "ip": "216.58.209.99",
-            "flows": 4
-          },
-          {
-            "ip": "216.58.209.142",
-            "flows": 4
-          },
-          {
-            "ip": "216.58.209.138",
-            "flows": 4
-          },
-          {
-            "ip": "216.58.209.110",
-            "flows": 3
-          },
-          {
-            "ip": "216.58.209.132",
-            "flows": 3
-          },
-          {
-            "ip": "216.58.209.131",
-            "flows": 2
-          },
-          {
-            "ip": "74.125.232.108",
-            "flows": 2
-          },
-          {
-            "ip": "216.58.209.109",
-            "flows": 2
-          },
-          {
-            "ip": "157.56.141.114",
-            "flows": 2
-          },
-          {
-            "ip": "74.125.195.94",
-            "flows": 1
-          }
-        ],
-        "threshold": 10
-      },
-      "first_seen": null,
-      "last_seen": null
-    },
     {
       "type": "sni_without_dns",
       "value": "lh3.googleusercontent.com",

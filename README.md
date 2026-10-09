@@ -17,12 +17,15 @@ realm), находит C2, скачанные скрипты, подозрите
   NBNS, Kerberos. Собирается автоматически.
 - **C2-инфраструктура.** DGA, cloud tunnels, typosquatting,
   IP-check сервисы, SNI без DNS.
+- **Активная разведка.** Web-сканеры (перебор уязвимых путей),
+  port-сканеры (горизонтальное сканирование портов).
 - **Payload download.** Скрипты (.ps1, .sh, .vbs, .hta), бинарники
   из HTTP-запросов.
 - **Направление трафика.** Uploaded / downloaded / internal —
   сразу видно, загрузка это или эксфильтрация.
 - **Роли хостов.** `domain_controller`, `victim_candidate`,
-  `attacker_candidate`, `c2_candidate`, `gateway_candidate`.
+  `attacker_candidate`, `c2_candidate`, `gateway_candidate`,
+  `web_scanner`.
 
 Работает оффлайн. Никаких внешних API — только локальный разбор.
 
@@ -47,11 +50,11 @@ python -m pcap_triage
 ## Пример вывода
 
 ```
-packets:            627694
-unique DNS queries: 117
-NXDOMAIN count:     0
-flows:              2328
-findings:           9
+packets:            304348
+unique DNS queries: 413
+NXDOMAIN count:     568
+flows:              15430
+findings:           12
 report JSON:        reports\capture.report.json
 report Markdown:    reports\capture.report.md
 ```
@@ -71,6 +74,7 @@ report Markdown:    reports\capture.report.md
 
 - **334 МБ pcap** (627k пакетов) — **12 секунд**
 - **50 МБ pcap** (48k пакетов) — **1.5 секунды**
+- **9.5M пакетов** (58 файлов, 4.7 ГБ) — **8 минут** полный батч
 - **Память** — 106 МБ на 334 МБ файл
 
 В основе — собственный парсер пакетов на `struct.unpack`,
@@ -91,20 +95,21 @@ Scapy используется точечно — только для DNS-payloa
 | L0 | `tls.py` | SNI из TLS ClientHello |
 | L0 | `http.py` | Host, URI, Method, User-Agent |
 
-### Детекторы (10)
+### Детекторы (11)
 
 | Детектор | Что ловит |
 |---|---|
 | `dga` | Высокая энтропия label в DNS |
 | `suspicious_port` | Исходящие на нестандартные порты |
+| `port_scan` | Горизонтальное сканирование (один src → много dst:port) |
 | `nxdomain_burst` | Много NXDOMAIN с одного IP |
 | `cloud_tunnel` | trycloudflare, ngrok, serveo |
 | `ip_check_service` | ip-api.com, ifconfig.me |
-| `typosquatting` | Подделки под бренды (Levenshtein) |
+| `typosquatting` | Подделки под бренды (SLD-only + Levenshtein) |
 | `sni_mismatch` | SNI без DNS-запроса |
-| `brute_force` | Перебор паролей к одному endpoint |
-| `vulnerable_path` | Обращения к уязвимым путям (wp-login, .env) |
-| `script_download` | Скачивание .ps1/.sh/.vbs/.jar |
+| `brute_force` | Перебор паролей к login endpoint |
+| `vulnerable_path` | Уязвимые пути (wp-login, .env) + web_scanner |
+| `script_download` | Скачивание .ps1/.sh/.vbs/.exe/.dll |
 
 ### Отчёты (3)
 
@@ -131,11 +136,12 @@ PCAP → Extractors → CaptureState → Detectors → Findings
 pytest tests/ -v
 ```
 
-**106 тестов** в 9 файлах. Всё зелёное.
+**127 тестов** в 10 файлах. Всё зелёное.
 
 | Файл | Тестов | Что покрывает |
 |---|---|---|
 | `test_detectors.py` | 41 | 9 детекторов, регрессии |
+| `test_regressions.py` | 21 | FP-регрессии из FIRST-2015 |
 | `test_parsers.py` | 11 | Разбор L2-L4 заголовков |
 | `test_aggregators_entities.py` | 10 | Роли, сущности, findings |
 | `test_tls_parse.py` | 10 | TLS ClientHello |
@@ -150,9 +156,11 @@ pytest tests/ -v
 - **MTA 2025-06-13** — упражнение malware-traffic-analysis.net.
   Инструмент собрал профиль жертвы **5 из 5** (IP, MAC, hostname,
   username, realm) за 1.5 секунды. Ручной разбор занимает 30–40 мин.
+- **FIRST-2015 Hands-on Network Forensics** — 58 pcap'ов,
+  9.5M пакетов, 4.7 ГБ. 5872 findings → 343 после FP-оптимизации
+  (см. CHANGELOG 0.4.0). 8 минут полный батч.
 - **CTF CyberCampTask** (334 МБ) — подбор пароля + скачивание
   скриптов + C2. Все findings корректные.
-- **FIRST-2015 Hands-on Network Forensics** — 3 pcap'а.
 - **IDS-пакет** (WordPress `/.env`) — сканирование уязвимости.
 - **MTA Simple C2** — сканер `78.153.140.203`.
 
@@ -166,4 +174,4 @@ Windows / Linux / macOS. Разрабатывалось под Windows.
 
 ## Лицензия
 
-Проект 314 
+Проект 314
