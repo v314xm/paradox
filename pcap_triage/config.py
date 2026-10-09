@@ -68,6 +68,8 @@ class Config:
         12132,  # STRRAT из примеров
     }))
 
+
+
     private_networks: tuple[str, ...] = (
         "10.",
         "172.16.", "172.17.", "172.18.", "172.19.",
@@ -80,6 +82,16 @@ class Config:
         "224.", "239.",
         "255.255.255.255",
     )
+    # --- port scan ---
+    # Если один src_ip стучится к >= N разным dst_ip на один dst_port —
+    # это сканирование, а не «много подозрительных соединений».
+    # Каждый dst_ip в отдельности выглядит как suspicious_port finding,
+    # но 71 finding на один src — шум, скрывающий суть: атака одним хостом.
+    port_scan_min_distinct_dsts: int = 10
+    # Минимальный порог flow_count per (src, dst) — если у пары много
+    # flow'ов, это уже не скан, а что-то осмысленное (сессия, retry).
+    port_scan_max_flows_per_dst: int = 3
+
 
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
@@ -298,6 +310,10 @@ class Config:
             errors.append("flow_report_top_n must be > 0")
         if self.web_scanner_min_distinct_paths <= 0:
             errors.append("web_scanner_min_distinct_paths must be > 0")
+        if self.port_scan_min_distinct_dsts <= 0:
+            errors.append("port_scan_min_distinct_dsts must be > 0")
+        if self.port_scan_max_flows_per_dst <= 0:
+            errors.append("port_scan_max_flows_per_dst must be > 0")
         if not self.suspicious_ports:
             errors.append("suspicious_ports must not be empty")
         if not self.dc_service_ports:

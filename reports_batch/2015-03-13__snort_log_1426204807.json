@@ -1,0 +1,4858 @@
+{
+  "schema_version": "0.2.0",
+  "provenance": {
+    "tool_version": "0.1.0",
+    "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-13\\snort.log.1426204807",
+    "pcap_sha256": "1f315e16985d3aa23d4b210d56167529923a197bc45f40bd7dc00753cc785a14"
+  },
+  "summary": {
+    "packets": 253899,
+    "unique_dns_queries": 361,
+    "nxdomain_count": 184,
+    "flows": 9489,
+    "findings": 20,
+    "extractor_errors": {},
+    "uploaded_bytes": 11794072,
+    "downloaded_bytes": 143465107,
+    "internal_bytes": 1348454,
+    "external_bytes": 0
+  },
+  "entities": {
+    "internal": [
+      {
+        "ip": "192.168.0.54",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "attacker_candidate"
+        ],
+        "first_seen": 1426204812.31496,
+        "last_seen": 1426247520.351649,
+        "flows_out": 2692,
+        "flows_in": 2670,
+        "bytes_out": 10277019,
+        "bytes_in": 140783648,
+        "unique_dsts": [
+          "104.130.145.226",
+          "104.155.21.146",
+          "104.40.82.121",
+          "104.40.90.64",
+          "107.21.114.13",
+          "107.23.131.90",
+          "108.160.162.76",
+          "108.160.165.138",
+          "108.160.165.212",
+          "108.160.165.8",
+          "108.160.165.83",
+          "108.160.165.84",
+          "108.160.166.12",
+          "108.160.166.139",
+          "108.160.166.140",
+          "108.160.166.141",
+          "108.160.167.174",
+          "108.160.167.35",
+          "108.160.169.181",
+          "108.160.169.187",
+          "108.160.169.37",
+          "108.160.169.59",
+          "109.239.110.104",
+          "110.45.195.194",
+          "110.45.195.245",
+          "130.211.103.172",
+          "130.211.93.237",
+          "138.108.7.20",
+          "144.76.190.43",
+          "149.174.149.39",
+          "151.249.91.212",
+          "152.115.75.197",
+          "159.253.128.163",
+          "159.8.37.102",
+          "162.13.99.124",
+          "162.209.122.21",
+          "165.193.73.49",
+          "173.192.202.134",
+          "173.192.220.64",
+          "173.194.40.237",
+          "173.194.40.252",
+          "173.194.43.127",
+          "173.194.66.99",
+          "173.194.67.94",
+          "173.194.71.95",
+          "173.241.240.220",
+          "178.250.0.76",
+          "178.33.229.48",
+          "178.62.130.48",
+          "184.73.206.23",
+          "184.80.40.43",
+          "185.29.133.223",
+          "185.31.128.232",
+          "185.57.60.83",
+          "188.125.80.45",
+          "188.125.82.57",
+          "188.125.93.156",
+          "188.125.93.157",
+          "192.168.0.1",
+          "192.168.0.255",
+          "192.229.233.43",
+          "195.12.232.145",
+          "195.12.232.146",
+          "195.12.232.153",
+          "195.12.232.154",
+          "195.12.232.160",
+          "195.12.232.161",
+          "195.12.232.168",
+          "195.12.232.169",
+          "195.12.232.177",
+          "195.12.232.178",
+          "195.12.232.184",
+          "195.12.232.185",
+          "195.12.232.192",
+          "195.12.232.195",
+          "195.12.232.200",
+          "195.50.88.18",
+          "198.199.14.134",
+          "198.199.14.15",
+          "198.232.125.195",
+          "198.232.125.51",
+          "198.47.127.15",
+          "198.57.30.31",
+          "198.61.250.104",
+          "199.16.156.52",
+          "199.38.164.155",
+          "199.38.164.165",
+          "199.96.57.6",
+          "2.22.241.13",
+          "2.22.241.231",
+          "2.22.42.227",
+          "2.23.129.153",
+          "2.23.130.110",
+          "2.23.143.139",
+          "2.23.144.80",
+          "2.23.147.167",
+          "2.23.149.181",
+          "2.23.159.132",
+          "204.2.197.211",
+          "204.236.134.38",
+          "204.79.197.200",
+          "205.185.216.10",
+          "205.251.219.115",
+          "207.46.194.10",
+          "208.118.234.100",
+          "208.146.36.21",
+          "208.54.249.38",
+          "208.71.122.1",
+          "208.71.122.72",
+          "213.155.151.146",
+          "213.155.151.148",
+          "213.155.151.149",
+          "213.155.151.150",
+          "213.155.151.151",
+          "213.155.151.152",
+          "213.155.151.154",
+          "213.155.151.155",
+          "213.155.151.174",
+          "213.155.151.180",
+          "213.155.151.181",
+          "213.155.151.182",
+          "213.155.151.184",
+          "213.155.151.185",
+          "213.155.151.186",
+          "213.155.156.164",
+          "213.155.156.189",
+          "216.239.120.224",
+          "216.52.92.110",
+          "216.58.209.101",
+          "216.58.209.109",
+          "216.58.209.110",
+          "216.58.209.130",
+          "216.58.209.133",
+          "216.58.209.138",
+          "216.58.209.141",
+          "216.58.209.97",
+          "216.58.209.98",
+          "216.58.209.99",
+          "217.163.21.34",
+          "217.163.21.35",
+          "224.0.0.22",
+          "224.0.0.252",
+          "23.223.22.231",
+          "23.223.36.174",
+          "23.223.40.246",
+          "23.23.144.76",
+          "23.23.220.125",
+          "23.235.43.166",
+          "23.251.136.174",
+          "23.3.90.129",
+          "23.52.21.163",
+          "23.52.27.27",
+          "23.53.32.143",
+          "23.53.34.116",
+          "23.53.42.99",
+          "23.53.45.10",
+          "23.77.253.6",
+          "23.78.91.122",
+          "239.255.255.250",
+          "255.255.255.255",
+          "31.13.64.1",
+          "31.13.64.12",
+          "31.186.225.23",
+          "31.186.225.24",
+          "31.186.229.27",
+          "37.157.6.227",
+          "37.235.106.14",
+          "37.252.162.127",
+          "37.252.162.128",
+          "37.252.162.252",
+          "37.252.170.30",
+          "37.252.170.90",
+          "38.65.9.35",
+          "46.105.34.179",
+          "46.228.164.11",
+          "46.228.164.13",
+          "46.228.164.14",
+          "5.10.75.178",
+          "5.10.75.66",
+          "5.175.83.83",
+          "5.79.11.194",
+          "50.17.222.204",
+          "50.31.185.40",
+          "50.31.185.44",
+          "52.1.183.214",
+          "54.144.213.95",
+          "54.154.188.98",
+          "54.171.217.190",
+          "54.171.44.66",
+          "54.208.226.181",
+          "54.208.23.129",
+          "54.209.128.208",
+          "54.209.63.137",
+          "54.225.109.187",
+          "54.225.170.184",
+          "54.225.255.135",
+          "54.227.213.202",
+          "54.229.12.104",
+          "54.230.98.155",
+          "54.230.98.75",
+          "54.230.99.139",
+          "54.230.99.39",
+          "54.230.99.66",
+          "54.231.0.8",
+          "54.231.17.113",
+          "54.231.8.49",
+          "54.235.144.68",
+          "54.235.181.39",
+          "54.236.147.174",
+          "54.236.201.33",
+          "54.237.67.156",
+          "54.243.120.72",
+          "54.243.170.126",
+          "54.246.109.127",
+          "54.246.123.122",
+          "54.246.126.140",
+          "54.246.127.16",
+          "54.247.176.17",
+          "54.72.110.84",
+          "54.72.42.191",
+          "54.72.92.202",
+          "54.76.251.88",
+          "54.76.95.6",
+          "54.89.42.30",
+          "61.111.8.169",
+          "61.111.8.187",
+          "62.209.227.210",
+          "62.212.64.166",
+          "62.51.0.35",
+          "62.51.0.45",
+          "63.140.43.94",
+          "63.215.202.68",
+          "63.250.200.72",
+          "63.251.210.243",
+          "64.12.106.9",
+          "64.12.249.201",
+          "64.233.161.108",
+          "64.233.165.109",
+          "64.233.165.139",
+          "64.30.224.118",
+          "64.30.224.172",
+          "64.30.224.58",
+          "64.34.191.22",
+          "64.71.187.126",
+          "66.117.28.68",
+          "66.117.29.35",
+          "67.202.66.179",
+          "67.202.66.207",
+          "68.142.230.254",
+          "69.16.175.10",
+          "69.172.216.111",
+          "69.172.216.55",
+          "69.172.216.56",
+          "69.172.216.58",
+          "69.25.24.26",
+          "70.33.182.208",
+          "70.42.146.148",
+          "70.42.33.241",
+          "72.14.248.27",
+          "74.118.186.234",
+          "74.125.133.106",
+          "74.125.143.155",
+          "74.125.143.188",
+          "74.125.232.121",
+          "74.125.232.122",
+          "74.125.232.124",
+          "74.217.253.61",
+          "74.217.78.231",
+          "75.98.9.100",
+          "77.242.204.20",
+          "8.21.24.45",
+          "8.36.120.226",
+          "80.239.178.178",
+          "80.239.178.184",
+          "80.239.178.200",
+          "80.239.217.107",
+          "80.239.217.122",
+          "80.239.217.168",
+          "80.239.217.34",
+          "80.239.237.10",
+          "80.239.237.17",
+          "80.239.237.40",
+          "80.239.250.218",
+          "80.239.254.106",
+          "80.252.91.41",
+          "81.22.36.155",
+          "83.169.59.64",
+          "85.114.159.93",
+          "85.114.159.96",
+          "85.235.246.2",
+          "85.235.246.25",
+          "87.248.207.253",
+          "87.248.207.254",
+          "91.103.138.13",
+          "93.184.220.187",
+          "93.184.220.20",
+          "94.31.29.192",
+          "95.131.122.226",
+          "95.172.94.23",
+          "95.172.94.36",
+          "95.172.94.63",
+          "98.137.201.232"
+        ],
+        "unique_srcs": [
+          "104.130.145.226",
+          "104.155.21.146",
+          "104.40.82.121",
+          "104.40.90.64",
+          "107.21.114.13",
+          "107.23.131.90",
+          "108.160.165.212",
+          "108.160.165.8",
+          "108.160.165.83",
+          "108.160.165.84",
+          "108.160.166.12",
+          "108.160.166.140",
+          "108.160.167.174",
+          "108.160.167.35",
+          "108.160.169.181",
+          "108.160.169.187",
+          "108.160.169.37",
+          "108.160.169.59",
+          "109.239.110.104",
+          "110.45.195.194",
+          "110.45.195.245",
+          "130.211.103.172",
+          "130.211.93.237",
+          "138.108.7.20",
+          "144.76.190.43",
+          "149.174.149.39",
+          "151.249.91.212",
+          "152.115.75.197",
+          "159.253.128.163",
+          "159.8.37.102",
+          "162.13.99.124",
+          "162.209.122.21",
+          "165.193.73.49",
+          "173.192.202.134",
+          "173.192.220.64",
+          "173.194.40.237",
+          "173.194.40.252",
+          "173.194.43.127",
+          "173.194.66.99",
+          "173.194.67.94",
+          "173.194.71.95",
+          "173.241.240.220",
+          "178.250.0.76",
+          "178.33.229.48",
+          "178.62.130.48",
+          "184.73.206.23",
+          "184.80.40.43",
+          "185.29.133.223",
+          "185.31.128.232",
+          "185.57.60.83",
+          "188.125.80.45",
+          "188.125.82.57",
+          "188.125.93.156",
+          "188.125.93.157",
+          "192.168.0.1",
+          "192.229.233.43",
+          "195.12.232.145",
+          "195.12.232.146",
+          "195.12.232.153",
+          "195.12.232.154",
+          "195.12.232.160",
+          "195.12.232.161",
+          "195.12.232.168",
+          "195.12.232.169",
+          "195.12.232.177",
+          "195.12.232.178",
+          "195.12.232.184",
+          "195.12.232.185",
+          "195.12.232.192",
+          "195.12.232.195",
+          "195.12.232.200",
+          "195.50.88.18",
+          "198.199.14.134",
+          "198.199.14.15",
+          "198.232.125.195",
+          "198.232.125.51",
+          "198.47.127.15",
+          "198.57.30.31",
+          "198.61.250.104",
+          "199.16.156.52",
+          "199.38.164.155",
+          "199.38.164.165",
+          "199.96.57.6",
+          "2.22.241.13",
+          "2.22.241.231",
+          "2.22.42.227",
+          "2.23.129.153",
+          "2.23.130.110",
+          "2.23.143.139",
+          "2.23.144.80",
+          "2.23.147.167",
+          "2.23.149.181",
+          "2.23.159.132",
+          "204.2.197.211",
+          "204.236.134.38",
+          "204.79.197.200",
+          "205.185.216.10",
+          "205.251.219.115",
+          "207.46.194.10",
+          "208.118.234.100",
+          "208.146.36.21",
+          "208.54.249.38",
+          "208.71.122.1",
+          "208.71.122.72",
+          "213.155.151.146",
+          "213.155.151.148",
+          "213.155.151.149",
+          "213.155.151.150",
+          "213.155.151.151",
+          "213.155.151.152",
+          "213.155.151.154",
+          "213.155.151.155",
+          "213.155.151.174",
+          "213.155.151.180",
+          "213.155.151.181",
+          "213.155.151.182",
+          "213.155.151.184",
+          "213.155.151.185",
+          "213.155.151.186",
+          "213.155.156.164",
+          "213.155.156.189",
+          "216.239.120.224",
+          "216.52.92.110",
+          "216.58.209.101",
+          "216.58.209.109",
+          "216.58.209.110",
+          "216.58.209.130",
+          "216.58.209.133",
+          "216.58.209.138",
+          "216.58.209.141",
+          "216.58.209.97",
+          "216.58.209.98",
+          "216.58.209.99",
+          "217.163.21.34",
+          "217.163.21.35",
+          "23.223.22.231",
+          "23.223.36.174",
+          "23.223.40.246",
+          "23.23.144.76",
+          "23.23.220.125",
+          "23.235.43.166",
+          "23.251.136.174",
+          "23.3.90.129",
+          "23.52.21.163",
+          "23.52.27.27",
+          "23.53.32.143",
+          "23.53.34.116",
+          "23.53.42.99",
+          "23.53.45.10",
+          "23.77.253.6",
+          "23.78.91.122",
+          "31.13.64.1",
+          "31.13.64.12",
+          "31.186.225.23",
+          "31.186.225.24",
+          "31.186.229.27",
+          "37.157.6.227",
+          "37.235.106.14",
+          "37.252.162.127",
+          "37.252.162.128",
+          "37.252.162.252",
+          "37.252.170.30",
+          "37.252.170.90",
+          "38.65.9.35",
+          "46.105.34.179",
+          "46.228.164.11",
+          "46.228.164.13",
+          "46.228.164.14",
+          "5.10.75.178",
+          "5.10.75.66",
+          "5.175.83.83",
+          "5.79.11.194",
+          "50.17.222.204",
+          "50.31.185.40",
+          "50.31.185.44",
+          "52.1.183.214",
+          "54.144.213.95",
+          "54.154.188.98",
+          "54.171.217.190",
+          "54.171.44.66",
+          "54.208.226.181",
+          "54.208.23.129",
+          "54.209.128.208",
+          "54.209.63.137",
+          "54.225.109.187",
+          "54.225.170.184",
+          "54.225.255.135",
+          "54.227.213.202",
+          "54.229.12.104",
+          "54.230.98.155",
+          "54.230.98.75",
+          "54.230.99.139",
+          "54.230.99.39",
+          "54.230.99.66",
+          "54.231.0.8",
+          "54.231.17.113",
+          "54.231.8.49",
+          "54.235.144.68",
+          "54.235.181.39",
+          "54.236.147.174",
+          "54.236.201.33",
+          "54.237.67.156",
+          "54.243.120.72",
+          "54.243.170.126",
+          "54.246.109.127",
+          "54.246.123.122",
+          "54.246.126.140",
+          "54.246.127.16",
+          "54.247.176.17",
+          "54.72.110.84",
+          "54.72.42.191",
+          "54.72.92.202",
+          "54.76.251.88",
+          "54.76.95.6",
+          "54.89.42.30",
+          "61.111.8.169",
+          "61.111.8.187",
+          "62.209.227.210",
+          "62.212.64.166",
+          "62.51.0.35",
+          "62.51.0.45",
+          "63.140.43.94",
+          "63.215.202.68",
+          "63.250.200.72",
+          "63.251.210.243",
+          "64.12.106.9",
+          "64.12.249.201",
+          "64.233.161.108",
+          "64.233.165.109",
+          "64.233.165.139",
+          "64.30.224.118",
+          "64.30.224.172",
+          "64.30.224.58",
+          "64.34.191.22",
+          "64.71.187.126",
+          "66.117.28.68",
+          "66.117.29.35",
+          "67.202.66.179",
+          "67.202.66.207",
+          "68.142.230.254",
+          "69.16.175.10",
+          "69.172.216.111",
+          "69.172.216.55",
+          "69.172.216.56",
+          "69.172.216.58",
+          "69.25.24.26",
+          "70.33.182.208",
+          "70.42.146.148",
+          "70.42.33.241",
+          "72.14.248.27",
+          "74.118.186.234",
+          "74.125.133.106",
+          "74.125.143.155",
+          "74.125.143.188",
+          "74.125.232.121",
+          "74.125.232.122",
+          "74.125.232.124",
+          "74.217.253.61",
+          "74.217.78.231",
+          "75.98.9.100",
+          "77.242.204.20",
+          "8.21.24.45",
+          "8.36.120.226",
+          "80.239.178.178",
+          "80.239.178.184",
+          "80.239.178.200",
+          "80.239.217.107",
+          "80.239.217.122",
+          "80.239.217.168",
+          "80.239.217.34",
+          "80.239.237.10",
+          "80.239.237.17",
+          "80.239.237.40",
+          "80.239.250.218",
+          "80.239.254.106",
+          "80.252.91.41",
+          "81.22.36.155",
+          "83.169.59.64",
+          "85.114.159.93",
+          "85.114.159.96",
+          "85.235.246.2",
+          "85.235.246.25",
+          "87.248.207.253",
+          "87.248.207.254",
+          "91.103.138.13",
+          "93.184.220.187",
+          "93.184.220.20",
+          "94.31.29.192",
+          "95.131.122.226",
+          "95.172.94.23",
+          "95.172.94.36",
+          "95.172.94.63",
+          "98.137.201.232"
+        ],
+        "sni_domains": [
+          "a.analytics.yahoo.com",
+          "a01-viq.korrelate.net",
+          "accounts.google.com",
+          "ad.doubleclick.net",
+          "android.clients.google.com",
+          "angsrvr.r.worldssl.net",
+          "apis.google.com",
+          "clients1.google.com",
+          "clients2.google.com",
+          "clients3.google.com",
+          "clients4.google.com",
+          "clients5.google.com",
+          "cm.g.doubleclick.net",
+          "csi.gstatic.com",
+          "d5p.de17a.com",
+          "dpm.demdex.net",
+          "dsum-sec.casalemedia.com",
+          "dt.adsafeprotected.com",
+          "fbcdn-static-b-a.akamaihd.net",
+          "fbstatic-a.akamaihd.net",
+          "fonts.googleapis.com",
+          "fw.adsafeprotected.com",
+          "geo.query.yahoo.com",
+          "geo.yahoo.com",
+          "gfe.nvidia.com",
+          "googleads.g.doubleclick.net",
+          "googleads4.g.doubleclick.net",
+          "history.google.com",
+          "i.ytimg.com",
+          "imap.gmail.com",
+          "mail.google.com",
+          "oauth.googleusercontent.com",
+          "pagead2.googlesyndication.com",
+          "pixel.rubiconproject.com",
+          "platform.twitter.com",
+          "s-static.ak.facebook.com",
+          "s.yimg.com",
+          "s.ytimg.com",
+          "s0.2mdn.net",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "sb-ssl.google.com",
+          "sb.voicefive.com",
+          "secure-ds.serving-sys.com",
+          "secure.adnxs.com",
+          "securepubads.g.doubleclick.net",
+          "smtp.gmail.com",
+          "ssl.gstatic.com",
+          "static.adsafeprotected.com",
+          "sy.eu.angsrvr.com",
+          "syndication.streamads.yahoo.com",
+          "syndication.twitter.com",
+          "t.mookie1.com",
+          "tags.w55c.net",
+          "tools.google.com",
+          "tpc.googlesyndication.com",
+          "us-u.openx.net",
+          "www-stats-so.f-secure.com",
+          "www.facebook.com",
+          "www.google.com",
+          "www.google.se",
+          "www.googleapis.com",
+          "www.gstatic.com",
+          "www.hipchat.com",
+          "www.youtube.com",
+          "z.moatads.com",
+          "zendesk.sp1.convertro.com"
+        ],
+        "dns_names": [
+          "a.analytics.yahoo.com",
+          "a.fdlstatic.com",
+          "a.scorecardresearch.com",
+          "a.visualrevenue.com",
+          "a01-viq.korrelate.net",
+          "a1.fdlstatic.com",
+          "a2.fdlstatic.com",
+          "a248.e.akamai.net",
+          "a3.fdlstatic.com",
+          "a4.fdlstatic.com",
+          "accounts.google.com",
+          "acuityplatform.com",
+          "ad.360yield.com",
+          "ad.doubleclick.net",
+          "ad.turn.com",
+          "ad.yieldlab.net",
+          "ad.yieldmanager.com",
+          "adadvisor.net",
+          "adclick.g.doubleclick.net",
+          "adfarm.mediaplex.com",
+          "ads.heias.com",
+          "ads.mediade.sk",
+          "ads.p161.net",
+          "ads.pandora.tv",
+          "ads.rubiconproject.com",
+          "ads.stickyadstv.com",
+          "ads.yahoo.com",
+          "adsby.bidtheatre.com",
+          "adsearch.adkontekst.pl",
+          "adserver-qcamt.adtech.de",
+          "adserver.adtechus.com",
+          "adx.adnxs.com",
+          "aep.emea.mxptint.net",
+          "afs.moatads.com",
+          "ajax.googleapis.com",
+          "aka-cdn-ns.adtech.de",
+          "ams1.ib.adnxs.com",
+          "android.clients.google.com",
+          "angsrvr.r.worldssl.net",
+          "any-video-converter.com",
+          "api.opencandy.com",
+          "api.viglink.com",
+          "apis.google.com",
+          "ar.voicefive.com",
+          "asset0.cbsistatic.com",
+          "asset1.cbsistatic.com",
+          "asset2.cbsistatic.com",
+          "asset3.cbsistatic.com",
+          "atemda.com",
+          "b-0.19-a3000019.260000.1644.1e39.2f4a.210.0.gef77fta9mre5iih3mpf8hkldv.avts.mcafee.com",
+          "b.scorecardresearch.com",
+          "b.voicefive.com",
+          "bbnaut.ibillboard.com",
+          "bh.contextweb.com",
+          "bid.g.doubleclick.net",
+          "bidi-geo.mythings.com",
+          "biztech.space",
+          "bs.serving-sys.com",
+          "c.betrad.com",
+          "c.bing.com",
+          "c1.adform.net",
+          "c5255dfbeaf8de918c73-c9552ca9f9dab9ffb917d11bd7154762.r70.cf5.rackcdn.com",
+          "cbsi.demdex.net",
+          "cbsi.secure.force.com",
+          "cdn.adnxs.com",
+          "cdn.cast.upload.cnet.com",
+          "cdn.castplatform.com",
+          "cdn.clicktale.net",
+          "cdn.kmplayer.com",
+          "cdn.pandora.tv",
+          "cdn.spotxchange.com",
+          "cdn.turn.com",
+          "cdn.viglink.com",
+          "cdn.ywxi.net",
+          "cdn3.opencandy.com",
+          "cdnrep.reimage.com",
+          "ce.lijit.com",
+          "ckm-m.xp1.ru4.com",
+          "cl-c.netseer.com",
+          "cl.netseer.com",
+          "client-lb.dropbox.com",
+          "client.dropbox.com",
+          "clients1.google.com",
+          "clients2.google.com",
+          "clients3.google.com",
+          "clients4.google.com",
+          "clients5.google.com",
+          "cm.dpclk.com",
+          "cm.g.doubleclick.net",
+          "cm.netseer.com",
+          "cmi.netseer.com",
+          "cms.quantserve.com",
+          "cn.cbsimg.net",
+          "cnet.com",
+          "connect.facebook.net",
+          "content.quantcount.com",
+          "crl.microsoft.com",
+          "csi.gstatic.com",
+          "cti.w55c.net",
+          "ctldl.windowsupdate.com",
+          "cts.servesharp.net",
+          "d.agkn.com",
+          "d.cast.upload.cnet.com",
+          "d.castplatform.com",
+          "d.p-td.com",
+          "d.pzkysq.pink",
+          "d.turn.com",
+          "d21bsqatndqkg8.cloudfront.net",
+          "d2uu7l47sbf1ja.cloudfront.net",
+          "d5p.de17a.com",
+          "de.download.cnet.com",
+          "de.tynt.com",
+          "de17a.com",
+          "dell-dator.pwned.se",
+          "descargar.cnet.com",
+          "dis.criteo.com",
+          "dl-client708.dropbox.com",
+          "dmp.adform.net",
+          "download.cnet.com",
+          "download.com",
+          "download.uniblue.com",
+          "dpm.demdex.net",
+          "dps.bing.com",
+          "ds.serving-sys.com",
+          "dsp.adfarm1.adition.com",
+          "dsum-sec.casalemedia.com",
+          "dt.adsafeprotected.com",
+          "dw.cbsi.com",
+          "dw.cnet.com",
+          "e.nexac.com",
+          "eu-gmtdmp.gd1.mookie1.com",
+          "exch.quantcount.com",
+          "extmap.rub.ace.advertising.com",
+          "fast.cbsi.demdex.net",
+          "fbcdn-static-b-a.akamaihd.net",
+          "fbstatic-a.akamaihd.net",
+          "fonts.cnet.com",
+          "fonts.googleapis.com",
+          "fonts.gstatic.com",
+          "fra1.ib.adnxs.com",
+          "fw.adsafeprotected.com",
+          "gcdn.2mdn.net",
+          "geo.query.yahoo.com",
+          "geo.yahoo.com",
+          "gfe.nvidia.com",
+          "global.ib-ibi.com",
+          "gmtdmp.mookie1.com",
+          "google-cm.p.veruta.com",
+          "googleads.g.doubleclick.net",
+          "googleads4.g.doubleclick.net",
+          "green.erne.co",
+          "history.google.com",
+          "hwcdn.reimage.com",
+          "i.ctnsnet.com",
+          "i.i.cbsi.com",
+          "i.w55c.net",
+          "i.ytimg.com",
+          "ib.adnxs.com",
+          "ic.tynt.com",
+          "id.google.se",
+          "idsync.fetchback.com",
+          "ih.adscale.de",
+          "image2.pubmatic.com",
+          "images.scanalert.com",
+          "img-cdn.mediaplex.com",
+          "install-apps.com",
+          "isatap.pwned.se",
+          "js.revsci.net",
+          "k9pcfixer.com",
+          "l.betrad.com",
+          "l.yimg.com",
+          "legalterms.cbsinteractive.com",
+          "lh3.googleusercontent.com",
+          "load.s3.amazonaws.com",
+          "loadm.exelator.com",
+          "log.kmplayer.com",
+          "m.xp1.ru4.com",
+          "mail.google.com",
+          "map.media6degrees.com",
+          "match.adsrvr.org",
+          "match.basebanner.com",
+          "match.rtbidder.net",
+          "match.rundsp.com",
+          "mp.castplatform.com",
+          "mpp2.vindicosuite.com",
+          "notify8.dropbox.com",
+          "oauth.googleusercontent.com",
+          "ocsp.thawte.com",
+          "ocsp.verisign.com",
+          "om.cbsi.com",
+          "optimized-by.rubiconproject.com",
+          "p.adsymptotic.com",
+          "p.rfihub.com",
+          "p.typekit.net",
+          "p.visualrevenue.com",
+          "pagead2.googlesyndication.com",
+          "partner.googleadservices.com",
+          "partnerads.ysm.yahoo.com",
+          "pdw-adf.userreport.com",
+          "ping.crowdscience.com",
+          "pinpoint.microsoft.com",
+          "pix.bit.ly",
+          "pix.btrll.com",
+          "pix.impdesk.com",
+          "pix04.revsci.net",
+          "pixel.adsafeprotected.com",
+          "pixel.everesttech.net",
+          "pixel.jumptap.com",
+          "pixel.quantcount.com",
+          "pixel.quantserve.com",
+          "pixel.rubiconproject.com",
+          "pixel.sitescout.com",
+          "pixel.tapad.com",
+          "platform.twitter.com",
+          "player.kmpmedia.net",
+          "plus.google.com",
+          "pm.uniblue.com.s3.amazonaws.com",
+          "pr.ybp.yahoo.com",
+          "ps.ns-cdn.com",
+          "pubads.g.doubleclick.net",
+          "px.owneriq.net",
+          "pxl.connexity.net",
+          "r.254a.com",
+          "r.casalemedia.com",
+          "r.turn.com",
+          "r3---sn-uxap5nvoxg5-5gol.c.2mdn.net",
+          "r7---sn-uxap5nvoxg5-5goe.c.2mdn.net",
+          "rc.d.chango.com",
+          "rcp.c.appier.net",
+          "registry.pwned.se",
+          "relestar.com",
+          "reviews.cnet.com",
+          "rp.gwallet.com",
+          "rpush.cogocast.net",
+          "rt.legolas-media.com",
+          "rtb.revenuemantra.com",
+          "rtd.tubemogul.com",
+          "rubicon-cm.p.veruta.com",
+          "rubicon-match.dotomi.com",
+          "s-static.ak.facebook.com",
+          "s.arlime.com",
+          "s.moatads.com",
+          "s.yimg.com",
+          "s.ytimg.com",
+          "s0.2mdn.net",
+          "s1.2mdn.net",
+          "s1.adform.net",
+          "s3.amazonaws.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "sb-ssl.google.com",
+          "sb.voicefive.com",
+          "sc.tynt.com",
+          "sd.symcb.com",
+          "search.spotxchange.com",
+          "secure-download.cnet.com",
+          "secure-ds.serving-sys.com",
+          "secure-us.imrworldwide.com",
+          "secure.adnxs.com",
+          "securepubads.g.doubleclick.net",
+          "server.adformdsp.net",
+          "sf.symcd.com",
+          "software-files-a.cnet.com",
+          "soma.smaato.net",
+          "sp.adbrn.com",
+          "ssl.gstatic.com",
+          "ssp-csync.smartadserver.com",
+          "static.adsafeprotected.com",
+          "static.ak.facebook.com",
+          "static.crowdscience.com",
+          "staticwajam-wajam.netdna-ssl.com",
+          "stats.g.doubleclick.net",
+          "store.iobit.com",
+          "support.k9tools.com",
+          "sy.eu.angsrvr.com",
+          "sync.active-agent.com",
+          "sync.adap.tv",
+          "sync.adaptv.advertising.com",
+          "sync.mathtag.com",
+          "sync.search.spotxchange.com",
+          "sync.tidaltv.com",
+          "syndication.streamads.yahoo.com",
+          "syndication.twitter.com",
+          "t.mookie1.com",
+          "t0.gstatic.com",
+          "t1.gstatic.com",
+          "t1.visualrevenue.com",
+          "t2.gstatic.com",
+          "t2.symcb.com",
+          "t3.gstatic.com",
+          "t4.liverail.com",
+          "tags.bluekai.com",
+          "tags.w55c.net",
+          "tap.rubiconproject.com",
+          "tap2-cdn.rubiconproject.com",
+          "tcr.tynt.com",
+          "telecharger.cnet.com",
+          "tl.symcd.com",
+          "tools.google.com",
+          "tpc.googlesyndication.com",
+          "track.adform.net",
+          "track.eyeviewads.com",
+          "track.systweak.com",
+          "tracking.uniblue.com",
+          "twitter.com",
+          "um.simpli.fi",
+          "ums.adtech.de",
+          "ums.adtechus.com",
+          "update.kmpmedia.net",
+          "update.uniblue.com",
+          "upload.cnet.com",
+          "urs.cnet.com",
+          "us-u.openx.net",
+          "us.lrd.yahoo.com",
+          "v4.moatads.com",
+          "vidtech.cbsima.com",
+          "vox-static.liverail.com",
+          "wpad.pwned.se",
+          "www-stats-so.f-secure.com",
+          "www.adobe.com",
+          "www.amazon.com",
+          "www.cnet.com",
+          "www.download.com",
+          "www.everestjs.net",
+          "www.ezyware.com",
+          "www.facebook.com",
+          "www.google-analytics.com",
+          "www.google.com",
+          "www.google.se",
+          "www.googleadservices.com",
+          "www.googleapis.com",
+          "www.googletagservices.com",
+          "www.gstatic.com",
+          "www.hipchat.com",
+          "www.iobit.com",
+          "www.k9pcfixer.com",
+          "www.kmpmedia.net",
+          "www.malwarebytes.org",
+          "www.mcafeesecure.com",
+          "www.microsoft.com",
+          "www.microsoftstore.com",
+          "www.reimageplus.com",
+          "www.technologieduluth.com",
+          "www.wajam.com",
+          "www.wtp101.com",
+          "www.youtube.com",
+          "x.bidswitch.net",
+          "z.moatads.com",
+          "zendesk.sp1.convertro.com"
+        ],
+        "findings_indices": [
+          2,
+          8,
+          9
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:b0:96",
+        "hostname": "DELL-DATOR",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.51",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "victim_candidate",
+          "gateway_candidate"
+        ],
+        "first_seen": 1426204822.621415,
+        "last_seen": 1426246494.075795,
+        "flows_out": 694,
+        "flows_in": 689,
+        "bytes_out": 824537,
+        "bytes_in": 1011518,
+        "unique_dsts": [
+          "174.129.98.57",
+          "192.168.0.1",
+          "192.168.0.2",
+          "192.168.0.255",
+          "198.252.206.149",
+          "212.227.17.171",
+          "212.227.17.187",
+          "213.155.151.148",
+          "213.155.151.180",
+          "213.155.151.182",
+          "213.155.151.185",
+          "216.58.209.110",
+          "216.58.209.134",
+          "224.0.0.22",
+          "224.0.0.251",
+          "37.59.18.186",
+          "63.245.217.115",
+          "81.236.55.3"
+        ],
+        "unique_srcs": [
+          "174.129.98.57",
+          "192.168.0.1",
+          "198.252.206.149",
+          "212.227.17.171",
+          "212.227.17.187",
+          "213.155.151.148",
+          "213.155.151.180",
+          "213.155.151.182",
+          "213.155.151.185",
+          "216.58.209.110",
+          "216.58.209.134",
+          "37.59.18.186",
+          "63.245.217.115",
+          "81.236.55.3"
+        ],
+        "sni_domains": [
+          "blocklist.addons.mozilla.org",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [
+          "ad.doubleclick.net",
+          "blocklist.addons.mozilla.org",
+          "password-ned-xp",
+          "password-ned-xp.pwned.se",
+          "pop.gmx.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "skybluecanvas.com",
+          "smtprelay1.telia.com",
+          "www.skybluecanvas.com",
+          "www.wymeditor.org"
+        ],
+        "findings_indices": [
+          1
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:b2:45",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.53",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426205097.732683,
+        "last_seen": 1426247457.124949,
+        "flows_out": 330,
+        "flows_in": 328,
+        "bytes_out": 940071,
+        "bytes_in": 1794344,
+        "unique_dsts": [
+          "192.168.0.1",
+          "192.168.0.255",
+          "212.227.111.53",
+          "212.227.17.171",
+          "217.72.201.130",
+          "81.236.55.3"
+        ],
+        "unique_srcs": [
+          "192.168.0.1",
+          "212.227.111.53",
+          "212.227.17.171",
+          "217.72.201.130",
+          "81.236.55.3"
+        ],
+        "sni_domains": [],
+        "dns_names": [
+          "3c-bs.gmx.com",
+          "homer-xubuntu.pwned.se",
+          "navigator-bs.gmx.com"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "00:60:6e:00:9d:f9",
+        "hostname": "HOMER-XUBUNTU",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.2",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "gateway_candidate"
+        ],
+        "first_seen": 1426204812.614971,
+        "last_seen": 1426247343.680605,
+        "flows_out": 1190,
+        "flows_in": 893,
+        "bytes_out": 435872,
+        "bytes_in": 179940,
+        "unique_dsts": [
+          "128.61.240.66",
+          "130.236.254.17",
+          "141.212.122.98",
+          "141.212.122.99",
+          "188.126.88.9",
+          "192.168.0.255",
+          "194.71.144.71",
+          "195.154.6.241",
+          "208.239.76.34",
+          "217.195.49.146",
+          "37.48.81.52",
+          "60.173.14.67",
+          "8.8.8.8",
+          "81.170.152.66"
+        ],
+        "unique_srcs": [
+          "10.9.14.115",
+          "128.61.240.66",
+          "130.236.254.17",
+          "141.212.122.98",
+          "141.212.122.99",
+          "192.168.0.51",
+          "195.154.6.241",
+          "209.130.172.178",
+          "37.48.81.52",
+          "60.173.14.67",
+          "8.8.8.8",
+          "81.170.152.66"
+        ],
+        "sni_domains": [],
+        "dns_names": [
+          "mycompany.com"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:c0:d7",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.1",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426204812.31496,
+        "last_seen": 1426247513.288484,
+        "flows_out": 1508,
+        "flows_in": 1507,
+        "bytes_out": 405545,
+        "bytes_in": 128516,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "78:54:2e:9f:10:28",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.50",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426204859.125356,
+        "last_seen": 1426247470.201188,
+        "flows_out": 3,
+        "flows_in": 0,
+        "bytes_out": 231846,
+        "bytes_in": 0,
+        "unique_dsts": [
+          "224.0.0.22",
+          "224.0.0.251",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "10.9.14.115",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426204898.371576,
+        "last_seen": 1426247202.063416,
+        "flows_out": 1,
+        "flows_in": 0,
+        "bytes_out": 27636,
+        "bytes_in": 0,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ],
+    "external": [
+      {
+        "ip": "31.186.225.24",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "c2_candidate"
+        ],
+        "first_seen": 1426246579.169696,
+        "last_seen": 1426247496.944973,
+        "flows_out": 27,
+        "flows_in": 27,
+        "bytes_out": 139389,
+        "bytes_in": 212594,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "pixel.rubiconproject.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [
+          9
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "216.58.209.130",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "c2_candidate"
+        ],
+        "first_seen": 1426246577.682277,
+        "last_seen": 1426247495.738053,
+        "flows_out": 24,
+        "flows_in": 24,
+        "bytes_out": 90128,
+        "bytes_in": 67677,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "cm.g.doubleclick.net",
+          "securepubads.g.doubleclick.net"
+        ],
+        "dns_names": [],
+        "findings_indices": [
+          8
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.250.218",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247217.057842,
+        "last_seen": 1426247476.109287,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 54543763,
+        "bytes_in": 1107068,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "69.16.175.10",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247471.75017,
+        "last_seen": 1426247520.351649,
+        "flows_out": 9,
+        "flows_in": 9,
+        "bytes_out": 29305481,
+        "bytes_in": 1203895,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.230.99.39",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247467.813766,
+        "last_seen": 1426247479.874173,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 19342436,
+        "bytes_in": 801390,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.230.98.75",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246599.201127,
+        "last_seen": 1426246783.788998,
+        "flows_out": 3,
+        "flows_in": 3,
+        "bytes_out": 14600288,
+        "bytes_in": 453310,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.208.23.129",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247449.211334,
+        "last_seen": 1426247457.225197,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 3249657,
+        "bytes_in": 68166,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.146",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247406.390521,
+        "last_seen": 1426247407.142526,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1780468,
+        "bytes_in": 35571,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "195.12.232.145",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426247307.450294,
+        "last_seen": 1426247518.026893,
+        "flows_out": 11,
+        "flows_in": 11,
+        "bytes_out": 1469175,
+        "bytes_in": 69199,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.237.10",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246577.147349,
+        "last_seen": 1426247501.388867,
+        "flows_out": 10,
+        "flows_in": 10,
+        "bytes_out": 1468288,
+        "bytes_in": 37678,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "217.72.201.130",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426205098.649365,
+        "last_seen": 1426247457.124949,
+        "flows_out": 221,
+        "flows_in": 221,
+        "bytes_out": 1038781,
+        "bytes_in": 425827,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "195.12.232.168",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246576.323981,
+        "last_seen": 1426247508.939224,
+        "flows_out": 23,
+        "flows_in": 23,
+        "bytes_out": 1283979,
+        "bytes_in": 128552,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "64.233.161.108",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426205104.601103,
+        "last_seen": 1426247067.215964,
+        "flows_out": 74,
+        "flows_in": 74,
+        "bytes_out": 647375,
+        "bytes_in": 451505,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "imap.gmail.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "162.13.99.124",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246596.275739,
+        "last_seen": 1426246878.920028,
+        "flows_out": 13,
+        "flows_in": 13,
+        "bytes_out": 766724,
+        "bytes_in": 61350,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.227.17.171",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426206076.00169,
+        "last_seen": 1426247326.998631,
+        "flows_out": 56,
+        "flows_in": 56,
+        "bytes_out": 738127,
+        "bytes_in": 58871,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.232.121",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246576.883806,
+        "last_seen": 1426247508.939243,
+        "flows_out": 4,
+        "flows_in": 4,
+        "bytes_out": 744379,
+        "bytes_in": 37675,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.232.124",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426246578.052065,
+        "last_seen": 1426247510.209735,
+        "flows_out": 14,
+        "flows_in": 14,
+        "bytes_out": 725048,
+        "bytes_in": 39317,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "s0.2mdn.net"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "173.194.66.99",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426204851.410526,
+        "last_seen": 1426240449.535273,
+        "flows_out": 133,
+        "flows_in": 133,
+        "bytes_out": 224654,
+        "bytes_in": 363052,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "174.129.98.57",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426204823.599988,
+        "last_seen": 1426246462.704551,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 223239,
+        "bytes_in": 350931,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "216.58.209.110",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426205529.826094,
+        "last_seen": 1426247496.409347,
+        "flows_out": 9,
+        "flows_in": 9,
+        "bytes_out": 520862,
+        "bytes_in": 34574,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "android.clients.google.com",
+          "s.ytimg.com",
+          "safebrowsing-cache.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ]
+  },
+  "dns": {
+    "unique_count": 361,
+    "total_queries": 4936,
+    "top_by_count": [
+      {
+        "name": "mycompany.com",
+        "count": 1766
+      },
+      {
+        "name": "safebrowsing-cache.google.com",
+        "count": 371
+      },
+      {
+        "name": "pop.gmx.com",
+        "count": 302
+      },
+      {
+        "name": "www.google.com",
+        "count": 284
+      },
+      {
+        "name": "safebrowsing.google.com",
+        "count": 188
+      },
+      {
+        "name": "password-ned-xp",
+        "count": 176
+      },
+      {
+        "name": "password-ned-xp.pwned.se",
+        "count": 176
+      },
+      {
+        "name": "mail.google.com",
+        "count": 144
+      },
+      {
+        "name": "clients4.google.com",
+        "count": 96
+      },
+      {
+        "name": "navigator-bs.gmx.com",
+        "count": 38
+      },
+      {
+        "name": "accounts.google.com",
+        "count": 28
+      },
+      {
+        "name": "client.dropbox.com",
+        "count": 26
+      },
+      {
+        "name": "notify8.dropbox.com",
+        "count": 21
+      },
+      {
+        "name": "download.cnet.com",
+        "count": 12
+      },
+      {
+        "name": "ad.doubleclick.net",
+        "count": 10
+      },
+      {
+        "name": "ad.yieldmanager.com",
+        "count": 10
+      },
+      {
+        "name": "ads.yahoo.com",
+        "count": 10
+      },
+      {
+        "name": "cnet.com",
+        "count": 10
+      },
+      {
+        "name": "dpm.demdex.net",
+        "count": 10
+      },
+      {
+        "name": "dw.cbsi.com",
+        "count": 10
+      },
+      {
+        "name": "geo.yahoo.com",
+        "count": 10
+      },
+      {
+        "name": "js.revsci.net",
+        "count": 10
+      },
+      {
+        "name": "pix04.revsci.net",
+        "count": 10
+      },
+      {
+        "name": "s.yimg.com",
+        "count": 10
+      },
+      {
+        "name": "secure.adnxs.com",
+        "count": 10
+      },
+      {
+        "name": "syndication.streamads.yahoo.com",
+        "count": 10
+      },
+      {
+        "name": "twitter.com",
+        "count": 10
+      },
+      {
+        "name": "www.cnet.com",
+        "count": 10
+      },
+      {
+        "name": "www.everestjs.net",
+        "count": 10
+      },
+      {
+        "name": "www.facebook.com",
+        "count": 10
+      },
+      {
+        "name": "www.gstatic.com",
+        "count": 10
+      },
+      {
+        "name": "www.youtube.com",
+        "count": 10
+      },
+      {
+        "name": "cdn3.opencandy.com",
+        "count": 9
+      },
+      {
+        "name": "smtprelay1.telia.com",
+        "count": 9
+      },
+      {
+        "name": "cbsi.secure.force.com",
+        "count": 8
+      },
+      {
+        "name": "cl-c.netseer.com",
+        "count": 8
+      },
+      {
+        "name": "cl.netseer.com",
+        "count": 8
+      },
+      {
+        "name": "client-lb.dropbox.com",
+        "count": 8
+      },
+      {
+        "name": "clients2.google.com",
+        "count": 8
+      },
+      {
+        "name": "cm.g.doubleclick.net",
+        "count": 8
+      },
+      {
+        "name": "e.nexac.com",
+        "count": 8
+      },
+      {
+        "name": "fbcdn-static-b-a.akamaihd.net",
+        "count": 8
+      },
+      {
+        "name": "l.yimg.com",
+        "count": 8
+      },
+      {
+        "name": "pagead2.googlesyndication.com",
+        "count": 8
+      },
+      {
+        "name": "pixel.everesttech.net",
+        "count": 8
+      },
+      {
+        "name": "platform.twitter.com",
+        "count": 8
+      },
+      {
+        "name": "s-static.ak.facebook.com",
+        "count": 8
+      },
+      {
+        "name": "s1.adform.net",
+        "count": 8
+      },
+      {
+        "name": "static.ak.facebook.com",
+        "count": 8
+      },
+      {
+        "name": "upload.cnet.com",
+        "count": 8
+      }
+    ],
+    "nxdomain": [
+      {
+        "name": "password-ned-xp",
+        "count": 88
+      },
+      {
+        "name": "password-ned-xp.pwned.se",
+        "count": 88
+      },
+      {
+        "name": "wpad.pwned.se",
+        "count": 3
+      },
+      {
+        "name": "homer-xubuntu.pwned.se",
+        "count": 2
+      },
+      {
+        "name": "dell-dator.pwned.se",
+        "count": 1
+      },
+      {
+        "name": "isatap.pwned.se",
+        "count": 1
+      },
+      {
+        "name": "registry.pwned.se",
+        "count": 1
+      }
+    ]
+  },
+  "flows": {
+    "total_flows": 9489,
+    "top_by_bytes": [
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.250.218",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53367,
+        "direction": "inbound",
+        "packets": 37524,
+        "bytes": 54543763,
+        "duration": 259.024444,
+        "first_ts": 1426247217.084843,
+        "last_ts": 1426247476.109287
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.99.39",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53733,
+        "direction": "inbound",
+        "packets": 13305,
+        "bytes": 19342436,
+        "duration": 5.626791,
+        "first_ts": 1426247467.845345,
+        "last_ts": 1426247473.472136
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53768,
+        "direction": "inbound",
+        "packets": 10432,
+        "bytes": 15149600,
+        "duration": 11.818644,
+        "first_ts": 1426247495.068848,
+        "last_ts": 1426247506.887492
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53773,
+        "direction": "inbound",
+        "packets": 9020,
+        "bytes": 13111252,
+        "duration": 7.033405,
+        "first_ts": 1426247513.318244,
+        "last_ts": 1426247520.351649
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52842,
+        "direction": "inbound",
+        "packets": 5098,
+        "bytes": 7401754,
+        "duration": 184.559604,
+        "first_ts": 1426246599.229394,
+        "last_ts": 1426246783.788998
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52862,
+        "direction": "inbound",
+        "packets": 3480,
+        "bytes": 5055316,
+        "duration": 1.14418,
+        "first_ts": 1426246698.461975,
+        "last_ts": 1426246699.606155
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.208.23.129",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53641,
+        "direction": "inbound",
+        "packets": 2238,
+        "bytes": 3248737,
+        "duration": 7.590703,
+        "first_ts": 1426247449.634494,
+        "last_ts": 1426247457.225197
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52861,
+        "direction": "inbound",
+        "packets": 1478,
+        "bytes": 2143218,
+        "duration": 0.877617,
+        "first_ts": 1426246696.346566,
+        "last_ts": 1426246697.224183
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.146",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53622,
+        "direction": "inbound",
+        "packets": 1231,
+        "bytes": 1780468,
+        "duration": 0.723356,
+        "first_ts": 1426247406.41917,
+        "last_ts": 1426247407.142526
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "195.12.232.145",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53559,
+        "direction": "inbound",
+        "packets": 996,
+        "bytes": 1441622,
+        "duration": 117.929251,
+        "first_ts": 1426247307.479602,
+        "last_ts": 1426247425.408853
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53367,
+        "dst_ip": "80.239.250.218",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 18385,
+        "bytes": 1107068,
+        "duration": 258.841674,
+        "first_ts": 1426247217.057842,
+        "last_ts": 1426247475.899516,
+        "http_host": "software-files-a.cnet.com",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.237.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53716,
+        "direction": "inbound",
+        "packets": 749,
+        "bytes": 1084957,
+        "duration": 0.344796,
+        "first_ts": 1426247466.818332,
+        "last_ts": 1426247467.163128
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53744,
+        "direction": "inbound",
+        "packets": 567,
+        "bytes": 808473,
+        "duration": 22.058082,
+        "first_ts": 1426247471.780465,
+        "last_ts": 1426247493.838547
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53733,
+        "dst_ip": "54.230.99.39",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 13307,
+        "bytes": 801390,
+        "duration": 12.060407,
+        "first_ts": 1426247467.813766,
+        "last_ts": 1426247479.874173,
+        "http_host": "d21bsqatndqkg8.cloudfront.net",
+        "http_user_agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53768,
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 10412,
+        "bytes": 626028,
+        "duration": 11.940567,
+        "first_ts": 1426247495.0427,
+        "last_ts": 1426247506.983267,
+        "http_host": "cdnrep.reimage.com",
+        "http_user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53773,
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 9031,
+        "bytes": 542188,
+        "duration": 7.061127,
+        "first_ts": 1426247513.289795,
+        "last_ts": 1426247520.350922,
+        "http_host": "hwcdn.reimage.com",
+        "http_user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "216.58.209.110",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52684,
+        "direction": "inbound",
+        "packets": 365,
+        "bytes": 482866,
+        "duration": 240.614097,
+        "first_ts": 1426246593.174622,
+        "last_ts": 1426246833.788719,
+        "sni": "s.ytimg.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.232.121",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53122,
+        "direction": "inbound",
+        "packets": 324,
+        "bytes": 438565,
+        "duration": 342.691322,
+        "first_ts": 1426247166.247921,
+        "last_ts": 1426247508.939243
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "173.194.67.94",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52523,
+        "direction": "inbound",
+        "packets": 364,
+        "bytes": 362872,
+        "duration": 369.091255,
+        "first_ts": 1426246566.231883,
+        "last_ts": 1426246935.323138,
+        "sni": "www.google.se"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.51",
+        "src_port": 52070,
+        "dst_ip": "174.129.98.57",
+        "dst_port": 5222,
+        "direction": "outbound",
+        "packets": 2817,
+        "bytes": 350931,
+        "duration": 41639.104563,
+        "first_ts": 1426204823.599988,
+        "last_ts": 1426246462.704551
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.237.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53636,
+        "direction": "inbound",
+        "packets": 239,
+        "bytes": 338924,
+        "duration": 0.466022,
+        "first_ts": 1426247448.787858,
+        "last_ts": 1426247449.25388
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 49501,
+        "dst_ip": "54.144.213.95",
+        "dst_port": 5222,
+        "direction": "outbound",
+        "packets": 2884,
+        "bytes": 332106,
+        "duration": 42680.816495,
+        "first_ts": 1426204832.349971,
+        "last_ts": 1426247513.166466
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "212.227.17.171",
+        "src_port": 110,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 34247,
+        "direction": "inbound",
+        "packets": 238,
+        "bytes": 325682,
+        "duration": 1.15787,
+        "first_ts": 1426236223.076592,
+        "last_ts": 1426236224.234462
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "212.227.17.171",
+        "src_port": 110,
+        "dst_ip": "192.168.0.53",
+        "dst_port": 3445,
+        "direction": "inbound",
+        "packets": 234,
+        "bytes": 320909,
+        "duration": 1.277502,
+        "first_ts": 1426234884.282509,
+        "last_ts": 1426234885.560011
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.53",
+        "src_port": 3451,
+        "dst_ip": "81.236.55.3",
+        "dst_port": 25,
+        "direction": "outbound",
+        "packets": 236,
+        "bytes": 320033,
+        "duration": 2.711712,
+        "first_ts": 1426235644.889916,
+        "last_ts": 1426235647.601628
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "162.13.99.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52832,
+        "direction": "inbound",
+        "packets": 214,
+        "bytes": 293429,
+        "duration": 229.179927,
+        "first_ts": 1426246596.335812,
+        "last_ts": 1426246825.515739
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.232.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53354,
+        "direction": "inbound",
+        "packets": 199,
+        "bytes": 272527,
+        "duration": 293.816791,
+        "first_ts": 1426247216.370348,
+        "last_ts": 1426247510.187139
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.184",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52526,
+        "direction": "inbound",
+        "packets": 219,
+        "bytes": 249043,
+        "duration": 268.458715,
+        "first_ts": 1426246567.018753,
+        "last_ts": 1426246835.477468,
+        "sni": "apis.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "195.12.232.154",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52539,
+        "direction": "inbound",
+        "packets": 173,
+        "bytes": 241390,
+        "duration": 67.374802,
+        "first_ts": 1426246576.346946,
+        "last_ts": 1426246643.721748
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.174",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53369,
+        "direction": "inbound",
+        "packets": 168,
+        "bytes": 235101,
+        "duration": 0.430358,
+        "first_ts": 1426247217.230184,
+        "last_ts": 1426247217.660542
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "174.129.98.57",
+        "src_port": 5222,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 52070,
+        "direction": "inbound",
+        "packets": 1485,
+        "bytes": 223239,
+        "duration": 41638.851813,
+        "first_ts": 1426204823.852719,
+        "last_ts": 1426246462.704532
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.232.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53353,
+        "direction": "inbound",
+        "packets": 160,
+        "bytes": 212511,
+        "duration": 279.918475,
+        "first_ts": 1426247216.369159,
+        "last_ts": 1426247496.287634
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.144.213.95",
+        "src_port": 5222,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 49501,
+        "direction": "inbound",
+        "packets": 1521,
+        "bytes": 211503,
+        "duration": 42680.41924,
+        "first_ts": 1426204832.549829,
+        "last_ts": 1426247512.969069
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "85.235.246.25",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52620,
+        "direction": "inbound",
+        "packets": 151,
+        "bytes": 209161,
+        "duration": 45.177421,
+        "first_ts": 1426246578.557462,
+        "last_ts": 1426246623.734883
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "104.130.145.226",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53674,
+        "direction": "inbound",
+        "packets": 149,
+        "bytes": 208289,
+        "duration": 17.588935,
+        "first_ts": 1426247456.404762,
+        "last_ts": 1426247473.993697
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52862,
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 3459,
+        "bytes": 207966,
+        "duration": 2.667023,
+        "first_ts": 1426246698.381763,
+        "last_ts": 1426246701.048786,
+        "http_host": "d2uu7l47sbf1ja.cloudfront.net",
+        "http_user_agent": "ISX Download DLL"
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.54",
+        "src_port": 17500,
+        "dst_ip": "192.168.0.255",
+        "dst_port": 17500,
+        "direction": "internal",
+        "packets": 1397,
+        "bytes": 203962,
+        "duration": 42683.53192,
+        "first_ts": 1426204835.061283,
+        "last_ts": 1426247518.593203
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.54",
+        "src_port": 17500,
+        "dst_ip": "255.255.255.255",
+        "dst_port": 17500,
+        "direction": "internal",
+        "packets": 1397,
+        "bytes": 203962,
+        "duration": 42683.5329,
+        "first_ts": 1426204835.059558,
+        "last_ts": 1426247518.592458
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "162.13.99.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52836,
+        "direction": "inbound",
+        "packets": 144,
+        "bytes": 195235,
+        "duration": 228.924042,
+        "first_ts": 1426246596.591901,
+        "last_ts": 1426246825.515943
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 51963,
+        "dst_ip": "64.233.161.108",
+        "dst_port": 993,
+        "direction": "outbound",
+        "packets": 522,
+        "bytes": 185182,
+        "duration": 41962.614861,
+        "first_ts": 1426205104.601103,
+        "last_ts": 1426247067.215964
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_ip": "37.48.81.52",
+        "dst_port": 50305,
+        "direction": "outbound",
+        "packets": 141,
+        "bytes": 184570,
+        "duration": 9.918946,
+        "first_ts": 1426232326.200908,
+        "last_ts": 1426232336.119854
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "162.13.99.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52835,
+        "direction": "inbound",
+        "packets": 138,
+        "bytes": 184400,
+        "duration": 169.15315,
+        "first_ts": 1426246596.522125,
+        "last_ts": 1426246765.675275
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "195.12.232.168",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52550,
+        "direction": "inbound",
+        "packets": 142,
+        "bytes": 170723,
+        "duration": 297.406569,
+        "first_ts": 1426246576.392577,
+        "last_ts": 1426246873.799146
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.232.121",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52905,
+        "direction": "inbound",
+        "packets": 123,
+        "bytes": 167127,
+        "duration": 27.105275,
+        "first_ts": 1426247139.22657,
+        "last_ts": 1426247166.331845
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52842,
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2572,
+        "bytes": 156098,
+        "duration": 184.512818,
+        "first_ts": 1426246599.201127,
+        "last_ts": 1426246783.713945,
+        "http_host": "d2uu7l47sbf1ja.cloudfront.net",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.217.122",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52673,
+        "direction": "inbound",
+        "packets": 117,
+        "bytes": 153554,
+        "duration": 310.892497,
+        "first_ts": 1426246592.926421,
+        "last_ts": 1426246903.818918
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52872,
+        "dst_ip": "64.233.165.109",
+        "dst_port": 465,
+        "direction": "outbound",
+        "packets": 124,
+        "bytes": 152779,
+        "duration": 7.300088,
+        "first_ts": 1426247059.500415,
+        "last_ts": 1426247066.800503,
+        "sni": "smtp.gmail.com"
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.50",
+        "src_port": 1900,
+        "dst_ip": "239.255.255.250",
+        "dst_port": 1900,
+        "direction": "internal",
+        "packets": 1068,
+        "bytes": 145248,
+        "duration": 42602.413076,
+        "first_ts": 1426204859.620657,
+        "last_ts": 1426247462.033733
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.254.106",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53297,
+        "direction": "inbound",
+        "packets": 134,
+        "bytes": 144764,
+        "duration": 298.646596,
+        "first_ts": 1426247210.453602,
+        "last_ts": 1426247509.100198
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "195.12.232.168",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53075,
+        "direction": "inbound",
+        "packets": 121,
+        "bytes": 137353,
+        "duration": 211.421799,
+        "first_ts": 1426247152.447325,
+        "last_ts": 1426247363.869124
+      }
+    ],
+    "top_by_packets": [
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.250.218",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53367,
+        "direction": "inbound",
+        "packets": 37524,
+        "bytes": 54543763,
+        "duration": 259.024444,
+        "first_ts": 1426247217.084843,
+        "last_ts": 1426247476.109287
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53367,
+        "dst_ip": "80.239.250.218",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 18385,
+        "bytes": 1107068,
+        "duration": 258.841674,
+        "first_ts": 1426247217.057842,
+        "last_ts": 1426247475.899516,
+        "http_host": "software-files-a.cnet.com",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53733,
+        "dst_ip": "54.230.99.39",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 13307,
+        "bytes": 801390,
+        "duration": 12.060407,
+        "first_ts": 1426247467.813766,
+        "last_ts": 1426247479.874173,
+        "http_host": "d21bsqatndqkg8.cloudfront.net",
+        "http_user_agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.99.39",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53733,
+        "direction": "inbound",
+        "packets": 13305,
+        "bytes": 19342436,
+        "duration": 5.626791,
+        "first_ts": 1426247467.845345,
+        "last_ts": 1426247473.472136
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53768,
+        "direction": "inbound",
+        "packets": 10432,
+        "bytes": 15149600,
+        "duration": 11.818644,
+        "first_ts": 1426247495.068848,
+        "last_ts": 1426247506.887492
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53768,
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 10412,
+        "bytes": 626028,
+        "duration": 11.940567,
+        "first_ts": 1426247495.0427,
+        "last_ts": 1426247506.983267,
+        "http_host": "cdnrep.reimage.com",
+        "http_user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53773,
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 9031,
+        "bytes": 542188,
+        "duration": 7.061127,
+        "first_ts": 1426247513.289795,
+        "last_ts": 1426247520.350922,
+        "http_host": "hwcdn.reimage.com",
+        "http_user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53773,
+        "direction": "inbound",
+        "packets": 9020,
+        "bytes": 13111252,
+        "duration": 7.033405,
+        "first_ts": 1426247513.318244,
+        "last_ts": 1426247520.351649
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52842,
+        "direction": "inbound",
+        "packets": 5098,
+        "bytes": 7401754,
+        "duration": 184.559604,
+        "first_ts": 1426246599.229394,
+        "last_ts": 1426246783.788998
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52862,
+        "direction": "inbound",
+        "packets": 3480,
+        "bytes": 5055316,
+        "duration": 1.14418,
+        "first_ts": 1426246698.461975,
+        "last_ts": 1426246699.606155
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52862,
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 3459,
+        "bytes": 207966,
+        "duration": 2.667023,
+        "first_ts": 1426246698.381763,
+        "last_ts": 1426246701.048786,
+        "http_host": "d2uu7l47sbf1ja.cloudfront.net",
+        "http_user_agent": "ISX Download DLL"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 49501,
+        "dst_ip": "54.144.213.95",
+        "dst_port": 5222,
+        "direction": "outbound",
+        "packets": 2884,
+        "bytes": 332106,
+        "duration": 42680.816495,
+        "first_ts": 1426204832.349971,
+        "last_ts": 1426247513.166466
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.51",
+        "src_port": 52070,
+        "dst_ip": "174.129.98.57",
+        "dst_port": 5222,
+        "direction": "outbound",
+        "packets": 2817,
+        "bytes": 350931,
+        "duration": 41639.104563,
+        "first_ts": 1426204823.599988,
+        "last_ts": 1426246462.704551
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52842,
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2572,
+        "bytes": 156098,
+        "duration": 184.512818,
+        "first_ts": 1426246599.201127,
+        "last_ts": 1426246783.713945,
+        "http_host": "d2uu7l47sbf1ja.cloudfront.net",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.208.23.129",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53641,
+        "direction": "inbound",
+        "packets": 2238,
+        "bytes": 3248737,
+        "duration": 7.590703,
+        "first_ts": 1426247449.634494,
+        "last_ts": 1426247457.225197
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.144.213.95",
+        "src_port": 5222,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 49501,
+        "direction": "inbound",
+        "packets": 1521,
+        "bytes": 211503,
+        "duration": 42680.41924,
+        "first_ts": 1426204832.549829,
+        "last_ts": 1426247512.969069
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "174.129.98.57",
+        "src_port": 5222,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 52070,
+        "direction": "inbound",
+        "packets": 1485,
+        "bytes": 223239,
+        "duration": 41638.851813,
+        "first_ts": 1426204823.852719,
+        "last_ts": 1426246462.704532
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52861,
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1481,
+        "bytes": 89246,
+        "duration": 52.475248,
+        "first_ts": 1426246696.309491,
+        "last_ts": 1426246748.784739,
+        "http_host": "d2uu7l47sbf1ja.cloudfront.net",
+        "http_user_agent": "ISX Download DLL"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "54.230.98.75",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52861,
+        "direction": "inbound",
+        "packets": 1478,
+        "bytes": 2143218,
+        "duration": 0.877617,
+        "first_ts": 1426246696.346566,
+        "last_ts": 1426246697.224183
+      },
+      {
+        "proto": "other",
+        "src_ip": "192.168.0.50",
+        "src_port": null,
+        "dst_ip": "224.0.0.22",
+        "dst_port": null,
+        "direction": "internal",
+        "packets": 1424,
+        "bytes": 85440,
+        "duration": 42607.364634,
+        "first_ts": 1426204859.125356,
+        "last_ts": 1426247466.48999
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.54",
+        "src_port": 17500,
+        "dst_ip": "192.168.0.255",
+        "dst_port": 17500,
+        "direction": "internal",
+        "packets": 1397,
+        "bytes": 203962,
+        "duration": 42683.53192,
+        "first_ts": 1426204835.061283,
+        "last_ts": 1426247518.593203
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.54",
+        "src_port": 17500,
+        "dst_ip": "255.255.255.255",
+        "dst_port": 17500,
+        "direction": "internal",
+        "packets": 1397,
+        "bytes": 203962,
+        "duration": 42683.5329,
+        "first_ts": 1426204835.059558,
+        "last_ts": 1426247518.592458
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.146",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53622,
+        "direction": "inbound",
+        "packets": 1231,
+        "bytes": 1780468,
+        "duration": 0.723356,
+        "first_ts": 1426247406.41917,
+        "last_ts": 1426247407.142526
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53641,
+        "dst_ip": "54.208.23.129",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1125,
+        "bytes": 67708,
+        "duration": 7.596787,
+        "first_ts": 1426247449.500292,
+        "last_ts": 1426247457.097079,
+        "http_host": "install-apps.com"
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.50",
+        "src_port": 1900,
+        "dst_ip": "239.255.255.250",
+        "dst_port": 1900,
+        "direction": "internal",
+        "packets": 1068,
+        "bytes": 145248,
+        "duration": 42602.413076,
+        "first_ts": 1426204859.620657,
+        "last_ts": 1426247462.033733
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53559,
+        "dst_ip": "195.12.232.145",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 998,
+        "bytes": 60420,
+        "duration": 117.958568,
+        "first_ts": 1426247307.450294,
+        "last_ts": 1426247425.408862,
+        "http_host": "cdn.kmplayer.com",
+        "http_user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "195.12.232.145",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53559,
+        "direction": "inbound",
+        "packets": 996,
+        "bytes": 1441622,
+        "duration": 117.929251,
+        "first_ts": 1426247307.479602,
+        "last_ts": 1426247425.408853
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 51192,
+        "dst_ip": "74.125.143.188",
+        "dst_port": 5228,
+        "direction": "outbound",
+        "packets": 992,
+        "bytes": 60222,
+        "duration": 42648.775375,
+        "first_ts": 1426204831.320379,
+        "last_ts": 1426247480.095754
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.143.188",
+        "src_port": 5228,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 51192,
+        "direction": "inbound",
+        "packets": 991,
+        "bytes": 65900,
+        "duration": 42648.736145,
+        "first_ts": 1426204831.406915,
+        "last_ts": 1426247480.14306
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.237.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53716,
+        "direction": "inbound",
+        "packets": 749,
+        "bytes": 1084957,
+        "duration": 0.344796,
+        "first_ts": 1426247466.818332,
+        "last_ts": 1426247467.163128
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "64.233.161.108",
+        "src_port": 993,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 51963,
+        "direction": "inbound",
+        "packets": 689,
+        "bytes": 57310,
+        "duration": 41962.299765,
+        "first_ts": 1426205104.716652,
+        "last_ts": 1426247067.016417
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53622,
+        "dst_ip": "213.155.151.146",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 580,
+        "bytes": 35571,
+        "duration": 0.752005,
+        "first_ts": 1426247406.390521,
+        "last_ts": 1426247407.142526,
+        "http_host": "r7---sn-uxap5nvoxg5-5goe.c.2mdn.net",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "69.16.175.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53744,
+        "direction": "inbound",
+        "packets": 567,
+        "bytes": 808473,
+        "duration": 22.058082,
+        "first_ts": 1426247471.780465,
+        "last_ts": 1426247493.838547
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 51963,
+        "dst_ip": "64.233.161.108",
+        "dst_port": 993,
+        "direction": "outbound",
+        "packets": 522,
+        "bytes": 185182,
+        "duration": 41962.614861,
+        "first_ts": 1426205104.601103,
+        "last_ts": 1426247067.215964
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53716,
+        "dst_ip": "80.239.237.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 378,
+        "bytes": 22804,
+        "duration": 13.614819,
+        "first_ts": 1426247466.793708,
+        "last_ts": 1426247480.408527,
+        "http_host": "cdn3.opencandy.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "216.58.209.110",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52684,
+        "direction": "inbound",
+        "packets": 365,
+        "bytes": 482866,
+        "duration": 240.614097,
+        "first_ts": 1426246593.174622,
+        "last_ts": 1426246833.788719,
+        "sni": "s.ytimg.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "173.194.67.94",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52523,
+        "direction": "inbound",
+        "packets": 364,
+        "bytes": 362872,
+        "duration": 369.091255,
+        "first_ts": 1426246566.231883,
+        "last_ts": 1426246935.323138,
+        "sni": "www.google.se"
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.1",
+        "src_port": 1024,
+        "dst_ip": "239.255.255.250",
+        "dst_port": 1900,
+        "direction": "internal",
+        "packets": 360,
+        "bytes": 128940,
+        "duration": 41763.037944,
+        "first_ts": 1426205069.917745,
+        "last_ts": 1426246832.955689
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "74.125.232.121",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53122,
+        "direction": "inbound",
+        "packets": 324,
+        "bytes": 438565,
+        "duration": 342.691322,
+        "first_ts": 1426247166.247921,
+        "last_ts": 1426247508.939243
+      },
+      {
+        "proto": "icmp",
+        "src_ip": "10.9.14.115",
+        "src_port": null,
+        "dst_ip": "192.168.0.2",
+        "dst_port": null,
+        "direction": "internal",
+        "packets": 294,
+        "bytes": 27636,
+        "duration": 42303.69184,
+        "first_ts": 1426204898.371576,
+        "last_ts": 1426247202.063416
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 53744,
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 291,
+        "bytes": 19397,
+        "duration": 22.056441,
+        "first_ts": 1426247471.750172,
+        "last_ts": 1426247493.806613,
+        "http_host": "cdnrep.reimage.com",
+        "http_user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "198.252.206.149",
+        "src_port": 443,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 60083,
+        "direction": "inbound",
+        "packets": 247,
+        "bytes": 23208,
+        "duration": 41007.630816,
+        "first_ts": 1426204993.728489,
+        "last_ts": 1426246001.359305
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.237.10",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 53636,
+        "direction": "inbound",
+        "packets": 239,
+        "bytes": 338924,
+        "duration": 0.466022,
+        "first_ts": 1426247448.787858,
+        "last_ts": 1426247449.25388
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "212.227.17.171",
+        "src_port": 110,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 34247,
+        "direction": "inbound",
+        "packets": 238,
+        "bytes": 325682,
+        "duration": 1.15787,
+        "first_ts": 1426236223.076592,
+        "last_ts": 1426236224.234462
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.53",
+        "src_port": 3451,
+        "dst_ip": "81.236.55.3",
+        "dst_port": 25,
+        "direction": "outbound",
+        "packets": 236,
+        "bytes": 320033,
+        "duration": 2.711712,
+        "first_ts": 1426235644.889916,
+        "last_ts": 1426235647.601628
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "212.227.17.171",
+        "src_port": 110,
+        "dst_ip": "192.168.0.53",
+        "dst_port": 3445,
+        "direction": "inbound",
+        "packets": 234,
+        "bytes": 320909,
+        "duration": 1.277502,
+        "first_ts": 1426234884.282509,
+        "last_ts": 1426234885.560011
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.54",
+        "src_port": 52523,
+        "dst_ip": "173.194.67.94",
+        "dst_port": 443,
+        "direction": "outbound",
+        "packets": 232,
+        "bytes": 22541,
+        "duration": 369.163557,
+        "first_ts": 1426246566.112188,
+        "last_ts": 1426246935.275745,
+        "sni": "www.google.se"
+      },
+      {
+        "proto": "udp",
+        "src_ip": "192.168.0.54",
+        "src_port": 59569,
+        "dst_ip": "239.255.255.250",
+        "dst_port": 1900,
+        "direction": "internal",
+        "packets": 222,
+        "bytes": 36906,
+        "duration": 42008.378071,
+        "first_ts": 1426205410.429,
+        "last_ts": 1426247418.807071
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.184",
+        "src_port": 443,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52526,
+        "direction": "inbound",
+        "packets": 219,
+        "bytes": 249043,
+        "duration": 268.458715,
+        "first_ts": 1426246567.018753,
+        "last_ts": 1426246835.477468,
+        "sni": "apis.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "162.13.99.124",
+        "src_port": 80,
+        "dst_ip": "192.168.0.54",
+        "dst_port": 52832,
+        "direction": "inbound",
+        "packets": 214,
+        "bytes": 293429,
+        "duration": 229.179927,
+        "first_ts": 1426246596.335812,
+        "last_ts": 1426246825.515739
+      }
+    ]
+  },
+  "http": {
+    "unique_hosts": 277,
+    "unique_user_agents": 13,
+    "unique_uris": 50,
+    "top_hosts": [
+      {
+        "host": "www.technologieduluth.com",
+        "count": 34
+      },
+      {
+        "host": "api.opencandy.com",
+        "count": 13
+      },
+      {
+        "host": "dt.adsafeprotected.com",
+        "count": 13
+      },
+      {
+        "host": "i.i.cbsi.com",
+        "count": 12
+      },
+      {
+        "host": "image2.pubmatic.com",
+        "count": 12
+      },
+      {
+        "host": "partnerads.ysm.yahoo.com",
+        "count": 12
+      },
+      {
+        "host": "bs.serving-sys.com",
+        "count": 11
+      },
+      {
+        "host": "cdn.kmplayer.com",
+        "count": 11
+      },
+      {
+        "host": "pix04.revsci.net",
+        "count": 11
+      },
+      {
+        "host": "d.cast.upload.cnet.com",
+        "count": 10
+      },
+      {
+        "host": "js.revsci.net",
+        "count": 10
+      },
+      {
+        "host": "pixel.adsafeprotected.com",
+        "count": 10
+      },
+      {
+        "host": "a3.fdlstatic.com",
+        "count": 8
+      },
+      {
+        "host": "ads.yahoo.com",
+        "count": 8
+      },
+      {
+        "host": "cdnrep.reimage.com",
+        "count": 8
+      },
+      {
+        "host": "k9pcfixer.com",
+        "count": 8
+      },
+      {
+        "host": "l.yimg.com",
+        "count": 8
+      },
+      {
+        "host": "pagead2.googlesyndication.com",
+        "count": 8
+      },
+      {
+        "host": "secure-us.imrworldwide.com",
+        "count": 8
+      },
+      {
+        "host": "ad.yieldmanager.com",
+        "count": 7
+      },
+      {
+        "host": "cdn.cast.upload.cnet.com",
+        "count": 7
+      },
+      {
+        "host": "de17a.com",
+        "count": 7
+      },
+      {
+        "host": "ib.adnxs.com",
+        "count": 7
+      },
+      {
+        "host": "pixel.rubiconproject.com",
+        "count": 7
+      },
+      {
+        "host": "s0.2mdn.net",
+        "count": 7
+      },
+      {
+        "host": "www.pwned.se",
+        "count": 7
+      },
+      {
+        "host": "www.reimageplus.com",
+        "count": 7
+      },
+      {
+        "host": "bid.g.doubleclick.net",
+        "count": 6
+      },
+      {
+        "host": "cm.g.doubleclick.net",
+        "count": 6
+      },
+      {
+        "host": "p.typekit.net",
+        "count": 6
+      },
+      {
+        "host": "s1.adform.net",
+        "count": 6
+      },
+      {
+        "host": "staticwajam-wajam.netdna-ssl.com",
+        "count": 6
+      },
+      {
+        "host": "ads.pandora.tv",
+        "count": 5
+      },
+      {
+        "host": "asset1.cbsistatic.com",
+        "count": 5
+      },
+      {
+        "host": "asset2.cbsistatic.com",
+        "count": 5
+      },
+      {
+        "host": "b.scorecardresearch.com",
+        "count": 5
+      },
+      {
+        "host": "cdn3.opencandy.com",
+        "count": 5
+      },
+      {
+        "host": "download.cnet.com",
+        "count": 5
+      },
+      {
+        "host": "dw.cbsi.com",
+        "count": 5
+      },
+      {
+        "host": "geo.yahoo.com",
+        "count": 5
+      },
+      {
+        "host": "tracking.uniblue.com",
+        "count": 5
+      },
+      {
+        "host": "ajax.googleapis.com",
+        "count": 4
+      },
+      {
+        "host": "cdn.viglink.com",
+        "count": 4
+      },
+      {
+        "host": "cl.netseer.com",
+        "count": 4
+      },
+      {
+        "host": "d5p.de17a.com",
+        "count": 4
+      },
+      {
+        "host": "fonts.gstatic.com",
+        "count": 4
+      },
+      {
+        "host": "optimized-by.rubiconproject.com",
+        "count": 4
+      },
+      {
+        "host": "p.visualrevenue.com",
+        "count": 4
+      },
+      {
+        "host": "pixel.everesttech.net",
+        "count": 4
+      },
+      {
+        "host": "player.kmpmedia.net",
+        "count": 4
+      }
+    ],
+    "top_user_agents": [
+      {
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36",
+        "count": 625
+      },
+      {
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)",
+        "count": 27
+      },
+      {
+        "user_agent": "NSIS_Inetc (Mozilla)",
+        "count": 27
+      },
+      {
+        "user_agent": "Microsoft-CryptoAPI/6.1",
+        "count": 9
+      },
+      {
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "count": 9
+      },
+      {
+        "user_agent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)",
+        "count": 5
+      },
+      {
+        "user_agent": "ISX Download DLL",
+        "count": 4
+      },
+      {
+        "user_agent": "Python-urllib/2.7",
+        "count": 2
+      },
+      {
+        "user_agent": "http_parser",
+        "count": 2
+      },
+      {
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64)",
+        "count": 1
+      },
+      {
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTM",
+        "count": 1
+      },
+      {
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like",
+        "count": 1
+      },
+      {
+        "user_agent": "netscan.gtisc.gatech.edu",
+        "count": 1
+      }
+    ],
+    "methods": [
+      {
+        "method": "GET",
+        "count": 743
+      },
+      {
+        "method": "POST",
+        "count": 10
+      },
+      {
+        "method": "HEAD",
+        "count": 4
+      }
+    ],
+    "top_uris": [
+      {
+        "method": "GET",
+        "host": "software-files-a.cnet.com",
+        "uri": "/s/software/14/06/92/32/PhotoFilterFactoryEdu.exe?token=1426283214_711be87054b1503450a522604a4bc229&fileName=PhotoFilterFactoryEdu.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.250.218",
+        "dst_port": 80,
+        "bytes": 1107068,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "d21bsqatndqkg8.cloudfront.net",
+        "uri": "/product/pm/1.0.3.2/pcmechanicpm-standalone-setup.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.230.99.39",
+        "dst_port": 80,
+        "bytes": 801390,
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
+      },
+      {
+        "method": "GET",
+        "host": "cdnrep.reimage.com",
+        "uri": "/downloader_version.xml",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "bytes": 626028,
+        "user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "method": "GET",
+        "host": "hwcdn.reimage.com",
+        "uri": "/protector/ProtectorPackage2007x64e.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "bytes": 542188,
+        "user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "method": "HEAD",
+        "host": "d2uu7l47sbf1ja.cloudfront.net",
+        "uri": "/k9pcp/k9pcp_default.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "bytes": 207966,
+        "user_agent": "ISX Download DLL"
+      },
+      {
+        "method": "GET",
+        "host": "d2uu7l47sbf1ja.cloudfront.net",
+        "uri": "/k9pcfixer/ip/2/setup.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "bytes": 156098,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "HEAD",
+        "host": "d2uu7l47sbf1ja.cloudfront.net",
+        "uri": "/voice/sv/voice.wav",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.230.98.75",
+        "dst_port": 80,
+        "bytes": 89246,
+        "user_agent": "ISX Download DLL"
+      },
+      {
+        "method": "GET",
+        "host": "install-apps.com",
+        "uri": "/download/WWE_1.4.1.5.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.208.23.129",
+        "dst_port": 80,
+        "bytes": 67708,
+        "user_agent": null
+      },
+      {
+        "method": "GET",
+        "host": "pixel.rubiconproject.com",
+        "uri": "/tap.php?v=14240&nid=2676&put=IszG5f8jE1ZVXwwmf8mlRIeQZQF7Tba40&expires=30",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "bytes": 63600,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "cdn.kmplayer.com",
+        "uri": "/KMP/player/ini/goods/old_SE_unicode_20150306092010.7z",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "195.12.232.145",
+        "dst_port": 80,
+        "bytes": 60420,
+        "user_agent": "NSIS_Inetc (Mozilla)"
+      },
+      {
+        "method": "GET",
+        "host": "cbsi.demdex.net",
+        "uri": "/event?d_nsid=0&d_ld=_ts%3D1426243564801&c_pageName=download%3Ap1%3Afront_door_dl%3AWindows%20Software&c_referrer=http%3A%2F%2Fdownload.cnet.com%2FSmart-Defrag%2F3000-2094_4-10759533.html%3Ftag%3Drb_content%3Bmain&c_channel=Windows%20Software&c_server=download.cnet.com&c_prop1=D%3Dv1&c_eVar1=download.com&c_prop2=D%3Dv2&c_eVar2=us&c_prop3=D%3Dv3&c_eVar3=desktop%20web&c_prop5=D%3Dv5&c_eVar5=cbsidownloadcomsite&c_eVar6=Windows%20Software%7Cfront_door_dl&c_prop7=D%3Dv7&c_eVar7=D%3Dg&c_prop8=D%3Dv8&c_eVar8=Windows%20PC%20software%20downloads%20and%20reviews%20from%20CNET%20Download.com&c_prop9=D%3DUser-Agent&c_prop10=D%3Dv10&c_eVar10=front_door_dl&c_prop11=D%3Dv11&c_eVar11=D%3Dch%2B%22%3A%22%2Bv10&c_prop12=D%3Dv12&c_eVar12=2000&c_prop13=D%3Dv13&c_eVar13=19409&c_prop23=D%3Dv23&c_eVar23=windows&c_prop24=D%3Dv24&c_eVar24=VQLN4goOYIwAAHZpZfUAAAFA&c_prop45=D%3Dv45&c_prop50=D%3Dv50&c_eVar50=6%3A30AM&c_prop51=D%3Dv51&c_eVar51=Friday&c_eVar52=1&c_eVar53=New&c_eVar54=First%20Visit&c_hier1=download%3AWindows%20Software%7Cfront_door_dl&c_list1=15182%3A523536&d_rtbd=json&d_jsonv=1&d_dst=1&d_cts=1&d_cb=demdexRequestCallback_cbsi_0_1426243564801",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "54.171.217.190",
+        "dst_port": 80,
+        "bytes": 55932,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "r7---sn-uxap5nvoxg5-5goe.c.2mdn.net",
+        "uri": "/videoplayback/id/329b108bd0b75fdf/itag/15/source/doubleclick/ratebypass/yes/ip/90.236.3.35/ipbits/0/expire/3568717710/sparams/expire,id,ip,ipbits,itag,mm,ms,mv,pl,ratebypass,source/signature/7E0A7BD6FF3DFD17F5365303DA8FEC2C43E3A071.07CC9257BCA0D7C9689FE7481461D809DEF9C3BF/key/cms1/cms_redirect/yes/mm/28/ms/nvh/mt/1426247250/mv/u/pl/18/file/file.flv",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "213.155.151.146",
+        "dst_port": 80,
+        "bytes": 35571,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "download.cnet.com",
+        "uri": "/ShareBarUrlShortener/?longUrl=http%3A%2F%2Fdownload.cnet.com%2FPhoto-Filter-Factory%2F3000-2192_4-10148725.html%3Ftag%3Dmain%253Blsr",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.254.106",
+        "dst_port": 80,
+        "bytes": 32375,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "optimized-by.rubiconproject.com",
+        "uri": "/a/9818/37630/156312-15.js?&cb=0.2641879916191101&tk_st=1&rf=http%3A//download.cnet.com/windows/&rp_s=c&p_pos=btf&p_screen_res=1920x1080",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.23",
+        "dst_port": 80,
+        "bytes": 29218,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "optimized-by.rubiconproject.com",
+        "uri": "/a/9818/37630/156312-2.js?&cb=0.8309082626365125&tk_st=1&rf=http%3A//download.cnet.com/windows/&rp_s=c&p_pos=btf&p_screen_res=1920x1080",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.23",
+        "dst_port": 80,
+        "bytes": 27103,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "download.cnet.com",
+        "uri": "/",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.254.106",
+        "dst_port": 80,
+        "bytes": 25212,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "www.google.se",
+        "uri": "/ads/user-lists/1036174608/?label=pXjaCJ6m6gcQkIqL7gM&ct_cookie_present=false&random=1941803203&ipr=y",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "173.194.67.94",
+        "dst_port": 80,
+        "bytes": 24988,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "d.cast.upload.cnet.com",
+        "uri": "/api/vv/2/?callback=cb_1426243581258&ts=1426243581257&sessionId=qoqxR&aus=60,1-106,2",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "104.40.90.64",
+        "dst_port": 80,
+        "bytes": 24347,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pagead2.googlesyndication.com",
+        "uri": "/activeview?id=osdim&avi=Bjau1wMsCVa_YO42PZM78gZAMANOMmoTMAQAAEAE4AcgBAeACAMgDmwTgBAHCEwMQgAE&ti=1&adk=3428295301&p=2504,125,2754,425&tos=0,0,0,0,0&mtos=0,0,0,0,0&rs=3&ht=0&fp=correlator%3D3631978490363904%26iu%3D%252F8264%252Faw-download%252Futilities%252Fsys%26oid%3D3%26url%3Dhttp%253A%252F%252Fdownload.cnet.com%252FSmart-Defrag%252F3000-2094_4-10759533.html%253Ftag%253Drb_content%253Bmain&afp=%26output%3Djson_html%26impl%3Dfif%26dt%3D1426243018382%26ifi%3D8%26flash%3D17.0.0&tmo=3&tme=589&tdl=195&abd=5-0-82&r=u&bs=1190,887&bos=1223,1020&ps=1190,3471&ss=1920,1080&tt=542688&pt=2288&deb=1-7-7-12-87-7&tvt=65019&uc=82",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.98",
+        "dst_port": 80,
+        "bytes": 23741,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "b.scorecardresearch.com",
+        "uri": "/p?ns__t=1426243610449&ns__c=UTF-8&ns__p=1426243610334&c1=3&c3=_e0_LENOVO_SE-PC_SE&c4=25496375&c5=7190457&c6=&c10=1&ax_bid=1368571707839240538&c11=151472&c13=300x250&c16=dfa&ax_altbannerurl=http%3A%2F%2Fib.adnxs.com%2Fpsa%3Fformat%3Dif%26size%3D%24%7BCREATIVE_SIZE%7D&c2=14992580&ax_iframe=1&ns_ce_sv=4.1501.23&ns_ce_mod=vce_st&ns_ad_event=boot&ns_ad_boot=112&ns_ad_fpv=17&c8=&c7=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&c9=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.217.107",
+        "dst_port": 80,
+        "bytes": 23702,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pixel.rubiconproject.com",
+        "uri": "/tap.php?v=17329&nid=2867&put=13c7a0c4-b40a-48c8-8325-1f4f88b60f72&expires=30",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "bytes": 23688,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "www.google.com",
+        "uri": "/ads/user-lists/1036174608/?label=pXjaCJ6m6gcQkIqL7gM&ct_cookie_present=false&random=1941803203",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "74.125.133.106",
+        "dst_port": 80,
+        "bytes": 23639,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "cdn3.opencandy.com",
+        "uri": "/p/1252/ius/pcmechanicpmSCAND_p1v2.exe",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.237.10",
+        "dst_port": 80,
+        "bytes": 22804,
+        "user_agent": null
+      },
+      {
+        "method": "GET",
+        "host": "pixel.everesttech.net",
+        "uri": "/4083/v?ev___loc=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&ev___ref=http%3A%2F%2Fdownload.cnet.com%2FSmart-Defrag%2F3000-2094_4-10759533.html%3Ftag%3Drb_content%3Bmain",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "66.117.28.68",
+        "dst_port": 80,
+        "bytes": 22261,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pagead2.googlesyndication.com",
+        "uri": "/activeview?id=osdim&avi=BVb-vwMsCVd-6OazDyAPIs4CYBQAAAAAQATgByAEJwAIC4AIA4AQBoAYWwhMDEIAB&ti=1&adk=4260839087&p=3032,231,3122,959&tos=0,0,0,0,0&mtos=0,0,0,0,0&rs=3&ht=0&fp=correlator%3D3631978490363904%26iu%3D%252F8264%252Faw-download%252Futilities%252Fsys%26oid%3D3%26url%3Dhttp%253A%252F%252Fdownload.cnet.com%252FSmart-Defrag%252F3000-2094_4-10759533.html%253Ftag%253Drb_content%253Bmain&afp=%26output%3Djson_html%26impl%3Dfif%26dt%3D1426243018383%26ifi%3D9%26flash%3D17.0.0&tmo=3&tme=995&tdl=424&abd=7-0-80&r=u&bs=1190,887&bos=1223,1020&ps=1190,3471&ss=1920,1080&tt=542688&pt=2288&deb=1-7-7-12-87-7&tvt=65019&uc=80",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.98",
+        "dst_port": 80,
+        "bytes": 22138,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pubads.g.doubleclick.net",
+        "uri": "/gampad/ads?gdfp_req=1&correlator=494383913762816&output=json_html&callback=callbackProxy&impl=fifs&json_a=1&sfv=1-0-2&iu_parts=8264%2Caw-download%2Cwindows&enc_prev_ius=%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2&prev_iu_szs=401x11%2C728x90%7C970x66%7C970x250%2C970x66%7C728x90%2C458x120%2C1x1%2C300x250%2C300x250%7C300x600%7C300x1050&ists=4&prev_scp=pos%3Dtop%7Cpos%3Dtop%7Cpos%3Dbottom%7Cpos%3D%7C%7Cpos%3Dbottom%7Cpos%3Dtop&cust_params=ptype%3Dfront_door_dl%26vguid%3DVQLN-QoOYIwAAHvceNEAAAGc%26Category%3D%26pid%3D0&cookie=ID%3D3def6f9d716515e8%3AT%3D1426246577%3AS%3DALNI_MZKDRQeaFsZ8xMGmErsFFCy0sELrQ&lmt=1426243591&dt=1426243591695&cc=100&frm=20&biw=1190&bih=887&oid=2&adks=1976216121%2C3807919757%2C2914204559%2C2377522816%2C3352593083%2C3794562804%2C3154457379&gut=v2&ifi=1&u_tz=60&u_his=6&u_java=true&u_h=1080&u_w=1920&u_ah=1040&u_aw=1920&u_cd=24&u_nplug=12&u_nmime=18&u_sd=1&flash=17.0.0&url=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&ref=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F3150-20_4-0.html%3FlistType%3D2%26sort%3DeditorRating~desc%252CdownloadCountLastWeek~desc%26tag%3Drb_content%3Bmain&vrg=57&vrp=57&ga_vid=7820338.1426243592&ga_sid=1426243592&ga_hid=503028405",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "74.125.232.121",
+        "dst_port": 80,
+        "bytes": 21890,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTM"
+      },
+      {
+        "method": "GET",
+        "host": "ib.adnxs.com",
+        "uri": "/a_usersync?cbfn=ANX_async_load",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "37.252.162.252",
+        "dst_port": 80,
+        "bytes": 21360,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "b.scorecardresearch.com",
+        "uri": "/p?ns__t=1426243610334&ns__c=UTF-8&c1=3&c3=LENOVO_SE-PC_SE&c4=25496375&c5=7190457&c6=&c10=1&ax_bid=1368571707839240538&c11=151472&c13=300x250&c16=dfa&ax_altbannerurl=http%3A%2F%2Fib.adnxs.com%2Fpsa%3Fformat%3Dif%26size%3D%24%7BCREATIVE_SIZE%7D&c2=14992580&ax_iframe=1&ns_ce_sv=4.1501.23&ns_ce_mod=vce_st&ns_ad_event=load&c8=&c7=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&c9=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.217.107",
+        "dst_port": 80,
+        "bytes": 21245,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "b.scorecardresearch.com",
+        "uri": "/b?c1=2&c2=3000085&rn=0.14102609944529831&c7=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&c3=&c4=3000086&c5=&c6=&c15=&c16=&c8=Windows%20PC%20software%20downloads%20and%20reviews%20from%20CNET%20Download.com&c9=http%3A%2F%2Fdownload.cnet.com%2FSmart-Defrag%2F3000-2094_4-10759533.html%3Ftag%3Drb_content%3Bmain&cv=1.6",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "80.239.217.107",
+        "dst_port": 80,
+        "bytes": 21237,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "googleads.g.doubleclick.net",
+        "uri": "/pagead/viewthroughconversion/1036174608/?label=pXjaCJ6m6gcQkIqL7gM&amp;guid=ON&amp;script=0&ctc_id=CAIVAgAAAB0CAAAA&ct_cookie_present=false&convclickts=0&jaid=AJHaeXL4jkrTykDauIhg3vqdzZR30jkeUNoY_yZ7_lU&ocp_id=5s0CVZCRI5O1yQPKiICwBQ&random=849804846",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "173.194.40.237",
+        "dst_port": 80,
+        "bytes": 21011,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "cm.g.doubleclick.net",
+        "uri": "/push?client=ca-pub-2679103605715789",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.130",
+        "dst_port": 80,
+        "bytes": 20942,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pagead2.googlesyndication.com",
+        "uri": "/activeview?id=osdim&avi=B1z0zwMsCVdq6OazDyAPIs4CYBQAAAAAQATgByAEJwAIC4AIA4AQBoAYWwhMDEIAB&ti=1&adk=1816527200&p=831,765,1081,1065&tos=0,0,0,1621,62278&mtos=0,0,0,1621,62278&rs=3&ht=0&tfs=1146&tls=544976&fp=correlator%3D3631978490363904%26iu%3D%252F8264%252Faw-download%252Futilities%252Fsys%26oid%3D3%26url%3Dhttp%253A%252F%252Fdownload.cnet.com%252FSmart-Defrag%252F3000-2094_4-10759533.html%253Ftag%253Drb_content%253Bmain&afp=%26output%3Djson_html%26impl%3Dfif%26dt%3D1426243018381%26ifi%3D6%26flash%3D17.0.0&tmo=3&tme=1144&tdl=521&abd=9-0-78&r=u&bs=1190,887&bos=1223,1020&ps=1190,3471&ss=1920,1080&tt=542688&pt=2288&deb=1-7-7-12-87-7&tvt=65019&uc=78",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.98",
+        "dst_port": 80,
+        "bytes": 20717,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "d.cast.upload.cnet.com",
+        "uri": "/api/vp/2?clk=p906b3N8OX4S7xQFw58bDx6XYGMInroYSwuRxB5D4y2jSic1FyAyl7piws_6xqAh0rBrHQdODPmKzU4s2-VBSd7ljlxB7SBMJRsEBxCBa1wiJ1Oc3afpzV9lo6gNBmJzQuiIuCUp5FPajdv6FsIMuPqmdJI-4yxFgP7NW68qYUj5J6T3dFDbLn1Zifx2AgIDvSxf7SC8D3uU_v1HWSJebs8eJ2H_yM9XP8zsM8-mrnYPReq0LqtMCIPdEFGCjg8vfvpuPNTFCie6nL5bQy80Docs9WNvEkOKmmEsFZNjEWKnfDski5H4vj748_A6p7fPWUB5ZrYYO52VvFljR6GvKEnglNi8_iE4QLKbAAtjttJxcpL4Z2ekvONoeb2qcyUD0ONnwBqoYUPxm1O1J6Ryi_V7l1KULCoEBdZenZVkoENGaQP1XkDcHMcFX0QmE7K60EsdFf7cNgmZ-3oP_50NpQmorxc0K2CxdjQRoR6Rnwokju7C7vkYgXGNdxVe4-uEbIjYNqdz-WwqIaUi7JehUXsoIBcGN1JKQnpMqK9orNoWYOmuWVslJdblYF-q92wX9MOu53HMaON4TBJOagpd8i2EqEdfxAXaMyIXQOATmE4_CgJudmia4oErVP1drEe4YVwGha33UDOks-90826hOCaWRLe58OxxB0n40EnZMhGTnNg2x6yMlVBoWiOHAsFAsZPtTeRc5Fk4Wptiec-vFTXrsGrJcVBYkdqcTufeaJw",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "104.40.90.64",
+        "dst_port": 80,
+        "bytes": 20342,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "cdnrep.reimage.com",
+        "uri": "/website/newwebsite/lp/slm/Win7.gif",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "69.16.175.10",
+        "dst_port": 80,
+        "bytes": 19397,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pixel.rubiconproject.com",
+        "uri": "/tap.php?v=8981&nid=2307&put=ec92f21c-682e-4e8a-ab46-8d5299665104&expires=30",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "bytes": 18883,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pixel.rubiconproject.com",
+        "uri": "/tap.php?v=11581&nid=2395&put=Q4795335781083658553",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "bytes": 17834,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "d.cast.upload.cnet.com",
+        "uri": "/api/vp/2?clk=p906b3N8OX4S7xQFw58bDx6XYGMInroYSwuRxB5D4y0bveCpYoDMz-H1aeUjx-aETgQbiZMX1El0qRW9PWJGCV4nRMeHbJhSj60IiqTyi2pAv0_0lzIBgx9vWkP07daaOcJEASIEmHUIGpInQBXjwovGdWRSYUI7s2skud_wkd1mJCPaJoIYkAOcG2K6T8uewDRJ1OvEySex482TOmkR1iYHASLlqNDLyPlgL8-3YLz3UYgJYs3GaT8EXSTqClmd_rnI8UOz6wKcI1fCx9ol2RzGwHwQPYrmnFDIZcjB8aTmHi6PXWXFfD5CjynPD-EsDMAEm4rCfrnGpVj6WvTFNVyxZj9vhuqtPi0ozxYKfr7ZbnrbE-zuM_QQuVxS3HI73z4Sm11xthvO5uQEEwxSAw5E4s-1F89xBKnJyum2ywaONQi_uDHIhwzamxYp_onX5IdH-2tyN4LcUxUcoUEmPly-pKBgvyAV5Tle55Vh89YWsmLns4T6KbWZS9u0c8Gvqv8qRoXY92hhrG4rUY4DD09bX2UCgzjtTt8EHyLtAcS4v0DhPdCimKHJPpJT9_oqI_lMlFlRW8-1ggZCcPjAH7x7FI8UuSp4vb3lpHr8qPMRbhQM29nQeagknZvwJOP8X0J9jCEzrtpMX1i4WOZzWEFKk3jFQnHeEbW_RWfVDOI",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "104.40.90.64",
+        "dst_port": 80,
+        "bytes": 16048,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "i.i.cbsi.com",
+        "uri": "/cnwk.1d/i/tim2/2015/03/09/smartdefragdr.png",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "195.12.232.168",
+        "dst_port": 80,
+        "bytes": 15835,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "dw.cbsi.com",
+        "uri": "/levt/ria/e.gif?siteid=4&edid=3&prtnr=CNET%20Networks%2C%20Inc.&ptid=2000&onid=19409&asid=0&pgnbr=1&astid=1&pguid=VQLN4goOYIwAAHZpZfUAAAFA&testname=%20&testversion=%20&testgroup=%20&ursglobid=%20&version=%20&x_arw_buckets=%20&ursappid=%20&x_breadcrumb=19409&mapp=yahoo_module&comptyp=d2s&riaevent=view&s6=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&s8=ad&i2=1&ts=1426243564781&tcset=utf8&im=dwjs&event=log&srcurl=http%3A%2F%2Fdownload.cnet.com%2Fwindows%2F&title=Windows%20PC%20software%20downloads%20and%20reviews%20from%20CNET%20Download.com",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "64.30.224.172",
+        "dst_port": 80,
+        "bytes": 14505,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "csi.gstatic.com",
+        "uri": "/csi?v=3&s=pagead&action=loadimgad&it=fb.548,e2e.567&e=3311902&rt=1ad.19,ol.19",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "173.194.43.127",
+        "dst_port": 80,
+        "bytes": 14502,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "k9pcfixer.com",
+        "uri": "/download_com/?utm_source=dcomnew_util_728&utm_campaign=dcomnew_util_728",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "162.13.99.124",
+        "dst_port": 80,
+        "bytes": 14404,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "www.googleadservices.com",
+        "uri": "/pagead/conversion/1036174608/?label=pXjaCJ6m6gcQkIqL7gM&amp;guid=ON&amp;script=0",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.130",
+        "dst_port": 80,
+        "bytes": 13440,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "track.adform.net",
+        "uri": "/serving/unload/?version=15&unload=5554558447478426840@@5672730,348447325052793118,0|0|0|0|0|0|0|0|0||0|0|31|ba0ed458bf1ee4b2e79c49cb4dbdf91d0759d4e8_1|||1|0|0",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "37.157.6.227",
+        "dst_port": 80,
+        "bytes": 13390,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "k9pcfixer.com",
+        "uri": "/images/download_indicator/jquery/jquery.min.js",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "162.13.99.124",
+        "dst_port": 80,
+        "bytes": 12549,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "i.i.cbsi.com",
+        "uri": "/cnwk.1d/i/tim2/2015/02/26/iconimg_107212.png",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "195.12.232.168",
+        "dst_port": 80,
+        "bytes": 12457,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "d.cast.upload.cnet.com",
+        "uri": "/api/vp/2?clk=p906b3N8OX4S7xQFw58bDx6XYGMInroYSwuRxB5D4y0HWb3myqLV7uDU-Uf2jjiiNc34JACEh2P9qZerwSgHiwdqN8AemlmRqi8cV53TKcpPOrMMfV25bPxQ6ZXE4YP3wzY6s6gMNEcWVLwxzVW2nRlWWf2cJZUzAuKGfbIB7WlIqI9hR4EENsVOFImTiPyRcwqgXBAkKS5Q9xzXevuQ8Fjmfls7_caWg1e1v-brNq00UweUY7Y6GvPikQ0xXDi6Q5j6eOkAEC9esqfMVmbDEsEiewdHFryW-39fjJJExgPt1V0MAsMQYM1hSUVfholx7I0A_3-0M3wOpsrDCXmu3HC2bFG3DfErD46wtI76Nist8JH_r-d--kE4UuT1txZJExIltYAkT-w63Pr5Fvx18EKONZeVcqqj8S3n4va-n0M97OcMS5WQY5OJ3K1Cnp29RdEKW8w4-ID6i6-_utsudlf5kN9ubYB6AbFkj5JpF80xWIDDPDgcTmbfr8OD_tp4QUVCZDDfoXUBj8E8XjNw9EIWAkddKnQ6OY-_sWCYsXtLKarhmRNV8Ggpo1HYmbC3",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "104.40.90.64",
+        "dst_port": 80,
+        "bytes": 12021,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "i.i.cbsi.com",
+        "uri": "/cnwk.1d/i/tim2/2014/08/27/iconimg_45717.png",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "195.12.232.168",
+        "dst_port": 80,
+        "bytes": 12020,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "geo.yahoo.com",
+        "uri": "/p?s=1197646563&srvID=14958581157838007058&srvTS=1426247155842&slotID=Download_Web_3_South&tmplID=000000038__Download_Web_3_South.tmpl&yciExp=NONE&rendExp=NONE&isB=0&cntVec=2&srchVec=1&aC=000000038&rP=00038&adsrc=bing&i_dmr=0",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "195.50.88.18",
+        "dst_port": 80,
+        "bytes": 11987,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "tap.rubiconproject.com",
+        "uri": "/oz/feeds/admovate-rtb/tokens/?rt=pixel",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "69.25.24.26",
+        "dst_port": 80,
+        "bytes": 11865,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      },
+      {
+        "method": "GET",
+        "host": "pixel.rubiconproject.com",
+        "uri": "/tap.php?v=16728&nid=2810&put=BHMzn-iLePGlThJkxayguvLjO-EQ&expires=40",
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "bytes": 11670,
+        "user_agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "type": "dga_domain",
+      "value": "acuityplatform.com",
+      "confidence": 0.511,
+      "evidence": {
+        "label": "acuityplatform",
+        "entropy": 3.522,
+        "queries": 2
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "nxdomain_burst",
+      "value": "192.168.0.51",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "nxdomain_count": 176,
+        "threshold": 5
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "nxdomain_burst",
+      "value": "192.168.0.54",
+      "confidence": 0.7,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "nxdomain_count": 6,
+        "threshold": 5
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "typosquatting",
+      "value": "googleads.g.doubleclick.net",
+      "confidence": 0.65,
+      "evidence": {
+        "kind": "contains",
+        "brand": "google",
+        "label": "googleads",
+        "queries": 6
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "typosquatting",
+      "value": "googleads4.g.doubleclick.net",
+      "confidence": 0.65,
+      "evidence": {
+        "kind": "contains",
+        "brand": "google",
+        "label": "googleads4",
+        "queries": 6
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "typosquatting",
+      "value": "google-cm.p.veruta.com",
+      "confidence": 0.65,
+      "evidence": {
+        "kind": "contains",
+        "brand": "google",
+        "label": "google-cm",
+        "queries": 4
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "sni_without_dns",
+      "value": "imap.gmail.com",
+      "confidence": 0.6,
+      "evidence": {
+        "sni": "imap.gmail.com",
+        "flow_count": 73,
+        "dst_ips": [
+          "64.233.161.108"
+        ],
+        "dst_ports": [
+          993
+        ],
+        "total_bytes": 266323
+      },
+      "first_seen": 1426206265.84225,
+      "last_seen": 1426246147.685919
+    },
+    {
+      "type": "sni_without_dns",
+      "value": "smtp.gmail.com",
+      "confidence": 0.6,
+      "evidence": {
+        "sni": "smtp.gmail.com",
+        "flow_count": 1,
+        "dst_ips": [
+          "64.233.165.109"
+        ],
+        "dst_ports": [
+          465
+        ],
+        "total_bytes": 152779
+      },
+      "first_seen": 1426247059.500415,
+      "last_seen": 1426247066.800503
+    },
+    {
+      "type": "brute_force",
+      "value": "192.168.0.54 -> 216.58.209.130:80",
+      "confidence": 0.632,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "216.58.209.130",
+        "dst_port": 80,
+        "flow_count": 22,
+        "unique_src_ports": 22,
+        "unique_uris": 5,
+        "packets_total": 262,
+        "bytes_sent_total": 61914,
+        "avg_packets_per_flow": 11.91,
+        "duration_sec": 918.02,
+        "rate_flows_per_sec": 0.023965
+      },
+      "first_seen": 1426246577.682277,
+      "last_seen": 1426247495.706733
+    },
+    {
+      "type": "brute_force",
+      "value": "192.168.0.54 -> 31.186.225.24:80",
+      "confidence": 0.626,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "31.186.225.24",
+        "dst_port": 80,
+        "flow_count": 21,
+        "unique_src_ports": 21,
+        "unique_uris": 1,
+        "packets_total": 351,
+        "bytes_sent_total": 154542,
+        "avg_packets_per_flow": 16.71,
+        "duration_sec": 915.61,
+        "rate_flows_per_sec": 0.022936
+      },
+      "first_seen": 1426246579.169696,
+      "last_seen": 1426247494.775462
+    },
+    {
+      "type": "script_download",
+      "value": "/product/pm/1.0.3.2/pcmechanicpm-standalone-setup.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/product/pm/1.0.3.2/pcmechanicpm-standalone-setup.exe",
+        "uri_samples": [
+          "/product/pm/1.0.3.2/pcmechanicpm-standalone-setup.exe"
+        ],
+        "count": 2,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 2
+          }
+        ],
+        "dst_ips": [
+          "54.230.99.39",
+          "54.243.120.72"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "d21bsqatndqkg8.cloudfront.net",
+          "download.uniblue.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
+        ],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247467.529362,
+      "last_seen": 1426247479.874173
+    },
+    {
+      "type": "script_download",
+      "value": "/download/wwe_1.4.1.5.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/download/wwe_1.4.1.5.exe",
+        "uri_samples": [
+          "/download/WWE_1.4.1.5.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "54.208.23.129"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "install-apps.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247449.500292,
+      "last_seen": 1426247457.097079
+    },
+    {
+      "type": "script_download",
+      "value": "/k9pcfixer/ip/2/setup.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/k9pcfixer/ip/2/setup.exe",
+        "uri_samples": [
+          "/k9pcfixer/ip/2/setup.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "54.230.98.75"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "d2uu7l47sbf1ja.cloudfront.net"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+        ],
+        "extension": ".exe"
+      },
+      "first_seen": 1426246599.201127,
+      "last_seen": 1426246783.713945
+    },
+    {
+      "type": "script_download",
+      "value": "/k9pcp/k9pcp_default.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/k9pcp/k9pcp_default.exe",
+        "uri_samples": [
+          "/k9pcp/k9pcp_default.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "54.230.98.75"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "d2uu7l47sbf1ja.cloudfront.net"
+        ],
+        "methods": [
+          "HEAD"
+        ],
+        "user_agents": [
+          "ISX Download DLL"
+        ],
+        "extension": ".exe"
+      },
+      "first_seen": 1426246698.381763,
+      "last_seen": 1426246701.048786
+    },
+    {
+      "type": "script_download",
+      "value": "/p/1213/dg/du90g.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/p/1213/dg/du90g.exe",
+        "uri_samples": [
+          "/p/1213/dg/du90g.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "80.239.237.10"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "cdn3.opencandy.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247448.758212,
+      "last_seen": 1426247454.846471
+    },
+    {
+      "type": "script_download",
+      "value": "/p/1252/ius/pcmechanicpmscand_p1v2.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/p/1252/ius/pcmechanicpmscand_p1v2.exe",
+        "uri_samples": [
+          "/p/1252/ius/pcmechanicpmSCAND_p1v2.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "80.239.237.10"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "cdn3.opencandy.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247466.793708,
+      "last_seen": 1426247480.408527
+    },
+    {
+      "type": "script_download",
+      "value": "/protector/protectorpackage2007x64e.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/protector/protectorpackage2007x64e.exe",
+        "uri_samples": [
+          "/protector/ProtectorPackage2007x64e.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "69.16.175.10"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "hwcdn.reimage.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "NSIS_Inetc (Mozilla)"
+        ],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247513.289795,
+      "last_seen": 1426247520.350922
+    },
+    {
+      "type": "script_download",
+      "value": "/s/software/14/06/92/32/photofilterfactoryedu.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/s/software/14/06/92/32/photofilterfactoryedu.exe",
+        "uri_samples": [
+          "/s/software/14/06/92/32/PhotoFilterFactoryEdu.exe?token=1426283214_711be87054b1503450a522604a4bc229&fileName=PhotoFilterFactoryEdu.exe"
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "80.239.250.218"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "software-files-a.cnet.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+        ],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247217.057842,
+      "last_seen": 1426247475.899516
+    },
+    {
+      "type": "script_download",
+      "value": "/wajam_install.exe",
+      "confidence": 0.65,
+      "evidence": {
+        "path": "/wajam_install.exe",
+        "uri_samples": [
+          "/wajam_install.exe?tracking=eyJhaWQiOiI5ODYwIiwiZG9udF91c2VfcG9zdCI6InRydWUifQ=="
+        ],
+        "count": 1,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "dst_ips": [
+          "54.208.23.129"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "install-apps.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [],
+        "extension": ".exe"
+      },
+      "first_seen": 1426247449.211334,
+      "last_seen": 1426247449.499711
+    },
+    {
+      "type": "vulnerable_path",
+      "value": "/cgi-bin/m",
+      "confidence": 0.5,
+      "evidence": {
+        "path": "/cgi-bin/m",
+        "uri_samples": [
+          "/cgi-bin/m?ci=us-304254h&cg=0&cc=1&si=http%3A//download.cnet.com/Photo-Filter-Factory/3000-2192_4-10148725.html%3Ftag%3Dmain%3Blsr&rp=http%3A//download.cnet.com/windows/&ts=compact&rnd=1426243635431",
+          "/cgi-bin/m?ci=us-304254h&cg=0&cc=1&si=http%3A//download.cnet.com/Smart-Defrag/3000-2094_4-10759533.html%3Ftag%3Drb_content%3Bmain&rp=http%3A//download.cnet.com/windows/&ts=compact&rnd=1426243018505",
+          "/cgi-bin/m?ci=us-304254h&cg=0&cc=1&si=http%3A//download.cnet.com/windows/&rp=&ts=compact&rnd=1426243002705",
+          "/cgi-bin/m?ci=us-304254h&cg=0&cc=1&si=http%3A//download.cnet.com/windows/&rp=http%3A//download.cnet.com/Smart-Defrag/3000-2094_4-10759533.html%3Ftag%3Drb_content%3Bmain&ts=compact&rnd=1426243564780",
+          "/cgi-bin/m?ci=us-304254h&cg=0&cc=1&si=http%3A//download.cnet.com/windows/3150-20_4-0.html%3FlistType%3D2%26sort%3DeditorRating%7Edesc%252CdownloadCountLastWeek%7Edesc%26tag%3Drb_content%3Bmain&rp=http%3A//download.cnet.com/windows/&ts=compact&rnd=1426243578092"
+        ],
+        "count": 8,
+        "distinct_src_ips": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 8
+          }
+        ],
+        "dst_ips": [
+          "138.108.7.20"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "hosts": [
+          "secure-us.imrworldwide.com"
+        ],
+        "methods": [
+          "GET"
+        ],
+        "user_agents": [
+          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36"
+        ],
+        "matched_paths": [
+          {
+            "path": "/cgi-bin/",
+            "description": "CGI"
+          }
+        ]
+      },
+      "first_seen": 1426246577.359299,
+      "last_seen": 1426247423.797598
+    }
+  ]
+}

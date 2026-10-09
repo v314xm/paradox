@@ -11,6 +11,7 @@ from pcap_triage.detectors.dga import DGADetector
 from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
 from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
+from pcap_triage.detectors.port_scan import PortScanDetector
 from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
 from pcap_triage.detectors.typosquatting import TyposquattingDetector
 from pcap_triage.extractors.dns import DNSExtractor
@@ -30,6 +31,7 @@ from pcap_triage.extractors.host_identity import HostIdentityExtractor
 from pcap_triage.extractors.nbns import NBNSExtractor
 from pcap_triage.extractors.kerberos import KerberosExtractor
 
+
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
 EXTRACTORS = [
@@ -40,11 +42,13 @@ EXTRACTORS = [
     HostIdentityExtractor(),
     NBNSExtractor(),
     KerberosExtractor(),
+
 ]
 
 # Порядок детекторов не важен — они независимы.
 DETECTORS = [
     DGADetector(),
+    PortScanDetector(),
     SuspiciousPortDetector(),
     NXDOMAINBurstDetector(),
     CloudTunnelDetector(),
@@ -53,6 +57,7 @@ DETECTORS = [
     SNIMismatchDetector(),
     BruteForceDetector(),
     VulnerablePathDetector(),
+
 ]
 
 

@@ -1,0 +1,3033 @@
+{
+  "schema_version": "0.2.0",
+  "provenance": {
+    "tool_version": "0.1.0",
+    "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-05\\snort.log.1425568941",
+    "pcap_sha256": "bc8af2c5c990055bedd346a722f8866f592c946b79ba5d3ce0b9cca6c96a9e1b"
+  },
+  "summary": {
+    "packets": 169508,
+    "unique_dns_queries": 76,
+    "nxdomain_count": 0,
+    "flows": 1255,
+    "findings": 0,
+    "extractor_errors": {},
+    "uploaded_bytes": 4057230,
+    "downloaded_bytes": 153159537,
+    "internal_bytes": 61748,
+    "external_bytes": 0
+  },
+  "entities": {
+    "internal": [
+      {
+        "ip": "192.168.0.2",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "gateway_candidate"
+        ],
+        "first_seen": 1425568941.670243,
+        "last_seen": 1425572227.952898,
+        "flows_out": 518,
+        "flows_in": 516,
+        "bytes_out": 3824891,
+        "bytes_in": 149341309,
+        "unique_dsts": [
+          "130.236.100.79",
+          "188.126.88.9",
+          "194.71.144.71",
+          "213.155.151.149",
+          "213.155.151.150",
+          "213.155.151.151",
+          "213.155.151.155",
+          "213.155.151.180",
+          "213.155.151.182",
+          "213.155.151.184",
+          "213.155.151.187",
+          "217.75.106.216",
+          "23.52.27.27",
+          "63.245.216.132",
+          "63.245.216.134",
+          "63.245.217.115",
+          "63.245.217.160",
+          "74.125.143.95",
+          "74.125.205.95",
+          "8.8.8.8",
+          "83.168.200.199",
+          "85.12.30.227",
+          "93.184.220.29"
+        ],
+        "unique_srcs": [
+          "130.236.100.79",
+          "209.130.172.178",
+          "213.155.151.149",
+          "213.155.151.150",
+          "213.155.151.151",
+          "213.155.151.155",
+          "213.155.151.180",
+          "213.155.151.182",
+          "213.155.151.184",
+          "213.155.151.187",
+          "217.75.106.216",
+          "23.52.27.27",
+          "63.245.216.132",
+          "63.245.216.134",
+          "63.245.217.115",
+          "63.245.217.160",
+          "74.125.143.95",
+          "74.125.205.95",
+          "8.8.8.8",
+          "83.168.200.199",
+          "85.12.30.227",
+          "93.184.220.29"
+        ],
+        "sni_domains": [
+          "addons.mozilla.org",
+          "blocklist.addons.mozilla.org",
+          "sb-ssl.google.com",
+          "services.addons.mozilla.org",
+          "versioncheck-bg.addons.mozilla.org"
+        ],
+        "dns_names": [
+          "addons.mozilla.org",
+          "ajax.googleapis.com",
+          "apache.org",
+          "blocklist.addons.mozilla.org",
+          "bugs.centos.org",
+          "centos.org",
+          "clients1.google.com",
+          "colostore.com",
+          "fonts.gstatic.com",
+          "fosdem.org",
+          "g.symcd.com",
+          "glovine.com.au",
+          "httpd.apache.org",
+          "lists.centos.org",
+          "mirror.nsc.liu.se",
+          "ocsp.digicert.com",
+          "planet.centos.org",
+          "registry.hub.docker.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.clients.google.com",
+          "sb-ssl.google.com",
+          "servermania.com",
+          "services.addons.mozilla.org",
+          "seven.centos.org",
+          "shinjiru.com",
+          "steadfast.net",
+          "versioncheck-bg.addons.mozilla.org",
+          "vhost.vn",
+          "wiki.centos.org",
+          "www.artmotion.eu",
+          "www.backupvault.co.uk",
+          "www.baseip.com",
+          "www.brinkster.com",
+          "www.castlegem.co.uk",
+          "www.ch-center.com",
+          "www.cloudbase.it",
+          "www.codero.com",
+          "www.colocationamerica.com",
+          "www.databasebydesignllc.com",
+          "www.dedicatedsolutions.com",
+          "www.easyspace.com",
+          "www.galaxyvisions.com",
+          "www.godaddy.com",
+          "www.google-analytics.com",
+          "www.host-engine.com",
+          "www.host1plus.com",
+          "www.hostasaurus.com",
+          "www.hostdime.com",
+          "www.hostdime.com.br",
+          "www.hostingswift.com",
+          "www.hostkey.com",
+          "www.ibm.com",
+          "www.ida.net",
+          "www.internetx.com",
+          "www.internic.net",
+          "www.jtlnet.com",
+          "www.karan.org",
+          "www.multacom.com",
+          "www.ndchost.com",
+          "www.netelligent.ca",
+          "www.pidginhost.com",
+          "www.psw.net",
+          "www.psychz.net",
+          "www.pwebtech.com",
+          "www.securedservers.com",
+          "www.serverhub.com",
+          "www.serverpronto.com",
+          "www.servint.com",
+          "www.theplanet.com",
+          "www.vi.net",
+          "www.webnx.com",
+          "www.webstuff.co.il",
+          "www.wowrack.com",
+          "www.xenproject.org",
+          "www.yourname.nl"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.51",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1425568985.766316,
+        "last_seen": 1425572414.35613,
+        "flows_out": 109,
+        "flows_in": 108,
+        "bytes_out": 241555,
+        "bytes_in": 3838900,
+        "unique_dsts": [
+          "192.168.0.1",
+          "224.0.0.251",
+          "80.239.174.116",
+          "80.239.174.117",
+          "80.239.174.89",
+          "80.239.174.91"
+        ],
+        "unique_srcs": [
+          "192.168.0.1",
+          "80.239.174.116",
+          "80.239.174.117",
+          "80.239.174.89",
+          "80.239.174.91"
+        ],
+        "sni_domains": [
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.1",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1425568966.481962,
+        "last_seen": 1425572414.281254,
+        "flows_out": 103,
+        "flows_in": 102,
+        "bytes_out": 33566,
+        "bytes_in": 9042,
+        "unique_dsts": [
+          "192.168.0.51",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.50",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1425568973.472847,
+        "last_seen": 1425572340.518258,
+        "flows_out": 3,
+        "flows_in": 0,
+        "bytes_out": 18966,
+        "bytes_in": 0,
+        "unique_dsts": [
+          "224.0.0.22",
+          "224.0.0.251",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ],
+    "external": [
+      {
+        "ip": "130.236.100.79",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568941.670243,
+        "last_seen": 1425569114.780665,
+        "flows_out": 202,
+        "flows_in": 202,
+        "bytes_out": 143300932,
+        "bytes_in": 3518594,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.174.89",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425570688.419999,
+        "last_seen": 1425572414.35613,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 3734923,
+        "bytes_in": 195026,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [
+          "safebrowsing-cache.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.150",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569175.008012,
+        "last_seen": 1425569236.135678,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 2289445,
+        "bytes_in": 79547,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.155",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425571048.694583,
+        "last_seen": 1425571110.340493,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 2266759,
+        "bytes_in": 81244,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "85.12.30.227",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568941.674628,
+        "last_seen": 1425568957.910437,
+        "flows_out": 6,
+        "flows_in": 6,
+        "bytes_out": 1155472,
+        "bytes_in": 51775,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.184",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568942.090642,
+        "last_seen": 1425569002.479317,
+        "flows_out": 6,
+        "flows_in": 6,
+        "bytes_out": 135125,
+        "bytes_in": 11351,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "8.8.8.8",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568941.878751,
+        "last_seen": 1425571048.694311,
+        "flows_out": 279,
+        "flows_in": 280,
+        "bytes_out": 75713,
+        "bytes_in": 43582,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "80.239.174.116",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425570688.0451,
+        "last_seen": 1425572413.044961,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 82263,
+        "bytes_in": 35727,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.149",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425571048.408166,
+        "last_seen": 1425571108.740161,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 21428,
+        "bytes_in": 10023,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "63.245.217.115",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569301.854158,
+        "last_seen": 1425569314.596783,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 25378,
+        "bytes_in": 2267,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [
+          "blocklist.addons.mozilla.org"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.187",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569174.85692,
+        "last_seen": 1425569236.075767,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 15595,
+        "bytes_in": 1605,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.151",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568941.919914,
+        "last_seen": 1425569002.331991,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 12823,
+        "bytes_in": 1667,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "63.245.216.132",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569300.58433,
+        "last_seen": 1425569307.236674,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 9285,
+        "bytes_in": 2958,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [
+          "addons.mozilla.org"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "63.245.216.134",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569180.77477,
+        "last_seen": 1425569187.422114,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 7058,
+        "bytes_in": 3004,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [
+          "services.addons.mozilla.org"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "93.184.220.29",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569181.742357,
+        "last_seen": 1425569318.146465,
+        "flows_out": 4,
+        "flows_in": 4,
+        "bytes_out": 5350,
+        "bytes_in": 3757,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.180",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568943.084226,
+        "last_seen": 1425569120.278615,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 5985,
+        "bytes_in": 2419,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [
+          "sb-ssl.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "63.245.217.160",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425569182.163973,
+        "last_seen": 1425569194.222191,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 3835,
+        "bytes_in": 1939,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [
+          "versioncheck-bg.addons.mozilla.org"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "217.75.106.216",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568989.215575,
+        "last_seen": 1425572153.613851,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1980,
+        "bytes_in": 2700,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.143.95",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568942.223686,
+        "last_seen": 1425569058.243983,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 3551,
+        "bytes_in": 922,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "83.168.200.199",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1425568990.162233,
+        "last_seen": 1425572227.952898,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1800,
+        "bytes_in": 2250,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ]
+  },
+  "dns": {
+    "unique_count": 76,
+    "total_queries": 1315,
+    "top_by_count": [
+      {
+        "name": "mirror.nsc.liu.se",
+        "count": 804
+      },
+      {
+        "name": "safebrowsing-cache.google.com",
+        "count": 198
+      },
+      {
+        "name": "safebrowsing.google.com",
+        "count": 12
+      },
+      {
+        "name": "safebrowsing.clients.google.com",
+        "count": 7
+      },
+      {
+        "name": "addons.mozilla.org",
+        "count": 6
+      },
+      {
+        "name": "ocsp.digicert.com",
+        "count": 6
+      },
+      {
+        "name": "services.addons.mozilla.org",
+        "count": 6
+      },
+      {
+        "name": "ajax.googleapis.com",
+        "count": 4
+      },
+      {
+        "name": "apache.org",
+        "count": 4
+      },
+      {
+        "name": "blocklist.addons.mozilla.org",
+        "count": 4
+      },
+      {
+        "name": "bugs.centos.org",
+        "count": 4
+      },
+      {
+        "name": "centos.org",
+        "count": 4
+      },
+      {
+        "name": "clients1.google.com",
+        "count": 4
+      },
+      {
+        "name": "colostore.com",
+        "count": 4
+      },
+      {
+        "name": "fonts.gstatic.com",
+        "count": 4
+      },
+      {
+        "name": "fosdem.org",
+        "count": 4
+      },
+      {
+        "name": "g.symcd.com",
+        "count": 4
+      },
+      {
+        "name": "glovine.com.au",
+        "count": 4
+      },
+      {
+        "name": "httpd.apache.org",
+        "count": 4
+      },
+      {
+        "name": "lists.centos.org",
+        "count": 4
+      },
+      {
+        "name": "planet.centos.org",
+        "count": 4
+      },
+      {
+        "name": "registry.hub.docker.com",
+        "count": 4
+      },
+      {
+        "name": "sb-ssl.google.com",
+        "count": 4
+      },
+      {
+        "name": "servermania.com",
+        "count": 4
+      },
+      {
+        "name": "seven.centos.org",
+        "count": 4
+      },
+      {
+        "name": "shinjiru.com",
+        "count": 4
+      },
+      {
+        "name": "steadfast.net",
+        "count": 4
+      },
+      {
+        "name": "versioncheck-bg.addons.mozilla.org",
+        "count": 4
+      },
+      {
+        "name": "vhost.vn",
+        "count": 4
+      },
+      {
+        "name": "wiki.centos.org",
+        "count": 4
+      },
+      {
+        "name": "www.artmotion.eu",
+        "count": 4
+      },
+      {
+        "name": "www.backupvault.co.uk",
+        "count": 4
+      },
+      {
+        "name": "www.baseip.com",
+        "count": 4
+      },
+      {
+        "name": "www.brinkster.com",
+        "count": 4
+      },
+      {
+        "name": "www.castlegem.co.uk",
+        "count": 4
+      },
+      {
+        "name": "www.ch-center.com",
+        "count": 4
+      },
+      {
+        "name": "www.cloudbase.it",
+        "count": 4
+      },
+      {
+        "name": "www.codero.com",
+        "count": 4
+      },
+      {
+        "name": "www.colocationamerica.com",
+        "count": 4
+      },
+      {
+        "name": "www.databasebydesignllc.com",
+        "count": 4
+      },
+      {
+        "name": "www.dedicatedsolutions.com",
+        "count": 4
+      },
+      {
+        "name": "www.easyspace.com",
+        "count": 4
+      },
+      {
+        "name": "www.galaxyvisions.com",
+        "count": 4
+      },
+      {
+        "name": "www.godaddy.com",
+        "count": 4
+      },
+      {
+        "name": "www.google-analytics.com",
+        "count": 4
+      },
+      {
+        "name": "www.host-engine.com",
+        "count": 4
+      },
+      {
+        "name": "www.host1plus.com",
+        "count": 4
+      },
+      {
+        "name": "www.hostasaurus.com",
+        "count": 4
+      },
+      {
+        "name": "www.hostdime.com",
+        "count": 4
+      },
+      {
+        "name": "www.hostdime.com.br",
+        "count": 4
+      }
+    ],
+    "nxdomain": []
+  },
+  "flows": {
+    "total_flows": 1255,
+    "top_by_bytes": [
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34645,
+        "direction": "inbound",
+        "packets": 21672,
+        "bytes": 31471646,
+        "duration": 9.304328,
+        "first_ts": 1425569047.916059,
+        "last_ts": 1425569057.220387
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34650,
+        "direction": "inbound",
+        "packets": 8393,
+        "bytes": 12184444,
+        "duration": 3.343106,
+        "first_ts": 1425569058.897611,
+        "last_ts": 1425569062.240717
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34603,
+        "direction": "inbound",
+        "packets": 7550,
+        "bytes": 10953859,
+        "duration": 3.497258,
+        "first_ts": 1425569007.58572,
+        "last_ts": 1425569011.082978
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34572,
+        "direction": "inbound",
+        "packets": 6694,
+        "bytes": 9716848,
+        "duration": 2.694205,
+        "first_ts": 1425568985.252546,
+        "last_ts": 1425568987.946751
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34640,
+        "direction": "inbound",
+        "packets": 5367,
+        "bytes": 7788431,
+        "duration": 2.201751,
+        "first_ts": 1425569043.82674,
+        "last_ts": 1425569046.028491
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34661,
+        "direction": "inbound",
+        "packets": 4964,
+        "bytes": 7194413,
+        "duration": 2.31176,
+        "first_ts": 1425569067.26754,
+        "last_ts": 1425569069.5793
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34684,
+        "direction": "inbound",
+        "packets": 4447,
+        "bytes": 6451379,
+        "duration": 1.81423,
+        "first_ts": 1425569090.937818,
+        "last_ts": 1425569092.752048
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34530,
+        "direction": "inbound",
+        "packets": 4443,
+        "bytes": 6444106,
+        "duration": 1.98196,
+        "first_ts": 1425568954.383492,
+        "last_ts": 1425568956.365452
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34672,
+        "direction": "inbound",
+        "packets": 3556,
+        "bytes": 5156476,
+        "duration": 1.621957,
+        "first_ts": 1425569076.048484,
+        "last_ts": 1425569077.670441
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34697,
+        "direction": "inbound",
+        "packets": 2870,
+        "bytes": 4156515,
+        "duration": 1.264681,
+        "first_ts": 1425569106.87855,
+        "last_ts": 1425569108.143231
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34636,
+        "direction": "inbound",
+        "packets": 2282,
+        "bytes": 3304719,
+        "duration": 1.014534,
+        "first_ts": 1425569032.325779,
+        "last_ts": 1425569033.340313
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.174.89",
+        "src_port": 443,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 47993,
+        "direction": "inbound",
+        "packets": 2244,
+        "bytes": 3097301,
+        "duration": 179.837401,
+        "first_ts": 1425570688.462706,
+        "last_ts": 1425570868.300107,
+        "sni": "safebrowsing-cache.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34571,
+        "direction": "inbound",
+        "packets": 1920,
+        "bytes": 2779607,
+        "duration": 0.905528,
+        "first_ts": 1425568984.133897,
+        "last_ts": 1425568985.039425
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34601,
+        "direction": "inbound",
+        "packets": 1890,
+        "bytes": 2736814,
+        "duration": 0.913521,
+        "first_ts": 1425569002.124011,
+        "last_ts": 1425569003.037532
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.150",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 38926,
+        "direction": "inbound",
+        "packets": 1615,
+        "bytes": 2289445,
+        "duration": 61.101459,
+        "first_ts": 1425569175.034219,
+        "last_ts": 1425569236.135678
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.155",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34561,
+        "direction": "inbound",
+        "packets": 1602,
+        "bytes": 2266759,
+        "duration": 61.615807,
+        "first_ts": 1425571048.724686,
+        "last_ts": 1425571110.340493
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34682,
+        "direction": "inbound",
+        "packets": 1255,
+        "bytes": 1812517,
+        "duration": 0.67207,
+        "first_ts": 1425569088.258072,
+        "last_ts": 1425569088.930142
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34696,
+        "direction": "inbound",
+        "packets": 1030,
+        "bytes": 1487222,
+        "duration": 0.571879,
+        "first_ts": 1425569099.359758,
+        "last_ts": 1425569099.931637
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34525,
+        "direction": "inbound",
+        "packets": 1003,
+        "bytes": 1449707,
+        "duration": 0.629032,
+        "first_ts": 1425568950.802849,
+        "last_ts": 1425568951.431881
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34485,
+        "direction": "inbound",
+        "packets": 996,
+        "bytes": 1438847,
+        "duration": 0.402084,
+        "first_ts": 1425568941.670243,
+        "last_ts": 1425568942.072327
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34527,
+        "direction": "inbound",
+        "packets": 728,
+        "bytes": 1046068,
+        "duration": 0.462146,
+        "first_ts": 1425568952.143245,
+        "last_ts": 1425568952.605391
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34680,
+        "direction": "inbound",
+        "packets": 672,
+        "bytes": 968763,
+        "duration": 0.422779,
+        "first_ts": 1425569085.707791,
+        "last_ts": 1425569086.13057
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34515,
+        "direction": "inbound",
+        "packets": 652,
+        "bytes": 939236,
+        "duration": 0.505419,
+        "first_ts": 1425568946.621774,
+        "last_ts": 1425568947.127193
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34508,
+        "direction": "inbound",
+        "packets": 594,
+        "bytes": 852980,
+        "duration": 0.482682,
+        "first_ts": 1425568944.121583,
+        "last_ts": 1425568944.604265
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34542,
+        "direction": "inbound",
+        "packets": 540,
+        "bytes": 775608,
+        "duration": 0.45229,
+        "first_ts": 1425568967.433046,
+        "last_ts": 1425568967.885336
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34658,
+        "direction": "inbound",
+        "packets": 513,
+        "bytes": 737712,
+        "duration": 0.391366,
+        "first_ts": 1425569065.398291,
+        "last_ts": 1425569065.789657
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34674,
+        "direction": "inbound",
+        "packets": 507,
+        "bytes": 727387,
+        "duration": 0.392334,
+        "first_ts": 1425569082.548306,
+        "last_ts": 1425569082.94064
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34663,
+        "direction": "inbound",
+        "packets": 501,
+        "bytes": 720340,
+        "duration": 0.412908,
+        "first_ts": 1425569070.776448,
+        "last_ts": 1425569071.189356
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34645,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 11523,
+        "bytes": 692198,
+        "duration": 9.337626,
+        "first_ts": 1425569047.882769,
+        "last_ts": 1425569057.220395,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34612,
+        "direction": "inbound",
+        "packets": 469,
+        "bytes": 672772,
+        "duration": 0.353072,
+        "first_ts": 1425569015.466102,
+        "last_ts": 1425569015.819174
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34629,
+        "direction": "inbound",
+        "packets": 462,
+        "bytes": 662177,
+        "duration": 0.371848,
+        "first_ts": 1425569025.266616,
+        "last_ts": 1425569025.638464
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.174.89",
+        "src_port": 443,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 47995,
+        "direction": "inbound",
+        "packets": 481,
+        "bytes": 637622,
+        "duration": 1.350467,
+        "first_ts": 1425572413.005663,
+        "last_ts": 1425572414.35613,
+        "sni": "safebrowsing-cache.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34620,
+        "direction": "inbound",
+        "packets": 414,
+        "bytes": 591489,
+        "duration": 0.379669,
+        "first_ts": 1425569019.686329,
+        "last_ts": 1425569020.065998
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34679,
+        "direction": "inbound",
+        "packets": 373,
+        "bytes": 530146,
+        "duration": 0.311015,
+        "first_ts": 1425569085.187815,
+        "last_ts": 1425569085.49883
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34660,
+        "direction": "inbound",
+        "packets": 355,
+        "bytes": 508928,
+        "duration": 0.349261,
+        "first_ts": 1425569066.69841,
+        "last_ts": 1425569067.047671
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34592,
+        "direction": "inbound",
+        "packets": 338,
+        "bytes": 482455,
+        "duration": 0.338508,
+        "first_ts": 1425568997.374752,
+        "last_ts": 1425568997.71326
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34557,
+        "direction": "inbound",
+        "packets": 306,
+        "bytes": 434510,
+        "duration": 0.361011,
+        "first_ts": 1425568976.274188,
+        "last_ts": 1425568976.635199
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34618,
+        "direction": "inbound",
+        "packets": 284,
+        "bytes": 403019,
+        "duration": 0.283625,
+        "first_ts": 1425569018.304663,
+        "last_ts": 1425569018.588288
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34659,
+        "direction": "inbound",
+        "packets": 270,
+        "bytes": 384994,
+        "duration": 0.45312,
+        "first_ts": 1425569065.986108,
+        "last_ts": 1425569066.439228
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34685,
+        "direction": "inbound",
+        "packets": 256,
+        "bytes": 364246,
+        "duration": 0.267893,
+        "first_ts": 1425569092.95806,
+        "last_ts": 1425569093.225953
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34675,
+        "direction": "inbound",
+        "packets": 255,
+        "bytes": 362994,
+        "duration": 0.286365,
+        "first_ts": 1425569083.317619,
+        "last_ts": 1425569083.603984
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34574,
+        "direction": "inbound",
+        "packets": 245,
+        "bytes": 348690,
+        "duration": 0.277681,
+        "first_ts": 1425568988.50338,
+        "last_ts": 1425568988.781061
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34613,
+        "direction": "inbound",
+        "packets": 245,
+        "bytes": 347713,
+        "duration": 0.285559,
+        "first_ts": 1425569016.044931,
+        "last_ts": 1425569016.33049
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34673,
+        "direction": "inbound",
+        "packets": 236,
+        "bytes": 335825,
+        "duration": 0.275601,
+        "first_ts": 1425569081.835864,
+        "last_ts": 1425569082.111465
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34688,
+        "direction": "inbound",
+        "packets": 229,
+        "bytes": 323821,
+        "duration": 0.273376,
+        "first_ts": 1425569095.338819,
+        "last_ts": 1425569095.612195
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34522,
+        "direction": "inbound",
+        "packets": 197,
+        "bytes": 277417,
+        "duration": 0.235395,
+        "first_ts": 1425568948.561716,
+        "last_ts": 1425568948.797111
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34603,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 4095,
+        "bytes": 270930,
+        "duration": 3.534239,
+        "first_ts": 1425569007.548952,
+        "last_ts": 1425569011.083191,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34650,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 4475,
+        "bytes": 268958,
+        "duration": 3.374617,
+        "first_ts": 1425569058.866108,
+        "last_ts": 1425569062.240725,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34502,
+        "direction": "inbound",
+        "packets": 189,
+        "bytes": 267328,
+        "duration": 0.248129,
+        "first_ts": 1425568942.71739,
+        "last_ts": 1425568942.965519
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "85.12.30.227",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 60925,
+        "direction": "inbound",
+        "packets": 203,
+        "bytes": 262526,
+        "duration": 16.208378,
+        "first_ts": 1425568941.701776,
+        "last_ts": 1425568957.910154
+      }
+    ],
+    "top_by_packets": [
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34645,
+        "direction": "inbound",
+        "packets": 21672,
+        "bytes": 31471646,
+        "duration": 9.304328,
+        "first_ts": 1425569047.916059,
+        "last_ts": 1425569057.220387
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34645,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 11523,
+        "bytes": 692198,
+        "duration": 9.337626,
+        "first_ts": 1425569047.882769,
+        "last_ts": 1425569057.220395,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34650,
+        "direction": "inbound",
+        "packets": 8393,
+        "bytes": 12184444,
+        "duration": 3.343106,
+        "first_ts": 1425569058.897611,
+        "last_ts": 1425569062.240717
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34603,
+        "direction": "inbound",
+        "packets": 7550,
+        "bytes": 10953859,
+        "duration": 3.497258,
+        "first_ts": 1425569007.58572,
+        "last_ts": 1425569011.082978
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34572,
+        "direction": "inbound",
+        "packets": 6694,
+        "bytes": 9716848,
+        "duration": 2.694205,
+        "first_ts": 1425568985.252546,
+        "last_ts": 1425568987.946751
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34640,
+        "direction": "inbound",
+        "packets": 5367,
+        "bytes": 7788431,
+        "duration": 2.201751,
+        "first_ts": 1425569043.82674,
+        "last_ts": 1425569046.028491
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34661,
+        "direction": "inbound",
+        "packets": 4964,
+        "bytes": 7194413,
+        "duration": 2.31176,
+        "first_ts": 1425569067.26754,
+        "last_ts": 1425569069.5793
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34650,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 4475,
+        "bytes": 268958,
+        "duration": 3.374617,
+        "first_ts": 1425569058.866108,
+        "last_ts": 1425569062.240725,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34684,
+        "direction": "inbound",
+        "packets": 4447,
+        "bytes": 6451379,
+        "duration": 1.81423,
+        "first_ts": 1425569090.937818,
+        "last_ts": 1425569092.752048
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34530,
+        "direction": "inbound",
+        "packets": 4443,
+        "bytes": 6444106,
+        "duration": 1.98196,
+        "first_ts": 1425568954.383492,
+        "last_ts": 1425568956.365452
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34603,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 4095,
+        "bytes": 270930,
+        "duration": 3.534239,
+        "first_ts": 1425569007.548952,
+        "last_ts": 1425569011.083191,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34572,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 3561,
+        "bytes": 213980,
+        "duration": 2.734697,
+        "first_ts": 1425568985.212054,
+        "last_ts": 1425568987.946751,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34672,
+        "direction": "inbound",
+        "packets": 3556,
+        "bytes": 5156476,
+        "duration": 1.621957,
+        "first_ts": 1425569076.048484,
+        "last_ts": 1425569077.670441
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34640,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2897,
+        "bytes": 174170,
+        "duration": 2.271086,
+        "first_ts": 1425569043.757413,
+        "last_ts": 1425569046.028499,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34697,
+        "direction": "inbound",
+        "packets": 2870,
+        "bytes": 4156515,
+        "duration": 1.264681,
+        "first_ts": 1425569106.87855,
+        "last_ts": 1425569108.143231
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34661,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2716,
+        "bytes": 163305,
+        "duration": 2.344245,
+        "first_ts": 1425569067.235063,
+        "last_ts": 1425569069.579308,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34530,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2453,
+        "bytes": 147527,
+        "duration": 2.009174,
+        "first_ts": 1425568954.356285,
+        "last_ts": 1425568956.365459,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34684,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2398,
+        "bytes": 144192,
+        "duration": 1.898945,
+        "first_ts": 1425569090.853111,
+        "last_ts": 1425569092.752056,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34636,
+        "direction": "inbound",
+        "packets": 2282,
+        "bytes": 3304719,
+        "duration": 1.014534,
+        "first_ts": 1425569032.325779,
+        "last_ts": 1425569033.340313
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.174.89",
+        "src_port": 443,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 47993,
+        "direction": "inbound",
+        "packets": 2244,
+        "bytes": 3097301,
+        "duration": 179.837401,
+        "first_ts": 1425570688.462706,
+        "last_ts": 1425570868.300107,
+        "sni": "safebrowsing-cache.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34672,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1924,
+        "bytes": 115748,
+        "duration": 1.651453,
+        "first_ts": 1425569076.018995,
+        "last_ts": 1425569077.670448,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34571,
+        "direction": "inbound",
+        "packets": 1920,
+        "bytes": 2779607,
+        "duration": 0.905528,
+        "first_ts": 1425568984.133897,
+        "last_ts": 1425568985.039425
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34601,
+        "direction": "inbound",
+        "packets": 1890,
+        "bytes": 2736814,
+        "duration": 0.913521,
+        "first_ts": 1425569002.124011,
+        "last_ts": 1425569003.037532
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.150",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 38926,
+        "direction": "inbound",
+        "packets": 1615,
+        "bytes": 2289445,
+        "duration": 61.101459,
+        "first_ts": 1425569175.034219,
+        "last_ts": 1425569236.135678
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "213.155.151.155",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34561,
+        "direction": "inbound",
+        "packets": 1602,
+        "bytes": 2266759,
+        "duration": 61.615807,
+        "first_ts": 1425571048.724686,
+        "last_ts": 1425571110.340493
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34697,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1592,
+        "bytes": 105425,
+        "duration": 1.295262,
+        "first_ts": 1425569106.847993,
+        "last_ts": 1425569108.143255,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34636,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1261,
+        "bytes": 75949,
+        "duration": 1.102524,
+        "first_ts": 1425569032.237797,
+        "last_ts": 1425569033.340321,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34682,
+        "direction": "inbound",
+        "packets": 1255,
+        "bytes": 1812517,
+        "duration": 0.67207,
+        "first_ts": 1425569088.258072,
+        "last_ts": 1425569088.930142
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.51",
+        "src_port": 47993,
+        "dst_ip": "80.239.174.89",
+        "dst_port": 443,
+        "direction": "outbound",
+        "packets": 1237,
+        "bytes": 144215,
+        "duration": 179.833738,
+        "first_ts": 1425570688.419999,
+        "last_ts": 1425570868.253737,
+        "sni": "safebrowsing-cache.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34696,
+        "direction": "inbound",
+        "packets": 1030,
+        "bytes": 1487222,
+        "duration": 0.571879,
+        "first_ts": 1425569099.359758,
+        "last_ts": 1425569099.931637
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34601,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1026,
+        "bytes": 67975,
+        "duration": 0.948066,
+        "first_ts": 1425569002.089474,
+        "last_ts": 1425569003.03754,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34571,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1025,
+        "bytes": 67849,
+        "duration": 0.921941,
+        "first_ts": 1425568984.117493,
+        "last_ts": 1425568985.039434,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34525,
+        "direction": "inbound",
+        "packets": 1003,
+        "bytes": 1449707,
+        "duration": 0.629032,
+        "first_ts": 1425568950.802849,
+        "last_ts": 1425568951.431881
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34485,
+        "direction": "inbound",
+        "packets": 996,
+        "bytes": 1438847,
+        "duration": 0.402084,
+        "first_ts": 1425568941.670243,
+        "last_ts": 1425568942.072327
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 38926,
+        "dst_ip": "213.155.151.150",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 905,
+        "bytes": 79547,
+        "duration": 61.092744,
+        "first_ts": 1425569175.008012,
+        "last_ts": 1425569236.100756,
+        "http_host": "safebrowsing-cache.google.com",
+        "http_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34561,
+        "dst_ip": "213.155.151.155",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 831,
+        "bytes": 81244,
+        "duration": 61.615738,
+        "first_ts": 1425571048.694583,
+        "last_ts": 1425571110.310321,
+        "http_host": "safebrowsing-cache.google.com",
+        "http_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34682,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 731,
+        "bytes": 44100,
+        "duration": 0.703532,
+        "first_ts": 1425569088.226617,
+        "last_ts": 1425569088.930149,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34527,
+        "direction": "inbound",
+        "packets": 728,
+        "bytes": 1046068,
+        "duration": 0.462146,
+        "first_ts": 1425568952.143245,
+        "last_ts": 1425568952.605391
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34680,
+        "direction": "inbound",
+        "packets": 672,
+        "bytes": 968763,
+        "duration": 0.422779,
+        "first_ts": 1425569085.707791,
+        "last_ts": 1425569086.13057
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34515,
+        "direction": "inbound",
+        "packets": 652,
+        "bytes": 939236,
+        "duration": 0.505419,
+        "first_ts": 1425568946.621774,
+        "last_ts": 1425568947.127193
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34696,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 611,
+        "bytes": 40658,
+        "duration": 0.664823,
+        "first_ts": 1425569099.26682,
+        "last_ts": 1425569099.931643,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34508,
+        "direction": "inbound",
+        "packets": 594,
+        "bytes": 852980,
+        "duration": 0.482682,
+        "first_ts": 1425568944.121583,
+        "last_ts": 1425568944.604265
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 34525,
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 574,
+        "bytes": 34655,
+        "duration": 0.654486,
+        "first_ts": 1425568950.777403,
+        "last_ts": 1425568951.431889,
+        "http_host": "mirror.nsc.liu.se",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34542,
+        "direction": "inbound",
+        "packets": 540,
+        "bytes": 775608,
+        "duration": 0.45229,
+        "first_ts": 1425568967.433046,
+        "last_ts": 1425568967.885336
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34658,
+        "direction": "inbound",
+        "packets": 513,
+        "bytes": 737712,
+        "duration": 0.391366,
+        "first_ts": 1425569065.398291,
+        "last_ts": 1425569065.789657
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34674,
+        "direction": "inbound",
+        "packets": 507,
+        "bytes": 727387,
+        "duration": 0.392334,
+        "first_ts": 1425569082.548306,
+        "last_ts": 1425569082.94064
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34663,
+        "direction": "inbound",
+        "packets": 501,
+        "bytes": 720340,
+        "duration": 0.412908,
+        "first_ts": 1425569070.776448,
+        "last_ts": 1425569071.189356
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "80.239.174.89",
+        "src_port": 443,
+        "dst_ip": "192.168.0.51",
+        "dst_port": 47995,
+        "direction": "inbound",
+        "packets": 481,
+        "bytes": 637622,
+        "duration": 1.350467,
+        "first_ts": 1425572413.005663,
+        "last_ts": 1425572414.35613,
+        "sni": "safebrowsing-cache.google.com"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34612,
+        "direction": "inbound",
+        "packets": 469,
+        "bytes": 672772,
+        "duration": 0.353072,
+        "first_ts": 1425569015.466102,
+        "last_ts": 1425569015.819174
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "130.236.100.79",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 34629,
+        "direction": "inbound",
+        "packets": 462,
+        "bytes": 662177,
+        "duration": 0.371848,
+        "first_ts": 1425569025.266616,
+        "last_ts": 1425569025.638464
+      }
+    ]
+  },
+  "http": {
+    "unique_hosts": 10,
+    "unique_user_agents": 2,
+    "unique_uris": 50,
+    "top_hosts": [
+      {
+        "host": "mirror.nsc.liu.se",
+        "count": 201
+      },
+      {
+        "host": "fonts.gstatic.com",
+        "count": 6
+      },
+      {
+        "host": "www.centos.org",
+        "count": 6
+      },
+      {
+        "host": "ocsp.digicert.com",
+        "count": 2
+      },
+      {
+        "host": "safebrowsing-cache.google.com",
+        "count": 2
+      },
+      {
+        "host": "safebrowsing.clients.google.com",
+        "count": 2
+      },
+      {
+        "host": "ajax.googleapis.com",
+        "count": 1
+      },
+      {
+        "host": "clients1.google.com",
+        "count": 1
+      },
+      {
+        "host": "g.symcd.com",
+        "count": 1
+      },
+      {
+        "host": "www.google-analytics.com",
+        "count": 1
+      }
+    ],
+    "top_user_agents": [
+      {
+        "user_agent": "urlgrabber/3.10 yum/3.4.3",
+        "count": 201
+      },
+      {
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0",
+        "count": 22
+      }
+    ],
+    "methods": [
+      {
+        "method": "GET",
+        "count": 221
+      },
+      {
+        "method": "POST",
+        "count": 2
+      }
+    ],
+    "top_uris": [
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/kernel-3.10.0-123.20.1.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 692198,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/webkitgtk3-2.0.4-6.el7_0.1.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 270930,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/glibc-common-2.17-55.el7_0.5.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 268958,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/mariadb-5.5.41-2.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 213980,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/gcc-c%2B%2B-4.8.2-16.2.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 174170,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/gcc-gfortran-4.8.2-16.2.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 163305,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/gcc-4.8.2-16.el7_4.8.2-16.2.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 147527,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/cpp-4.8.2-16.2.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 144192,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/mariadb-server-5.5.35-3.el7_5.5.41-2.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 115748,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/selinux-policy-targeted-3.12.1-153.el7_0.13.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 105425,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "safebrowsing-cache.google.com",
+        "uri": "/safebrowsing/rd/ChNnb29nLW1hbHdhcmUtc2hhdmFyOABAAkoMCAEQseMJGLHjCSABSgwIARCk4wkYpOMJIAFKDAgBEKDjCRih4wkgAUoMCAEQmuMJGJrjCSABSgwIARCX4wkYl-MJIAFKDAgBEJTjCRiV4wkgAUoMCAEQj-MJGI_jCSABSgwIARD54gkY-eIJIAFKDAgBEM7iCRjO4gkgAUoMCAEQnuIJGJ7iCSABSgwIARDE4QkYkOIJIAFKDAgBEN7gCRjC4QkgAUoMCAEQqeAJGNzgCSABSgwIARCm4AkYpuAJIAFKDAgBEKTgCRik4AkgAUoMCAEQoeAJGKLgCSABSgwIARCf4AkYn-AJIAFKDAgBEJ3gCRid4AkgAUoMCAEQ3t8JGJrgCSABSgwIARC33QkY3N8JIAFKDAgBEJrcCRi13QkgAUoMCAEQl9wJGJjcCSABSgwIARCV3AkYldwJIAFKDAgBEJHcCRiT3AkgAUoMCAEQiNwJGI_cCSABSgwIARCD3AkYhtwJIAFKDAgBEP3bCRiB3AkgAQ",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "213.155.151.155",
+        "dst_port": 80,
+        "bytes": 81244,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "safebrowsing-cache.google.com",
+        "uri": "/safebrowsing/rd/ChNnb29nLW1hbHdhcmUtc2hhdmFyOABAAkoMCAEQ6YQKGO-ECiABSgwIARDehAoY54QKIAFKDAgBEMmEChjchAogAUoMCAEQwYQKGMeECiABSgwIARC7hAoYvoQKIAFKDAgBELKEChi4hAogAUoMCAEQp4QKGLCECiABSgwIARCZhAoYpYQKIAFKDAgBEJaEChiXhAogAUoMCAEQkIQKGJSECiABSgwIARCJhAoYjoQKIAFKDAgBEMiDChiHhAogAUoMCAEQw4MKGMaDCiABSgwIARCzgwoYwYMKIAFKDAgBEICDChixgwogAUoMCAEQ84IKGP6CCiABSgwIARDIggoY8YIKIAFKDAgBEIaBChjGggogAUoMCAEQkIAKGISBCiABSgwIARD0_wkYjoAKIAFKDAgBEK3-CRjy_wkgAUoMCAEQmP4JGKv-CSABSgwIARCL_gkYlv4JIAFKDAgBEIn-CRiJ_gkgAUoMCAEQ9v0JGIf-CSABSgwIARDu_QkY9P0JIAFKDAgBEMP9CRjs_QkgAUoMCAEQif0JGMH9CSABSgwIARCF_QkYh_0JIAFKDAgBEPj8CRiD_QkgAUoMCAEQ6_wJGPb8CSABSgwIARDi_AkY6fwJIAFKDAgBEN_8CRjg_AkgAUoMCAEQz_wJGNz8CSABSgwIARDz-wkYzfwJIAFKDAgBEO_7CRjx-wkgAQ",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "213.155.151.150",
+        "dst_port": 80,
+        "bytes": 79547,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/java-1.7.0-openjdk-headless-1.7.0.51-2.4.5.5.el7_1.7.0.75-2.5.4.2.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 75949,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/kernel-devel-3.10.0-123.el7_3.10.0-123.20.1.el7.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 67975,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/crash-7.0.2-7.el7_0.1.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 67849,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/systemtap-client-2.4-14.el7_2.4-16.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 44100,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/linux-firmware-20140213-0.3.git4164c23.el7_20140804-0.1.git6bce2b0.el7_0.noarch.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 40658,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/xorg-x11-server-Xorg-1.15.0-7.el7_0.3.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 34655,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/systemtap-devel-2.4-14.el7_2.4-16.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 26921,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/systemd-208-11.el7_208-11.el7_0.6.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 23597,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/libreswan-3.8-6.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 23401,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/kernel-headers-3.10.0-123.el7_3.10.0-123.20.1.el7.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 22335,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/kernel-tools-libs-3.10.0-123.20.1.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 20975,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/glibc-devel-2.17-55.el7_2.17-55.el7_0.5.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 20885,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/kernel-tools-3.10.0-123.20.1.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 20448,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/mesa-dri-drivers-9.2.5-5.20131218.el7_9.2.5-6.20131218.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 19574,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/wpa_supplicant-2.0-13.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 19285,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/glibc-2.17-55.el7_2.17-55.el7_0.5.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 18497,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/libvirt-client-1.1.1-29.el7_1.1.1-29.el7_0.7.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 18250,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/nss-tools-3.16.2.3-2.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 15504,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/libvpx-1.3.0-5.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 14904,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/bash-4.2.45-5.el7_4.2.45-5.el7_0.4.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 13458,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/samba-libs-4.1.1-31.el7_4.1.1-38.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 12256,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/mdadm-3.2.6-31.el7_0.2.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 11804,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/nss-3.15.4-6.el7_3.16.2.3-2.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 11717,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/kdenetwork-kget-4.10.5-7.el7_4.10.5-8.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 11487,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/tzdata-2014b-1.el7_2015a-1.el7_0.noarch.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 10150,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "www.centos.org",
+        "uri": "/assets/style-v2.css",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "85.12.30.227",
+        "dst_port": 80,
+        "bytes": 10108,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "POST",
+        "host": "safebrowsing.clients.google.com",
+        "uri": "/safebrowsing/downloads?client=navclient-auto-ffox&appver=24.5.0&pver=2.2&wrkey=AKEgNit_Ph6Q3gRMaWKc5kRP86WCZ3VeFazyoavlyUasQb-hp8HQry5yU9b8oV3LIs1hCSCQcKyFO7AkgFHmnlYpmPGNgYKxrQ==",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "213.155.151.149",
+        "dst_port": 80,
+        "bytes": 10023,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/openssl-1.0.1e-34.el7_1.0.1e-34.el7_0.7.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 9857,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/evolution-data-server-3.8.5-23.el7_3.8.5-24.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 9741,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/selinux-policy-3.12.1-153.el7_0.13.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 9548,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/iwl7260-firmware-22.0.7.0-34.el7_22.0.7.0-35.el7_0.noarch.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 9394,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "www.centos.org",
+        "uri": "/images/centoslogo-32.png",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "85.12.30.227",
+        "dst_port": 80,
+        "bytes": 9282,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "www.centos.org",
+        "uri": "/assets/js/google.js",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "85.12.30.227",
+        "dst_port": 80,
+        "bytes": 9060,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "www.centos.org",
+        "uri": "/assets/jquery.tidy.table.css",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "85.12.30.227",
+        "dst_port": 80,
+        "bytes": 8756,
+        "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20100101 Firefox/24.0"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/mailx-12.5-12.el7_0.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 8423,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/glibc-headers-2.17-55.el7_2.17-55.el7_0.5.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 8311,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/drpms/ruby-libs-2.0.0.353-20.el7_2.0.0.353-22.el7_0.x86_64.drpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 8309,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "mirror.nsc.liu.se",
+        "uri": "/CentOS/7.0.1406/updates/x86_64/Packages/libvncserver-0.9.9-9.el7_0.1.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "130.236.100.79",
+        "dst_port": 80,
+        "bytes": 8246,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      }
+    ]
+  },
+  "findings": []
+}

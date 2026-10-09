@@ -1,0 +1,2962 @@
+{
+  "schema_version": "0.2.0",
+  "provenance": {
+    "tool_version": "0.1.0",
+    "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-01\\snort.log.1427909436",
+    "pcap_sha256": "8107f213cdcaec17e627635c36dd898facf04fdabb463fcdc36289d1e632add9"
+  },
+  "summary": {
+    "packets": 197751,
+    "unique_dns_queries": 14,
+    "nxdomain_count": 8,
+    "flows": 637,
+    "findings": 2,
+    "extractor_errors": {},
+    "uploaded_bytes": 6471170,
+    "downloaded_bytes": 150750049,
+    "internal_bytes": 44548,
+    "external_bytes": 0
+  },
+  "entities": {
+    "internal": [
+      {
+        "ip": "192.168.0.51",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "victim_candidate"
+        ],
+        "first_seen": 1427909725.870212,
+        "last_seen": 1427910581.477822,
+        "flows_out": 33,
+        "flows_in": 29,
+        "bytes_out": 19601,
+        "bytes_in": 24686,
+        "unique_dsts": [
+          "192.168.0.1",
+          "192.168.0.255",
+          "212.227.17.171",
+          "213.155.151.152",
+          "213.155.151.181",
+          "224.0.0.251",
+          "74.125.71.106"
+        ],
+        "unique_srcs": [
+          "192.168.0.1",
+          "212.227.17.171",
+          "213.155.151.152",
+          "213.155.151.181",
+          "74.125.71.106"
+        ],
+        "sni_domains": [
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [
+          "password-ned-xp",
+          "password-ned-xp.pwned.se",
+          "pop.gmx.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "www.google.com"
+        ],
+        "findings_indices": [
+          0
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:b2:45",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.2",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1427909436.167856,
+        "last_seen": 1427910641.724048,
+        "flows_out": 216,
+        "flows_in": 214,
+        "bytes_out": 6314376,
+        "bytes_in": 150609766,
+        "unique_dsts": [
+          "130.236.254.17",
+          "188.126.88.9",
+          "189.121.240.252",
+          "192.168.0.255",
+          "193.166.3.2",
+          "193.227.234.135",
+          "194.71.144.71",
+          "8.8.8.8",
+          "81.170.152.66"
+        ],
+        "unique_srcs": [
+          "130.236.254.17",
+          "189.121.240.252",
+          "193.166.3.2",
+          "193.227.234.135",
+          "209.130.172.178",
+          "8.8.8.8",
+          "81.170.152.66"
+        ],
+        "sni_domains": [],
+        "dns_names": [
+          "centos.mirrors.as250.net",
+          "ftp.funet.fi"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:c0:d7",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.54",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "gateway_candidate"
+        ],
+        "first_seen": 1427909437.096298,
+        "last_seen": 1427910632.334846,
+        "flows_out": 71,
+        "flows_in": 63,
+        "bytes_out": 158161,
+        "bytes_in": 124477,
+        "unique_dsts": [
+          "104.46.52.74",
+          "108.160.170.50",
+          "111.221.74.37",
+          "111.221.77.162",
+          "157.55.130.166",
+          "157.55.130.171",
+          "157.55.56.151",
+          "157.56.116.201",
+          "173.252.106.17",
+          "189.10.173.242",
+          "192.168.0.1",
+          "192.168.0.255",
+          "193.149.88.43",
+          "213.155.151.152",
+          "213.155.151.154",
+          "213.155.151.181",
+          "213.199.179.162",
+          "224.0.0.252",
+          "239.255.255.250",
+          "255.255.255.255",
+          "31.13.64.1",
+          "5.54.65.228",
+          "54.227.125.172",
+          "64.233.161.108",
+          "64.233.162.188",
+          "64.4.23.147",
+          "64.4.23.162",
+          "64.4.61.94",
+          "66.222.190.250",
+          "66.87.18.123",
+          "74.125.232.118",
+          "74.125.71.106",
+          "80.219.172.224",
+          "90.28.188.80",
+          "96.45.34.10"
+        ],
+        "unique_srcs": [
+          "104.46.52.74",
+          "108.160.170.50",
+          "111.221.74.37",
+          "111.221.77.162",
+          "157.55.130.166",
+          "157.55.130.171",
+          "157.55.56.151",
+          "157.56.116.201",
+          "173.252.106.17",
+          "189.10.173.242",
+          "192.168.0.1",
+          "193.149.88.43",
+          "213.155.151.152",
+          "213.155.151.154",
+          "213.155.151.181",
+          "213.199.179.162",
+          "31.13.64.1",
+          "5.54.65.228",
+          "54.227.125.172",
+          "64.233.161.108",
+          "64.233.162.188",
+          "64.4.23.147",
+          "64.4.23.162",
+          "64.4.61.94",
+          "66.222.190.250",
+          "74.125.232.118",
+          "74.125.71.106",
+          "80.219.172.224",
+          "90.28.188.80",
+          "96.45.34.10"
+        ],
+        "sni_domains": [
+          "clients4.google.com",
+          "imap.gmail.com",
+          "mail.google.com",
+          "pipe.skype.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "www.facebook.com",
+          "www.google.com"
+        ],
+        "dns_names": [
+          "baymsg1010828.gateway.messenger.live.com",
+          "clients4.google.com",
+          "mail.google.com",
+          "pipe.skype.com",
+          "safebrowsing-cache.google.com",
+          "safebrowsing.google.com",
+          "wpad.pwned.se",
+          "www.facebook.com",
+          "www.google.com"
+        ],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:b0:96",
+        "hostname": "WPAD",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.1",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1427909460.217397,
+        "last_seen": 1427910562.796754,
+        "flows_out": 45,
+        "flows_in": 45,
+        "bytes_out": 14852,
+        "bytes_in": 4768,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "78:54:2e:9f:10:28",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.50",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1427909474.086845,
+        "last_seen": 1427910560.337697,
+        "flows_out": 2,
+        "flows_in": 0,
+        "bytes_out": 6480,
+        "bytes_in": 0,
+        "unique_dsts": [
+          "224.0.0.22",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.53",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1427909840.63395,
+        "last_seen": 1427910612.276379,
+        "flows_out": 5,
+        "flows_in": 3,
+        "bytes_out": 2248,
+        "bytes_in": 1674,
+        "unique_dsts": [
+          "192.168.0.1",
+          "192.168.0.255",
+          "212.227.17.187"
+        ],
+        "unique_srcs": [
+          "192.168.0.1",
+          "212.227.17.187"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "00:60:6e:00:9d:f9",
+        "hostname": "HOMER-XUBUNTU",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ],
+    "external": [
+      {
+        "ip": "193.166.3.2",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909436.167856,
+        "last_seen": 1427910641.724048,
+        "flows_out": 97,
+        "flows_in": 97,
+        "bytes_out": 110599481,
+        "bytes_in": 4804243,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "193.227.234.135",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909784.108011,
+        "last_seen": 1427910620.995007,
+        "flows_out": 8,
+        "flows_in": 8,
+        "bytes_out": 39989155,
+        "bytes_in": 1492632,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "31.13.64.1",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909441.098091,
+        "last_seen": 1427910600.456503,
+        "flows_out": 7,
+        "flows_in": 7,
+        "bytes_out": 29419,
+        "bytes_in": 40548,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.facebook.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "64.233.161.108",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909445.296668,
+        "last_seen": 1427910059.885499,
+        "flows_out": 4,
+        "flows_in": 4,
+        "bytes_out": 24657,
+        "bytes_in": 14039,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "imap.gmail.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "8.8.8.8",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909736.431175,
+        "last_seen": 1427910622.507036,
+        "flows_out": 104,
+        "flows_in": 104,
+        "bytes_out": 20396,
+        "bytes_in": 16200,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.71.106",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909475.490715,
+        "last_seen": 1427910622.035092,
+        "flows_out": 5,
+        "flows_in": 5,
+        "bytes_out": 10315,
+        "bytes_in": 16466,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "108.160.170.50",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909468.43107,
+        "last_seen": 1427910632.334846,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 11000,
+        "bytes_in": 12066,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.152",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427910384.58611,
+        "last_seen": 1427910608.071332,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 12870,
+        "bytes_in": 7755,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "safebrowsing-cache.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "104.46.52.74",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909699.530193,
+        "last_seen": 1427910371.193886,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 11544,
+        "bytes_in": 5516,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "pipe.skype.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.181",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427910383.99223,
+        "last_seen": 1427910607.828899,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 3976,
+        "bytes_in": 12969,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "64.4.61.94",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909543.599685,
+        "last_seen": 1427910623.134225,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 6661,
+        "bytes_in": 10213,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "54.227.125.172",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909442.238799,
+        "last_seen": 1427910613.123476,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 6224,
+        "bytes_in": 9672,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.232.118",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909780.838172,
+        "last_seen": 1427910621.997272,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 4810,
+        "bytes_in": 10788,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "mail.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.227.17.171",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909725.942007,
+        "last_seen": 1427910352.842399,
+        "flows_out": 2,
+        "flows_in": 2,
+        "bytes_out": 6097,
+        "bytes_in": 2128,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "157.55.56.151",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909494.707637,
+        "last_seen": 1427910625.849768,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 4083,
+        "bytes_in": 2527,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "193.149.88.43",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909482.180906,
+        "last_seen": 1427910562.630049,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 2288,
+        "bytes_in": 2967,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "213.155.151.154",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909962.013385,
+        "last_seen": 1427910211.099561,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1112,
+        "bytes_in": 3747,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "clients4.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "64.233.162.188",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909437.317756,
+        "last_seen": 1427910621.605943,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1801,
+        "bytes_in": 1767,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "173.252.106.17",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427909722.523419,
+        "last_seen": 1427910622.425975,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 1024,
+        "bytes_in": 1308,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.227.17.187",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1427910496.581462,
+        "last_seen": 1427910497.300261,
+        "flows_out": 1,
+        "flows_in": 1,
+        "bytes_out": 878,
+        "bytes_in": 531,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      }
+    ]
+  },
+  "dns": {
+    "unique_count": 14,
+    "total_queries": 523,
+    "top_by_count": [
+      {
+        "name": "ftp.funet.fi",
+        "count": 402
+      },
+      {
+        "name": "centos.mirrors.as250.net",
+        "count": 35
+      },
+      {
+        "name": "safebrowsing-cache.google.com",
+        "count": 16
+      },
+      {
+        "name": "www.google.com",
+        "count": 14
+      },
+      {
+        "name": "www.facebook.com",
+        "count": 10
+      },
+      {
+        "name": "password-ned-xp.pwned.se",
+        "count": 9
+      },
+      {
+        "name": "pop.gmx.com",
+        "count": 9
+      },
+      {
+        "name": "password-ned-xp",
+        "count": 8
+      },
+      {
+        "name": "safebrowsing.google.com",
+        "count": 8
+      },
+      {
+        "name": "mail.google.com",
+        "count": 4
+      },
+      {
+        "name": "baymsg1010828.gateway.messenger.live.com",
+        "count": 2
+      },
+      {
+        "name": "clients4.google.com",
+        "count": 2
+      },
+      {
+        "name": "pipe.skype.com",
+        "count": 2
+      },
+      {
+        "name": "wpad.pwned.se",
+        "count": 2
+      }
+    ],
+    "nxdomain": [
+      {
+        "name": "password-ned-xp",
+        "count": 4
+      },
+      {
+        "name": "password-ned-xp.pwned.se",
+        "count": 3
+      },
+      {
+        "name": "wpad.pwned.se",
+        "count": 1
+      }
+    ]
+  },
+  "flows": {
+    "total_flows": 637,
+    "top_by_bytes": [
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51102,
+        "direction": "inbound",
+        "packets": 30339,
+        "bytes": 44080682,
+        "duration": 300.279437,
+        "first_ts": 1427909436.167856,
+        "last_ts": 1427909736.447293
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41477,
+        "direction": "inbound",
+        "packets": 23152,
+        "bytes": 33657559,
+        "duration": 346.759428,
+        "first_ts": 1427910215.863339,
+        "last_ts": 1427910562.622767
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51131,
+        "direction": "inbound",
+        "packets": 12874,
+        "bytes": 18702928,
+        "duration": 119.398065,
+        "first_ts": 1427909865.386463,
+        "last_ts": 1427909984.784528
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51132,
+        "direction": "inbound",
+        "packets": 6131,
+        "bytes": 8902726,
+        "duration": 51.898579,
+        "first_ts": 1427909984.427348,
+        "last_ts": 1427910036.325927
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51106,
+        "direction": "inbound",
+        "packets": 2762,
+        "bytes": 4005484,
+        "duration": 22.117337,
+        "first_ts": 1427909739.517415,
+        "last_ts": 1427909761.634752
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41487,
+        "direction": "inbound",
+        "packets": 1971,
+        "bytes": 2861168,
+        "duration": 32.971208,
+        "first_ts": 1427910583.243473,
+        "last_ts": 1427910616.214681
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51206,
+        "direction": "inbound",
+        "packets": 1640,
+        "bytes": 2379276,
+        "duration": 19.088451,
+        "first_ts": 1427910622.635597,
+        "last_ts": 1427910641.724048
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51183,
+        "direction": "inbound",
+        "packets": 1500,
+        "bytes": 2170744,
+        "duration": 12.487814,
+        "first_ts": 1427910185.166548,
+        "last_ts": 1427910197.654362
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51120,
+        "direction": "inbound",
+        "packets": 1423,
+        "bytes": 2057246,
+        "duration": 12.55433,
+        "first_ts": 1427909831.347787,
+        "last_ts": 1427909843.902117
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51102,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 26320,
+        "bytes": 1883016,
+        "duration": 300.279437,
+        "first_ts": 1427909436.167864,
+        "last_ts": 1427909736.447301
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51107,
+        "direction": "inbound",
+        "packets": 1143,
+        "bytes": 1648926,
+        "duration": 11.881538,
+        "first_ts": 1427909761.824745,
+        "last_ts": 1427909773.706283
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51135,
+        "direction": "inbound",
+        "packets": 1021,
+        "bytes": 1471058,
+        "duration": 8.550099,
+        "first_ts": 1427910041.476123,
+        "last_ts": 1427910050.026222
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51108,
+        "direction": "inbound",
+        "packets": 963,
+        "bytes": 1387598,
+        "duration": 8.432194,
+        "first_ts": 1427909773.896616,
+        "last_ts": 1427909782.32881
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51156,
+        "direction": "inbound",
+        "packets": 921,
+        "bytes": 1328814,
+        "duration": 7.070495,
+        "first_ts": 1427910106.546082,
+        "last_ts": 1427910113.616577
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 41477,
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 20060,
+        "bytes": 1248967,
+        "duration": 346.816417,
+        "first_ts": 1427910215.806601,
+        "last_ts": 1427910562.623018,
+        "http_host": "centos.mirrors.as250.net",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51138,
+        "direction": "inbound",
+        "packets": 831,
+        "bytes": 1201430,
+        "duration": 7.696611,
+        "first_ts": 1427910057.177223,
+        "last_ts": 1427910064.873834
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51128,
+        "direction": "inbound",
+        "packets": 816,
+        "bytes": 1179228,
+        "duration": 6.838099,
+        "first_ts": 1427909851.745812,
+        "last_ts": 1427909858.583911
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51136,
+        "direction": "inbound",
+        "packets": 762,
+        "bytes": 1097675,
+        "duration": 6.329893,
+        "first_ts": 1427910050.206654,
+        "last_ts": 1427910056.536547
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41471,
+        "direction": "inbound",
+        "packets": 739,
+        "bytes": 1069252,
+        "duration": 10.647771,
+        "first_ts": 1427910201.301588,
+        "last_ts": 1427910211.949359
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41403,
+        "direction": "inbound",
+        "packets": 698,
+        "bytes": 1010117,
+        "duration": 10.128759,
+        "first_ts": 1427909814.685112,
+        "last_ts": 1427909824.813871
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51140,
+        "direction": "inbound",
+        "packets": 691,
+        "bytes": 995488,
+        "duration": 6.377648,
+        "first_ts": 1427910067.635859,
+        "last_ts": 1427910074.013507
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51129,
+        "direction": "inbound",
+        "packets": 685,
+        "bytes": 983620,
+        "duration": 6.493485,
+        "first_ts": 1427909858.767291,
+        "last_ts": 1427909865.260776
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51174,
+        "direction": "inbound",
+        "packets": 670,
+        "bytes": 966474,
+        "duration": 7.112739,
+        "first_ts": 1427910162.587228,
+        "last_ts": 1427910169.699967
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51159,
+        "direction": "inbound",
+        "packets": 640,
+        "bytes": 922294,
+        "duration": 9.027144,
+        "first_ts": 1427910115.586915,
+        "last_ts": 1427910124.614059
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51169,
+        "direction": "inbound",
+        "packets": 600,
+        "bytes": 861042,
+        "duration": 5.889095,
+        "first_ts": 1427910145.277017,
+        "last_ts": 1427910151.166112
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51160,
+        "direction": "inbound",
+        "packets": 573,
+        "bytes": 821088,
+        "duration": 5.256135,
+        "first_ts": 1427910124.797372,
+        "last_ts": 1427910130.053507
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51131,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 11258,
+        "bytes": 808470,
+        "duration": 119.386513,
+        "first_ts": 1427909865.349803,
+        "last_ts": 1427909984.736316,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51197,
+        "direction": "inbound",
+        "packets": 532,
+        "bytes": 766378,
+        "duration": 5.099533,
+        "first_ts": 1427910567.186048,
+        "last_ts": 1427910572.285581
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41395,
+        "direction": "inbound",
+        "packets": 523,
+        "bytes": 755066,
+        "duration": 9.265296,
+        "first_ts": 1427909785.214884,
+        "last_ts": 1427909794.48018
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51117,
+        "direction": "inbound",
+        "packets": 497,
+        "bytes": 710572,
+        "duration": 3.778277,
+        "first_ts": 1427909810.687866,
+        "last_ts": 1427909814.466143
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51166,
+        "direction": "inbound",
+        "packets": 392,
+        "bytes": 560162,
+        "duration": 4.997374,
+        "first_ts": 1427910136.366633,
+        "last_ts": 1427910141.364007
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51114,
+        "direction": "inbound",
+        "packets": 352,
+        "bytes": 499914,
+        "duration": 1.746439,
+        "first_ts": 1427909800.247792,
+        "last_ts": 1427909801.994231
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51111,
+        "direction": "inbound",
+        "packets": 333,
+        "bytes": 470508,
+        "duration": 2.056535,
+        "first_ts": 1427909794.688131,
+        "last_ts": 1427909796.744666
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51146,
+        "direction": "inbound",
+        "packets": 325,
+        "bytes": 460480,
+        "duration": 2.1332,
+        "first_ts": 1427910090.656661,
+        "last_ts": 1427910092.789861
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51176,
+        "direction": "inbound",
+        "packets": 315,
+        "bytes": 448916,
+        "duration": 4.371053,
+        "first_ts": 1427910172.796619,
+        "last_ts": 1427910177.167672
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51184,
+        "direction": "inbound",
+        "packets": 295,
+        "bytes": 420060,
+        "duration": 2.157544,
+        "first_ts": 1427910197.846616,
+        "last_ts": 1427910200.00416
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51201,
+        "direction": "inbound",
+        "packets": 298,
+        "bytes": 418746,
+        "duration": 1.618054,
+        "first_ts": 1427910581.435989,
+        "last_ts": 1427910583.054043
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41488,
+        "direction": "inbound",
+        "packets": 272,
+        "bytes": 390529,
+        "duration": 4.601924,
+        "first_ts": 1427910616.393074,
+        "last_ts": 1427910620.994998
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51125,
+        "direction": "inbound",
+        "packets": 262,
+        "bytes": 370570,
+        "duration": 2.658123,
+        "first_ts": 1427909846.436555,
+        "last_ts": 1427909849.094678
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51132,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 5192,
+        "bytes": 369130,
+        "duration": 51.938068,
+        "first_ts": 1427909984.388087,
+        "last_ts": 1427910036.326155,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51109,
+        "direction": "inbound",
+        "packets": 238,
+        "bytes": 337386,
+        "duration": 1.887987,
+        "first_ts": 1427909782.076856,
+        "last_ts": 1427909783.964843
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51199,
+        "direction": "inbound",
+        "packets": 227,
+        "bytes": 318332,
+        "duration": 0.946844,
+        "first_ts": 1427910579.087132,
+        "last_ts": 1427910580.033976
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51133,
+        "direction": "inbound",
+        "packets": 227,
+        "bytes": 318112,
+        "duration": 1.89862,
+        "first_ts": 1427910036.507392,
+        "last_ts": 1427910038.406012
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51167,
+        "direction": "inbound",
+        "packets": 220,
+        "bytes": 311510,
+        "duration": 2.387326,
+        "first_ts": 1427910141.547416,
+        "last_ts": 1427910143.934742
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51175,
+        "direction": "inbound",
+        "packets": 209,
+        "bytes": 295468,
+        "duration": 2.730547,
+        "first_ts": 1427910169.875645,
+        "last_ts": 1427910172.606192
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51180,
+        "direction": "inbound",
+        "packets": 202,
+        "bytes": 285766,
+        "duration": 1.854232,
+        "first_ts": 1427910181.059501,
+        "last_ts": 1427910182.913733
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51139,
+        "direction": "inbound",
+        "packets": 201,
+        "bytes": 283480,
+        "duration": 2.33877,
+        "first_ts": 1427910065.057289,
+        "last_ts": 1427910067.396059
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51163,
+        "direction": "inbound",
+        "packets": 203,
+        "bytes": 282452,
+        "duration": 1.307792,
+        "first_ts": 1427910132.83652,
+        "last_ts": 1427910134.144312
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51189,
+        "direction": "inbound",
+        "packets": 199,
+        "bytes": 278848,
+        "duration": 1.38642,
+        "first_ts": 1427910213.147429,
+        "last_ts": 1427910214.533849
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51127,
+        "direction": "inbound",
+        "packets": 181,
+        "bytes": 248976,
+        "duration": 1.15385,
+        "first_ts": 1427909850.877451,
+        "last_ts": 1427909852.031301
+      }
+    ],
+    "top_by_packets": [
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51102,
+        "direction": "inbound",
+        "packets": 30339,
+        "bytes": 44080682,
+        "duration": 300.279437,
+        "first_ts": 1427909436.167856,
+        "last_ts": 1427909736.447293
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51102,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 26320,
+        "bytes": 1883016,
+        "duration": 300.279437,
+        "first_ts": 1427909436.167864,
+        "last_ts": 1427909736.447301
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41477,
+        "direction": "inbound",
+        "packets": 23152,
+        "bytes": 33657559,
+        "duration": 346.759428,
+        "first_ts": 1427910215.863339,
+        "last_ts": 1427910562.622767
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 41477,
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 20060,
+        "bytes": 1248967,
+        "duration": 346.816417,
+        "first_ts": 1427910215.806601,
+        "last_ts": 1427910562.623018,
+        "http_host": "centos.mirrors.as250.net",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51131,
+        "direction": "inbound",
+        "packets": 12874,
+        "bytes": 18702928,
+        "duration": 119.398065,
+        "first_ts": 1427909865.386463,
+        "last_ts": 1427909984.784528
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51131,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 11258,
+        "bytes": 808470,
+        "duration": 119.386513,
+        "first_ts": 1427909865.349803,
+        "last_ts": 1427909984.736316,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51132,
+        "direction": "inbound",
+        "packets": 6131,
+        "bytes": 8902726,
+        "duration": 51.898579,
+        "first_ts": 1427909984.427348,
+        "last_ts": 1427910036.325927
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51132,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 5192,
+        "bytes": 369130,
+        "duration": 51.938068,
+        "first_ts": 1427909984.388087,
+        "last_ts": 1427910036.326155,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51106,
+        "direction": "inbound",
+        "packets": 2762,
+        "bytes": 4005484,
+        "duration": 22.117337,
+        "first_ts": 1427909739.517415,
+        "last_ts": 1427909761.634752
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51106,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 2374,
+        "bytes": 168202,
+        "duration": 22.156344,
+        "first_ts": 1427909739.478596,
+        "last_ts": 1427909761.63494,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41487,
+        "direction": "inbound",
+        "packets": 1971,
+        "bytes": 2861168,
+        "duration": 32.971208,
+        "first_ts": 1427910583.243473,
+        "last_ts": 1427910616.214681
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 41487,
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1754,
+        "bytes": 109336,
+        "duration": 33.021152,
+        "first_ts": 1427910583.19354,
+        "last_ts": 1427910616.214692,
+        "http_host": "centos.mirrors.as250.net",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51206,
+        "direction": "inbound",
+        "packets": 1640,
+        "bytes": 2379276,
+        "duration": 19.088451,
+        "first_ts": 1427910622.635597,
+        "last_ts": 1427910641.724048
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51183,
+        "direction": "inbound",
+        "packets": 1500,
+        "bytes": 2170744,
+        "duration": 12.487814,
+        "first_ts": 1427910185.166548,
+        "last_ts": 1427910197.654362
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51206,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1476,
+        "bytes": 106415,
+        "duration": 19.118598,
+        "first_ts": 1427910622.597676,
+        "last_ts": 1427910641.716274,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51120,
+        "direction": "inbound",
+        "packets": 1423,
+        "bytes": 2057246,
+        "duration": 12.55433,
+        "first_ts": 1427909831.347787,
+        "last_ts": 1427909843.902117
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51183,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1252,
+        "bytes": 88640,
+        "duration": 12.53311,
+        "first_ts": 1427910185.121254,
+        "last_ts": 1427910197.654364,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51120,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 1234,
+        "bytes": 87968,
+        "duration": 12.592285,
+        "first_ts": 1427909831.309834,
+        "last_ts": 1427909843.902119,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51107,
+        "direction": "inbound",
+        "packets": 1143,
+        "bytes": 1648926,
+        "duration": 11.881538,
+        "first_ts": 1427909761.824745,
+        "last_ts": 1427909773.706283
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51135,
+        "direction": "inbound",
+        "packets": 1021,
+        "bytes": 1471058,
+        "duration": 8.550099,
+        "first_ts": 1427910041.476123,
+        "last_ts": 1427910050.026222
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51107,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 992,
+        "bytes": 71099,
+        "duration": 11.928299,
+        "first_ts": 1427909761.777989,
+        "last_ts": 1427909773.706288,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51108,
+        "direction": "inbound",
+        "packets": 963,
+        "bytes": 1387598,
+        "duration": 8.432194,
+        "first_ts": 1427909773.896616,
+        "last_ts": 1427909782.32881
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51156,
+        "direction": "inbound",
+        "packets": 921,
+        "bytes": 1328814,
+        "duration": 7.070495,
+        "first_ts": 1427910106.546082,
+        "last_ts": 1427910113.616577
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51135,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 874,
+        "bytes": 62286,
+        "duration": 8.586004,
+        "first_ts": 1427910041.44022,
+        "last_ts": 1427910050.026224,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51138,
+        "direction": "inbound",
+        "packets": 831,
+        "bytes": 1201430,
+        "duration": 7.696611,
+        "first_ts": 1427910057.177223,
+        "last_ts": 1427910064.873834
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51108,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 820,
+        "bytes": 58729,
+        "duration": 8.471781,
+        "first_ts": 1427909773.857038,
+        "last_ts": 1427909782.328819,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51128,
+        "direction": "inbound",
+        "packets": 816,
+        "bytes": 1179228,
+        "duration": 6.838099,
+        "first_ts": 1427909851.745812,
+        "last_ts": 1427909858.583911
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51156,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 773,
+        "bytes": 55146,
+        "duration": 7.105856,
+        "first_ts": 1427910106.510729,
+        "last_ts": 1427910113.616585,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51136,
+        "direction": "inbound",
+        "packets": 762,
+        "bytes": 1097675,
+        "duration": 6.329893,
+        "first_ts": 1427910050.206654,
+        "last_ts": 1427910056.536547
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41471,
+        "direction": "inbound",
+        "packets": 739,
+        "bytes": 1069252,
+        "duration": 10.647771,
+        "first_ts": 1427910201.301588,
+        "last_ts": 1427910211.949359
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51128,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 706,
+        "bytes": 51239,
+        "duration": 6.872968,
+        "first_ts": 1427909851.711207,
+        "last_ts": 1427909858.584175,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41403,
+        "direction": "inbound",
+        "packets": 698,
+        "bytes": 1010117,
+        "duration": 10.128759,
+        "first_ts": 1427909814.685112,
+        "last_ts": 1427909824.813871
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51140,
+        "direction": "inbound",
+        "packets": 691,
+        "bytes": 995488,
+        "duration": 6.377648,
+        "first_ts": 1427910067.635859,
+        "last_ts": 1427910074.013507
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51129,
+        "direction": "inbound",
+        "packets": 685,
+        "bytes": 983620,
+        "duration": 6.493485,
+        "first_ts": 1427909858.767291,
+        "last_ts": 1427909865.260776
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51174,
+        "direction": "inbound",
+        "packets": 670,
+        "bytes": 966474,
+        "duration": 7.112739,
+        "first_ts": 1427910162.587228,
+        "last_ts": 1427910169.699967
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51138,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 664,
+        "bytes": 46969,
+        "duration": 7.737074,
+        "first_ts": 1427910057.137014,
+        "last_ts": 1427910064.874088,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51136,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 656,
+        "bytes": 46925,
+        "duration": 6.361414,
+        "first_ts": 1427910050.175135,
+        "last_ts": 1427910056.536549,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 41471,
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 651,
+        "bytes": 40802,
+        "duration": 10.707197,
+        "first_ts": 1427910201.242172,
+        "last_ts": 1427910211.949369,
+        "http_host": "centos.mirrors.as250.net",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51159,
+        "direction": "inbound",
+        "packets": 640,
+        "bytes": 922294,
+        "duration": 9.027144,
+        "first_ts": 1427910115.586915,
+        "last_ts": 1427910124.614059
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51129,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 638,
+        "bytes": 47024,
+        "duration": 6.532003,
+        "first_ts": 1427909858.728781,
+        "last_ts": 1427909865.260784,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51174,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 618,
+        "bytes": 44953,
+        "duration": 7.182201,
+        "first_ts": 1427910162.517768,
+        "last_ts": 1427910169.699969,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 41403,
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 609,
+        "bytes": 38236,
+        "duration": 10.185975,
+        "first_ts": 1427909814.627904,
+        "last_ts": 1427909824.813879,
+        "http_host": "centos.mirrors.as250.net",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51169,
+        "direction": "inbound",
+        "packets": 600,
+        "bytes": 861042,
+        "duration": 5.889095,
+        "first_ts": 1427910145.277017,
+        "last_ts": 1427910151.166112
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51140,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 577,
+        "bytes": 41322,
+        "duration": 6.471436,
+        "first_ts": 1427910067.542292,
+        "last_ts": 1427910074.013728,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51160,
+        "direction": "inbound",
+        "packets": 573,
+        "bytes": 821088,
+        "duration": 5.256135,
+        "first_ts": 1427910124.797372,
+        "last_ts": 1427910130.053507
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51159,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 564,
+        "bytes": 40117,
+        "duration": 9.065055,
+        "first_ts": 1427910115.549006,
+        "last_ts": 1427910124.614061,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.166.3.2",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 51197,
+        "direction": "inbound",
+        "packets": 532,
+        "bytes": 766378,
+        "duration": 5.099533,
+        "first_ts": 1427910567.186048,
+        "last_ts": 1427910572.285581
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "193.227.234.135",
+        "src_port": 80,
+        "dst_ip": "192.168.0.2",
+        "dst_port": 41395,
+        "direction": "inbound",
+        "packets": 523,
+        "bytes": 755066,
+        "duration": 9.265296,
+        "first_ts": 1427909785.214884,
+        "last_ts": 1427909794.48018
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51160,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 518,
+        "bytes": 37476,
+        "duration": 5.290003,
+        "first_ts": 1427910124.763799,
+        "last_ts": 1427910130.053802,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "proto": "tcp",
+        "src_ip": "192.168.0.2",
+        "src_port": 51169,
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "direction": "outbound",
+        "packets": 517,
+        "bytes": 38126,
+        "duration": 5.926737,
+        "first_ts": 1427910145.239386,
+        "last_ts": 1427910151.166123,
+        "http_host": "ftp.funet.fi",
+        "http_user_agent": "urlgrabber/3.10 yum/3.4.3"
+      }
+    ]
+  },
+  "http": {
+    "unique_hosts": 3,
+    "unique_user_agents": 2,
+    "unique_uris": 50,
+    "top_hosts": [
+      {
+        "host": "ftp.funet.fi",
+        "count": 96
+      },
+      {
+        "host": "centos.mirrors.as250.net",
+        "count": 8
+      },
+      {
+        "host": "www.google.com",
+        "count": 1
+      }
+    ],
+    "top_user_agents": [
+      {
+        "user_agent": "urlgrabber/3.10 yum/3.4.3",
+        "count": 104
+      },
+      {
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "count": 1
+      }
+    ],
+    "methods": [
+      {
+        "method": "GET",
+        "count": 105
+      }
+    ],
+    "top_uris": [
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/kernel-3.10.0-229.1.2.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 1248967,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/linux-firmware-20140911-0.1.git365e80c.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 808470,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libreoffice-calc-4.2.6.3-5.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 369130,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/systemtap-client-2.6-8.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 168202,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/systemd-208-20.el7_1.2.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 109336,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/cpp-4.8.3-9.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 106415,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/hwdata-0.252-7.5.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 88640,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/util-linux-2.23.2-21.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 87968,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libstdc%2B%2B-devel-4.8.3-9.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 71099,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/xorg-x11-server-Xorg-1.15.0-32.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 62286,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/gvfs-1.16.4-8.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 58729,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/yum-3.4.3-125.el7.centos.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 55146,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/mutter-3.8.4-16.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 51239,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/gdm-3.8.4-32.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 47024,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/tracker-0.16.2-11.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 46969,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/rhino-1.7R4-5.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 46925,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/nm-connection-editor-1.0.0-2.git20150122.76569a46.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 44953,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/vinagre-3.8.2-12.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 41322,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/bind-libs-9.9.4-18.el7_1.1.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 40802,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/pulseaudio-3.0-30.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 40117,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/openssl-libs-1.0.1e-42.el7.4.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 38236,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/policycoreutils-2.2.5-15.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 38126,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/lvm2-libs-2.02.115-3.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 37476,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/pam-1.1.8-12.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 34462,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/gnutls-3.3.8-12.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 32973,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/openssl-1.0.1e-42.el7.4.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 27893,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/microcode_ctl-2.1-10.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 26964,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/initscripts-9.49.24-1.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 24351,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libreport-2.1.11-21.el7.centos.0.4.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 21922,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/firewalld-0.3.9-11.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 21826,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libreoffice-graphicfilter-4.2.6.3-5.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 20673,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/alsa-lib-1.0.28-2.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 18663,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/pykickstart-1.99.43.17-1.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 18544,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/kbd-1.15.5-11.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 16545,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "centos.mirrors.as250.net",
+        "uri": "/7.1.1503/updates/x86_64/Packages/qemu-kvm-common-1.5.3-86.el7_1.1.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.227.234.135",
+        "dst_port": 80,
+        "bytes": 16392,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libstdc%2B%2B-4.8.3-9.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 15647,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libgfortran-4.8.3-9.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 14401,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/anaconda-user-help-19.31.123-1.el7.centos.2.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 14083,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libreoffice-pdfimport-4.2.6.3-5.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 14063,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libgcrypt-1.5.3-12.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 13682,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/elfutils-0.160-1.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 13320,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/kexec-tools-2.0.7-19.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 12894,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/iwl2000-firmware-18.168.6.1-36.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 12212,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/python-nss-0.16.0-2.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 11937,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/mesa-libxatracker-10.2.7-5.20140910.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 11851,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/libosinfo-0.2.11-4.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 11606,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/device-mapper-libs-1.02.93-3.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 11406,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/pyparted-3.9-11.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 10945,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/iwl105-firmware-18.168.6.1-36.el7.noarch.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 10531,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      },
+      {
+        "method": "GET",
+        "host": "ftp.funet.fi",
+        "uri": "/pub/mirrors/centos.org/7.1.1503/os/x86_64/Packages/liblangtag-0.5.4-8.el7.x86_64.rpm",
+        "src_ip": "192.168.0.2",
+        "dst_ip": "193.166.3.2",
+        "dst_port": 80,
+        "bytes": 9920,
+        "user_agent": "urlgrabber/3.10 yum/3.4.3"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "type": "nxdomain_burst",
+      "value": "192.168.0.51",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.51",
+        "nxdomain_count": 7,
+        "threshold": 5
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "sni_without_dns",
+      "value": "imap.gmail.com",
+      "confidence": 0.6,
+      "evidence": {
+        "sni": "imap.gmail.com",
+        "flow_count": 3,
+        "dst_ips": [
+          "64.233.161.108"
+        ],
+        "dst_ports": [
+          993
+        ],
+        "total_bytes": 12980
+      },
+      "first_seen": 1427909505.697112,
+      "last_seen": 1427909557.147708
+    }
+  ]
+}
