@@ -32,6 +32,19 @@ class Config:
         "myexternalip.com",
         "checkip.amazonaws.com",
     ))
+    # Известные стабильные IP сервисов проверки внешнего IP.
+    # Mapping IP → каноническое имя сервиса. Нужно для случая, когда
+    # клиент стучится напрямую по IP без DNS (или DNS-запрос в другом
+    # файле захвата). Если IP совпал — используем имя сервиса как value,
+    # чтобы finding'и от DNS/SNI/direct_ip сливались в один.
+    ip_check_service_ips: Mapping[str, str] = field(
+        default_factory=lambda: MappingProxyType({
+            "208.95.112.1": "ip-api.com",
+            "208.95.112.2": "ip-api.com",
+            "34.117.59.81": "ifconfig.me",
+            "34.160.111.145": "ifconfig.me",
+        }),
+    )
 
     # --- DGA ---
     dga_entropy_threshold: float = 3.5
@@ -93,35 +106,17 @@ class Config:
     )
 
     # --- port scan ---
-    # Если один src_ip стучится к >= N разным dst_ip на один dst_port —
-    # это сканирование, а не «много подозрительных соединений».
-    # Каждый dst_ip в отдельности выглядит как suspicious_port finding,
-    # но 71 finding на один src — шум, скрывающий суть: атака одним хостом.
     port_scan_min_distinct_dsts: int = 10
-    # Минимальный порог flow_count per (src, dst) — если у пары много
-    # flow'ов, это уже не скан, а что-то осмысленное (сессия, retry).
     port_scan_max_flows_per_dst: int = 3
-    # Порты, на которых массовые соединения — норма (браузер).
-    # Скан на 80/443 неотличим от браузера, поэтому не детектируется.
     port_scan_excluded_ports: frozenset[int] = field(
         default_factory=lambda: frozenset({80, 443}),
     )
-    # --- large transfer ---
-    # Один flow с объёмом больше порога — аномалия. Нормальный
-    # браузерный/серверный трафик редко превышает 50 МБ за сессию.
-    # 100 МБ — точно сигнал, не FP на легитимные видео/апдейты.
-    large_transfer_min_bytes: int = 100 * 1024 * 1024
 
-    # Байты считаем по полю FlowStats.bytes_sent. У нас один FlowKey —
-    # одно направление. Но интересен суммарный объём (send+recv).
-    # large_transfer_include_reverse: если True, ищем парный flow
-    # (dst → src) и суммируем байты. Если False — только одно направление.
+    # --- large transfer ---
+    large_transfer_min_bytes: int = 100 * 1024 * 1024
     large_transfer_include_reverse: bool = True
+
     # --- lateral movement ---
-    # Порты, на которых внутренние → внутренние соединения — признак
-    # lateral movement (WinRM, SMB, RPC, RDP). В корпоративной сети
-    # эти порты используются легитимно, поэтому finding со score 0.6,
-    # не 0.9 — аналитик смотрит глазами.
     lateral_movement_ports: frozenset[int] = field(
         default_factory=lambda: frozenset({
             445,    # SMB
@@ -132,32 +127,21 @@ class Config:
             5986,   # WinRM HTTPS
         }),
     )
-    # Минимум flows к одному (src, dst, dst_port), чтобы порт сам по
-    # себе (без UA/URI) давал finding. Один RDP/WinRM-сеанс — норма,
-    # много flows — перебор или скан.
     lateral_movement_min_flows_port_only: int = 5
-
-    # Подстроки в User-Agent, которые однозначно указывают на
-    # инструменты lateral movement. Ruby WinRM Client — именно такой
-    # случай: легитимные клиенты не используют Ruby.
     lateral_movement_ua_markers: frozenset[str] = field(
         default_factory=lambda: _frozen(
             "WinRM", "PsExec", "Impacket", "wmiexec", "psexec",
             "evil-winrm", "ruby winrm", "Ruby WinRM",
         ),
     )
-    # URI, характерные для remote management протоколов.
     lateral_movement_uri_markers: frozenset[str] = field(
         default_factory=lambda: _frozen(
             "/wsman", "/cimv2", "/root/cimv2", "/wmi",
         ),
     )
-    # IP-адреса администраторов / jump-хостов, которые легитимно
-    # ходят по этим портам. Пусто по умолчанию — заполнять вручную.
     lateral_movement_admin_srcs: frozenset[str] = field(
         default_factory=frozenset,
     )
-
 
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
@@ -226,31 +210,14 @@ class Config:
     brute_force_min_flows: int = 20
     brute_force_max_avg_packets: int = 20
     brute_force_min_unique_src_ports: int = 10
-    # Порог отсеивания по уникальным URI: при подборе пароля URI
-    # один и тот же (/login.php), ratio близко к 0. При нормальной
-    # работе URI разные, ratio ближе к 1.
     brute_force_uri_ratio_threshold: float = 0.3
-    # Минимальная скорость попыток (flow/s). Настоящий подбор
-    # пароля либо быстрый (десятки попыток в секунду), либо
-    # с rate limiting на сервере (одна попытка в 30 секунд ≈ 0.03).
-    # Если реже — это поллинг (Firefox Safe Browsing переоткрывает
-    # соединение раз в 15 минут), а не подбор.
     brute_force_min_rate_flows_per_sec: float = 0.01
-    # Порты, которые brute_force НЕ проверяет. В __post_init__
-    # устанавливается как alias на dc_service_ports.
     brute_force_excluded_ports: frozenset[int] = field(
         default_factory=frozenset, init=False,
     )
-    # Порты, на которых массовые TCP-соединения — норма (браузер к CDN),
-    # а не подбор пароля. Подбор через HTTPS идёт как POST внутри
-    # существующего соединения.
     brute_force_skip_tls_ports: frozenset[int] = field(
         default_factory=lambda: frozenset({443, 8443}),
     )
-
-    # Подстроки, которые должны быть в HTTP URI для подбора пароля.
-    # Настоящий brute force всегда идёт на login endpoint. Если у flow'ов
-    # только /image.jpg и /style.css — это браузер, а не подбор.
     login_endpoint_hints: frozenset[str] = field(default_factory=lambda: _frozen(
         "/login", "/logon", "/signin", "/sign-in", "/auth",
         "/admin", "/administrator", "/wp-login", "/wp-admin",
@@ -278,17 +245,10 @@ class Config:
         "/cgi-bin/": "CGI",
     }))
 
-    # .js исключён намеренно: JavaScript есть на каждом сайте,
-    # это даёт тысячи FP. Malware может использовать .js, но это
-    # ловится через обфускацию (ObfuscationDetector — TODO), а не
-    # через расширение.
     suspicious_download_extensions: frozenset[str] = field(default_factory=lambda: _frozen(
         ".ps1", ".vbs", ".hta", ".jar", ".sh",
         ".exe", ".dll", ".scr", ".iso", ".img", ".lnk",
     ))
-    # Порог для определения web-сканера: если один src обратился
-    # к >= N разным уязвимым путям/скриптам к одной цели — это
-    # сканер, а не набор отдельных атак.
     web_scanner_min_distinct_paths: int = 10
 
     # --- entities ---

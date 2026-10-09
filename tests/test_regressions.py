@@ -390,4 +390,88 @@ def test_large_transfer_pair_sums_both_directions():
     findings = LargeTransferDetector().run(state, Config())
     assert len(findings) == 1
     assert findings[0].evidence["total_bytes"] >= 110 * 1024 * 1024
-    assert findings[0].evidence["flow_count"] == 2
+    assert findings[0].evidence["flow_count"] == 2# ---------- IPCheckServiceDetector ----------
+
+def test_ip_check_service_direct_ip():
+    """Запрос к 208.95.112.1 без DNS — тоже ip_check_service.
+    value — каноническое имя сервиса, а не IP."""
+    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.1.12", dst_ip="208.95.112.1",
+        src_port=50000, dst_port=80,
+    )
+    state.flows[key] = FlowStats(packets=5, bytes_sent=500)
+
+    findings = IPCheckServiceDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].value == "ip-api.com"
+    assert "direct_ip" in findings[0].evidence["sources"]
+
+
+def test_ip_check_service_sni_and_ip_merge():
+    """SNI и direct_ip к тому же сервису → один finding с двумя sources."""
+    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.1.12", dst_ip="208.95.112.1",
+        src_port=50000, dst_port=443,
+    )
+    fs = FlowStats(packets=5, bytes_sent=500)
+    fs.sni = "ip-api.com"
+    state.flows[key] = fs
+
+    findings = IPCheckServiceDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].value == "ip-api.com"
+    assert set(findings[0].evidence["sources"]) == {"sni", "direct_ip"}
+
+
+def test_ip_check_service_sni():
+    """SNI ip-api.com без DNS — тоже ловится."""
+    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.1.12", dst_ip="208.95.112.1",
+        src_port=50000, dst_port=443,
+    )
+    fs = FlowStats(packets=5, bytes_sent=500)
+    fs.sni = "ip-api.com"
+    state.flows[key] = fs
+
+    findings = IPCheckServiceDetector().run(state, Config())
+    assert len(findings) == 1
+    assert "sni" in findings[0].evidence["sources"]
+
+
+def test_ip_check_service_dns_still_works():
+    """Регрессия: DNS-источник всё ещё работает."""
+    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+
+    state = CaptureState()
+    state.dns_queries["ip-api.com"] = 1
+
+    findings = IPCheckServiceDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].value == "ip-api.com"
+    assert "dns" in findings[0].evidence["sources"]
+
+
+def test_ip_check_service_no_false_positive():
+    """google.com не срабатывает."""
+    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+
+    state = CaptureState()
+    state.dns_queries["google.com"] = 10
+
+    findings = IPCheckServiceDetector().run(state, Config())
+    assert findings == []
