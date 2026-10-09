@@ -35,8 +35,20 @@ class DNSExtractor:
         if not qname:
             return
 
-        name = qname.decode(errors="ignore").rstrip(".").lower()
+        # Декодируем строго: не-ASCII → отбрасываем весь запрос.
+        # Реальные домены — только [a-z0-9.-]. Битые DNS-пакеты
+        # (с непечатаемыми байтами в qname) дают мусорные "домены",
+        # на которых DGA-детектор ложно срабатывает.
+        try:
+            name = qname.decode("ascii")
+        except UnicodeDecodeError:
+            return
+        name = name.rstrip(".").lower()
         if not name:
+            return
+        # Дополнительная защита от бинарного мусора:
+        # разрешены только буквы, цифры, дефис, точка
+        if not all(c.isalnum() or c in ".-" for c in name):
             return
 
         state.dns_queries[name] += 1

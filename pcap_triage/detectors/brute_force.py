@@ -9,15 +9,20 @@ BruteForceDetector — поиск перебора к одной паре dst_ip
   - обычным HTTP    → flows распределены по времени, разных dst
   - трафиком к DC   → LDAP/Kerberos/SMB — это норма
   - Google Safe Browsing → много flows с разными URI
+  - браузером к CDN → массовые TCP-соединения на 443
 
 Логика:
   1. Группируем flows по (src_ip, dst_ip, dst_port).
   2. Отсеиваем DC-порты (LDAP/Kerberos/SMB).
-  3. Считаем: flow_count, unique_src_ports, avg_packets,
+  3. Отсеиваем TLS-порты (443/8443) — браузер к CDN, не подбор.
+  4. Считаем: flow_count, unique_src_ports, avg_packets,
      уникальные URI после нормализации (strip query string).
-  4. Отсеиваем, если ratio unique_uris / flow_count > порога
-     (много разных URI = нормальная работа, не подбор).
-  5. Пороги: count >= min_flows, avg_packets <= max_avg,
+  5. Отсеиваем по ratio unique_uris / flow_count (много разных
+     URI = нормальная работа, не подбор).
+  6. Отсеиваем по rate: слишком редко → поллинг.
+  7. Отсеиваем по login-hint: HTTP-трафик без login endpoint
+     в URI — браузер качает картинки, не подбор.
+  8. Пороги: count >= min_flows, avg_packets <= max_avg,
      unique_src_ports >= min_unique_src_ports.
 
 Каждая попытка аутентификации = новый src_port.
@@ -47,7 +52,6 @@ class _Bucket:
     last_seen: float | None = None
 
     def touch(self, ts: float | None) -> None:
-        """Обновить first_seen / last_seen."""
         if ts is None:
             return
         if self.first_seen is None or ts < self.first_seen:
@@ -57,19 +61,7 @@ class _Bucket:
 
 
 def _normalize_uri(uri: str | None) -> str | None:
-    """
-    Срезать query string для сравнения endpoint'ов.
-
-    При подборе пароля URI может быть:
-      /login.php?user=admin
-      /login.php?user=bob
-    Это один и тот же endpoint. Без нормализации ratio
-    уникальных URI завышается, и детектор пропускает подбор
-    (false negative).
-
-    Возвращает URI без query, в original case (path
-    case-sensitive, не lowercase).
-    """
+    """Срезать query string для сравнения endpoint'ов."""
     if not uri:
         return None
     if "?" in uri:
@@ -82,6 +74,8 @@ class BruteForceDetector:
 
     def run(self, state: CaptureState, config: Config) -> list[Finding]:
         excluded_ports = config.brute_force_excluded_ports
+        skip_tls_ports = config.brute_force_skip_tls_ports
+        login_hints = config.login_endpoint_hints
 
         agg: dict[tuple[str, str, int], _Bucket] = defaultdict(_Bucket)
 
@@ -90,8 +84,7 @@ class BruteForceDetector:
                 continue
             if key.proto != "tcp":
                 continue
-            # DC-порты: много коротких запросов к DC — нормальная
-            # работа инфраструктуры, не подбор пароля.
+            # DC-порты: много коротких запросов к DC — норма.
             if key.dst_port in excluded_ports:
                 continue
 
@@ -124,9 +117,8 @@ class BruteForceDetector:
             if unique_src_ports < config.brute_force_min_unique_src_ports:
                 continue
 
-            # Отсеивание по уникальным URI: если у flow'ов пары
-            # много разных URI — это не подбор пароля, а нормальная
-            # работа (браузер качает объекты, Safe Browsing и т.п.).
+            # --- Фильтр 1: ratio уникальных URI ---
+            # Много разных URI = нормальная работа (браузер).
             unique_uris = bucket.uris
             if (unique_uris
                     and len(unique_uris) / flow_count
@@ -137,21 +129,32 @@ class BruteForceDetector:
             if bucket.first_seen is not None and bucket.last_seen is not None:
                 duration = bucket.last_seen - bucket.first_seen
 
-            # Отсеивание по rate: если попытки распределены по времени
-            # слишком редко — это поллинг, а не подбор пароля.
-            # Firefox Safe Browsing: 29 flow'ов за 7.5 часов ≈ 0.001 flow/s.
-            # Настоящий подбор: либо быстрый (>1 flow/s), либо с rate
-            # limiting (≥0.01 flow/s).
+            # --- Фильтр 2: rate ---
+            # Слишком редко = поллинг, не подбор.
             if duration > 0:
                 rate = flow_count / duration
                 if rate < config.brute_force_min_rate_flows_per_sec:
                     continue
 
-            # Confidence растёт с числом flows и числом уникальных
-            # src_ports. Коэффициенты подобраны эмпирически:
-            # - 100+ flows → насыщение по flow_score
-            # - 50+ unique src_ports → насыщение по port_score
-            # Это domain logic, а не настройка — не в config.
+            # --- Фильтр 3: TLS-порты ---
+            # 443/8443 — массовые TCP-соединения = браузер к CDN.
+            if dst_port in skip_tls_ports:
+                continue
+
+            # --- Фильтр 4: login endpoint в URI ---
+            # Если HTTP-трафик и ни один URI не похож на login
+            # endpoint — это не подбор пароля. Если URI нет совсем
+            # (SSH/FTP/RDP) — фильтр не применяется.
+            if unique_uris:
+                has_login = any(
+                    hint in uri.lower()
+                    for uri in unique_uris
+                    for hint in login_hints
+                )
+                if not has_login:
+                    continue
+
+            # --- Confidence ---
             flow_score = min(1.0, flow_count / 100.0)
             port_score = min(1.0, unique_src_ports / 50.0)
             confidence = round(0.5 + 0.3 * flow_score + 0.15 * port_score, 3)
@@ -172,20 +175,14 @@ class BruteForceDetector:
                     "bytes_sent_total": bucket.bytes_sent_total,
                     "avg_packets_per_flow": round(avg_packets, 2),
                     "duration_sec": round(duration, 2),
-                    # duration == 0 → все события одновременно,
-                    # rate фактически бесконечный. None честнее,
-                    # чем делить на ноль.
                     "rate_flows_per_sec": (
                         round(flow_count / duration, 6)
                         if duration > 0 else None
                     ),
-
                 },
                 first_seen=bucket.first_seen,
                 last_seen=bucket.last_seen,
             ))
 
-        # Сначала по убыванию confidence, потом по value —
-        # важные находки выше, детерминизм сохранён.
         findings.sort(key=lambda f: (-f.confidence, f.value))
         return findings

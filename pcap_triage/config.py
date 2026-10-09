@@ -47,6 +47,11 @@ class Config:
         # Cisco Umbrella / OpenDNS
         "footprintdns.com",
         "opendns.com",
+        "stackoverflow.com",
+        "stackexchange.com",
+        "serverfault.com",
+        "superuser.com",
+        "askubuntu.com",
     ))
     dga_allowlist: frozenset[str] = field(default_factory=frozenset, init=False)
 
@@ -84,20 +89,50 @@ class Config:
         "microsoft", "google", "amazon", "apple", "facebook",
         "instagram", "whatsapp", "telegram", "paypal", "netflix",
         "gmail", "outlook", "office365", "windowsupdate", "dropbox",
-        "binance", "metamask", "coinbase",
+        "binance", "metamask", "coinbase"
+
+    # Google — легитимные домены и CDN
+    "doubleclick.net", "google-analytics.com", "googleadservices.com",
+    "googlesyndication.com", "googletagmanager.com", "googleapis.com",
+    "gstatic.com", "googlevideo.com", "youtube.com", "googlecode.com",
+    "googleusercontent.com", "withgoogle.com",
+
+    # Apple
+    "apple.com", "icloud.com", "mzstatic.com", "apple-cloudkit.com",
+
+    # Microsoft
+    "microsoft.com", "microsoftonline.com", "live.com", "office.com",
+    "msn.com", "bing.com", "windowsupdate.com", "msedge.net",
+    "smartscreen.microsoft.com",
+
+    # Analytics / monitoring (FP-триггеры на app.*)
+    "loadimpact.com", "webinspector.com",
+
     ))
 
     legitimate_brand_domains: frozenset[str] = field(default_factory=lambda: _frozen(
+        # Microsoft
         "microsoft.com", "live.com", "office.com", "outlook.com",
         "microsoftonline.com", "sharepoint.com", "microsoft365.com",
+        "office365.com", "windowsupdate.com", "update.microsoft.com",
+        "msn.com", "bing.com", "msedge.net", "ax-msedge.net",
+        "smartscreen.microsoft.com",
+        # Google
         "google.com", "gmail.com", "youtube.com", "googleapis.com",
+        "doubleclick.net", "google-analytics.com", "googleadservices.com",
+        "googlesyndication.com", "googletagmanager.com", "gstatic.com",
+        "googlevideo.com", "googlecode.com", "googleusercontent.com",
+        "withgoogle.com", "goo.gl",
+        # Apple
+        "apple.com", "icloud.com", "mzstatic.com", "apple-cloudkit.com",
+        # Amazon / AWS
         "amazon.com", "aws.amazon.com", "amazonaws.com",
-        "apple.com", "icloud.com",
+        # Соцсети / сервисы
         "facebook.com", "fb.com", "instagram.com", "whatsapp.com",
         "telegram.org", "paypal.com", "netflix.com",
-        "office365.com", "windowsupdate.com", "update.microsoft.com",
         "dropbox.com", "binance.com", "metamask.io", "coinbase.com",
-        "msedge.net", "ax-msedge.net",
+        # FP-триггеры (app.*)
+        "loadimpact.com", "webinspector.com",
     ))
     typosquatting_levenshtein_threshold: int = 2
 
@@ -146,6 +181,22 @@ class Config:
     brute_force_excluded_ports: frozenset[int] = field(
         default_factory=frozenset, init=False,
     )
+    # Порты, на которых массовые TCP-соединения — норма (браузер к CDN),
+    # а не подбор пароля. Подбор через HTTPS идёт как POST внутри
+    # существующего соединения.
+    brute_force_skip_tls_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({443, 8443}),
+    )
+
+    # Подстроки, которые должны быть в HTTP URI для подбора пароля.
+    # Настоящий brute force всегда идёт на login endpoint. Если у flow'ов
+    # только /image.jpg и /style.css — это браузер, а не подбор.
+    login_endpoint_hints: frozenset[str] = field(default_factory=lambda: _frozen(
+        "/login", "/logon", "/signin", "/sign-in", "/auth",
+        "/admin", "/administrator", "/wp-login", "/wp-admin",
+        "/cpanel", "/webmail", "/phpmyadmin", "/pma",
+        "/session", "/oauth", "/api/token",
+    ))
 
     # --- vulnerable paths ---
     vulnerable_paths: Mapping[str, str] = field(default_factory=lambda: MappingProxyType({
@@ -167,12 +218,18 @@ class Config:
         "/cgi-bin/": "CGI",
     }))
 
-    # --- suspicious download extensions ---
+    # .js исключён намеренно: JavaScript есть на каждом сайте,
+    # это даёт тысячи FP. Malware может использовать .js, но это
+    # ловится через обфускацию (ObfuscationDetector — TODO), а не
+    # через расширение.
     suspicious_download_extensions: frozenset[str] = field(default_factory=lambda: _frozen(
-        ".ps1", ".vbs", ".hta", ".js", ".jar", ".sh",
+        ".ps1", ".vbs", ".hta", ".jar", ".sh",
         ".exe", ".dll", ".scr", ".iso", ".img", ".lnk",
     ))
-
+    # Порог для определения web-сканера: если один src обратился
+    # к >= N разным уязвимым путям/скриптам к одной цели — это
+    # сканер, а не набор отдельных атак.
+    web_scanner_min_distinct_paths: int = 10
     # --- entities ---
     entities_top_n: int = 50
     gateway_min_flows: int = 50
@@ -239,6 +296,8 @@ class Config:
             errors.append("gateway_min_unique_dsts must be > 0")
         if self.flow_report_top_n <= 0:
             errors.append("flow_report_top_n must be > 0")
+        if self.web_scanner_min_distinct_paths <= 0:
+            errors.append("web_scanner_min_distinct_paths must be > 0")
         if not self.suspicious_ports:
             errors.append("suspicious_ports must not be empty")
         if not self.dc_service_ports:
