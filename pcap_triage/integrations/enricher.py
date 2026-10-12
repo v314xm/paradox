@@ -4,12 +4,9 @@
 Собирает уникальные IOC из findings, зовёт провайдеров (с кэшем
 и rate limit), возвращает результаты.
 
-Не привязывается к структуре Finding напрямую — работает со
-списком кортежей (ioc_type, ioc). Прикрепление к findings — в
-отдельном слое (cli или reporting).
+Поддерживает и dict-и, и Finding — через универсальные helpers.
 """
 import time
-from dataclasses import replace
 
 from pcap_triage.config import Config
 from pcap_triage.integrations.base import Enricher, EnrichmentResult
@@ -17,8 +14,6 @@ from pcap_triage.integrations.cache import EnrichmentCache
 from pcap_triage.integrations.rate_limit import TokenBucket
 
 
-# Дефолтный rate limit: 5 запросов в секунду.
-# Не подтверждён документально для Shodan InternetDB, но безопасно.
 DEFAULT_RATE_LIMIT_PER_SEC = 5.0
 
 
@@ -29,13 +24,10 @@ class EnricherOrchestrator:
     providers — список Enricher (реализаций Protocol).
     cache — EnrichmentCache.
     config — Config с enrichment_* параметрами.
-
-    Каждому провайдеру даётся свой TokenBucket с общим лимитом,
-    чтобы один медленный провайдер не блокировал остальных.
     """
     def __init__(
         self,
-        providers: list[Enricher],
+        providers: list,
         cache: EnrichmentCache,
         config: Config,
     ):
@@ -68,7 +60,7 @@ class EnricherOrchestrator:
 
         iocs — список (ioc_type, ioc_value), например
                [("ip", "8.8.8.8"), ("domain", "example.com")].
-               Дубликаты будут удалены внутри.
+               Дубликаты удаляются внутри.
 
         Возвращает dict {(ioc_type, ioc): [EnrichmentResult, ...]}.
         """
@@ -122,14 +114,12 @@ class EnricherOrchestrator:
 def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
     """
     Вытащить IP и домены из findings для обогащения.
+    Работает и с dict, и с Finding.
 
     Источники:
-    - evidence["dst_ip"], evidence["src_ip"] — если они не приватные.
-    - value, если оно выглядит как IP или домен.
-
-    Простая эвристика: собираем все строки из evidence, где поле
-    в наборе {"dst_ip", "src_ip", "base_domain", "sni", "host"}.
-    Плюс value для findings типа dga_domain, typosquatting.
+    - evidence["dst_ip"], evidence["src_ip"], evidence["ip"] — IP.
+    - evidence["base_domain"], ["sni"], ["host"], ["domain"] — домены.
+    - value для findings типа dga_domain, typosquatting и т.п.
     """
     out: list[tuple[str, str]] = []
     ip_fields = {"dst_ip", "src_ip", "ip"}
@@ -138,7 +128,15 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
                           "cloud_tunnel_domain", "ip_check_service"}
 
     for f in findings:
-        ev = f.evidence or {}
+        if isinstance(f, dict):
+            ev = f.get("evidence") or {}
+            f_type = f.get("type") or ""
+            f_value = f.get("value") or ""
+        else:
+            ev = f.evidence or {}
+            f_type = f.type
+            f_value = f.value
+
         for field in ip_fields:
             val = ev.get(field)
             if isinstance(val, str) and val:
@@ -147,11 +145,9 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
             val = ev.get(field)
             if isinstance(val, str) and val:
                 out.append(("domain", val))
-        if f.type in domain_value_types and f.value:
-            # value может быть "8.8.8.8" или "domain.com"
-            v = f.value.strip()
+        if f_type in domain_value_types and f_value:
+            v = f_value.strip()
             if v and " " not in v and ":" not in v:
                 out.append(("domain", v))
 
-    # уникализация
     return list({(t, v) for (t, v) in out})

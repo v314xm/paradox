@@ -26,6 +26,11 @@ def _ask_pcap_path() -> Path:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="pcap_triage")
     parser.add_argument(
+        "--enrich",
+        action="store_true",
+        help="Обогатить findings через Shodan InternetDB (требует сети)",
+    )
+    parser.add_argument(
         "pcap", nargs="?", type=Path, default=None,
         help="path to pcap file (если не указан — спросит интерактивно)",
     )
@@ -46,6 +51,27 @@ def main(argv: list[str] | None = None) -> None:
 
     config = Config()
     report = run_pipeline(pcap_path, config)
+
+    # Обогащение findings (опционально, --enrich)
+    if args.enrich:
+        from pcap_triage.integrations.pipeline import enrich_findings
+
+        print("  Обогащение через Threat Intel...")
+        try:
+            enrich_stats = enrich_findings(report["findings"], config)
+            report["enrichment_stats"] = enrich_stats
+
+            print(
+                f"  IOC: {enrich_stats['iocs_total']} "
+                f"(обогащено {enrich_stats['iocs_enriched']}, "
+                f"кэш: {enrich_stats['cache_hits']}, "
+                f"вызовов: {enrich_stats['provider_calls']}, "
+                f"ошибок: {enrich_stats['errors']})"
+            )
+        except Exception as e:
+            print(f"  Обогащение не удалось: {type(e).__name__}: {e}",
+                  file=sys.stderr)
+            report["enrichment_stats"] = {"error": str(e)}
 
     safe_name = pcap_path.name.replace(".", "_")[:80]
     out = args.output or (config.output_dir / f"{safe_name}.report.json")
