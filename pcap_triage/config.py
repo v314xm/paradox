@@ -70,6 +70,43 @@ class Config:
         }),
     )
 
+    # --- command injection ---
+    # Паттерны RCE в HTTP URI/body. Два уровня confidence.
+    #
+    # high — почти наверняка RCE (языковые конструкции)
+    command_injection_patterns_high: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            # Lua (OpenResty, Nginx-модули)
+            "io.popen", "os.execute",
+            # PHP
+            "system(", "exec(", "shell_exec(", "passthru(",
+            "popen(", "proc_open(", "pcntl_exec(",
+            # Python
+            "os.system(", "subprocess.popen(", "subprocess.run(",
+            "__import__('os').system",
+            # Ruby
+            "io.popen", "kernel.exec",
+            # Node
+            "child_process", "require('child_process')",
+            # Java
+            "runtime.getruntime().exec",
+        ),
+    )
+    # medium — подозрительно в контексте, но может быть легитимно
+    command_injection_patterns_medium: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            # Shell-синтаксис
+            "$(", "`", "|nc ", "| nc ", "&&",
+            # Утилиты
+            "cmd.exe", "/bin/sh", "/bin/bash", "/bin/zsh",
+            "powershell", "pwsh",
+            "wget http", "curl http", "curl -",
+            "whoami", "uname -a", "id;", "base64 -d",
+        ),
+    )
+    # Порог: один finding на (src_ip, uri).
+    command_injection_min_patterns: int = 1
+
     # --- DGA ---
     dga_entropy_threshold: float = 3.5
     dga_min_label_length: int = 12
@@ -394,6 +431,8 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.command_injection_min_patterns <= 0:
+            errors.append("command_injection_min_patterns must be > 0")
         if self.tcp_reassembly_max_bytes_per_flow <= 0:
             errors.append("tcp_reassembly_max_bytes_per_flow must be > 0")
         if self.tcp_reassembly_max_total_bytes <= 0:

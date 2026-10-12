@@ -37,6 +37,7 @@ from pcap_triage.extractors.kerberos import KerberosExtractor
 from pcap_triage.detectors.lateral_movement import LateralMovementDetector
 from pcap_triage.detectors.large_transfer import LargeTransferDetector
 from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
+from pcap_triage.detectors.command_injection import CommandInjectionDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
 from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
 
@@ -70,6 +71,7 @@ DETECTORS = [
     DNSTunnelingDetector(),
     LateralMovementDetector(),
     LargeTransferDetector(),
+    VulnerablePathDetector(),
     VulnerablePathDetector(),
 ]
 
