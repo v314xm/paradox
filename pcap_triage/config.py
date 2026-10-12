@@ -317,6 +317,24 @@ class Config:
     # --- flow report ---
     flow_report_top_n: int = 500
 
+    # --- enrichment ---
+    # Threat Intel. Не запускается в основном pipeline — только
+    # по флагу --enrich. Требует сети.
+    enrichment_cache_ttl_days: int = 7
+    enrichment_cache_path: Path = Path("reports/.cache/enrichment.db")
+    # Провайдеры вкл/выкл. Shodan InternetDB — без ключа, остальные
+    # требуют ключ (см. env vars).
+    enrichment_enabled_providers: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "shodan_internetdb",
+            "abuseipdb",
+            "virustotal",
+        ),
+    )
+    # Сколько IOC обогащать за один прогон. Больше = дольше,
+    # больше rate limit попаданий.
+    enrichment_max_iocs: int = 100
+
     # --- output ---
     output_dir: Path = Path("reports")
 
@@ -339,6 +357,10 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.enrichment_cache_ttl_days <= 0:
+            errors.append("enrichment_cache_ttl_days must be > 0")
+        if self.enrichment_max_iocs <= 0:
+            errors.append("enrichment_max_iocs must be > 0")
         if self.dns_tunneling_min_qname_length <= 0:
             errors.append("dns_tunneling_min_qname_length must be > 0")
         if self.dns_tunneling_min_long_qnames <= 0:
