@@ -22,7 +22,7 @@ Extractors (Flow, DNS, TLS, HTTP, HostIdentity, NBNS, Kerberos)
 CaptureState (flows, dns, host_identities)
   │
   ▼
-Detectors (13) → Findings
+Detectors (15) → Findings
   │
   ▼
 build_entities → Entities (internal / external)
@@ -45,16 +45,19 @@ Reporters → JSON + Markdown
    существующего кода.
 
 4. **Finding — на сущность, не на инцидент.**
-   Один finding = одна логическая находка, а не одна строка
-   на каждый flow или пакет.
+   Один finding = одна логическая находка, а не строка на каждый
+   flow или пакет.
 
 5. **Пороги и списки — в `Config`.**
    Никаких магических чисел в коде детекторов.
 
 6. **FP-фильтр важнее recall.**
-   Инструмент для триажа — 100 findings из которых 80 ложных хуже,
-   чем 20 findings из которых 5 ложных. После 0.4.0 приоритет
-   смещён в сторону точности.
+   100 findings из которых 80 ложных хуже, чем 20 findings из
+   которых 5 ложных. Приоритет — точность.
+
+7. **Оффлайн-режим.**
+   Никаких внешних API на пути основного прогона. Enrichment
+   (если будет) — отдельный слой, по флагу.
 
 ## Слой 1. Парсинг (`parsers.py`)
 
@@ -79,7 +82,7 @@ Reporters → JSON + Markdown
 **Скорость:** ~25 МБ/с против 0.6 МБ/с через scapy. **39x**.
 
 **Fallback:** если magic bytes не classic pcap (`D4 C3 B2 A1`) —
-используется scapy `PcapReader` для pcapng. Медленнее, но читается.
+используется scapy `PcapReader` для pcapng.
 
 ## Слой 2. Экстракторы (`extractors/`)
 
@@ -88,10 +91,9 @@ scapy (для сложных payload) и ручные парсеры.
 
 **Порядок важен:** `FlowExtractor` идёт **первым**. Остальные
 экстракторы, пишущие в `FlowStats`, ищут существующий flow по
-`FlowKey` и **падают явно**, если его нет. Это ловит ошибку
-порядка регистрации сразу.
+`FlowKey` и **падают явно**, если его нет.
 
-### Реализованы (L0)
+### Реализованы (7)
 
 | Экстрактор | Источник | Что пишет |
 |---|---|---|
@@ -106,7 +108,7 @@ scapy (для сложных payload) и ручные парсеры.
 **Изоляция ошибок:** падение одного экстрактора не роняет проход.
 Ошибки считаются в `state.extractor_errors[имя]`. Если в отчёте
 видно большое число ошибок одного экстрактора — это баг регистрации
-(например, детектор попал в `EXTRACTORS`), а не проблема данных.
+(например, детектор попал в `EXTRACTORS`).
 
 **Известное ограничение:** TLS ClientHello и Kerberos-сообщения
 могут быть фрагментированы через несколько TCP-сегментов.
@@ -121,8 +123,8 @@ scapy (для сложных payload) и ручные парсеры.
 class CaptureState:
     # DNS
     dns_queries: Counter           # qname → count
-    dns_nxdomain: Counter          # qname → count
-    dns_nxdomain_by_src: Counter   # src_ip → count
+    dns_nxdomain: Counter
+    dns_nxdomain_by_src: Counter
     dns_queries_by_src: dict[str, Counter]
 
     # flows
@@ -142,8 +144,8 @@ class CaptureState:
 
 Точка сборки контекста сессии:
 - базовая телеметрия: `packets`, `bytes_sent`, `first_ts`, `last_ts`,
-  `timestamps` (для будущего beaconing), `initiated_by_src`
-- протокол-специфичные поля: `sni`, `ja3`, `http_host`, `http_uri`,
+  `timestamps`, `initiated_by_src`
+- протокол-специфичные поля: `sni`, `http_host`, `http_uri`,
   `http_method`, `http_user_agent`
 
 ### FlowKey
@@ -172,7 +174,7 @@ class LocalDetector(Protocol):
     def run(self, state: CaptureState, config: Config) -> list[Finding]: ...
 ```
 
-### Реализованы (13)
+### Реализованы (15)
 
 | Детектор | Источник данных | Логика |
 |---|---|---|
@@ -181,35 +183,38 @@ class LocalDetector(Protocol):
 | `port_scan` | `flows` | Один src → много dst на один dst_port, тонкие цели |
 | `nxdomain_burst` | `dns_nxdomain_by_src` | Count > порога с одного IP |
 | `cloud_tunnel` | `dns_queries` | Суффиксы trycloudflare/ngrok/serveo |
-| `ip_check_service` | `dns_queries` + `flow.sni` + `flow.http_host` + `flow.dst_ip` | 4 источника матчинга, каноническое имя сервиса |
-| `typosquatting` | `dns_queries` | SLD-only, contains + Levenshtein к списку брендов |
+| `ip_check_service` | `dns_queries` + `flow.sni` + `flow.http_host` + `flow.dst_ip` | 4 источника, каноническое имя сервиса |
+| `typosquatting` | `dns_queries` | SLD-only, contains + Levenshtein |
 | `sni_mismatch` | `flows.sni` × `dns_queries` | SNI не в DNS, allowlist по суффиксу |
-| `brute_force` | `flows` | HTTP: много коротких flows к одному (src, dst, port) |
+| `brute_force` | `flows` | HTTP: много коротких flows к одной (src, dst, port) |
 | `ftp_brute_force` | `flows` | FTP: много flows с уникальными src_ports к (dst, 21) |
+| `beaconing` | `flows.timestamps` | Периодичность (jitter < 0.2) |
+| `dns_tunneling` | `dns_queries_by_src` | Длинные уникальные поддомены под одним base |
 | `lateral_movement` | `flows` | Internal→internal на 445/135/139/3389/5985/5986 + UA/URI-маркеры |
-| `large_transfer` | `flows` | Пара прямого+обратного flow > 100 МБ |
+| `large_transfer` | `flows` | Пара прямого+обратного > 100 МБ (с exclude) |
 | `vulnerable_path` | `flows.http_uri` | Подстроки в URI + web_scanner агрегация |
 
 ### Cross-detector связи
 
-Детекторы независимы, но три **фильтруют findings друг друга**:
+Детекторы независимы, но **фильтруют findings друг друга**:
 
-- **`port_scan` → `suspicious_port`.** `SuspiciousPortDetector`
+- **`port_scan` → `suspicious_port`.** SuspiciousPortDetector
   собирает `scan_pairs: set[(src_ip, dst_port)]` — пары, где один
-  src стучится к ≥ `port_scan_min_distinct_dsts` разным dst. Если
-  все src в finding'е — сканеры на этом порту, finding пропускается.
+  src стучится к ≥ 10 разным dst. Если все src в finding'е —
+  сканеры на этом порту, finding пропускается.
 - **`vulnerable_path` → `web_scanner`.** Для пар `(src_ip, dst_ip)`
-  с ≥ `web_scanner_min_distinct_paths` разными URI генерируется
-  один `web_scanner` finding вместо N individual.
-- **`brute_force` → `ftp_brute_force`.** Взаимно исключающие:
-  `brute_force` работает с avg_packets ≤ 20 (HTTP), `ftp_brute_force`
-  — специально для FTP (пакеты на порядок больше).
+  с ≥ 10 разными URI генерируется один `web_scanner` finding
+  вместо N individual.
+- **`ftp_brute_force` ↔ `brute_force`.** Взаимно исключающие:
+  `brute_force` пропускает port 21 (обрабатывает FTPBruteForceDetector),
+  `ftp_brute_force` работает только на port 21.
+- **`beaconing` × `large_transfer`.** Beaconing требует малый размер
+  flow (< 5 КБ), large_transfer — большой (> 100 МБ). Не пересекаются.
 
-Порядок регистрации в `DETECTORS` для фильтров не важен: каждый
-детектор сам собирает нужные счётчики из `state.flows`, а не из
-findings другого детектора.
+Порядок регистрации в `DETECTORS` не важен: каждый детектор сам
+собирает счётчики из `state.flows`.
 
-### Таблица FP-фильтров (0.4.0 + 0.5.0)
+### Таблица FP-фильтров
 
 | Фильтр | Значение | Что отсеивает |
 |---|---|---|
@@ -219,25 +224,32 @@ findings другого детектора.
 | `web_scanner_min_distinct_paths` | 10 | Одиночные обращения к уязвимым путям |
 | `brute_force_skip_tls_ports` | `{443, 8443}` | HTTPS-браузер к CDN |
 | `brute_force_min_rate_flows_per_sec` | 0.01 | Поллинг (Safe Browsing) |
-| `brute_force_max_avg_packets` | 20 | FTP-сессии (см. `ftp_brute_force`) |
+| `brute_force_max_avg_packets` | 20 | FTP-сессии |
 | `ftp_brute_force_min_flows` | 20 | Редкие FTP-подключения |
-| `ftp_brute_force_min_unique_src_ports` | 20 | Переиспользование сокетов |
-| `lateral_movement_min_flows_port_only` | 5 | Одиночный RDP/WinRM к jump-host |
+| `beaconing_min_connections` | 10 | Единичные обращения |
+| `beaconing_max_jitter_ratio` | 0.2 | Нерегулярный трафик |
+| `beaconing_max_avg_bytes` | 5000 | Загрузки, а не heartbeat |
+| `dns_tunneling_min_qname_length` | 50 | DGA-поддомены |
+| `dns_tunneling_min_long_qnames` | 20 | Единичные длинные запросы |
+| `dns_tunneling_min_queries` | 50 | Редкие запросы |
+| `lateral_movement_min_flows_port_only` | 5 | Одиночный RDP к jump-host |
 | `large_transfer_min_bytes` | 100 MB | Обычные сессии |
-| `typosquatting_levenshtein_threshold` | 2 | Разные слова (behance/binance) |
+| `large_transfer_excluded_hosts` | 7 доменов | Windows Update, Apple CDN |
+| `typosquatting_levenshtein_threshold` | 2 | Разные слова |
 | `dga_entropy_threshold` | 3.5 | Человекочитаемые домены |
 
-### Confidence для новых детекторов (0.5.0)
+### Confidence для новых детекторов (0.5.0–0.6.0)
 
 - `lateral_movement`: 0.8 при UA/URI, 0.6 при «только порт»
 - `large_transfer`: 0.85
 - `ftp_brute_force`: 0.75 / 0.85 / 0.95 по объёму (20 / 50 / 100 flows)
+- `beaconing`: 0.6–0.85 линейно по jitter (0.2 → 0.05)
+- `dns_tunneling`: 0.7 / 0.9 по количеству длинных qname
 - `ip_check_service`: 0.7
 
 ## Слой 5. Агрегаторы (`aggregators/`)
 
-Превращают flow'ы и findings в сущности (хосты). Вместо 500 строк
-flows — 20-50 сущностей с ролями.
+Превращают flow'ы и findings в сущности (хосты).
 
 ### `entities.py`
 
@@ -258,7 +270,6 @@ def build_entities(state, findings, config) -> Entities
 - `sni_domains`, `dns_names`
 - `findings_indices`
 - `mac`, `hostname`, `username`, `realm`
-- `service_flows_in`, `service_unique_srcs`
 
 ### Роли
 
@@ -283,11 +294,10 @@ Finding → IP → тег. Теги взаимоисключающие:
 | `web_scanner` | `attacker_tag` | `victim_tag` |
 | `port_scan` | `attacker_tag` | (не выделяется) |
 | `lateral_movement` | `attacker_tag` | `victim_tag` |
-| `script_download` | `victim_tag` (**инверсия**) | `attacker_tag` |
+| `beaconing` | `victim_tag` (жертва отстукивает) | `attacker_tag` |
+| `script_download` | `victim_tag` (инверсия) | `attacker_tag` |
 
 ## Слой 6. Reporters (`reporters/`)
-
-Превращают findings + entities в артефакты.
 
 ### JSON (`json_reporter.py`)
 
@@ -317,8 +327,8 @@ Finding → IP → тег. Теги взаимоисключающие:
 
 ### Flow report (`flow_report.py`)
 
-conn.log-стиль: `src, src_port, dst_ip, dst_port, proto, bytes, packets,
-duration, sni`.
+conn.log-стиль: `src, src_port, dst_ip, dst_port, proto, bytes,
+packets, duration, sni`.
 
 ## Слой 7. Pipeline (`pipeline.py`)
 
@@ -355,17 +365,17 @@ DETECTORS = [
     SNIMismatchDetector(),
     BruteForceDetector(),
     FTPBruteForceDetector(),
+    BeaconingDetector(),
+    DNSTunnelingDetector(),
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),
 ]
 ```
 
-**Известная ошибка:** если случайно поместить детектор в `EXTRACTORS`,
-он будет вызываться per-packet с сигнатурой `process(record, state)`,
-которой у него нет. Исключение поймается в `_extract`, но
-`state.extractor_errors[name]` будет равен числу пакетов. Признак —
-аномально большое число ошибок одного "экстрактора" в summary.
+**Известная ошибка:** если случайно поместить детектор в `EXTRACTORS`
+или задублировать его в `DETECTORS` — получишь либо ошибки
+per-packet, либо дубликаты findings. Проверяй список после правок.
 
 ## Расширение
 
@@ -380,9 +390,8 @@ DETECTORS = [
 
 1. Файл `detectors/<name>.py`. Класс с атрибутом `name`, методом
    `run(state, config) -> list[Finding]`.
-2. Регистрация в `DETECTORS`.
-3. Тесты в `tests/test_detectors.py`. FP-регрессия —
-   в `tests/test_regressions.py`.
+2. Регистрация в `DETECTORS` (не забыть `import`).
+3. Тесты — желательно в отдельном файле `tests/test_<name>.py`.
 
 ### Новый reporter
 
@@ -398,32 +407,26 @@ DETECTORS = [
   FlowStats не использует).
 - **IPv6 не поддержан** в парсере.
 - **TCP reassembly отсутствует** — Kerberos и большие HTTP
-  разбираются частично (только первый TCP-сегмент).
+  разбираются частично.
 - **JA3/JA3S отсутствует.**
 - **`nxdomain_burst` считает за весь файл** — должен быть по окну.
-  93 findings на FIN-2015, часть могут быть FP от distributed
-  resolvers.
 - **`sni_without_dns` может давать FP** на CDN, где DNS-запрос был
-  в другом файле захвата. 73 findings на FIN-2015.
-- **Двухуровневые TLD** (co.uk, com.au) не поддержаны в SLD-извлечении
-  `typosquatting`. Решение — public suffix list.
-- **Внутренний C2** (`internal → internal` зашифрованный POST)
-  не детектируется. Требует HTTPObjectExtractor + эвристики
-  beaconing. Видно на CyberCampTask: 10.0.1.247 принял
-  зашифрованный PNG от `watch_movie.ps1`.
+  в другом файле захвата.
+- **Двухуровневые TLD** (co.uk, com.au) не поддержаны в SLD.
+- **Внутренний C2** (internal → internal зашифрованный) не
+  детектируется. Требует HTTPObjectExtractor.
+- **`beaconing` чувствителен к jitter** — реальные C2 с jitter > 0.2
+  не ловятся. Требует windowing.
 - **HTTPObjectExtractor отсутствует** — тело HTTP запросов и
-  ответов не разбирается. Блокирует FileCarve, экспорт файлов,
-  анализ POST body.
+  ответов не разбирается.
 - **Threat Intel отсутствует** — нет VT/AbuseIPDB enrichment.
-- **Correlator / Timeline отсутствуют** — нет сквозной хронологии
-  инцидента.
+- **Correlator / Timeline отсутствуют** — нет сквозной хронологии.
 
 ## История версий (архитектурно значимые)
 
 ### 0.1.x
 - Raw parser + 39x ускорение.
-- Flow, DNS экстракторы.
-- 6 детекторов.
+- Flow, DNS экстракторы. 6 детекторов.
 
 ### 0.2.x
 - TLS, HTTP экстракторы.
@@ -438,28 +441,31 @@ DETECTORS = [
 - **PortScanDetector** — 11-й детектор.
 - **Typosquatting SLD-only** — переписан.
 - **VulnerablePathDetector** — агрегация + web_scanner.
-- **BruteForceDetector** — TLS/login-hint фильтры.
-- Массовая FP-чистка. 5872 → 343 findings на FIN-2015.
-- 127 тестов.
+- Массовая FP-чистка. 5872 → 343 findings.
 
-### 0.5.0
+### 0.5.x
 - **LateralMovementDetector** — WinRM/PsExec/SMB/RDP между
   внутренними хостами.
 - **LargeTransferDetector** — пары flow > 100 МБ.
 - **FTPBruteForceDetector** — отдельно от HTTP-brute_force.
-- **IPCheckServiceDetector расширен** — 4 источника матчинга
-  (DNS+SNI+HTTP Host+direct IP), канонические имена сервисов.
-- 13 детекторов.
-- **CyberCampTask: 6 findings, 0 FP** — покрыто 4 из 5 гэпов
-  ручного анализа.
-- 145 тестов.
+- **IPCheckServiceDetector расширен** — 4 источника матчинга.
+- **LargeTransfer exclude** — Windows Update, Apple CDN.
+- 13 детекторов. CyberCampTask: 6 findings, 0 FP.
+
+### 0.6.0
+- **BeaconingDetector** — периодические C2 heartbeat.
+- **DNSTunnelingDetector** — длинные уникальные поддомены.
+- 15 детекторов, 165 тестов.
 
 ## Что дальше
 
 - HTTPObjectExtractor + FileCarve (для внутреннего C2).
-- Threat Intel (VT + SQLite-кэш, rate limit).
-- FlowAggregator + BeaconingDetector.
-- Windowing в CaptureState (fix nxdomain_burst).
+- ObfuscationDetector, WebShellDetector — на HTTP body.
+- Threat Intel enrichment (VT + AbuseIPDB + Shodan + SQLite-кэш).
+- FlowAggregator + Windowing (для медленных beaconing).
 - StreamReassembler (TCP reassembly).
 - Correlator (entity scoring, timeline).
-- Streamlit / FastAPI обёртка.
+- MITRE-маппинг + STIX 2.1 экспорт.
+- REST API + Web UI.
+- SMB2/DHCP/SSH/SMTP экстракторы, TLS cert parser + JA3.
+- IPv6 поддержка.
