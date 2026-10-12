@@ -1,5 +1,7 @@
+from collections import Counter
+
 from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from pcap_triage.models import CaptureState, FlowKey, FlowStats, get_session_sni
 from pcap_triage.net_utils import classify_direction
 
 
@@ -9,8 +11,6 @@ def _flow_to_dict(
     state: CaptureState,
     config: Config,
 ) -> dict:
-    from pcap_triage.models import get_session_sni
-
     d = {
         "proto": key.proto,
         "src_ip": key.src_ip,
@@ -77,6 +77,8 @@ def build_flow_report(
         "top_by_bytes": by_bytes,
         "top_by_packets": by_packets,
     }
+
+
 def build_dns_report(
     state: CaptureState,
     top_n: int = 100,
@@ -109,6 +111,8 @@ def build_dns_report(
         "top_by_count": by_count,
         "nxdomain": nxdomain,
     }
+
+
 def build_http_report(
     state: CaptureState,
     top_n: int = 50,
@@ -119,14 +123,11 @@ def build_http_report(
     Собирает top hosts, top user-agents, top URIs и unique counts
     из http_*-полей в FlowStats.
     """
-    from collections import Counter
-
     hosts: Counter = Counter()
     user_agents: Counter = Counter()
     methods: Counter = Counter()
     uris: list[dict] = []
 
-    # проходим по flows, смотрим те, где есть http_host
     for key, flow in state.flows.items():
         if flow.http_host:
             hosts[flow.http_host] += 1
@@ -146,8 +147,8 @@ def build_http_report(
                 "user_agent": flow.http_user_agent,
             })
 
-    # уникальные URI: сортируем по bytes убыв., берём top_n
-    # дедуплицируем по (host, uri) — оставляем первый
+    # Уникальные URI: сортируем по bytes убыв., берём top_n
+    # Дедуплицируем по (host, uri) — оставляем первый
     seen: set[tuple[str, str]] = set()
     unique_uris: list[dict] = []
     for u in sorted(uris, key=lambda x: -x["bytes"]):
@@ -165,16 +166,66 @@ def build_http_report(
         "unique_uris": len(seen),
         "top_hosts": [
             {"host": h, "count": c}
-            for h, c in sorted(hosts.items(), key=lambda kv: (-kv[1], kv[0]))[:top_n]
+            for h, c in sorted(hosts.items(),
+                                 key=lambda kv: (-kv[1], kv[0]))[:top_n]
         ],
         "top_user_agents": [
             {"user_agent": ua, "count": c}
             for ua, c in sorted(user_agents.items(),
-                                 key=lambda kv: (-kv[1], kv[0]))[:top_n]
+                                  key=lambda kv: (-kv[1], kv[0]))[:top_n]
         ],
         "methods": [
             {"method": m, "count": c}
-            for m, c in sorted(methods.items(), key=lambda kv: (-kv[1], kv[0]))
+            for m, c in sorted(methods.items(),
+                                 key=lambda kv: (-kv[1], kv[0]))
         ],
         "top_uris": unique_uris,
+    }
+
+
+def build_http_object_report(
+    state: CaptureState,
+    top_n: int = 100,
+) -> dict:
+    """
+    Отчёт по HTTP-объектам, извлечённым из склеенных TCP-потоков
+    (HTTPObjectExtractor). Каждый объект — (FlowKey, HttpObject).
+
+    Top_n по размеру body. Body-превью — hex первых 64 байт.
+    """
+    objs = list(state.http_objects or [])
+
+    # Сортировка по body_size (крупные сверху), затем по uri/method
+    objs.sort(
+        key=lambda pair: (-pair[1].body_size, str(pair[1].uri or "")),
+    )
+    objs = objs[:top_n]
+
+    out: list[dict] = []
+    for key, obj in objs:
+        headers = obj.headers or {}
+        d = {
+            "src_ip": key.src_ip,
+            "dst_ip": key.dst_ip,
+            "src_port": key.src_port,
+            "dst_port": key.dst_port,
+            "kind": obj.kind,
+            "method": obj.method,
+            "uri": obj.uri,
+            "status_code": obj.status_code,
+            "host": headers.get("host"),
+            "user_agent": headers.get("user-agent"),
+            "content_type": headers.get("content-type"),
+            "body_size": obj.body_size,
+            "truncated": obj.truncated,
+        }
+        if obj.body:
+            # Первые 64 байта body — hex. Для бинарных достаточно,
+            # для текстовых можно декодировать отдельно.
+            d["body_preview"] = obj.body[:64].hex()
+        out.append(d)
+
+    return {
+        "total": len(state.http_objects or []),
+        "objects": out,
     }

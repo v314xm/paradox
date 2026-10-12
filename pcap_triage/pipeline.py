@@ -24,10 +24,12 @@ from pcap_triage.reassembler import TCPReassembler
 from pcap_triage.reporters.flow_report import (
     build_dns_report,
     build_flow_report,
+    build_http_object_report,
     build_http_report,
 )
 from pcap_triage.detectors.brute_force import BruteForceDetector
 from pcap_triage.extractors.http import HTTPExtractor
+from pcap_triage.extractors.http_object import HTTPObjectExtractor
 from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
 from pcap_triage.extractors.host_identity import HostIdentityExtractor
 from pcap_triage.extractors.nbns import NBNSExtractor
@@ -132,11 +134,16 @@ def _extract(pcap_path: Path, state: CaptureState, config: Config) -> None:
     finally:
         reader.close()
 
-    # Финализация потоков и сохранение в state
+    # Финализация потоков + HTTP-объекты
     if reassembler is not None:
         reassembler.finalize_all()
         state.tcp_streams = reassembler.all_streams()
         state.tcp_streams_truncated = reassembler.truncated_flows()
+
+        try:
+            HTTPObjectExtractor().run_post_extract(state, config)
+        except Exception:
+            state.extractor_errors["http_object"] += 1
 
     if show_progress:
         elapsed = time.monotonic() - start
@@ -189,6 +196,9 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
     flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
     dns_report = build_dns_report(state, top_n=config.flow_report_top_n)
     http_report = build_http_report(state, top_n=config.flow_report_top_n)
+    http_objects_report = build_http_object_report(
+        state, top_n=config.flow_report_top_n,
+    )
     entities = build_entities(state, findings, config)
     direction_summary = _summarize_direction(state, config)
 
@@ -202,12 +212,13 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "summary": {
             "packets": state.packet_count,
             "unique_dns_queries": len(state.dns_queries),
-            "nxdomain_count": sum(state.dns_nxdomain.values()),
+            "nxdomain_count": sum(state.nx_domain.values()) if hasattr(state, "nx_domain") else sum(state.dns_nxdomain.values()),
             "flows": len(state.flows),
             "findings": len(findings),
             "extractor_errors": dict(state.extractor_errors),
             "tcp_streams": len(state.tcp_streams),
             "tcp_streams_truncated": len(state.tcp_streams_truncated),
+            "http_objects": len(state.http_objects),
             **direction_summary,
         },
         "entities": {
@@ -217,5 +228,6 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "dns": dns_report,
         "flows": flow_report,
         "http": http_report,
+        "http_objects": http_objects_report,
         "findings": [f.to_dict() for f in findings],
     }
