@@ -72,7 +72,7 @@ DETECTORS = [
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),
-    VulnerablePathDetector(),
+    CommandInjectionDetector(),
 ]
 
 
