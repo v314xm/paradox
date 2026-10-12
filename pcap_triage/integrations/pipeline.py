@@ -20,8 +20,11 @@ from pcap_triage.integrations.shodan_internetdb import (
 
 def build_default_orchestrator(config: Config) -> EnricherOrchestrator:
     """Собрать оркестратор с провайдерами по умолчанию."""
+    from pcap_triage.integrations.abuseipdb import AbuseIPDBEnricher
+
     providers = [
         ShodanInternetDBEnricher(),
+        AbuseIPDBEnricher(),
     ]
     cache = EnrichmentCache(config.enrichment_cache_path)
     return EnricherOrchestrator(providers, cache, config)
