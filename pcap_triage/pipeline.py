@@ -21,6 +21,7 @@ from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reassembler import TCPReassembler
+from pcap_triage.file_carve import carve_files
 from pcap_triage.reporters.flow_report import (
     build_dns_report,
     build_flow_report,
@@ -147,6 +148,13 @@ def _extract(pcap_path: Path, state: CaptureState, config: Config) -> None:
         except Exception:
             state.extractor_errors["http_object"] += 1
 
+        # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
+        if config.file_carve_enabled:
+            try:
+                state.carved_files = carve_files(state, config, output_dir=None)
+            except Exception:
+                state.extractor_errors["file_carve"] += 1
+
     if show_progress:
         elapsed = time.monotonic() - start
         print(
@@ -201,6 +209,10 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
     http_objects_report = build_http_object_report(
         state, top_n=config.flow_report_top_n,
     )
+    carved_report = {
+        "total": len(state.carved_files),
+        "files": [c.to_dict() for c in state.carved_files],
+    }
     entities = build_entities(state, findings, config)
     direction_summary = _summarize_direction(state, config)
 
@@ -221,6 +233,7 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
             "tcp_streams": len(state.tcp_streams),
             "tcp_streams_truncated": len(state.tcp_streams_truncated),
             "http_objects": len(state.http_objects),
+            "carved_files": len(state.carved_files),
             **direction_summary,
         },
         "entities": {
@@ -231,5 +244,6 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "flows": flow_report,
         "http": http_report,
         "http_objects": http_objects_report,
+        "carved_files": carved_report,
         "findings": [f.to_dict() for f in findings],
     }

@@ -107,6 +107,15 @@ class Config:
     # Порог: один finding на (src_ip, uri).
     command_injection_min_patterns: int = 1
 
+    # --- file carve ---
+    # Метаданные payload'ов — всегда (безопасно, без записи на диск).
+    file_carve_enabled: bool = True
+    # Содержимое body на диск — по умолчанию ВЫКЛЮЧЕНО.
+    # При включении сохраняется как <sha256>.bin, НЕ как .exe/.ps1.
+    file_carve_write_body: bool = False
+    file_carve_min_size: int = 64
+    file_carve_max_size: int = 50 * 1024 * 1024
+
     # --- DGA ---
     dga_entropy_threshold: float = 3.5
     dga_min_label_length: int = 12
@@ -431,6 +440,10 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.file_carve_min_size <= 0:
+            errors.append("file_carve_min_size must be > 0")
+        if self.file_carve_max_size <= 0:
+            errors.append("file_carve_max_size must be > 0")
         if self.command_injection_min_patterns <= 0:
             errors.append("command_injection_min_patterns must be > 0")
         if self.tcp_reassembly_max_bytes_per_flow <= 0:
