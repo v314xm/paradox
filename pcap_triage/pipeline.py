@@ -20,6 +20,7 @@ from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
+from pcap_triage.reassembler import TCPReassembler
 from pcap_triage.reporters.flow_report import (
     build_dns_report,
     build_flow_report,
@@ -48,7 +49,6 @@ EXTRACTORS = [
     HostIdentityExtractor(),
     NBNSExtractor(),
     KerberosExtractor(),
-
 ]
 
 # Порядок детекторов не важен — они независимы.
@@ -80,7 +80,7 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
-def _extract(pcap_path: Path, state: CaptureState) -> None:
+def _extract(pcap_path: Path, state: CaptureState, config: Config) -> None:
     import sys
     import time
 
@@ -90,6 +90,14 @@ def _extract(pcap_path: Path, state: CaptureState) -> None:
     start = last_update
     show_progress = sys.stdout.isatty()
 
+    # TCP reassembly — опционально
+    reassembler: TCPReassembler | None = None
+    if config.tcp_reassembly_enabled:
+        reassembler = TCPReassembler(
+            max_bytes_per_flow=config.tcp_reassembly_max_bytes_per_flow,
+            max_total_bytes=config.tcp_reassembly_max_total_bytes,
+        )
+
     reader = RawPcapReader(str(pcap_path))
     try:
         for raw_data, metadata in reader:
@@ -98,6 +106,10 @@ def _extract(pcap_path: Path, state: CaptureState) -> None:
 
             ts = metadata.sec + metadata.usec / 1_000_000
             record = parse_packet(raw_data, ts)
+
+            # Reassembly до экстракторов
+            if reassembler is not None:
+                reassembler.feed(record)
 
             now = time.monotonic()
             if show_progress and now - last_update >= update_interval:
@@ -119,6 +131,12 @@ def _extract(pcap_path: Path, state: CaptureState) -> None:
                     state.extractor_errors[ex.name] += 1
     finally:
         reader.close()
+
+    # Финализация потоков и сохранение в state
+    if reassembler is not None:
+        reassembler.finalize_all()
+        state.tcp_streams = reassembler.all_streams()
+        state.tcp_streams_truncated = reassembler.truncated_flows()
 
     if show_progress:
         elapsed = time.monotonic() - start
@@ -166,14 +184,13 @@ def _summarize_direction(state: CaptureState, config: Config) -> dict:
 def run_pipeline(pcap_path: Path, config: Config) -> dict:
     state = CaptureState()
 
-    _extract(pcap_path, state)
+    _extract(pcap_path, state, config)
     findings = _detect(state, config)
     flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
     dns_report = build_dns_report(state, top_n=config.flow_report_top_n)
     http_report = build_http_report(state, top_n=config.flow_report_top_n)
     entities = build_entities(state, findings, config)
     direction_summary = _summarize_direction(state, config)
-
 
     return {
         "schema_version": "0.2.0",
@@ -189,6 +206,8 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
             "flows": len(state.flows),
             "findings": len(findings),
             "extractor_errors": dict(state.extractor_errors),
+            "tcp_streams": len(state.tcp_streams),
+            "tcp_streams_truncated": len(state.tcp_streams_truncated),
             **direction_summary,
         },
         "entities": {

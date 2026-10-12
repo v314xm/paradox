@@ -144,6 +144,9 @@ class CaptureState:
 
     # IP → HostIdentity (MAC, hostname)
     host_identities: dict[str, HostIdentity] = field(default_factory=dict)
+    # TCP reassembly: склеенные потоки по FlowKey
+    tcp_streams: dict[FlowKey, bytes] = field(default_factory=dict)
+    tcp_streams_truncated: set[FlowKey] = field(default_factory=set)
 
 
 def get_session_sni(

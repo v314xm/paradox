@@ -136,6 +136,19 @@ class Config:
         default_factory=lambda: frozenset({80, 443}),
     )
 
+    # --- TCP reassembly ---
+    # Склейка TCP-сегментов в потоки по (src, dst, src_port, dst_port).
+    # Даёт полные ClientHello/ServerHello, HTTP body и Kerberos-сообщения,
+    # которые не влезают в первый сегмент.
+    #
+    # Ограничения памяти:
+    # - per flow: 1 МБ. Больше для HTTP body всё равно не нужно.
+    # - total: 200 МБ. Защита от гигабайтных захватов.
+    tcp_reassembly_enabled: bool = True
+    tcp_reassembly_max_bytes_per_flow: int = 1024 * 1024
+    tcp_reassembly_max_total_bytes: int = 200 * 1024 * 1024
+
+
     # --- beaconing ---
     # C2-heartbeat: регулярные обращения к одной паре (src, dst, port).
     # Признаки: N соединений, длительность, малый jitter (stddev/mean),
@@ -381,6 +394,10 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+        if self.tcp_reassembly_max_bytes_per_flow <= 0:
+            errors.append("tcp_reassembly_max_bytes_per_flow must be > 0")
+        if self.tcp_reassembly_max_total_bytes <= 0:
+            errors.append("tcp_reassembly_max_total_bytes must be > 0")
         if self.enrichment_cache_ttl_days <= 0:
             errors.append("enrichment_cache_ttl_days must be > 0")
         if self.enrichment_max_iocs <= 0:
