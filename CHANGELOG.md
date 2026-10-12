@@ -10,12 +10,19 @@
 
 ### Запланировано
 - HTTPObjectExtractor + FileCarve (для внутреннего C2 — body POST/PUT).
-- Threat Intel enrichment (VirusTotal + SQLite-кэш, rate limit).
-- FlowAggregator + BeaconingDetector.
+- ObfuscationDetector (base64/eval в HTTP body).
+- WebShellDetector (?cmd=, ?exec= в URI + POST body).
+- Threat Intel enrichment (VirusTotal, AbuseIPDB, Shodan InternetDB + SQLite-кэш, rate limit).
 - Windowing в CaptureState (fix nxdomain_burst долга).
+- FlowAggregator + более сложные эвристики beaconing.
 - StreamReassembler (TCP reassembly).
 - Correlator (entity scoring, timeline).
-- Streamlit / FastAPI обёртка.
+- MITRE-маппинг в findings + heatmap в JSON-отчёте.
+- IOC → STIX 2.1 экспорт.
+- REST API + Web UI (FastAPI + фронтенд).
+- SMB2/DHCP/SSH/SMTP экстракторы.
+- TLS certificate parser + JA3 fingerprinting.
+- IPv6 поддержка в парсере.
 
 ### Известные проблемы
 - `nxdomain_burst` считает за весь файл, не по окну — 93 findings
@@ -29,6 +36,60 @@
   typosquatting.
 - Внутренний C2 (зашифрованный трафик internal → internal)
   не детектируется. Требует HTTPObjectExtractor.
+- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.2
+  не ловятся. Требует windowing + более сложных эвристик.
+
+## [0.6.0] — в работе
+
+BeaconingDetector + DNSTunnelingDetector. Тесты 145 → 165.
+
+### Добавлено
+- **`detectors/beaconing.py`** — `BeaconingDetector`. Ловит
+  периодические обращения к C2 (heartbeat). Признаки: N ≥ 10
+  соединений к одной паре (src, dst, port), длительность ≥ 300 сек,
+  jitter (stddev/mean) < 0.2, средний размер flow < 5 КБ.
+  Confidence 0.6 при jitter 0.2, 0.85 при jitter 0.05.
+- **`detectors/dns_tunneling.py`** — `DNSTunnelingDetector`. Ловит
+  длинные уникальные поддомены под одним базовым доменом.
+  Пороги: qname ≥ 50 символов, ≥ 20 длинных уникальных поддоменов,
+  ≥ 50 запросов всего. Allowlist DoH-сервисов.
+- `tests/test_beaconing.py` — 10 тестов.
+- `tests/test_dns_tunneling.py` — 9 тестов.
+- `config.beaconing_min_connections`, `beaconing_min_duration_sec`,
+  `beaconing_max_jitter_ratio`, `beaconing_max_avg_bytes`.
+- `config.dns_tunneling_min_qname_length`, `dns_tunneling_min_long_qnames`,
+  `dns_tunneling_min_queries`, `dns_tunneling_allowlist`.
+
+### Тесты
+- 145 → **165 passed**.
+
+## [0.5.1] — 2026-10-12
+
+Фиксы после 0.5.0.
+
+### Исправлено
+- **LargeTransfer FP на Windows Update.** Большие .exe через BITS
+  (100+ МБ) определялись как `large_transfer`. Добавлен exclude-list
+  хостов (`*.windowsupdate.com`, `*.download.microsoft.com`,
+  `*.update.microsoft.com`, `*.swcdn.apple.com`, `*.swdist.apple.com`,
+  `*.mesu.apple.com`, `*.gdmf.apple.com`) и User-Agent
+  (`Microsoft BITS`, `Microsoft-CryptoAPI`,
+  `Microsoft-Delivery-Optimization`).
+- **Дублирование на port 21.** Один FTP-скан давал три finding'а:
+  `suspicious_port`, `brute_force`, `ftp_brute_force`. Порт 21 убран
+  из `suspicious_ports` — теперь обрабатывается только
+  `FTPBruteForceDetector`.
+- **Дубликат `FTPBruteForceDetector()` в `DETECTORS`** — вызывался
+  дважды, выдавал два одинаковых finding'а на один FTP-скан.
+
+### Добавлено
+- `config.large_transfer_excluded_hosts` — 7 записей.
+- `config.large_transfer_excluded_user_agents` — 3 записи.
+- 2 регрессионных теста на LargeTransfer exclude (Windows Update
+  не finding, rtbcdn.ru finding).
+
+### Тесты
+- 145 → **146 passed**.
 
 ## [0.5.0] — 2026-10-09
 
@@ -86,7 +147,7 @@ ip_check_service. 4 новых детектора (один — расширен
   - `lateral_movement` `192.168.1.12 → 192.168.1.1:5985` (Ruby WinRM)
   - `large_transfer` `192.168.1.1 ↔ 80.64.102.71` (126 MB, rtbcdn.ru)
   - `script_download` × 2 (`/ftp_update.sh`, `/watch_movie.ps1`)
-  
+
   Не покрыт: внутренний C2 `10.0.1.247` (требует HTTPObjectExtractor).
 - **FIRST-2015 2015-03-17** (329k пакетов): 0 FP новых детекторов.
 

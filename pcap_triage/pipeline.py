@@ -34,6 +34,7 @@ from pcap_triage.detectors.lateral_movement import LateralMovementDetector
 from pcap_triage.detectors.large_transfer import LargeTransferDetector
 from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
+from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
@@ -61,6 +62,7 @@ DETECTORS = [
     BruteForceDetector(),
     FTPBruteForceDetector(),
     BeaconingDetector(),
+    DNSTunnelingDetector(),
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),

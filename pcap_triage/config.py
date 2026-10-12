@@ -121,6 +121,24 @@ class Config:
     beaconing_max_jitter_ratio: float = 0.2
     beaconing_max_avg_bytes: int = 5000
 
+    # --- DNS tunneling ---
+    # Классический признак: длинные уникальные поддомены под одним
+    # базовым доменом. Данные кодируются в qname (base64, hex).
+    # Пример: aGVsbG8gd29ybGQK.dns.attacker.com
+    #
+    # Отличие от DGA:
+    #   - DGA — короткие поддомены (10-15 символов), много разных
+    #   - Tunneling — длинные (>50), тоже много
+    # Требуем именно длинные — DGA отсеется автоматически.
+    dns_tunneling_min_qname_length: int = 50
+    dns_tunneling_min_long_qnames: int = 20
+    dns_tunneling_min_queries: int = 50
+    # Известные DNS-over-HTTPS, whitelist. Не считаются туннелем.
+    dns_tunneling_allowlist: frozenset[str] = field(default_factory=lambda: _frozen(
+        "dns.google",
+        "cloudflare-dns.com",
+        "mozilla.cloudflare-dns.com",
+    ))
 
     # --- large transfer ---
     large_transfer_min_bytes: int = 100 * 1024 * 1024
@@ -321,9 +339,12 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
-
-
-
+        if self.dns_tunneling_min_qname_length <= 0:
+            errors.append("dns_tunneling_min_qname_length must be > 0")
+        if self.dns_tunneling_min_long_qnames <= 0:
+            errors.append("dns_tunneling_min_long_qnames must be > 0")
+        if self.dns_tunneling_min_queries <= 0:
+            errors.append("dns_tunneling_min_queries must be > 0")
         if self.beaconing_min_connections <= 0:
             errors.append("beaconing_min_connections must be > 0")
         if self.beaconing_min_duration_sec <= 0:
