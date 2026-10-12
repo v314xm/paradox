@@ -112,7 +112,16 @@ class Config:
         default_factory=lambda: frozenset({80, 443}),
     )
 
-    # --- large transfer ---
+    # --- beaconing ---
+    # C2-heartbeat: регулярные обращения к одной паре (src, dst, port).
+    # Признаки: N соединений, длительность, малый jitter (stddev/mean),
+    # маленький размер соединения.
+    beaconing_min_connections: int = 10
+    beaconing_min_duration_sec: int = 300
+    beaconing_max_jitter_ratio: float = 0.2
+    beaconing_max_avg_bytes: int = 5000
+
+
     # --- large transfer ---
     large_transfer_min_bytes: int = 100 * 1024 * 1024
     large_transfer_include_reverse: bool = True
@@ -312,6 +321,19 @@ class Config:
     def _validate(self) -> None:
         errors: list[str] = []
 
+
+
+
+        if self.beaconing_min_connections <= 0:
+            errors.append("beaconing_min_connections must be > 0")
+        if self.beaconing_min_duration_sec <= 0:
+            errors.append("beaconing_min_duration_sec must be > 0")
+        if not (0.0 < self.beaconing_max_jitter_ratio <= 1.0):
+            errors.append(
+                "beaconing_max_jitter_ratio must be in (0, 1]"
+            )
+        if self.beaconing_max_avg_bytes <= 0:
+            errors.append("beaconing_max_avg_bytes must be > 0")
         if self.ftp_brute_force_min_flows <= 0:
             errors.append("ftp_brute_force_min_flows must be > 0")
         if self.ftp_brute_force_min_unique_src_ports <= 0:
