@@ -4,6 +4,8 @@
 Работает с findings в виде dict (то, что отдаёт run_pipeline).
 Дополнительно поддерживает объекты Finding — для тестов и будущих
 изменений в pipeline.
+
+Пустые результаты провайдеров не прикрепляются к findings.
 """
 from pcap_triage.config import Config
 from pcap_triage.integrations.cache import EnrichmentCache
@@ -35,7 +37,7 @@ def attach_enrichment_to_findings(
     Работает и с list[dict], и с list[Finding].
 
     enrichment_map: {(ioc_type, ioc): [EnrichmentResult, ...]}
-    Пустые записи (только ошибки) не прикрепляются.
+    Пустые записи (только ошибки или пустой data) не прикрепляются.
     """
     for f in findings:
         ev = _get_evidence(f)
@@ -49,7 +51,7 @@ def attach_enrichment_to_findings(
                 return
             per_ioc: dict = {}
             for r in results:
-                if r.ok:
+                if r.ok and r.data:
                     per_ioc[r.source] = r.data
             if per_ioc:
                 attached[ioc] = per_ioc
@@ -69,7 +71,16 @@ def enrich_findings(findings: list, config: Config) -> dict:
     """
     Собрать IOC из findings, обогатить, прикрепить обратно.
 
-    Возвращает статистику.
+    Возвращает статистику:
+      {
+        "iocs_total": N,
+        "iocs_enriched": M,
+        "cache_hits": X,
+        "cache_misses": Y,
+        "rate_limited": Z,
+        "provider_calls": K,
+        "errors": E,
+      }
     """
     iocs = collect_iocs_from_findings(findings)
     if not iocs:
@@ -77,6 +88,8 @@ def enrich_findings(findings: list, config: Config) -> dict:
             "iocs_total": 0,
             "iocs_enriched": 0,
             "cache_hits": 0,
+            "cache_misses": 0,
+            "rate_limited": 0,
             "provider_calls": 0,
             "errors": 0,
         }

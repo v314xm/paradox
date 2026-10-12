@@ -5,6 +5,8 @@
 и rate limit), возвращает результаты.
 
 Поддерживает и dict-и, и Finding — через универсальные helpers.
+Приватные IP (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16,
+224/4, 239/4) не собираются — Shodan про них ничего не знает.
 """
 import time
 
@@ -111,6 +113,34 @@ class EnricherOrchestrator:
         self.cache.close()
 
 
+def _is_private_ip(ip: str) -> bool:
+    """
+    Приватный / loopback / link-local / multicast.
+    Shodan InternetDB по таким ничего не вернёт — не тратим запросы.
+    """
+    if not isinstance(ip, str):
+        return False
+    if ip.startswith("10."):
+        return True
+    if ip.startswith("192.168."):
+        return True
+    if ip.startswith("127."):
+        return True
+    if ip.startswith("169.254."):
+        return True
+    if ip.startswith("224.") or ip.startswith("239."):
+        return True
+    if ip == "255.255.255.255":
+        return True
+    if ip.startswith("172."):
+        try:
+            second = int(ip.split(".")[1])
+        except (ValueError, IndexError):
+            return False
+        return 16 <= second <= 31
+    return False
+
+
 def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
     """
     Вытащить IP и домены из findings для обогащения.
@@ -118,6 +148,7 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
 
     Источники:
     - evidence["dst_ip"], evidence["src_ip"], evidence["ip"] — IP.
+      Приватные IP пропускаются.
     - evidence["base_domain"], ["sni"], ["host"], ["domain"] — домены.
     - value для findings типа dga_domain, typosquatting и т.п.
     """
@@ -139,12 +170,14 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
 
         for field in ip_fields:
             val = ev.get(field)
-            if isinstance(val, str) and val:
+            if isinstance(val, str) and val and not _is_private_ip(val):
                 out.append(("ip", val))
+
         for field in domain_fields:
             val = ev.get(field)
             if isinstance(val, str) and val:
                 out.append(("domain", val))
+
         if f_type in domain_value_types and f_value:
             v = f_value.strip()
             if v and " " not in v and ":" not in v:
