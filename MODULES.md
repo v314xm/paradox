@@ -10,7 +10,7 @@
 Версия пакета.
 
 ```python
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 ```
 
 ### `__main__.py`
@@ -42,13 +42,17 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 - **DGA:** `dga_entropy_threshold: 3.5`, `dga_min_label_length: 12`,
   `dga_allowlist` (CDN, cloud, Azure, Google, cloud tunnels,
   Stack Exchange, Live Messenger, blogs)
-- **Suspicious ports:** 21, 22, 23, 4444, 1337, 31337, 8080, 8443, 12132
+- **Suspicious ports:** 22, 23, 4444, 1337, 31337, 8080, 8443, 12132
+  (порт 21 убран — его обрабатывает FTPBruteForceDetector)
 - **Private networks:** префиксы для определения internal
 - **Port scan:** `port_scan_min_distinct_dsts: 10`,
   `port_scan_max_flows_per_dst: 3`,
   `port_scan_excluded_ports: {80, 443}`
 - **Large transfer:** `large_transfer_min_bytes: 100 MB`,
-  `large_transfer_include_reverse: True`
+  `large_transfer_include_reverse: True`,
+  `large_transfer_excluded_hosts` (Windows Update, Apple CDN),
+  `large_transfer_excluded_user_agents` (Microsoft BITS,
+  Microsoft-CryptoAPI, Microsoft-Delivery-Optimization)
 - **Lateral movement:** `lateral_movement_ports` (445, 135, 139,
   3389, 5985, 5986), `lateral_movement_min_flows_port_only: 5`,
   `lateral_movement_ua_markers` (WinRM, PsExec, Impacket, …),
@@ -56,6 +60,15 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
   `lateral_movement_admin_srcs` (пусто по умолчанию)
 - **FTP brute force:** `ftp_brute_force_min_flows: 20`,
   `ftp_brute_force_min_unique_src_ports: 20`
+- **Beaconing:** `beaconing_min_connections: 10`,
+  `beaconing_min_duration_sec: 300`,
+  `beaconing_max_jitter_ratio: 0.2`,
+  `beaconing_max_avg_bytes: 5000`
+- **DNS tunneling:** `dns_tunneling_min_qname_length: 50`,
+  `dns_tunneling_min_long_qnames: 20`,
+  `dns_tunneling_min_queries: 50`,
+  `dns_tunneling_allowlist` (DoH-сервисы: dns.google,
+  cloudflare-dns.com, mozilla.cloudflare-dns.com)
 - **NXDOMAIN burst:** `nxdomain_burst_threshold: 5`
 - **Cloud tunnels:** суффиксы trycloudflare/ngrok/serveo
 - **IP check services:** `ip_check_services` (домены) +
@@ -95,7 +108,6 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 - `FlowKey` — направленный 5-tuple (`proto`, `src_ip`, `dst_ip`,
   `src_port`, `dst_port`)
 - `SessionKey` + `make_session_key()` — нормализованный ключ
-  (для будущего использования, пока не активен)
 - `FlowStats` — состояние flow (`packets`, `bytes_sent`, `timestamps`,
   `initiated_by_src`, `sni`, `http_host`, `http_uri`, `http_method`,
   `http_user_agent`)
@@ -137,7 +149,8 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 
 **Реестры:**
 - `EXTRACTORS` — список экстракторов (FlowExtractor первым)
-- `DETECTORS` — список детекторов (порядок не важен)
+- `DETECTORS` — список детекторов (порядок не важен, но все
+  зарегистрированы один раз)
 
 **Связи:** `parsers.py`, `extractors/*`, `detectors/*`,
 `aggregators/entities.py`, `reporters/flow_report.py`.
@@ -149,8 +162,7 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 **Функции:**
 - `is_internal_ip(ip, config) -> bool` — проверка приватного IP
 - `classify_direction(src_ip, dst_ip, config) -> str` —
-  `"outbound"` (internal → external), `"inbound"` (external → internal),
-  `"internal"` (оба internal), `"external"` (оба external)
+  `"outbound"`, `"inbound"`, `"internal"`, `"external"`
 
 **Связи:** используется в `aggregators/entities.py`,
 `pipeline.py:_summarize_direction`, `detectors/large_transfer.py`.
@@ -263,8 +275,7 @@ TLS-экстрактор. Извлекает SNI из ClientHello.
 **Ограничение:** ClientHello должен уместиться в один TCP-сегмент.
 Работает на нестандартных портах (8443, 4443, 9443).
 
-**Падает явно**, если FlowStats не найден — это ловит ошибку
-порядка регистрации.
+**Падает явно**, если FlowStats не найден.
 
 ### `http.py`
 
@@ -302,7 +313,6 @@ HTTP-запросов.
 - `state.host_identities[client_ip].username` — cname без `$`
 - `state.host_identities[client_ip].hostnames.add(...)` — cname с `$`
 - `state.host_identities[client_ip].realm` — crealm/realm
-  (FQDN предпочтительнее короткого NetBIOS)
 
 **Обрабатывает оба направления:** запросы клиента (dst_port=88) и
 ответы KDC (src_port=88).
@@ -326,7 +336,7 @@ DGA-детектор по энтропии label.
 **Логика:**
 - Длина label ≥ `dga_min_label_length`
 - Энтропия Шеннона > `dga_entropy_threshold`
-- Игнор дефисов (признак человекочитаемого домена)
+- Игнор дефисов
 - Allowlist через `endswith`
 
 **Класс:** `DGADetector`. Функция `shannon_entropy(s)`.
@@ -348,10 +358,9 @@ DGA-детектор по энтропии label.
 
 **Логика:**
 - Группировка flows по `(src_ip, dst_port)`
-- Порты 80/443 исключены (`port_scan_excluded_ports`)
-- Порог: ≥ `port_scan_min_distinct_dsts` (10) разных dst_ip
-- Доля «тонких» целей (≤ `port_scan_max_flows_per_dst` flow'ов)
-  должна быть ≥ 0.7
+- Порты 80/443 исключены
+- Порог: ≥ 10 разных dst_ip
+- Доля «тонких» целей (≤ 3 flow'ов) должна быть ≥ 0.7
 
 **Класс:** `PortScanDetector`.
 
@@ -361,15 +370,13 @@ DGA-детектор по энтропии label.
 
 **Логика:** `dns_nxdomain_by_src[src_ip] >= threshold`.
 
-**Известный долг:** считает за весь файл, не по окну. Windowing — в
-TODO.
+**Известный долг:** считает за весь файл, не по окну.
 
 ### `cloud_tunnel.py`
 
 Домены на cloud tunnel сервисах.
 
-**Логика:** суффикс из `config.cloud_tunnel_domains` (endswith с
-проверкой на точку).
+**Логика:** суффикс из `config.cloud_tunnel_domains`.
 
 ### `ip_check_service.py`
 
@@ -382,24 +389,21 @@ TODO.
 - **Direct IP:** `flow.dst_ip` в `config.ip_check_service_ips`
   (mapping IP → каноническое имя сервиса)
 
-Все источники дают **одинаковое value** (имя сервиса). Findings
-от DNS/SNI/direct_ip **сливаются** в один. Evidence содержит
-`sources` — список всех совпавших источников.
+Все источники дают **одинаковое value** — findings сливаются в один.
+Evidence содержит `sources` — список совпавших источников.
 
 ### `typosquatting.py`
 
 Подделки под известные бренды.
 
 **Логика (v0.4.0+):**
-- Матчинг только по SLD (registered domain). Поддомены игнорируются.
-- **contains:** бренд — подстрока в SLD, но не в начале (sub-brand
-  `microsoftstore`) и не в конце с коротким префиксом (`s-microsoft`)
-- **levenshtein:** SLD близок к бренду, при условиях:
-  - длина ≥ 5
-  - не короче бренда на 2+
-  - первый и последний символ совпадают
-  - distance / max_len ≤ 0.25
-- Allowlist `legitimate_brand_domains` через `endswith`
+- Матчинг только по SLD (registered domain)
+- **contains:** бренд — подстрока в SLD, но не в начале и не в конце
+  с коротким префиксом
+- **levenshtein:** SLD близок к бренду, при условиях: длина ≥ 5,
+  не короче бренда на 2+, первый и последний символ совпадают,
+  distance / max_len ≤ 0.25
+- Allowlist `legitimate_brand_domains`
 
 **Функции:**
 - `_registered_label(domain)` — SLD
@@ -412,7 +416,7 @@ SNI без DNS-запроса.
 
 **Логика:**
 - `flow.sni` не в `dns_queries`
-- Не в `sni_mismatch_allowlist` (проверка по суффиксу)
+- Не в `sni_mismatch_allowlist`
 
 **Агрегация по SNI.**
 
@@ -422,16 +426,13 @@ HTTP-перебор паролей к одному endpoint.
 
 **Логика (v0.4.0):**
 - Много flows к одной `(src_ip, dst_ip, dst_port)`
-- Средний размер flow маленький (`max_avg_packets: 20`)
+- Средний размер flow маленький
 - Много уникальных src_ports
-- **Ratio URI:** если много разных URI → браузер
+- **Ratio URI:** много разных URI → браузер
 - **Rate:** слишком редко (< 0.01 flow/s) → поллинг
 - **Skip TLS:** порты 443/8443 пропускаются
-- **Login hint:** если HTTP-трафик и ни один URI не содержит
-  login/admin/wp-login → браузер
-
-**Известное ограничение:** FTP-перебор не ловится — там другие
-признаки (см. `ftp_brute_force.py`).
+- **Login hint:** HTTP без login-endpoint → браузер
+- **Skip port 21:** FTP обрабатывает FTPBruteForceDetector
 
 ### `ftp_brute_force.py`
 
@@ -439,8 +440,8 @@ HTTP-перебор паролей к одному endpoint.
 
 **Логика:**
 - Группировка flows по `(src_ip, dst_ip, dst_port=21)`
-- Порог `flow_count >= ftp_brute_force_min_flows` (20)
-- Порог `unique_src_ports >= ftp_brute_force_min_unique_src_ports` (20)
+- Порог `flow_count >= 20`
+- Порог `unique_src_ports >= 20`
 - Каждая попытка = новое TCP-соединение = новый src_port
 
 **Confidence:**
@@ -449,10 +450,50 @@ HTTP-перебор паролей к одному endpoint.
 - 0.75 иначе
 
 **Отличие от HTTP-brute_force:** FTP-сессия = 1185 пакетов,
-рубится `brute_force_max_avg_packets: 20`. Отдельный детектор с
-отдельными порогами.
+рубится `brute_force_max_avg_packets: 20`. Отдельный детектор
+с отдельными порогами.
 
 **Класс:** `FTPBruteForceDetector`.
+
+### `beaconing.py`
+
+Периодические обращения к C2 (heartbeat).
+
+**Логика (v0.6.0):**
+- Группировка flows по `(src_ip, dst_ip, dst_port)` — src_port
+  игнорируется, потому что каждый beacon = новое TCP-соединение
+- N ≥ `beaconing_min_connections` (10)
+- Длительность ≥ `beaconing_min_duration_sec` (300)
+- jitter = stddev(intervals) / mean(intervals) < `beaconing_max_jitter_ratio` (0.2)
+- Средний размер flow < `beaconing_max_avg_bytes` (5000)
+
+**Confidence:** 0.85 при jitter 0.05, 0.6 при jitter = max_jitter_ratio.
+
+**Отличие от brute_force:** brute_force — много flows ЗА КОРОТКОЕ
+ВРЕМЯ. Beaconing — много flows с РАВНЫМИ ИНТЕРВАЛАМИ на длинном
+горизонте.
+
+**Класс:** `BeaconingDetector`.
+
+### `dns_tunneling.py`
+
+DNS-туннелирование (exfiltration через DNS).
+
+**Логика (v0.6.0):**
+- Группировка по `(src_ip, base_domain)` — где base_domain = последние
+  2 уровня (attacker.com)
+- `total_queries >= dns_tunneling_min_queries` (50)
+- `long_qnames_count >= dns_tunneling_min_long_qnames` (20) —
+  qname длиной ≥ 50 символов
+- Allowlist `dns_tunneling_allowlist` (DoH)
+
+**Confidence:** 0.9 при long_count ≥ 2×min_long, 0.7 иначе.
+
+**Отличие от DGA:** DGA — короткие поддомены (10-15 символов).
+Tunneling — длинные (>50). Требуем min_qname_length, чтобы DGA
+не сработал как tunneling.
+
+**Класс:** `DNSTunnelingDetector`.
 
 ### `lateral_movement.py`
 
@@ -460,16 +501,14 @@ HTTP-перебор паролей к одному endpoint.
 
 **Логика (v0.5.0):**
 - Внутренний → внутренний трафик на порты удалённого управления
-  (445 SMB, 135 RPC, 139 NetBIOS, 3389 RDP, 5985/5986 WinRM)
+  (445, 135, 139, 3389, 5985, 5986)
 - **UA-маркер** (WinRM, PsExec, Impacket, wmiexec, evil-winrm) —
   confidence 0.8
 - **URI-маркер** (/wsman, /cimv2, /root/cimv2, /wmi) — 0.8
-- **Только порт** — confidence 0.6, но требует ≥
-  `lateral_movement_min_flows_port_only` (5) flows к одной паре.
+- **Только порт** — confidence 0.6, но требует ≥ 5 flows.
   Одиночный RDP-сеанс к jump-host — норма.
 
-**Allowlist:** `lateral_movement_admin_srcs` — IP, которые
-легитимно ходят на эти порты.
+**Allowlist:** `lateral_movement_admin_srcs`.
 
 **Класс:** `LateralMovementDetector`.
 
@@ -481,6 +520,9 @@ HTTP-перебор паролей к одному endpoint.
 - Один FlowKey или пара (прямой + обратный) с суммой байт >
   `large_transfer_min_bytes` (100 МБ)
 - `large_transfer_include_reverse=True` — суммирует оба направления
+- **Exclude:** хосты из `large_transfer_excluded_hosts`
+  (Windows Update, Apple CDN) и UA из
+  `large_transfer_excluded_user_agents` (Microsoft BITS)
 - Агрегация по нормализованной паре `frozenset({src, dst})`
 
 **Confidence:** 0.85.
@@ -497,7 +539,6 @@ HTTP-перебор паролей к одному endpoint.
 - **vulnerable_path:** URI содержит `config.vulnerable_paths`
 - **script_download:** URI заканчивается на
   `config.suspicious_download_extensions`
-- **Combo-сигнал:** `/wp-content/uploads/shell.php` даст оба finding
 - **Две стратегии:** individual (для одиночных) и web_scanner
   (для ≥ 10 разных URI от одного (src, dst))
 
@@ -509,7 +550,7 @@ HTTP-перебор паролей к одному endpoint.
 
 **Функции:**
 - `build_entities(state, findings, config) -> Entities` — основная
-- `_ips_from_finding(f)` — извлечь IP + сторону (src/dst) из finding
+- `_ips_from_finding(f)` — извлечь IP + сторону из finding
 - `_is_special_ip(ip)` — multicast, broadcast, loopback
 - `_touch_times(entity, ts)` — обновить first_seen/last_seen
 
@@ -550,26 +591,24 @@ conn.log-стиль.
 
 ## Тесты `tests/`
 
-10 файлов, 145 тестов. См. таблицу в `README.md`.
+12 файлов, 165 тестов. См. таблицу в `README.md`.
 
 **Ключевые файлы:**
-- `test_detectors.py` — базовое поведение 9 детекторов
-- `test_regressions.py` — FP-регрессии из FIRST-2015 и
-  CyberCampTask. Каждый тест привязан к конкретному
-  домену/сценарию, который был FP, и к фиксу, который его закрыл.
+- `test_detectors.py` — базовое поведение старых 9 детекторов
+- `test_regressions.py` — FP-регрессии из FIRST-2015 и CyberCampTask
+- `test_beaconing.py` — BeaconingDetector (10 тестов)
+- `test_dns_tunneling.py` — DNSTunnelingDetector (9 тестов)
 
 ## Известные проблемы в структуре
 
 1. **`extractors/extractors.py`** — дубликат `extractors/http.py`.
    Удалить.
 2. **`diag_nbns.py`, `diag_kerberos.py`** — одноразовые диагностические
-   скрипты. Не входят в пакет, лежат в корне. Можно удалить или
-   вынести в `tools/`.
+   скрипты. Вынести в `tools/` или удалить.
 3. **`nxdomain_burst` windowing** — считает за весь файл. Требует
    правки `CaptureState` (time-bucketed counts).
 4. **`vulnerable_path` и `script_download`** — остаются ~96 findings
-   в батче FIN-2015. Остатки сканеров после web_scanner агрегации,
-   не FP.
-5. **Markdown-рендер новых findings** — проверить, что `ftp_brute_force`,
-   `large_transfer`, `lateral_movement` отрисовываются в
-   markdown-отчёте.
+   в батче FIN-2015. Остатки сканеров после web_scanner агрегации.
+5. **`beaconing` требует windowing** для ловли медленных C2
+   (интервал больше часа). Сейчас работает только на heartbeat
+   в пределах одной сессии захвата.

@@ -17,17 +17,19 @@ realm), находит C2, скачанные скрипты, подозрите
   NBNS, Kerberos. Собирается автоматически.
 - **C2-инфраструктура.** DGA, cloud tunnels, typosquatting,
   IP-check сервисы, SNI без DNS.
+- **C2-beaconing.** Периодические heartbeat-соединения (jitter < 0.2,
+  ≥ 10 обращений, ≥ 5 минут).
+- **DNS tunneling.** Длинные уникальные поддомены под одним базовым
+  доменом (exfiltration через DNS).
 - **Активная разведка.** Web-сканеры (перебор уязвимых путей),
-  port-сканеры (горизонтальное сканирование портов),
-  FTP-брутфорс (словарный подбор).
+  port-сканеры, FTP-брутфорс.
 - **Lateral movement.** WinRM, PsExec, SMB, RDP между внутренними
   хостами. WinRM/PowerShell/Python-tools ловятся по User-Agent.
 - **Эксфильтрация.** Large transfers — аномально большие объёмы
-  в одном направлении (100 МБ и выше).
+  (100 МБ и выше).
 - **Payload download.** Скрипты (.ps1, .sh, .vbs, .hta),
   бинарники из HTTP-запросов.
-- **Направление трафика.** Uploaded / downloaded / internal —
-  сразу видно, загрузка это или эксфильтрация.
+- **Направление трафика.** Uploaded / downloaded / internal.
 - **Роли хостов.** `domain_controller`, `victim_candidate`,
   `attacker_candidate`, `c2_candidate`, `gateway_candidate`.
 
@@ -111,7 +113,7 @@ Scapy используется точечно — только для DNS-payloa
 | L0 | `tls.py` | SNI из TLS ClientHello |
 | L0 | `http.py` | Host, URI, Method, User-Agent |
 
-### Детекторы (13)
+### Детекторы (15)
 
 | Детектор | Что ловит |
 |---|---|
@@ -125,6 +127,8 @@ Scapy используется точечно — только для DNS-payloa
 | `sni_mismatch` | SNI без DNS-запроса |
 | `brute_force` | HTTP-перебор паролей к login endpoint |
 | `ftp_brute_force` | FTP-перебор (400+ попыток к порту 21) |
+| `beaconing` | Периодические C2-heartbeat (jitter < 0.2) |
+| `dns_tunneling` | Длинные уникальные поддомены под одним доменом |
 | `lateral_movement` | WinRM, PsExec, SMB, RDP между внутренними хостами |
 | `large_transfer` | Flow с объёмом > 100 МБ (прямой + обратный) |
 | `vulnerable_path` | Уязвимые пути (wp-login, .env) + web_scanner |
@@ -154,12 +158,14 @@ PCAP → Extractors → CaptureState → Detectors → Findings
 pytest tests/ -v
 ```
 
-**145 тестов** в 10 файлах. Всё зелёное.
+**165 тестов** в 12 файлах. Всё зелёное.
 
 | Файл | Тестов | Что покрывает |
 |---|---|---|
 | `test_detectors.py` | 41 | 9 базовых детекторов |
-| `test_regressions.py` | 26 | FP-регрессии из FIRST-2015 + CyberCampTask |
+| `test_regressions.py` | 31 | FP-регрессии из FIRST-2015 и CyberCampTask |
+| `test_beaconing.py` | 10 | Периодические heartbeat |
+| `test_dns_tunneling.py` | 9 | Длинные поддомены, allowlist DoH |
 | `test_parsers.py` | 11 | Разбор L2-L4 заголовков |
 | `test_aggregators_entities.py` | 10 | Роли, сущности, findings |
 | `test_tls_parse.py` | 10 | TLS ClientHello |
@@ -179,9 +185,8 @@ pytest tests/ -v
   0.4.0. 8 минут полный батч.
 - **CTF CyberCampTask** (334 МБ) — HTTP-брутфорс + FTP-брутфорс +
   скачивание скриптов + WinRM lateral movement + large transfer
-  на rtbcdn.ru. **6 findings, 0 FP.** Покрыто 4 из 5 гэпов
-  ручного анализа; не покрыт внутренний C2 (требует
-  HTTPObjectExtractor).
+  на rtbcdn.ru. **6 findings, 0 FP.** Покрыто 4 из 5 гэпов ручного
+  анализа; не покрыт внутренний C2 (требует HTTPObjectExtractor).
 - **IDS-пакет** (WordPress `/.env`) — сканирование уязвимости.
 - **MTA Simple C2** — сканер `78.153.140.203`.
 
@@ -192,6 +197,22 @@ pytest tests/ -v
 - `pyyaml` ≥ 6.0
 
 Windows / Linux / macOS. Разрабатывалось под Windows.
+
+## Roadmap
+
+В работе (0.6.0):
+- HTTPObjectExtractor + FileCarve — тело HTTP запросов/ответов.
+- ObfuscationDetector, WebShellDetector — на основе body.
+- Threat Intel enrichment (VirusTotal, AbuseIPDB, Shodan InternetDB).
+- TCP Reassembly — полные HTTP body и Kerberos.
+
+Запланировано:
+- Correlator (связки «жертва → скачала → отстучала»).
+- MITRE-маппинг в findings + heatmap в отчёте.
+- IOC → STIX 2.1 экспорт.
+- REST API + Web UI (FastAPI + фронтенд).
+- SMB2/DHCP/SSH/SMTP экстракторы, TLS cert parser + JA3.
+- IPv6 поддержка в парсере.
 
 ## Лицензия
 
