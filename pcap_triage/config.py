@@ -46,6 +46,30 @@ class Config:
         }),
     )
 
+    # --- JA3 fingerprinting ---
+    # Известные malware/pentest-фреймворки по JA3-хешу.
+    # Mapping JA3 → человекочитаемое имя для evidence.
+    #
+    # Источники: abuse.ch SSL Blacklist, Salesforce JA3,
+    # публичные отчёты по malware.
+    ja3_known_malware: Mapping[str, str] = field(
+        default_factory=lambda: MappingProxyType({
+            # Cobalt Strike
+            "a0e9f5d64349fb13191bc781f81f42e1": "Cobalt Strike (default)",
+            "72a589da586844d7f0818ce684948eea": "Cobalt Strike (variant 1)",
+            "8e01a8b1be8e3a4b3be0f7e5b3adceba": "Cobalt Strike (variant 2)",
+            # Pentest / anonymizers
+            "e7d705a3286e19ea42f587b344ee6865": "Tor client",
+            "3b5074b1b5d032e5620f69f9f700ff0e": "python-requests (default)",
+            "579ccef312d18482fc42e2b822ca2430": "python-urllib",
+            "894cc2ab0f7e28b3e0c32fcbd1a3a2a8": "go-http-client",
+            # Malware
+            "6734f37431670b3ab4292b8f60f29984": "Dridex",
+            "51c64c77e60f3980eea90869b68c58a8": "Trickbot",
+            "4d7a28d6f2263ed61de88ca66eb011e3": "Emotet",
+        }),
+    )
+
     # --- DGA ---
     dga_entropy_threshold: float = 3.5
     dga_min_label_length: int = 12

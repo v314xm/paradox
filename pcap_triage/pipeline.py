@@ -11,6 +11,7 @@ from pcap_triage.detectors.dga import DGADetector
 from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
 from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
+from pcap_triage.detectors.ja3_malware import JA3MalwareDetector
 from pcap_triage.detectors.port_scan import PortScanDetector
 from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
 from pcap_triage.detectors.typosquatting import TyposquattingDetector
@@ -36,6 +37,7 @@ from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
 from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
 
+
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
 EXTRACTORS = [
@@ -59,6 +61,7 @@ DETECTORS = [
     IPCheckServiceDetector(),
     TyposquattingDetector(),
     SNIMismatchDetector(),
+    JA3MalwareDetector(),
     BruteForceDetector(),
     FTPBruteForceDetector(),
     BeaconingDetector(),

@@ -1,28 +1,27 @@
-from pcap_triage.models import CaptureState, FlowKey
-from pcap_triage.parsers import PacketRecord
-from pcap_triage.tls_parse import extract_sni
 from pcap_triage.models import CaptureState, FlowKey, make_session_key
+from pcap_triage.parsers import PacketRecord
+from pcap_triage.ja3 import parse_client_hello, parse_server_hello
+from pcap_triage.tls_parse import extract_sni
 
 
 class TLSExtractor:
     """
-    Извлекает SNI из TLS ClientHello.
+    Извлекает SNI + JA3 из TLS ClientHello и JA3S из ServerHello.
 
     Работает поверх PacketRecord. Порты не проверяются специально:
     смотрим только на сигнатуру payload (первый байт 0x16 = handshake).
     Это ловит TLS и на нестандартных портах (8443, 4443, 9443 и т.п.),
     которые часто используют C2.
 
-    Пишет SNI в уже существующий FlowStats, найденный по FlowKey.
+    Пишет в существующий FlowStats, найденный по FlowKey.
     FlowExtractor ДОЛЖЕН идти первым в pipeline — если flow не найден,
-    экстрактор падает явно, чтобы не терять SNI молча.
+    экстрактор падает явно, чтобы не терять данные молча.
 
     Ограничения:
-    - ClientHello должен уместиться в один TCP-сегмент. Большинство
-      умещается, но фрагментированные (ECH, большие сертификаты) —
-      пропустятся. Полное решение — StreamReassembler (L1).
-    - Перезаписывает sni, если для этого flow его ещё не было.
-      Если уже был — оставляет первое значение (обычно оно же и одно).
+    - ClientHello/ServerHello должны уместиться в один TCP-сегмент.
+      Полное решение — StreamReassembler (L1, TODO).
+    - Перезаписывает поля только если они ещё пустые. Первое значение
+      считается правильным (обычно оно и одно).
     """
     name = "tls"
     layer = 0
@@ -32,12 +31,8 @@ class TLSExtractor:
             return
         if not record.payload:
             return
-        # первая сигнатура TLS handshake — 0x16
+        # сигнатура TLS handshake — 0x16
         if record.payload[0] != 0x16:
-            return
-
-        sni = extract_sni(record.payload)
-        if not sni:
             return
 
         if record.src_ip is None or record.dst_ip is None:
@@ -54,15 +49,31 @@ class TLSExtractor:
         flow = state.flows.get(key)
         if flow is None:
             # FlowExtractor должен был создать flow раньше.
-            # Если его нет — что-то не так с порядком экстракторов.
             raise RuntimeError(
                 f"TLSExtractor requires FlowExtractor to run first; "
                 f"no flow for key {key}"
             )
 
-        # пишем и в flow, и в сессию (для обратного направления)
-        if flow.sni is None:
-            flow.sni = sni
-        sk = make_session_key(key)
-        if sk not in state.session_sni:
-            state.session_sni[sk] = sni
+        # 1. Пробуем ClientHello — SNI + JA3
+        client = parse_client_hello(record.payload)
+        if client is not None:
+            if client.get("sni") and flow.sni is None:
+                flow.sni = client["sni"]
+                # дублируем в session_sni для обратного направления
+                sk = make_session_key(key)
+                if sk not in state.session_sni:
+                    state.session_sni[sk] = client["sni"]
+
+            if client.get("ja3") and flow.ja3 is None:
+                flow.ja3 = client["ja3"]
+            return
+
+        # 2. Пробуем ServerHello — JA3S
+        server = parse_server_hello(record.payload)
+        if server is not None:
+            if server.get("ja3s") and flow.ja3s is None:
+                flow.ja3s = server["ja3s"]
+            return
+
+        # Ни ClientHello, ни ServerHello — просто TLS handshake
+        # (Certificate, Finished, Alert, ...). Игнорируем.

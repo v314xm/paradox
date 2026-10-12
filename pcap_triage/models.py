@@ -88,6 +88,7 @@ class FlowStats:
     first_ts: float | None = None
     last_ts: float | None = None
 
+
     # TODO: не хранить все timestamps для долгих захватов.
     # Заменить на онлайн-агрегаты (Welford) + reservoir sampling.
     timestamps: list[float] = field(default_factory=list)
@@ -100,6 +101,7 @@ class FlowStats:
         # протокол-специфичные поля — заполняются L2-экстракторами
     sni: str | None = None
     ja3: str | None = None
+    ja3s: str | None = None
     http_host: str | None = None
     http_user_agent: str | None = None
     http_method: str | None = None
