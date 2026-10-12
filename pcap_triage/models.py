@@ -147,6 +147,9 @@ class CaptureState:
     # TCP reassembly: склеенные потоки по FlowKey
     tcp_streams: dict[FlowKey, bytes] = field(default_factory=dict)
     tcp_streams_truncated: set[FlowKey] = field(default_factory=set)
+    # HTTP-объекты, извлечённые из tcp_streams
+    # ключ — (FlowKey запроса, FlowKey ответа) или одиночный FlowKey
+    http_objects: list = field(default_factory=list)
 
 
 def get_session_sni(
