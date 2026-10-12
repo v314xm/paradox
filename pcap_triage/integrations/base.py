@@ -16,17 +16,10 @@ from typing import Protocol
 class EnrichmentResult:
     """
     Результат одного провайдера по одному IOC.
-
-    Поля:
-    - source: имя провайдера ("shodan_internetdb", "virustotal", ...)
-    - ioc: сам IOC, по которому делали запрос
-    - data: сырой ответ (dict), специфичный для провайдера
-    - fetched_at: unix timestamp запроса
-    - ttl_days: сколько дней ответ считается свежим
-    - error: если запрос упал (таймаут, 429, 5xx) — текст ошибки
     """
     source: str
     ioc: str
+    ioc_type: str = "ip"
     data: dict = field(default_factory=dict)
     fetched_at: float = 0.0
     ttl_days: int = 7
