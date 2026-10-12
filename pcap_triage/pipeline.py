@@ -32,6 +32,7 @@ from pcap_triage.extractors.nbns import NBNSExtractor
 from pcap_triage.extractors.kerberos import KerberosExtractor
 from pcap_triage.detectors.lateral_movement import LateralMovementDetector
 from pcap_triage.detectors.large_transfer import LargeTransferDetector
+from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
@@ -57,9 +58,11 @@ DETECTORS = [
     TyposquattingDetector(),
     SNIMismatchDetector(),
     BruteForceDetector(),
+    FTPBruteForceDetector(),
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),
+
 ]
 
 

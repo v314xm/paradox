@@ -7,7 +7,7 @@
     "flows": 1255,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 4.78
+    "elapsed_sec": 4.9
   },
   {
     "path": "2015-03-05\\snort.log.1425572414",
@@ -17,7 +17,7 @@
     "flows": 580,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 0.71
+    "elapsed_sec": 0.79
   },
   {
     "path": "2015-03-05\\snort.log.pcap",
@@ -29,7 +29,7 @@
     "finding_types": {
       "nxdomain_burst": 1
     },
-    "elapsed_sec": 4.71
+    "elapsed_sec": 5.55
   },
   {
     "path": "2015-03-06\\snort.log.1425600057",
@@ -43,7 +43,7 @@
       "script_download": 3,
       "vulnerable_path": 3
     },
-    "elapsed_sec": 10.82
+    "elapsed_sec": 12.12
   },
   {
     "path": "2015-03-06\\snort.log.1425650399",
@@ -58,7 +58,7 @@
       "script_download": 4,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 5.22
+    "elapsed_sec": 5.39
   },
   {
     "path": "2015-03-07\\snort.log.1425686433",
@@ -70,7 +70,7 @@
     "finding_types": {
       "vulnerable_path": 3
     },
-    "elapsed_sec": 9.53
+    "elapsed_sec": 9.09
   },
   {
     "path": "2015-03-08\\snort.log.1425772833",
@@ -80,7 +80,7 @@
     "flows": 16869,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 9.37
+    "elapsed_sec": 9.91
   },
   {
     "path": "2015-03-09\\snort.log.1425859232",
@@ -95,7 +95,7 @@
       "script_download": 9,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 9.16
+    "elapsed_sec": 11.22
   },
   {
     "path": "2015-03-09\\snort.log.1425892283",
@@ -103,12 +103,13 @@
     "size_mb": 152.63,
     "packets": 172672,
     "flows": 2736,
-    "findings": 3,
+    "findings": 4,
     "finding_types": {
       "sni_without_dns": 2,
-      "brute_force": 1
+      "brute_force": 1,
+      "large_transfer": 1
     },
-    "elapsed_sec": 4.43
+    "elapsed_sec": 4.99
   },
   {
     "path": "2015-03-09\\snort.log.1425892560",
@@ -116,13 +117,14 @@
     "size_mb": 152.67,
     "packets": 174720,
     "flows": 3116,
-    "findings": 13,
+    "findings": 14,
     "finding_types": {
       "sni_without_dns": 5,
       "brute_force": 1,
+      "large_transfer": 1,
       "script_download": 7
     },
-    "elapsed_sec": 4.47
+    "elapsed_sec": 4.79
   },
   {
     "path": "2015-03-09\\snort.log.1425892797",
@@ -139,7 +141,7 @@
       "vulnerable_path": 3,
       "web_scanner": 1
     },
-    "elapsed_sec": 6.92
+    "elapsed_sec": 8.03
   },
   {
     "path": "2015-03-09\\snort.log.1425894726",
@@ -154,7 +156,7 @@
       "typosquatting": 1,
       "vulnerable_path": 4
     },
-    "elapsed_sec": 7.58
+    "elapsed_sec": 7.76
   },
   {
     "path": "2015-03-09\\snort.log.1425900311",
@@ -162,12 +164,13 @@
     "size_mb": 152.21,
     "packets": 144683,
     "flows": 363,
-    "findings": 2,
+    "findings": 3,
     "finding_types": {
       "sni_without_dns": 1,
+      "large_transfer": 1,
       "script_download": 1
     },
-    "elapsed_sec": 3.66
+    "elapsed_sec": 3.71
   },
   {
     "path": "2015-03-09\\snort.log.1425901238",
@@ -180,7 +183,7 @@
       "dga_domain": 1,
       "nxdomain_burst": 1
     },
-    "elapsed_sec": 7.82
+    "elapsed_sec": 9.12
   },
   {
     "path": "2015-03-10\\snort.log.1425945610",
@@ -194,7 +197,7 @@
       "nxdomain_burst": 2,
       "vulnerable_path": 3
     },
-    "elapsed_sec": 15.57
+    "elapsed_sec": 13.83
   },
   {
     "path": "2015-03-10\\snort.log.1425987061",
@@ -209,7 +212,7 @@
       "sni_without_dns": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 5.2
+    "elapsed_sec": 5.74
   },
   {
     "path": "2015-03-11\\snort.log.1426032013",
@@ -217,14 +220,15 @@
     "size_mb": 154.02,
     "packets": 263364,
     "flows": 18301,
-    "findings": 7,
+    "findings": 9,
     "finding_types": {
       "suspicious_port": 2,
       "nxdomain_burst": 2,
       "sni_without_dns": 1,
+      "ftp_brute_force": 2,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 13.21
+    "elapsed_sec": 15.75
   },
   {
     "path": "2015-03-11\\snort.log.1426068001",
@@ -232,14 +236,15 @@
     "size_mb": 37.5,
     "packets": 124574,
     "flows": 10030,
-    "findings": 7,
+    "findings": 8,
     "finding_types": {
       "suspicious_port": 3,
       "nxdomain_burst": 1,
       "sni_without_dns": 1,
-      "brute_force": 2
+      "brute_force": 2,
+      "ftp_brute_force": 1
     },
-    "elapsed_sec": 6.13
+    "elapsed_sec": 7.31
   },
   {
     "path": "2015-03-12\\snort.log.1426118407",
@@ -255,7 +260,7 @@
       "sni_without_dns": 1,
       "script_download": 1
     },
-    "elapsed_sec": 8.05
+    "elapsed_sec": 8.13
   },
   {
     "path": "2015-03-13\\snort.log.1426204807",
@@ -270,7 +275,7 @@
       "script_download": 9,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 9.55
+    "elapsed_sec": 10.38
   },
   {
     "path": "2015-03-13\\snort.log.1426247520",
@@ -286,7 +291,7 @@
       "script_download": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 8.82
+    "elapsed_sec": 7.39
   },
   {
     "path": "2015-03-14\\snort.log.1426291215",
@@ -300,7 +305,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 6.86
+    "elapsed_sec": 6.96
   },
   {
     "path": "2015-03-15\\snort.log.1426377613",
@@ -313,7 +318,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 6.84
+    "elapsed_sec": 7.34
   },
   {
     "path": "2015-03-16\\snort.log.1426464007",
@@ -328,7 +333,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 8.11
+    "elapsed_sec": 7.22
   },
   {
     "path": "2015-03-17\\snort.log.1426550408",
@@ -345,7 +350,7 @@
       "vulnerable_path": 5,
       "web_scanner": 1
     },
-    "elapsed_sec": 18.04
+    "elapsed_sec": 18.58
   },
   {
     "path": "2015-03-17\\snort.log.1426600259",
@@ -358,7 +363,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 4.3
+    "elapsed_sec": 4.98
   },
   {
     "path": "2015-03-18\\snort.log.1426636809",
@@ -373,7 +378,7 @@
       "script_download": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 27.66
+    "elapsed_sec": 27.96
   },
   {
     "path": "2015-03-19\\snort.log.1426723211",
@@ -388,7 +393,7 @@
       "script_download": 1,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.98
+    "elapsed_sec": 7.66
   },
   {
     "path": "2015-03-20\\snort.log.1426809609",
@@ -402,7 +407,7 @@
       "sni_without_dns": 1,
       "script_download": 1
     },
-    "elapsed_sec": 9.24
+    "elapsed_sec": 9.27
   },
   {
     "path": "2015-03-21\\snort.log.1426896008",
@@ -415,7 +420,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 8.04
+    "elapsed_sec": 7.4
   },
   {
     "path": "2015-03-22\\snort.log.1426982408",
@@ -428,7 +433,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 9.09
+    "elapsed_sec": 7.8
   },
   {
     "path": "2015-03-23\\snort.log.1427068809",
@@ -441,7 +446,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 8.77
+    "elapsed_sec": 7.42
   },
   {
     "path": "2015-03-24\\snort.log.1427155207",
@@ -455,7 +460,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 9.88
+    "elapsed_sec": 8.0
   },
   {
     "path": "2015-03-25\\snort.log.1427241610",
@@ -469,7 +474,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.95
+    "elapsed_sec": 7.75
   },
   {
     "path": "2015-03-26\\snort.log.1427328007",
@@ -483,7 +488,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 7.47
+    "elapsed_sec": 7.82
   },
   {
     "path": "2015-03-27\\snort.log.1427414408",
@@ -497,7 +502,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 6.67
+    "elapsed_sec": 6.99
   },
   {
     "path": "2015-03-28\\snort.log.1427500807",
@@ -511,7 +516,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 4
     },
-    "elapsed_sec": 7.76
+    "elapsed_sec": 7.52
   },
   {
     "path": "2015-03-29\\snort.log.1427587208",
@@ -524,7 +529,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 6.95
+    "elapsed_sec": 7.12
   },
   {
     "path": "2015-03-30\\snort.log.1427673608",
@@ -538,7 +543,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 7.75
+    "elapsed_sec": 7.62
   },
   {
     "path": "2015-03-31\\snort.log.1427760010",
@@ -564,7 +569,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 9.99
+    "elapsed_sec": 10.65
   },
   {
     "path": "2015-04-01\\snort.log.1427907050",
@@ -577,7 +582,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 5.09
+    "elapsed_sec": 5.03
   },
   {
     "path": "2015-04-01\\snort.log.1427908260",
@@ -587,7 +592,7 @@
     "flows": 895,
     "findings": 0,
     "finding_types": {},
-    "elapsed_sec": 6.35
+    "elapsed_sec": 6.46
   },
   {
     "path": "2015-04-01\\snort.log.1427909436",
@@ -600,7 +605,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 5.64
+    "elapsed_sec": 5.7
   },
   {
     "path": "2015-04-01\\snort.log.1427910641",
@@ -613,7 +618,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 2.76
+    "elapsed_sec": 2.43
   },
   {
     "path": "2015-04-02\\snort.log.1427932811",
@@ -625,7 +630,7 @@
     "finding_types": {
       "nxdomain_burst": 2
     },
-    "elapsed_sec": 14.71
+    "elapsed_sec": 12.91
   },
   {
     "path": "2015-04-03\\snort.log.1428019208",
@@ -639,7 +644,7 @@
       "sni_without_dns": 2,
       "script_download": 1
     },
-    "elapsed_sec": 8.57
+    "elapsed_sec": 8.65
   },
   {
     "path": "2015-04-04\\snort.log.1428105608",
@@ -653,7 +658,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 1
     },
-    "elapsed_sec": 6.86
+    "elapsed_sec": 7.98
   },
   {
     "path": "2015-04-05\\snort.log.1428192010",
@@ -667,7 +672,7 @@
       "suspicious_port": 2,
       "nxdomain_burst": 2
     },
-    "elapsed_sec": 14.81
+    "elapsed_sec": 14.22
   },
   {
     "path": "2015-04-06\\snort.log.1428278410",
@@ -680,7 +685,7 @@
       "nxdomain_burst": 2,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 8.01
+    "elapsed_sec": 8.16
   },
   {
     "path": "2015-04-07\\snort.log.1428364808",
@@ -696,7 +701,7 @@
       "sni_without_dns": 2,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 15.69
+    "elapsed_sec": 14.13
   },
   {
     "path": "2015-04-08\\snort.log.1428451217",
@@ -712,7 +717,7 @@
       "sni_without_dns": 4,
       "vulnerable_path": 2
     },
-    "elapsed_sec": 14.75
+    "elapsed_sec": 13.67
   },
   {
     "path": "2015-04-08\\snort.log.1428535715",
@@ -725,7 +730,7 @@
       "nxdomain_burst": 1,
       "sni_without_dns": 1
     },
-    "elapsed_sec": 0.65
+    "elapsed_sec": 0.67
   },
   {
     "path": "2015-04-09\\snort.log.1428537608",
@@ -742,7 +747,7 @@
       "vulnerable_path": 2,
       "web_scanner": 3
     },
-    "elapsed_sec": 12.13
+    "elapsed_sec": 14.42
   },
   {
     "path": "2015-04-10\\snort.log.1428624009",
@@ -756,7 +761,7 @@
       "nxdomain_burst": 3,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 9.32
+    "elapsed_sec": 10.6
   },
   {
     "path": "2015-04-11\\snort.log.1428710407",
@@ -770,7 +775,7 @@
       "nxdomain_burst": 4,
       "sni_without_dns": 2
     },
-    "elapsed_sec": 10.18
+    "elapsed_sec": 9.86
   },
   {
     "path": "2015-04-12\\snort.log.1428796808",
@@ -786,7 +791,7 @@
       "vulnerable_path": 1,
       "web_scanner": 1
     },
-    "elapsed_sec": 9.53
+    "elapsed_sec": 9.84
   },
   {
     "path": "2015-04-13\\snort.log.1428883207",
@@ -800,6 +805,6 @@
       "nxdomain_burst": 3,
       "sni_without_dns": 4
     },
-    "elapsed_sec": 4.07
+    "elapsed_sec": 4.2
   }
 ]

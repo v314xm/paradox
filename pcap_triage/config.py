@@ -81,7 +81,7 @@ class Config:
 
     # --- suspicious ports ---
     suspicious_ports: frozenset[int] = field(default_factory=lambda: frozenset({
-        21,     # FTP
+
         22,     # SSH (наружу)
         23,     # Telnet
         4444,   # Metasploit default
@@ -113,8 +113,30 @@ class Config:
     )
 
     # --- large transfer ---
+    # --- large transfer ---
     large_transfer_min_bytes: int = 100 * 1024 * 1024
     large_transfer_include_reverse: bool = True
+    # Хосты и UA, для которых большие трансферы — норма. Загрузка
+    # обновлений Windows через BITS, апдейты macOS. Ищем подстроку
+    # в http_host или user_agent.
+    large_transfer_excluded_hosts: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "windowsupdate.com",
+            "download.microsoft.com",
+            "update.microsoft.com",
+            "swdist.apple.com",
+            "swcdn.apple.com",
+            "mesu.apple.com",
+            "gdmf.apple.com",
+        ),
+    )
+    large_transfer_excluded_user_agents: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "Microsoft BITS",
+            "Microsoft-CryptoAPI",
+            "Microsoft-Delivery-Optimization",
+        ),
+    )
 
     # --- lateral movement ---
     lateral_movement_ports: frozenset[int] = field(
@@ -142,6 +164,15 @@ class Config:
     lateral_movement_admin_srcs: frozenset[str] = field(
         default_factory=frozenset,
     )
+
+    # --- FTP brute force ---
+    # Отдельно от HTTP-brute_force: FTP-сессия состоит из множества
+    # пакетов (логин, MKD, LIST, data), поэтому avg_packets > 20
+    # рубит HTTP-детектор. Ищем чистый признак: много flows
+    # к одному (dst, 21) с уникальными src_ports.
+    ftp_brute_force_min_flows: int = 20
+    ftp_brute_force_min_unique_src_ports: int = 20
+
 
     # --- NXDOMAIN burst ---
     nxdomain_burst_threshold: int = 5
@@ -280,6 +311,13 @@ class Config:
 
     def _validate(self) -> None:
         errors: list[str] = []
+
+        if self.ftp_brute_force_min_flows <= 0:
+            errors.append("ftp_brute_force_min_flows must be > 0")
+        if self.ftp_brute_force_min_unique_src_ports <= 0:
+            errors.append(
+                "ftp_brute_force_min_unique_src_ports must be > 0"
+            )
 
         if self.large_transfer_min_bytes <= 0:
             errors.append("large_transfer_min_bytes must be > 0")

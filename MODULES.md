@@ -10,7 +10,7 @@
 Версия пакета.
 
 ```python
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 ```
 
 ### `__main__.py`
@@ -46,10 +46,20 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
 - **Private networks:** префиксы для определения internal
 - **Port scan:** `port_scan_min_distinct_dsts: 10`,
   `port_scan_max_flows_per_dst: 3`,
-  `port_scan_excluded_ports: {80, 443}` (браузер неотличим от скана)
+  `port_scan_excluded_ports: {80, 443}`
+- **Large transfer:** `large_transfer_min_bytes: 100 MB`,
+  `large_transfer_include_reverse: True`
+- **Lateral movement:** `lateral_movement_ports` (445, 135, 139,
+  3389, 5985, 5986), `lateral_movement_min_flows_port_only: 5`,
+  `lateral_movement_ua_markers` (WinRM, PsExec, Impacket, …),
+  `lateral_movement_uri_markers` (/wsman, /cimv2),
+  `lateral_movement_admin_srcs` (пусто по умолчанию)
+- **FTP brute force:** `ftp_brute_force_min_flows: 20`,
+  `ftp_brute_force_min_unique_src_ports: 20`
 - **NXDOMAIN burst:** `nxdomain_burst_threshold: 5`
 - **Cloud tunnels:** суффиксы trycloudflare/ngrok/serveo
-- **IP check services:** точные домены ip-api.com/ifconfig.me
+- **IP check services:** `ip_check_services` (домены) +
+  `ip_check_service_ips: Mapping[str, str]` (IP → каноническое имя)
 - **Typosquatting:** `protected_brands` (18 брендов),
   `legitimate_brand_domains` (~50 доменов),
   `typosquatting_levenshtein_threshold: 2`
@@ -65,7 +75,7 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
   `brute_force_uri_ratio_threshold: 0.3`,
   `brute_force_min_rate_flows_per_sec: 0.01`,
   `brute_force_skip_tls_ports: {443, 8443}`,
-  `login_endpoint_hints` (login/admin/wp-login/…)
+  `login_endpoint_hints`
 - **Vulnerable paths:** `vulnerable_paths` (wp-login, .env, /.git),
   `suspicious_download_extensions` (.ps1, .sh, .vbs, .exe, .dll)
 - **Web scanner:** `web_scanner_min_distinct_paths: 10`
@@ -143,7 +153,7 @@ CLI-обёртка. Парсинг аргументов, интерактивн�
   `"internal"` (оба internal), `"external"` (оба external)
 
 **Связи:** используется в `aggregators/entities.py`,
-`pipeline.py:_summarize_direction`.
+`pipeline.py:_summarize_direction`, `detectors/large_transfer.py`.
 
 ### `tls_parse.py`
 
@@ -317,8 +327,7 @@ DGA-детектор по энтропии label.
 - Длина label ≥ `dga_min_label_length`
 - Энтропия Шеннона > `dga_entropy_threshold`
 - Игнор дефисов (признак человекочитаемого домена)
-- Allowlist через `endswith` (CDN, cloud, Azure, Google,
-  Stack Exchange, Live Messenger, blogs)
+- Allowlist через `endswith`
 
 **Класс:** `DGADetector`. Функция `shannon_entropy(s)`.
 
@@ -330,9 +339,8 @@ DGA-детектор по энтропии label.
 - Порт в `config.suspicious_ports`
 - `dst_ip` **не** приватный
 - Агрегация по `(dst_ip, dst_port)` — один finding на пару
-- **Фильтр `port_scan`:** если все src в finding'е — сканеры
-  (у каждого ≥ `port_scan_min_distinct_dsts` разных dst на этот порт),
-  finding пропускается — его покрывает `PortScanDetector`.
+- **Фильтр `port_scan`:** если все src в finding'е — сканеры,
+  finding пропускается.
 
 ### `port_scan.py`
 
@@ -340,20 +348,10 @@ DGA-детектор по энтропии label.
 
 **Логика:**
 - Группировка flows по `(src_ip, dst_port)`
-- Порты 80/443 исключены (`port_scan_excluded_ports`) — браузер
-  неотличим от скана
+- Порты 80/443 исключены (`port_scan_excluded_ports`)
 - Порог: ≥ `port_scan_min_distinct_dsts` (10) разных dst_ip
-- Дополнительно: доля «тонких» целей (≤ `port_scan_max_flows_per_dst`
-  flow'ов) должна быть ≥ 0.7 — иначе это браузер с параллельными
-  соединениями
-
-**Отличие от `suspicious_port`:**
-- `suspicious_port` → finding per `(dst_ip, dst_port)`, много findings
-- `port_scan` → finding per `(src_ip, dst_port)`, один finding
-
-**Отличие от `brute_force`:**
-- `brute_force` → много flow'ов к ОДНОМУ dst_ip
-- `port_scan` → по 1-2 flow к КАЖДОМУ из многих dst_ip
+- Доля «тонких» целей (≤ `port_scan_max_flows_per_dst` flow'ов)
+  должна быть ≥ 0.7
 
 **Класс:** `PortScanDetector`.
 
@@ -364,7 +362,7 @@ DGA-детектор по энтропии label.
 **Логика:** `dns_nxdomain_by_src[src_ip] >= threshold`.
 
 **Известный долг:** считает за весь файл, не по окну. Windowing — в
-TODO (см. CHANGELOG).
+TODO.
 
 ### `cloud_tunnel.py`
 
@@ -375,36 +373,38 @@ TODO (см. CHANGELOG).
 
 ### `ip_check_service.py`
 
-Обращения к ip-api.com, ifconfig.me и т.п.
+Обращения к сервисам проверки внешнего IP (ip-api.com, ifconfig.me).
 
-**Логика:** точное совпадение имени домена с `config.ip_check_services`.
+**Логика (v0.5.0):**
+- **DNS:** `state.dns_queries` содержит домен сервиса
+- **SNI:** `flow.sni` содержит домен сервиса
+- **HTTP Host:** `flow.http_host` содержит домен сервиса
+- **Direct IP:** `flow.dst_ip` в `config.ip_check_service_ips`
+  (mapping IP → каноническое имя сервиса)
+
+Все источники дают **одинаковое value** (имя сервиса). Findings
+от DNS/SNI/direct_ip **сливаются** в один. Evidence содержит
+`sources` — список всех совпавших источников.
 
 ### `typosquatting.py`
 
 Подделки под известные бренды.
 
-**Логика (v0.4.0):**
-- Матчинг идёт **только по SLD** (registered domain, второй уровень
-  справа). Поддомены игнорируются: `googleads.g.doubleclick.net` →
-  SLD `doubleclick`, не `google`.
-- **contains:** бренд — подстрока в SLD, но **не** в начале (sub-brand
-  `microsoftstore`) и не в конце с очень коротким префиксом
-  (tracking `s-microsoft`)
-- **levenshtein:** SLD близок к бренду, при условии:
-  - длина ≥ 5 (`app` не считается)
+**Логика (v0.4.0+):**
+- Матчинг только по SLD (registered domain). Поддомены игнорируются.
+- **contains:** бренд — подстрока в SLD, но не в начале (sub-brand
+  `microsoftstore`) и не в конце с коротким префиксом (`s-microsoft`)
+- **levenshtein:** SLD близок к бренду, при условиях:
+  - длина ≥ 5
   - не короче бренда на 2+
-  - первый и последний символ совпадают (`appier` vs `apple` — разные
-    концы, не считается)
-  - расстояние ≤ threshold и ≤ 25% длины (`behance` vs `binance` — 2/7
-    = 0.29 > 0.25, не считается)
+  - первый и последний символ совпадают
+  - distance / max_len ≤ 0.25
 - Allowlist `legitimate_brand_domains` через `endswith`
 
 **Функции:**
 - `_registered_label(domain)` — SLD
 - `_check_squat(sld, brand, lev_threshold)` — основная проверка
-- `levenshtein(a, b)` — классический редакторский distance
-
-**Класс:** `TyposquattingDetector`.
+- `levenshtein(a, b)` — редакторский distance
 
 ### `sni_mismatch.py`
 
@@ -418,47 +418,88 @@ SNI без DNS-запроса.
 
 ### `brute_force.py`
 
-Перебор паролей к одной паре.
+HTTP-перебор паролей к одному endpoint.
 
 **Логика (v0.4.0):**
 - Много flows к одной `(src_ip, dst_ip, dst_port)`
-- Средний размер flow маленький (`max_avg_packets`)
+- Средний размер flow маленький (`max_avg_packets: 20`)
 - Много уникальных src_ports
-- **Ratio URI:** если много разных URI → браузер, не подбор
-- **Rate:** слишком редко (< 0.01 flow/s) → поллинг, не подбор
-- **Skip TLS:** порты 443/8443 пропускаются — массовые TCP-соединения
-  туда = браузер к CDN
+- **Ratio URI:** если много разных URI → браузер
+- **Rate:** слишком редко (< 0.01 flow/s) → поллинг
+- **Skip TLS:** порты 443/8443 пропускаются
 - **Login hint:** если HTTP-трафик и ни один URI не содержит
-  login/admin/wp-login → это браузер, не подбор
+  login/admin/wp-login → браузер
 
-**Известное ограничение:** SSH/FTP/RDP-подбор не оставляет URI —
-фильтр login-hint там не применяется (нет URI). Rate-фильтр
-работает.
+**Известное ограничение:** FTP-перебор не ловится — там другие
+признаки (см. `ftp_brute_force.py`).
+
+### `ftp_brute_force.py`
+
+Словарный подбор паролей к FTP-серверу.
+
+**Логика:**
+- Группировка flows по `(src_ip, dst_ip, dst_port=21)`
+- Порог `flow_count >= ftp_brute_force_min_flows` (20)
+- Порог `unique_src_ports >= ftp_brute_force_min_unique_src_ports` (20)
+- Каждая попытка = новое TCP-соединение = новый src_port
+
+**Confidence:**
+- 0.95 при flow_count ≥ 100
+- 0.85 при flow_count ≥ 50
+- 0.75 иначе
+
+**Отличие от HTTP-brute_force:** FTP-сессия = 1185 пакетов,
+рубится `brute_force_max_avg_packets: 20`. Отдельный детектор с
+отдельными порогами.
+
+**Класс:** `FTPBruteForceDetector`.
+
+### `lateral_movement.py`
+
+Признаки перемещения по внутренней сети.
+
+**Логика (v0.5.0):**
+- Внутренний → внутренний трафик на порты удалённого управления
+  (445 SMB, 135 RPC, 139 NetBIOS, 3389 RDP, 5985/5986 WinRM)
+- **UA-маркер** (WinRM, PsExec, Impacket, wmiexec, evil-winrm) —
+  confidence 0.8
+- **URI-маркер** (/wsman, /cimv2, /root/cimv2, /wmi) — 0.8
+- **Только порт** — confidence 0.6, но требует ≥
+  `lateral_movement_min_flows_port_only` (5) flows к одной паре.
+  Одиночный RDP-сеанс к jump-host — норма.
+
+**Allowlist:** `lateral_movement_admin_srcs` — IP, которые
+легитимно ходят на эти порты.
+
+**Класс:** `LateralMovementDetector`.
+
+### `large_transfer.py`
+
+Аномально большой объём в одном flow.
+
+**Логика:**
+- Один FlowKey или пара (прямой + обратный) с суммой байт >
+  `large_transfer_min_bytes` (100 МБ)
+- `large_transfer_include_reverse=True` — суммирует оба направления
+- Агрегация по нормализованной паре `frozenset({src, dst})`
+
+**Confidence:** 0.85.
+
+**Класс:** `LargeTransferDetector`.
 
 ### `vulnerable_path.py`
 
 Обращения к уязвимым путям в HTTP + скачивание опасных файлов +
 детекция web-сканеров.
 
-**Логика (v0.4.0):**
-- Нормализация URI: `urlsplit(uri).path`, percent-decode, lowercase.
-  `/WP-LOGIN.PHP?nonce=123` и `/wp-login.php?nonce=456` попадают в
-  один bucket.
+**Логика (v0.4.0+):**
+- Нормализация URI: `urlsplit(uri).path`, percent-decode, lowercase
 - **vulnerable_path:** URI содержит `config.vulnerable_paths`
 - **script_download:** URI заканчивается на
   `config.suspicious_download_extensions`
 - **Combo-сигнал:** `/wp-content/uploads/shell.php` даст оба finding
-- **Две стратегии агрегации:**
-  - individual — если у пары `(src, dst)` < `web_scanner_min_distinct_paths`
-    разных URI
-  - web_scanner — если ≥ порога. Один finding с `top_paths`,
-    `distinct_paths`, `total_requests`. Individual findings для этой
-    пары не генерируются.
-
-### `web_scanner` (не отдельный файл)
-
-Тип finding, генерируется `VulnerablePathDetector`. Агрегация
-горизонтального перебора URI от одного `(src, dst)`. Confidence 0.9.
+- **Две стратегии:** individual (для одиночных) и web_scanner
+  (для ≥ 10 разных URI от одного (src, dst))
 
 ## Слой агрегаторов `pcap_triage/aggregators/`
 
@@ -475,8 +516,6 @@ SNI без DNS-запроса.
 **Датаклассы:**
 - `Entity` — один IP с ролями, статистикой, профилем
 - `Entities(internal, external)`
-
-**Роли** (см. `ARCHITECTURE.md`).
 
 ## Слой reporters `pcap_triage/reporters/`
 
@@ -511,14 +550,13 @@ conn.log-стиль.
 
 ## Тесты `tests/`
 
-10 файлов, 127 тестов. См. таблицу в `README.md`.
+10 файлов, 145 тестов. См. таблицу в `README.md`.
 
 **Ключевые файлы:**
-- `test_detectors.py` — базовое поведение детекторов
-- `test_regressions.py` — FP-регрессии из FIRST-2015.
-  Каждый тест привязан к конкретному домену/сценарию, который был FP,
-  и к фиксу, который его закрыл. Если регрессия вернётся — тест
-  упадёт.
+- `test_detectors.py` — базовое поведение 9 детекторов
+- `test_regressions.py` — FP-регрессии из FIRST-2015 и
+  CyberCampTask. Каждый тест привязан к конкретному
+  домену/сценарию, который был FP, и к фиксу, который его закрыл.
 
 ## Известные проблемы в структуре
 
@@ -530,6 +568,8 @@ conn.log-стиль.
 3. **`nxdomain_burst` windowing** — считает за весь файл. Требует
    правки `CaptureState` (time-bucketed counts).
 4. **`vulnerable_path` и `script_download`** — остаются ~96 findings
-   в батче FIN-2015. Это остатки сканеров после web_scanner
-   агрегации, не FP. Дальнейшее сокращение требует анализа
-   домен-специфичных паттернов.
+   в батче FIN-2015. Остатки сканеров после web_scanner агрегации,
+   не FP.
+5. **Markdown-рендер новых findings** — проверить, что `ftp_brute_force`,
+   `large_transfer`, `lateral_movement` отрисовываются в
+   markdown-отчёте.

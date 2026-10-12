@@ -10,7 +10,7 @@
     "unique_dns_queries": 633,
     "nxdomain_count": 107,
     "flows": 18301,
-    "findings": 7,
+    "findings": 9,
     "extractor_errors": {},
     "uploaded_bytes": 11171669,
     "downloaded_bytes": 141255183,
@@ -5297,6 +5297,38 @@
       },
       "first_seen": 1426032965.973923,
       "last_seen": 1426067254.018499
+    },
+    {
+      "type": "ftp_brute_force",
+      "value": "192.168.0.2 -> 194.105.226.20:21",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "194.105.226.20",
+        "dst_port": 21,
+        "flow_count": 20,
+        "unique_src_ports": 20,
+        "packets_total": 168,
+        "bytes_total": 10600
+      },
+      "first_seen": 1426059422.835592,
+      "last_seen": 1426064560.660773
+    },
+    {
+      "type": "ftp_brute_force",
+      "value": "192.168.0.2 -> 212.219.56.184:21",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "212.219.56.184",
+        "dst_port": 21,
+        "flow_count": 20,
+        "unique_src_ports": 20,
+        "packets_total": 220,
+        "bytes_total": 13720
+      },
+      "first_seen": 1426059419.73196,
+      "last_seen": 1426064559.027533
     },
     {
       "type": "vulnerable_path",

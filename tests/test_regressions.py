@@ -390,7 +390,49 @@ def test_large_transfer_pair_sums_both_directions():
     findings = LargeTransferDetector().run(state, Config())
     assert len(findings) == 1
     assert findings[0].evidence["total_bytes"] >= 110 * 1024 * 1024
-    assert findings[0].evidence["flow_count"] == 2# ---------- IPCheckServiceDetector ----------
+    assert findings[0].evidence["flow_count"] == 2
+
+
+def test_large_transfer_ignores_windows_update():
+    """Windows Update через BITS — не finding."""
+    from pcap_triage.detectors.large_transfer import LargeTransferDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="192.168.0.54", dst_ip="195.12.232.163",
+        src_port=49493, dst_port=80,
+    )
+    fs = FlowStats(packets=141092, bytes_sent=155765496)
+    fs.http_host = "download.windowsupdate.com"
+    fs.http_user_agent = "Microsoft BITS/7.5"
+    state.flows[key] = fs
+
+    findings = LargeTransferDetector().run(state, Config())
+    assert findings == []
+
+
+def test_large_transfer_still_catches_suspicious():
+    """126 MB от rtbcdn.ru — finding (не апдейт)."""
+    from pcap_triage.detectors.large_transfer import LargeTransferDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp",
+        src_ip="80.64.102.71", dst_ip="192.168.1.1",
+        src_port=443, dst_port=53427,
+    )
+    fs = FlowStats(packets=57845, bytes_sent=129 * 1024 * 1024)
+    fs.sni = "salam-spbsed-ras-d83.rtbcdn.ru"
+    state.flows[key] = fs
+
+    findings = LargeTransferDetector().run(state, Config())
+    assert len(findings) == 1
+
+
+# ---------- IPCheckServiceDetector ----------
 
 def test_ip_check_service_direct_ip():
     """Запрос к 208.95.112.1 без DNS — тоже ip_check_service.
@@ -433,26 +475,6 @@ def test_ip_check_service_sni_and_ip_merge():
     assert set(findings[0].evidence["sources"]) == {"sni", "direct_ip"}
 
 
-def test_ip_check_service_sni():
-    """SNI ip-api.com без DNS — тоже ловится."""
-    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
-    from pcap_triage.models import FlowKey, FlowStats
-
-    state = CaptureState()
-    key = FlowKey(
-        proto="tcp",
-        src_ip="192.168.1.12", dst_ip="208.95.112.1",
-        src_port=50000, dst_port=443,
-    )
-    fs = FlowStats(packets=5, bytes_sent=500)
-    fs.sni = "ip-api.com"
-    state.flows[key] = fs
-
-    findings = IPCheckServiceDetector().run(state, Config())
-    assert len(findings) == 1
-    assert "sni" in findings[0].evidence["sources"]
-
-
 def test_ip_check_service_dns_still_works():
     """Регрессия: DNS-источник всё ещё работает."""
     from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
@@ -474,4 +496,82 @@ def test_ip_check_service_no_false_positive():
     state.dns_queries["google.com"] = 10
 
     findings = IPCheckServiceDetector().run(state, Config())
+    assert findings == []
+
+
+# ---------- FTPBruteForceDetector ----------
+
+def test_ftp_brute_force_detects():
+    """150 flows с уникальными src_ports к одному (dst, 21) — finding."""
+    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    for i in range(150):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="10.0.1.50", dst_ip="192.168.1.12",
+            src_port=50000 + i, dst_port=21,
+        )
+        state.flows[key] = FlowStats(packets=1185, bytes_sent=85000)
+
+    findings = FTPBruteForceDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].type == "ftp_brute_force"
+    assert findings[0].confidence == 0.95
+    assert findings[0].evidence["flow_count"] == 150
+    assert findings[0].evidence["unique_src_ports"] == 150
+
+
+def test_ftp_brute_force_below_flow_threshold():
+    """10 flows — меньше порога 20, не finding."""
+    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    for i in range(10):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="10.0.1.50", dst_ip="192.168.1.12",
+            src_port=50000 + i, dst_port=21,
+        )
+        state.flows[key] = FlowStats(packets=1185, bytes_sent=85000)
+
+    findings = FTPBruteForceDetector().run(state, Config())
+    assert findings == []
+
+
+def test_ftp_brute_force_ignores_few_unique_ports():
+    """50 flows, но только 5 уникальных src_ports — это переиспользование."""
+    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    for i in range(50):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="10.0.1.50", dst_ip="192.168.1.12",
+            src_port=50000 + (i % 5), dst_port=21,
+        )
+        state.flows[key] = FlowStats(packets=10, bytes_sent=500)
+
+    findings = FTPBruteForceDetector().run(state, Config())
+    assert findings == []
+
+
+def test_ftp_brute_force_ignores_port_80():
+    """HTTP не считается FTP-брутфорсом."""
+    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
+    from pcap_triage.models import FlowKey, FlowStats
+
+    state = CaptureState()
+    for i in range(150):
+        key = FlowKey(
+            proto="tcp",
+            src_ip="10.0.1.50", dst_ip="192.168.1.12",
+            src_port=50000 + i, dst_port=80,
+        )
+        state.flows[key] = FlowStats(packets=5, bytes_sent=500)
+
+    findings = FTPBruteForceDetector().run(state, Config())
     assert findings == []

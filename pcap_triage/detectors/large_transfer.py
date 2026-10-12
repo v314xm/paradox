@@ -45,10 +45,24 @@ class LargeTransferDetector:
         return findings
 
     def _run_single_mode(
-        self, state: CaptureState, threshold: int,
+            self, state: CaptureState, config: Config, threshold: int,
     ) -> list[Finding]:
+        excluded_hosts = config.large_transfer_excluded_hosts
+        excluded_uas = config.large_transfer_excluded_user_agents
+
+        def _is_excluded(flow) -> bool:
+            host = (flow.http_host or "").lower()
+            ua = (flow.http_user_agent or "").lower()
+            if any(h in host for h in excluded_hosts):
+                return True
+            if any(u.lower() in ua for u in excluded_uas):
+                return True
+            return False
+
         findings: list[Finding] = []
         for key, flow in state.flows.items():
+            if _is_excluded(flow):
+                continue
             if flow.bytes_sent < threshold:
                 continue
             findings.append(Finding(
@@ -72,12 +86,26 @@ class LargeTransferDetector:
         return findings
 
     def _run_pair_mode(
-        self, state: CaptureState, config: Config, threshold: int,
+            self, state: CaptureState, config: Config, threshold: int,
     ) -> list[Finding]:
+        excluded_hosts = config.large_transfer_excluded_hosts
+        excluded_uas = config.large_transfer_excluded_user_agents
+
+        def _is_excluded(flow) -> bool:
+            host = (flow.http_host or "").lower()
+            ua = (flow.http_user_agent or "").lower()
+            if any(h in host for h in excluded_hosts):
+                return True
+            if any(u.lower() in ua for u in excluded_uas):
+                return True
+            return False
+
         # Агрегация по нормализованной паре — включает оба направления
         buckets: dict[tuple, dict] = {}
 
         for key, flow in state.flows.items():
+            if _is_excluded(flow):
+                continue
             pair = _pair_key(key)
             b = buckets.setdefault(pair, {
                 "src_ip": key.src_ip,     # первый по порядку в state

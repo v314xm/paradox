@@ -10,7 +10,7 @@
     "unique_dns_queries": 62,
     "nxdomain_count": 1,
     "flows": 3116,
-    "findings": 13,
+    "findings": 14,
     "extractor_errors": {},
     "uploaded_bytes": 3483750,
     "downloaded_bytes": 151388576,
@@ -3556,6 +3556,25 @@
       },
       "first_seen": 1425892567.025022,
       "last_seen": 1425892796.049204
+    },
+    {
+      "type": "large_transfer",
+      "value": "191.234.4.50 <-> 192.168.0.54:49530",
+      "confidence": 0.85,
+      "evidence": {
+        "src_ip": "191.234.4.50",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49530,
+        "proto": "tcp",
+        "total_bytes": 151836274,
+        "total_packets": 154264,
+        "flow_count": 2,
+        "direction": "inbound",
+        "sni": null
+      },
+      "first_seen": 1425892560.55389,
+      "last_seen": 1425892797.666762
     },
     {
       "type": "script_download",

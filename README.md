@@ -18,14 +18,18 @@ realm), находит C2, скачанные скрипты, подозрите
 - **C2-инфраструктура.** DGA, cloud tunnels, typosquatting,
   IP-check сервисы, SNI без DNS.
 - **Активная разведка.** Web-сканеры (перебор уязвимых путей),
-  port-сканеры (горизонтальное сканирование портов).
-- **Payload download.** Скрипты (.ps1, .sh, .vbs, .hta), бинарники
-  из HTTP-запросов.
+  port-сканеры (горизонтальное сканирование портов),
+  FTP-брутфорс (словарный подбор).
+- **Lateral movement.** WinRM, PsExec, SMB, RDP между внутренними
+  хостами. WinRM/PowerShell/Python-tools ловятся по User-Agent.
+- **Эксфильтрация.** Large transfers — аномально большие объёмы
+  в одном направлении (100 МБ и выше).
+- **Payload download.** Скрипты (.ps1, .sh, .vbs, .hta),
+  бинарники из HTTP-запросов.
 - **Направление трафика.** Uploaded / downloaded / internal —
   сразу видно, загрузка это или эксфильтрация.
 - **Роли хостов.** `domain_controller`, `victim_candidate`,
-  `attacker_candidate`, `c2_candidate`, `gateway_candidate`,
-  `web_scanner`.
+  `attacker_candidate`, `c2_candidate`, `gateway_candidate`.
 
 Работает оффлайн. Никаких внешних API — только локальный разбор.
 
@@ -50,13 +54,25 @@ python -m pcap_triage
 ## Пример вывода
 
 ```
-packets:            304348
-unique DNS queries: 413
-NXDOMAIN count:     568
-flows:              15430
-findings:           12
-report JSON:        reports\capture.report.json
-report Markdown:    reports\capture.report.md
+packets:            627694
+unique DNS queries: 117
+NXDOMAIN count:     0
+flows:              2328
+findings:           6
+report JSON:        reports\CyberCampTask_pcap.report.json
+report Markdown:    reports\CyberCampTask_pcap.report.md
+```
+
+Найденные findings на этом pcap (из ручного разбора CTF —
+все 6 корректные):
+
+```
+brute_force       10.0.1.50 → 192.168.1.12:80      HTTP /loginok.html
+ftp_brute_force   10.0.1.50 → 192.168.1.12:21      474 попытки
+lateral_movement  192.168.1.12 → 192.168.1.1:5985  Ruby WinRM Client
+large_transfer    192.168.1.1 ↔ 80.64.102.71       126 MB, rtbcdn.ru
+script_download   /ftp_update.sh                   Wget/1.21.3
+script_download   /watch_movie.ps1                 PowerShell
 ```
 
 В Markdown-отчёте — сущности с ролями и профилем:
@@ -95,7 +111,7 @@ Scapy используется точечно — только для DNS-payloa
 | L0 | `tls.py` | SNI из TLS ClientHello |
 | L0 | `http.py` | Host, URI, Method, User-Agent |
 
-### Детекторы (11)
+### Детекторы (13)
 
 | Детектор | Что ловит |
 |---|---|
@@ -104,12 +120,14 @@ Scapy используется точечно — только для DNS-payloa
 | `port_scan` | Горизонтальное сканирование (один src → много dst:port) |
 | `nxdomain_burst` | Много NXDOMAIN с одного IP |
 | `cloud_tunnel` | trycloudflare, ngrok, serveo |
-| `ip_check_service` | ip-api.com, ifconfig.me |
+| `ip_check_service` | ip-api.com, ifconfig.me — DNS, SNI, HTTP Host, прямой IP |
 | `typosquatting` | Подделки под бренды (SLD-only + Levenshtein) |
 | `sni_mismatch` | SNI без DNS-запроса |
-| `brute_force` | Перебор паролей к login endpoint |
+| `brute_force` | HTTP-перебор паролей к login endpoint |
+| `ftp_brute_force` | FTP-перебор (400+ попыток к порту 21) |
+| `lateral_movement` | WinRM, PsExec, SMB, RDP между внутренними хостами |
+| `large_transfer` | Flow с объёмом > 100 МБ (прямой + обратный) |
 | `vulnerable_path` | Уязвимые пути (wp-login, .env) + web_scanner |
-| `script_download` | Скачивание .ps1/.sh/.vbs/.exe/.dll |
 
 ### Отчёты (3)
 
@@ -136,16 +154,16 @@ PCAP → Extractors → CaptureState → Detectors → Findings
 pytest tests/ -v
 ```
 
-**127 тестов** в 10 файлах. Всё зелёное.
+**145 тестов** в 10 файлах. Всё зелёное.
 
 | Файл | Тестов | Что покрывает |
 |---|---|---|
-| `test_detectors.py` | 41 | 9 детекторов, регрессии |
-| `test_regressions.py` | 21 | FP-регрессии из FIRST-2015 |
+| `test_detectors.py` | 41 | 9 базовых детекторов |
+| `test_regressions.py` | 26 | FP-регрессии из FIRST-2015 + CyberCampTask |
 | `test_parsers.py` | 11 | Разбор L2-L4 заголовков |
 | `test_aggregators_entities.py` | 10 | Роли, сущности, findings |
 | `test_tls_parse.py` | 10 | TLS ClientHello |
-| `test_brute_force.py` | 9 | Детектор перебора |
+| `test_brute_force.py` | 9 | HTTP-перебор |
 | `test_extractors_http.py` | 8 | HTTP-экстрактор |
 | `test_net_utils.py` | 6 | Направление трафика |
 | `test_extractors_tls.py` | 6 | TLS-экстрактор |
@@ -158,9 +176,12 @@ pytest tests/ -v
   username, realm) за 1.5 секунды. Ручной разбор занимает 30–40 мин.
 - **FIRST-2015 Hands-on Network Forensics** — 58 pcap'ов,
   9.5M пакетов, 4.7 ГБ. 5872 findings → 343 после FP-оптимизации
-  (см. CHANGELOG 0.4.0). 8 минут полный батч.
-- **CTF CyberCampTask** (334 МБ) — подбор пароля + скачивание
-  скриптов + C2. Все findings корректные.
+  0.4.0. 8 минут полный батч.
+- **CTF CyberCampTask** (334 МБ) — HTTP-брутфорс + FTP-брутфорс +
+  скачивание скриптов + WinRM lateral movement + large transfer
+  на rtbcdn.ru. **6 findings, 0 FP.** Покрыто 4 из 5 гэпов
+  ручного анализа; не покрыт внутренний C2 (требует
+  HTTPObjectExtractor).
 - **IDS-пакет** (WordPress `/.env`) — сканирование уязвимости.
 - **MTA Simple C2** — сканер `78.153.140.203`.
 

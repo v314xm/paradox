@@ -9,23 +9,89 @@
 - Ничего не начато.
 
 ### Запланировано
+- HTTPObjectExtractor + FileCarve (для внутреннего C2 — body POST/PUT).
 - Threat Intel enrichment (VirusTotal + SQLite-кэш, rate limit).
 - FlowAggregator + BeaconingDetector.
 - Windowing в CaptureState (fix nxdomain_burst долга).
 - StreamReassembler (TCP reassembly).
-- HTTPObjectExtractor + FileCarve.
 - Correlator (entity scoring, timeline).
 - Streamlit / FastAPI обёртка.
 
 ### Известные проблемы
 - `nxdomain_burst` считает за весь файл, не по окну — 93 findings
   на FIN-2015, часть могут быть FP.
+- `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
+  же файле захвата. Не FP, но шумно.
 - TCP reassembly отсутствует — Kerberos и большие HTTP читаются
   частично (первый сегмент).
 - JA3/JA3S fingerprinting отсутствует.
-- `suspicious_port` и `brute_force` могут давать FP на редкие
-  легитимные сервисы.
-- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении.
+- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении
+  typosquatting.
+- Внутренний C2 (зашифрованный трафик internal → internal)
+  не детектируется. Требует HTTPObjectExtractor.
+
+## [0.5.0] — 2026-10-09
+
+Латеральное движение, большие трансферы, FTP-брутфорс, расширение
+ip_check_service. 4 новых детектора (один — расширение). Тесты
+127 → 145. Проверено на CyberCampTask: закрыто 4 из 5 гэпов
+ручного анализа.
+
+### Добавлено
+- **`detectors/lateral_movement.py`** — `LateralMovementDetector`.
+  Внутренний → внутренний трафик на порты удалённого управления
+  (445 SMB, 135 RPC, 139 NetBIOS, 3389 RDP, 5985/5986 WinRM).
+  Confidence 0.8 при срабатывании UA/URI-маркера (WinRM, PsExec,
+  Impacket), 0.6 при «только порт» и ≥5 flows. Есть allowlist
+  jump-хостов.
+- **`detectors/large_transfer.py`** — `LargeTransferDetector`.
+  Один flow (или пара прямого + обратного) с объёмом > 100 МБ.
+  Режим `include_reverse=True` суммирует байты в оба направления.
+- **`detectors/ftp_brute_force.py`** — `FTPBruteForceDetector`.
+  Много flows к одному `(src, dst, 21)` с уникальными src_ports.
+  Отдельный от HTTP-brute_force: FTP-сессия = 1185 пакетов,
+  рубится `brute_force_max_avg_packets: 20`.
+- `config.lateral_movement_ports`, `lateral_movement_min_flows_port_only`,
+  `lateral_movement_ua_markers`, `lateral_movement_uri_markers`,
+  `lateral_movement_admin_srcs`.
+- `config.large_transfer_min_bytes`, `large_transfer_include_reverse`.
+- `config.ftp_brute_force_min_flows`, `ftp_brute_force_min_unique_src_ports`.
+- `config.ip_check_service_ips` — Mapping IP → каноническое имя
+  сервиса (ip-api.com, ifconfig.me).
+- `tests/test_regressions.py` расширен: +8 тестов на новые детекторы.
+
+### Изменено
+- **`IPCheckServiceDetector` расширен.** Матчит по четырём источникам:
+  DNS, SNI, HTTP Host, прямой IP. Все источники дают одинаковое
+  value (каноническое имя сервиса) — findings от DNS/SNI/direct_ip
+  сливаются в один. Раньше матчил только `state.dns_queries`.
+- `suspicious_port.py` — фильтр `scan_pairs` не пропускает пары,
+  покрытые `PortScanDetector`.
+- `config.private_networks` используется в `lateral_movement` для
+  определения внутреннего src.
+
+### Исправлено
+- **LateralMovement FP** на FIN-2015: 2 находки на одиночный
+  RDP (`192.168.0.1 → 192.168.0.51:3389`) и одиночный WinRM-HTTPS.
+  Оба были «порт сам по себе». Фикс: порт без UA/URI требует ≥5 flows.
+- **IPCheckServiceDetector direct_ip** давал finding с value = IP,
+  параллельно с finding от SNI с value = домен. Два finding на одну
+  активность. Фикс: mapping IP → имя сервиса.
+
+### Проверено на
+- **CyberCampTask.pcap** (627k пакетов): 6 findings, **0 FP**.
+  Покрывает 4 из 5 гэпов ручного анализа:
+  - `brute_force` `10.0.1.50 → 192.168.1.12:80` (HTTP `/loginok.html`)
+  - `ftp_brute_force` `10.0.1.50 → 192.168.1.12:21` (474 попытки)
+  - `lateral_movement` `192.168.1.12 → 192.168.1.1:5985` (Ruby WinRM)
+  - `large_transfer` `192.168.1.1 ↔ 80.64.102.71` (126 MB, rtbcdn.ru)
+  - `script_download` × 2 (`/ftp_update.sh`, `/watch_movie.ps1`)
+  
+  Не покрыт: внутренний C2 `10.0.1.247` (требует HTTPObjectExtractor).
+- **FIRST-2015 2015-03-17** (329k пакетов): 0 FP новых детекторов.
+
+### Тесты
+- 127 → **145 passed**.
 
 ## [0.4.0] — 2026-10-09
 

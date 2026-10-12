@@ -10,7 +10,7 @@
     "unique_dns_queries": 368,
     "nxdomain_count": 275,
     "flows": 10030,
-    "findings": 7,
+    "findings": 8,
     "extractor_errors": {},
     "uploaded_bytes": 7562760,
     "downloaded_bytes": 22357644,
@@ -4341,6 +4341,22 @@
         "avg_packets_per_flow": 12.88,
         "duration_sec": 42.12,
         "rate_flows_per_sec": 0.593508
+      },
+      "first_seen": 1426095841.337056,
+      "last_seen": 1426095883.459517
+    },
+    {
+      "type": "ftp_brute_force",
+      "value": "192.168.0.54 -> 77.67.22.165:21",
+      "confidence": 0.75,
+      "evidence": {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "77.67.22.165",
+        "dst_port": 21,
+        "flow_count": 25,
+        "unique_src_ports": 25,
+        "packets_total": 322,
+        "bytes_total": 21228
       },
       "first_seen": 1426095841.337056,
       "last_seen": 1426095883.459517
