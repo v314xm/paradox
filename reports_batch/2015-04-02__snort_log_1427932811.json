@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-02\\snort.log.1427932811",
     "pcap_sha256": "5296a0f57905e0013e75bf87d4b2bb114c0e9687e93f3b409da8bee572e8e2c8"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 403,
     "flows": 24350,
     "findings": 2,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 4346,
     "tcp_streams_truncated": 0,
@@ -5393,7 +5394,16 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 1,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 2
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -5406,7 +5416,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5418,7 +5431,11 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

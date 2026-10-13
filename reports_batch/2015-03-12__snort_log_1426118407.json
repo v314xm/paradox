@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-12\\snort.log.1426118407",
     "pcap_sha256": "5272b725ba1276ab02b09e43180895e4cd2c0832caf2f5c1794cbff2abba5ab1"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 376,
     "flows": 11941,
     "findings": 6,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 4701,
     "tcp_streams_truncated": 4,
@@ -399,7 +400,8 @@
         "ip": "192.168.0.53",
         "is_internal": true,
         "roles": [
-          "internal"
+          "internal",
+          "victim_candidate"
         ],
         "first_seen": 1426118582.274658,
         "last_seen": 1426204798.689544,
@@ -425,7 +427,9 @@
           "3c-bs.gmx.com",
           "navigator-bs.gmx.com"
         ],
-        "findings_indices": [],
+        "findings_indices": [
+          4
+        ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "00:60:6e:00:9d:f9",
@@ -865,6 +869,40 @@
     ],
     "external": [
       {
+        "ip": "212.227.111.53",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1426118727.673137,
+        "last_seen": 1426204589.116855,
+        "flows_out": 160,
+        "flows_in": 160,
+        "bytes_out": 783232,
+        "bytes_in": 297190,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          4
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
         "ip": "216.58.209.101",
         "is_internal": false,
         "roles": [
@@ -1097,36 +1135,6 @@
         ],
         "unique_srcs": [
           "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "212.227.111.53",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426118727.673137,
-        "last_seen": 1426204589.116855,
-        "flows_out": 160,
-        "flows_in": 160,
-        "bytes_out": 783232,
-        "bytes_in": 297190,
-        "unique_dsts": [
-          "192.168.0.53"
-        ],
-        "unique_srcs": [
-          "192.168.0.53"
         ],
         "sni_domains": [],
         "dns_names": [],
@@ -4600,7 +4608,24 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 3,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 3
+        },
+        {
+          "technique": "T1071.001",
+          "count": 1
+        },
+        {
+          "technique": "T1189",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -4613,7 +4638,10 @@
         "queries": 2
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -4625,7 +4653,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -4637,7 +4668,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4655,7 +4689,10 @@
         "total_bytes": 644855
       },
       "first_seen": 1426119527.056104,
-      "last_seen": 1426204511.864172
+      "last_seen": 1426204511.864172,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "beaconing",
@@ -4678,7 +4715,8 @@
         "total_packets": 1430
       },
       "first_seen": 1426118727.673137,
-      "last_seen": 1426204588.644128
+      "last_seen": 1426204588.644128,
+      "mitre_techniques": []
     },
     {
       "type": "script_download",
@@ -4719,7 +4757,11 @@
         "extension": ".exe"
       },
       "first_seen": 1426126525.391,
-      "last_seen": 1426126642.745277
+      "last_seen": 1426126642.745277,
+      "mitre_techniques": [
+        "T1189"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

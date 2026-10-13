@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-10\\snort.log.1425945610",
     "pcap_sha256": "0723b28e220f662b5b9a06ff4f9fbcec41c2828e75b09f71ee7464acbec2387c"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 36,
     "flows": 15794,
     "findings": 7,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 2855,
     "tcp_streams_truncated": 11,
@@ -962,6 +963,76 @@
         "country": null
       },
       {
+        "ip": "192.168.0.2",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "victim_candidate",
+          "gateway_candidate"
+        ],
+        "first_seen": 1425945749.293461,
+        "last_seen": 1425987061.2691,
+        "flows_out": 74,
+        "flows_in": 73,
+        "bytes_out": 151084,
+        "bytes_in": 843333,
+        "unique_dsts": [
+          "104.156.240.151",
+          "173.194.71.82",
+          "188.126.88.9",
+          "188.138.17.205",
+          "188.93.230.181",
+          "192.187.110.98",
+          "194.71.144.71",
+          "198.199.117.252",
+          "213.155.151.149",
+          "213.155.151.151",
+          "217.75.106.216",
+          "27.254.96.52",
+          "42.120.142.220",
+          "8.8.8.8",
+          "81.170.141.229",
+          "83.168.200.199",
+          "85.18.173.109",
+          "94.31.49.130"
+        ],
+        "unique_srcs": [
+          "104.156.240.151",
+          "173.194.71.82",
+          "188.138.17.205",
+          "188.93.230.181",
+          "192.187.110.98",
+          "198.199.117.252",
+          "209.130.172.178",
+          "213.155.151.149",
+          "213.155.151.151",
+          "217.75.106.216",
+          "27.254.96.52",
+          "42.120.142.220",
+          "8.8.8.8",
+          "81.170.141.229",
+          "83.168.200.199",
+          "85.18.173.109",
+          "94.31.49.130"
+        ],
+        "sni_domains": [],
+        "dns_names": [
+          "51.0.168.192.in-addr.arpa",
+          "polarbearcms.googlecode.com"
+        ],
+        "findings_indices": [
+          3
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:c0:d7",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
         "ip": "192.168.0.53",
         "is_internal": true,
         "roles": [
@@ -1227,73 +1298,6 @@
         "country": null
       },
       {
-        "ip": "192.168.0.2",
-        "is_internal": true,
-        "roles": [
-          "internal",
-          "gateway_candidate"
-        ],
-        "first_seen": 1425945749.293461,
-        "last_seen": 1425987061.2691,
-        "flows_out": 74,
-        "flows_in": 73,
-        "bytes_out": 151084,
-        "bytes_in": 843333,
-        "unique_dsts": [
-          "104.156.240.151",
-          "173.194.71.82",
-          "188.126.88.9",
-          "188.138.17.205",
-          "188.93.230.181",
-          "192.187.110.98",
-          "194.71.144.71",
-          "198.199.117.252",
-          "213.155.151.149",
-          "213.155.151.151",
-          "217.75.106.216",
-          "27.254.96.52",
-          "42.120.142.220",
-          "8.8.8.8",
-          "81.170.141.229",
-          "83.168.200.199",
-          "85.18.173.109",
-          "94.31.49.130"
-        ],
-        "unique_srcs": [
-          "104.156.240.151",
-          "173.194.71.82",
-          "188.138.17.205",
-          "188.93.230.181",
-          "192.187.110.98",
-          "198.199.117.252",
-          "209.130.172.178",
-          "213.155.151.149",
-          "213.155.151.151",
-          "217.75.106.216",
-          "27.254.96.52",
-          "42.120.142.220",
-          "8.8.8.8",
-          "81.170.141.229",
-          "83.168.200.199",
-          "85.18.173.109",
-          "94.31.49.130"
-        ],
-        "sni_domains": [],
-        "dns_names": [
-          "51.0.168.192.in-addr.arpa",
-          "polarbearcms.googlecode.com"
-        ],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:c0:d7",
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "192.168.0.50",
         "is_internal": true,
         "roles": [
@@ -1353,6 +1357,47 @@
       }
     ],
     "external": [
+      {
+        "ip": "213.155.151.151",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1425946355.878877,
+        "last_seen": 1425986409.205696,
+        "flows_out": 40,
+        "flows_in": 40,
+        "bytes_out": 1982162,
+        "bytes_in": 259807,
+        "unique_dsts": [
+          "192.168.0.2",
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.2",
+          "192.168.0.51",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "clients5.google.com",
+          "safebrowsing.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [
+          3
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "54.230.98.221",
         "is_internal": false,
@@ -1563,43 +1608,6 @@
         ],
         "sni_domains": [
           "cf.dropboxstatic.com"
-        ],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "213.155.151.151",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1425946355.878877,
-        "last_seen": 1425986409.205696,
-        "flows_out": 40,
-        "flows_in": 40,
-        "bytes_out": 1982162,
-        "bytes_in": 259807,
-        "unique_dsts": [
-          "192.168.0.2",
-          "192.168.0.51",
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.2",
-          "192.168.0.51",
-          "192.168.0.54"
-        ],
-        "sni_domains": [
-          "clients5.google.com",
-          "safebrowsing.google.com"
         ],
         "dns_names": [],
         "findings_indices": [],
@@ -5633,7 +5641,20 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 2,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 3
+        },
+        {
+          "technique": "T1190",
+          "count": 3
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -5646,7 +5667,10 @@
         "queries": 2
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5658,7 +5682,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5670,7 +5697,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "beaconing",
@@ -5695,7 +5725,8 @@
         "total_packets": 163
       },
       "first_seen": 1425946993.521617,
-      "last_seen": 1425986349.059444
+      "last_seen": 1425986349.059444,
+      "mitre_techniques": []
     },
     {
       "type": "vulnerable_path",
@@ -5737,7 +5768,10 @@
         ]
       },
       "first_seen": 1425953058.523912,
-      "last_seen": 1425953058.613116
+      "last_seen": 1425953058.613116,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5779,7 +5813,10 @@
         ]
       },
       "first_seen": 1425953058.613127,
-      "last_seen": 1425953058.692766
+      "last_seen": 1425953058.692766,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5821,7 +5858,11 @@
         ]
       },
       "first_seen": 1425953058.693627,
-      "last_seen": 1425953058.772185
+      "last_seen": 1425953058.772185,
+      "mitre_techniques": [
+        "T1190"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

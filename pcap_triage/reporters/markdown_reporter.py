@@ -9,21 +9,29 @@ Markdown-рендер отчёта.
 
 Структура отчёта (0.7.0):
 1. Header (мета)
-2. TL;DR — что произошло, кто атакует, что скачано
+2. TL;DR — что произошло, кто атакует, что скачано (в порядке kill-chain)
 3. Timeline — хронология findings
-4. Сводка — числа
-5. Сущности — внутренние, внешние
-6. Findings — с MITRE-маппингом
-7. HTTP — хосты, URI, UA
-8. IOC — домены, IP, порты
-9. Топ-10 flows
+4. Carved Files — метаданные payload'ов
+5. Сводка — числа
+6. Сущности — внутренние, внешние (с ролью pivot)
+7. Findings — с MITRE-маппингом
+8. Противоречия — несогласованности между источниками
+9. HTTP — хосты, URI, UA
+10. IOC — домены, IP, порты
+11. Топ-10 flows
 """
 from __future__ import annotations
+
+from ipaddress import ip_address
 
 
 # ---------------------------------------------------------------------
 # MITRE ATT&CK маппинг: тип finding → ID + тактика
 # Источник: https://attack.mitre.org/
+#
+# ВАЖНО: это fallback. Если у Finding есть instance-level
+# mitre_techniques (заполнены детектором — например large_transfer
+# по direction), используем их, а не этот словарь.
 # ---------------------------------------------------------------------
 _MITRE_MAP: dict[str, str] = {
     "brute_force":        "T1110 (Brute Force)",
@@ -49,6 +57,42 @@ _MITRE_MAP: dict[str, str] = {
     "carved_file":        "T1105 (Ingress Tool Transfer)",
 }
 
+
+# ---------------------------------------------------------------------
+# Kill-chain ordering
+# Порядок отражает типичную последовательность атаки.
+# Не найденные типы не влияют; незнакомые типы уезжают в конец.
+# ---------------------------------------------------------------------
+_CHAIN_ORDER: dict[str, int] = {
+    "pivot":              5,   # pivot — уже компромисс, показываем первым
+    "web_scanner":       10,
+    "port_scan":         20,
+    "vulnerable_path":   30,
+    "command_injection": 40,
+    "brute_force":       50,
+    "ftp_brute_force":   55,
+    "script_download":   60,
+    "carved_file":       65,
+    "suspicious_port":   70,
+    "ja3_malware":       75,
+    "ja3_tool":          76,
+    "beaconing":         80,
+    "dns_tunneling":     82,
+    "dga_domain":        84,
+    "nxdomain_burst":    86,
+    "typosquatting":     88,
+    "cloud_tunnel":      90,
+    "sni_without_dns":   92,
+    "ip_check_service":  94,
+    "lateral_movement": 100,
+    "large_transfer":   110,
+}
+_CHAIN_UNKNOWN = 999
+
+
+# ---------------------------------------------------------------------
+# Форматтеры
+# ---------------------------------------------------------------------
 
 def _fmt_bytes(n: int) -> str:
     """Человекочитаемый размер."""
@@ -89,6 +133,38 @@ def _short(s: str, n: int = 40) -> str:
     return s if len(s) <= n else s[: n - 1] + "…"
 
 
+def _fmt_host(host: str | None) -> str:
+    """
+    Host из HTTP-таблицы. Если это IP-литерал — помечаем как unknown host.
+    Иначе — обычное имя.
+    """
+    if not host:
+        return "?"
+    try:
+        ip_address(host)
+    except ValueError:
+        return host
+    return f"{host} (unknown host)"
+
+
+# ---------------------------------------------------------------------
+# MITRE
+# ---------------------------------------------------------------------
+
+def _mitre_for_finding(f: dict) -> str:
+    """
+    Instance-level mitre_techniques приоритетнее type-map.
+
+    large_transfer знает про T1041/T1105 сам (по direction),
+    а _MITRE_MAP знает только общий T1041.
+    """
+    techniques = f.get("mitre_techniques") or ()
+    if techniques:
+        return ", ".join(techniques)
+    return _MITRE_MAP.get(f.get("type", ""), "—")
+
+
+# Совместимость: старое имя, использовалось в timeline/findings.
 def _mitre_for(finding_type: str) -> str:
     return _MITRE_MAP.get(finding_type, "—")
 
@@ -147,28 +223,55 @@ def _unique_finding_types(findings: list[dict]) -> list[str]:
     return seen
 
 
+def _chain_for(findings: list[dict]) -> list[str]:
+    """
+    Уникальные типы findings в порядке kill-chain.
+
+    Приоритет — цепочка, а не confidence: аналитик должен видеть
+    «скан → RCE → payload → beacon», даже если beacon confidence выше.
+    """
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for f in findings:
+        t = f.get("type")
+        if t and t not in seen:
+            seen.add(t)
+            ordered.append(t)
+    return sorted(
+        ordered,
+        key=lambda t: (_CHAIN_ORDER.get(t, _CHAIN_UNKNOWN), t),
+    )
+
+
 def _render_tldr(report: dict) -> list[str]:
     """Короткий TL;DR: что произошло, кто атакует, что скачано."""
     findings = report.get("findings", [])
     entities = report.get("entities", {})
     internal = entities.get("internal", [])
     carved = report.get("carved_files", {}).get("files", [])
+    contradictions = report.get("contradictions") or []
 
     lines: list[str] = ["## TL;DR", ""]
 
-    if not findings:
+    if not findings and not contradictions:
         lines.append("_Findings нет. Трафик выглядит чистым на уровне эвристик._")
         lines.append("")
         return lines
 
     attacker = _pick_first_with_role(internal, "attacker_candidate")
     victim = _pick_first_with_role(internal, "victim_candidate")
+    pivot = _pick_first_with_role(internal, "pivot")
 
-    # Основное предложение
-    types = _unique_finding_types(findings)
-    types_str = ", ".join(f"`{t}`" for t in types)
+    # Основное предложение — цепочка в порядке kill-chain.
+    types = _chain_for(findings)
+    types_str = " → ".join(f"`{t}`" for t in types) if types else "—"
 
-    if attacker and victim:
+    if pivot:
+        lines.append(
+            f"**PIVOT:** `{pivot}` — скомпрометирован и атакует дальше. "
+            f"Типы: {types_str}."
+        )
+    elif attacker and victim:
         lines.append(
             f"**Инцидент:** `{attacker}` атакует `{victim}`. "
             f"Типы: {types_str}."
@@ -182,6 +285,8 @@ def _render_tldr(report: dict) -> list[str]:
     lines.append("")
 
     # Ключевое — список
+    if pivot:
+        lines.append(f"- **Pivot:** `{pivot}` (внутренний, критично)")
     if attacker:
         lines.append(f"- Attacker: `{attacker}` (internal)")
     if victim:
@@ -208,6 +313,13 @@ def _render_tldr(report: dict) -> list[str]:
             ftype = f.get("type", "?")
             value = _short(f.get("value", "?"), 70)
             lines.append(f"- `{ftype}` — `{value}` ({f.get('confidence', 0):.2f})")
+
+    # Contradictions, если есть — короткая ссылка на секцию.
+    if contradictions:
+        lines.append("")
+        lines.append(
+            f"**Противоречия:** {len(contradictions)} — см. секцию ниже."
+        )
 
     lines.append("")
     return lines
@@ -238,7 +350,7 @@ def _render_timeline(report: dict, top_n: int = 15) -> list[str]:
         ftype = f.get("type", "?")
         value = _short(f.get("value", "?"), 60)
         conf = f.get("confidence", 0.0)
-        mitre = _mitre_for(ftype)
+        mitre = _mitre_for_finding(f)
         lines.append(
             f"| {rel} | `{ftype}` | {value} | {conf:.2f} | {mitre} |"
         )
@@ -276,6 +388,75 @@ def _render_carved_files(report: dict) -> list[str]:
 
 
 # ---------------------------------------------------------------------
+# Contradictions
+# ---------------------------------------------------------------------
+
+_SEVERITY_ICON: dict[str, str] = {
+    "critical": "🔴",
+    "high": "🟠",
+    "medium": "🟡",
+    "low": "🟢",
+    "info": "⚪",
+}
+
+
+def _render_contradictions(report: dict) -> list[str]:
+    contradictions = report.get("contradictions") or []
+    if not contradictions:
+        return []
+
+    lines: list[str] = [f"## Противоречия ({len(contradictions)})", ""]
+    lines.append(
+        "_Несогласованности между источниками. Не атаки, а сигналы "
+        "«одно из двух неверно, разберись»._"
+    )
+    lines.append("")
+
+    for c in contradictions:
+        sev = c.get("severity", "info")
+        icon = _SEVERITY_ICON.get(sev, "·")
+        rule = c.get("rule", "?")
+        subject = c.get("subject", "?")
+        conf = c.get("confidence", 0.0)
+
+        lines.append(f"### {icon} `{rule}` — `{subject}` ({conf:.2f})")
+        lines.append("")
+
+        hint = c.get("resolution_hint")
+        if hint:
+            lines.append(f"> {hint}")
+            lines.append("")
+
+        lines.append("**Факты:**")
+        lines.append("")
+        for f in c.get("facts", []):
+            src = f.get("source", "?")
+            pred = f.get("predicate", "?")
+            val = f.get("value") or "(unknown)"
+            ts = f.get("ts", 0.0)
+            fc = f.get("confidence", 0.0)
+            # finding_type из evidence — отличает nxdomain_burst от port_scan
+            # в отчёте, когда value пуст.
+            ftype = (f.get("evidence") or {}).get("finding_type") or ""
+            ftype_str = f" [{ftype}]" if ftype else ""
+            lines.append(
+                f"- `{pred}` ← `{val}`{ftype_str} "
+                f"(source=`{src}`, ts={ts:.1f}, conf={fc:.2f})"
+            )
+        lines.append("")
+
+        causes = c.get("likely_causes") or []
+        if causes:
+            lines.append("**Вероятные причины:**")
+            lines.append("")
+            for cause in causes:
+                lines.append(f"- {cause}")
+            lines.append("")
+
+    return lines
+
+
+# ---------------------------------------------------------------------
 # Main render
 # ---------------------------------------------------------------------
 
@@ -290,6 +471,7 @@ def render_markdown(report: dict) -> str:
     entities = report.get("entities", {})
     http = report.get("http", {})
     top_flows = flows.get("top_by_bytes", [])
+    contradictions = report.get("contradictions") or []
 
     # --- header ---
     pcap_path = provenance.get("pcap_path", "?")
@@ -322,6 +504,8 @@ def render_markdown(report: dict) -> str:
     lines.append(f"- **Уникальных DNS-запросов:** {summary.get('unique_dns_queries', 0)}")
     lines.append(f"- **NXDOMAIN:** {summary.get('nxdomain_count', 0)}")
     lines.append(f"- **Findings:** {summary.get('findings', 0)}")
+    if contradictions:
+        lines.append(f"- **Противоречий:** {len(contradictions)}")
 
     first_ts = summary.get("first_ts")
     last_ts = summary.get("last_ts")
@@ -347,6 +531,12 @@ def render_markdown(report: dict) -> str:
 
     # --- findings ---
     lines.extend(_render_findings(findings))
+
+    # --- contradictions ---
+    contradictions_section = _render_contradictions(report)
+    if contradictions_section:
+        lines.extend(contradictions_section)
+        lines.append("")
 
     # --- HTTP ---
     if http:
@@ -429,7 +619,7 @@ def _render_findings(findings: list[dict]) -> list[str]:
         ftype = f.get("type", "?")
         value = _short(f.get("value", "?"), 80)
         conf = f.get("confidence", 0.0)
-        mitre = _mitre_for(ftype)
+        mitre = _mitre_for_finding(f)
         lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} | {mitre} |")
     lines.append("")
     return lines
@@ -601,7 +791,8 @@ def _render_http(http: dict) -> list[str]:
         lines.append("| Count | Host |")
         lines.append("|---|---|")
         for h in top_hosts[:10]:
-            lines.append(f"| {h.get('count', 0)} | `{h.get('host', '?')}` |")
+            host = _fmt_host(h.get("host"))
+            lines.append(f"| {h.get('count', 0)} | `{host}` |")
         lines.append("")
 
     top_uris = http.get("top_uris", []) or []
@@ -612,7 +803,7 @@ def _render_http(http: dict) -> list[str]:
         lines.append("|---|---|---|---|---|---|")
         for u in top_uris[:15]:
             method = u.get("method") or "?"
-            host = _short(u.get("host") or "?", 30)
+            host = _fmt_host(_short(u.get("host") or "?", 30))
             uri = _short(u.get("uri") or "?", 60)
             src = f"{u.get('src_ip', '?')}:?"
             dst = f"{u.get('dst_ip', '?')}:{u.get('dst_port') or '-'}"

@@ -5,11 +5,13 @@
 
 ## [Unreleased]
 
-### Запланировано
+#### Запланировано
+- ContradictionDetector — оставшиеся 6 правил (см. 0.7.0):
+  `mac_ip_conflict` (ARP spoof), `sni_host_mismatch` (domain fronting),
+  `ja3_ua_mismatch` (spoof), `reverse_asymmetry` (exfil),
+  `port_service_mismatch` (tunnel), `direct_ip_no_dns` (hardcoded IP).
 - ObfuscationDetector (base64/eval в HTTP body).
 - WebShellDetector (?cmd=, ?exec= в URI + POST body).
-- Correlator (связки «жертва → скачала → отстучала», timeline).
-- MITRE-маппинг в findings + heatmap в JSON-отчёте.
 - IOC → STIX 2.1 экспорт.
 - Windowing в CaptureState (fix nxdomain_burst долга, медленные beaconing).
 - FlowAggregator + более сложные эвристики beaconing.
@@ -20,18 +22,152 @@
 - REST API + Web UI.
 
 ### Известные проблемы
-- `nxdomain_burst` считает за весь файл, не по окну — 93+ findings
-  на FIN-2015, часть могут быть FP.
+- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
+  на FIN-2015 после 0.7.0-wip, часть могут быть FP.
 - `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
   же файле захвата. Не FP, но шумно.
 - `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.2
-  не ловятся. Также может давать FP на CDN-трафик (Chrome keepalive).
-  Требует windowing.
+  не ловятся. Может давать FP на CDN-трафик (Chrome keepalive
+  на Facebook/Google edge). Требует windowing.
+- `victim_makes_attack` использует `beaconing`/`nxdomain_burst` как
+  источник victim-факта. Если beaconing FP — правило сработает ложно
+  (пример: 192.168.0.53 → Facebook 31.13.91.2 на 2015-04-09).
+  Решается через тюнинг beaconing allowlist.
 - TCP reassembly обрезает потоки > 1 МБ (per-flow limit).
 - Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении
   typosquatting.
 - FileCarve находит не все payload'ы: нужен MIME или magic bytes.
 - Внутренний C2 (internal → internal зашифрованный) не детектируется.
+
+## [0.7.0] — WIP
+
+ContradictionDetector — новый слой анализа. Не детекторы атак, а
+поиск несогласованностей между источниками: одно утверждение о мире
+подтверждается одним источником и опровергается другим. Первое
+правило — `victim_makes_attack` (PIVOT). Детекторов 17 (без изменений),
+но появляется 18-й слой — `contradictions/`. Тестов 265 → 277.
+
+### Добавлено
+
+**ContradictionDetector (базовый каркас):**
+- `pcap_triage/contradictions/` — новый пакет:
+  - `base.py` — `Fact`, `Contradiction`, `ContradictionRule` Protocol,
+    `SEVERITY_WEIGHT`, `priority = severity × confidence`.
+  - `facts.py` — `extract_attack_facts(findings)` — атомарные факты
+    `victim_of` / `attacker_of` из findings. Полярность синхронизирована
+    с `entities.py` (`suspicious_port` — victim-сигнал, не attack).
+  - `registry.py` — `RULES`, `run_all()`.
+  - `rules/e_victim_makes_attack.py` — первое правило (см. ниже).
+- `Contradiction.to_dict()` — сериализация для JSON-отчёта.
+- `Fact` с полем `evidence` — источник (`finding_type`) для отчёта
+  и дебага.
+
+**Правило `victim_makes_attack` (PIVOT):**
+- Срабатывает, когда хост X фигурирует и как victim (кто-то атакует X),
+  и как attacker (X атакует Y).
+- Severity: `critical`. Confidence: `min(v_conf, a_conf, 0.90)` —
+  потолок 0.90, потому что без явного анализа timestamps нельзя
+  утверждать pivot.
+- Tie-breaker: при равной confidence предпочитается факт с непустым
+  `value` (роль с конкретным адресатом информативнее «роли без пары» —
+  `port_scan`, `nxdomain_burst`).
+- Hint различает три случая:
+  - оба timestamp'а есть, victim раньше attacker → классический pivot.
+  - оба timestamp'а есть, attacker раньше → NAT/proxy или FP.
+  - timestamps недоступны → ручная проверка хронологии по flows.
+- `likely_causes`: pivot, authorized scanner, NAT/proxy, FP эвристики.
+
+**Интеграция:**
+- `pipeline.py` — `run_contradictions()` между `_detect` и
+  `build_entities`. Схема отчёта: `0.2.0 → 0.3.0` (добавлен top-level
+  ключ `contradictions` + `summary.contradictions`).
+- `aggregators/entities.py` — `build_entities(..., contradictions=None)`.
+  Новая роль `pivot` (ставится поверх `victim_candidate`, если правило
+  `victim_makes_attack` сработало). Обратно совместимо: старые вызовы
+  без аргумента работают.
+- `reporters/markdown_reporter.py` — секция «Противоречия», TL;DR
+  с `**PIVOT:**` первым приоритетом.
+
+### Изменено
+- `LargeTransferDetector`: `direction` теперь `inbound` / `outbound` /
+  `internal` / `external` (было `single` / `pair`). Разделены
+  `bytes_in` / `bytes_out` относительно internal-стороны.
+  `mitre_techniques` заполняются на инстансе по асимметрии:
+  T1041 (outbound > 5× inbound), T1105 (inbound > 5× outbound),
+  T1071.001 (internal ↔ internal).
+- `entities.py`: `large_transfer` больше **не помечает** роли
+  `victim_tag` / `attacker_tag`. Статистический сигнал — не роль:
+  шлюз, качающий 2 ГБ обновлений, — не victim. Роль определяется
+  через `gateway_min_flows` / `unique_dsts` или не ставится.
+- `markdown_reporter.py`: TL;DR строит цепочку findings в порядке
+  kill-chain (`_CHAIN_ORDER`), не в порядке confidence. `beaconing`
+  → `script_download` → `brute_force` теперь читается как
+  `brute_force → script_download → beaconing`.
+- `markdown_reporter.py`: `_mitre_for_finding()` — instance-level
+  `Finding.mitre_techniques` имеет приоритет над type-map
+  (`_MITRE_MAP`). Нужно для `large_transfer` с разными T1041/T1105.
+- `markdown_reporter.py`: `_fmt_host()` — HTTP Host, парсящийся как
+  IP-литерал, рендерится как `<ip> (unknown host)`. Убирает
+  визуальную путаницу между доменом и IP в HTTP-таблице.
+- `cli.py`: `-o` корректно работает с директориями (`reports/foo`
+  → `reports/foo/<stem>.report.json`), добавляет `.json` если
+  расширения нет, создаёт родительскую директорию. Раньше
+  `-o existing_dir` падал с `PermissionError`.
+
+### Исправлено
+- **Односторонние факты не генерировались.** `port_scan` и
+  `nxdomain_burst` имеют только `src_ip` в evidence (десятки
+  dst на один src). Правило `victim_makes_attack` пропускало
+  реальный pivot (FIN-2015, 192.168.0.53). Фикс: `fact.value`
+  допускает пустую строку — роль фиксируется, конкретный
+  адресат — нет.
+- **Полярность `suspicious_port` в `facts.py`** была инвертирована
+  относительно `entities.py`. Перенесён из `_ATTACK_TYPES` в
+  `_VICTIM_SIGNAL_TYPES`: internal src стучится на C2 dst — src
+  жертва, не атакующий.
+- **Hint при отсутствии timestamps** содержал `(unknown) дважды** —
+  аналитик не понимал, о какой находке речь. Фикс: `_describe(fact)`
+  показывает `finding_type` (`nxdomain_burst`, `beaconing → 31.13.91.2`).
+- **Рендер facts в Markdown** — `f.get("value", "?")` не отличал
+  пустой `value` от отсутствующего ключа. Фикс: `f.get("value") or
+  "(unknown)"` + `[finding_type]` из evidence.
+- **`nxdomain_count` в summary** — мёртвая ветка `hasattr(state,
+  "nx_domain")`. Поле называется `dns_nxdomain`. Упрощено.
+- **`KeyboardInterrupt` в `_ask_pcap_path`** — цикл `while True`
+  глотал Ctrl+C. Не критично, но раздражает при ошибке в аргументе.
+
+### Производительность
+- FIN-2015 полный батч (58 файлов, 9.5M пакетов, 4.7 ГБ): 593 сек.
+  Прирост от contradictions минимальный — extraction фактов
+  линейна по findings (~400 на весь корпус).
+- CyberCampTask (627k пакетов): 18.7 сек (без изменений от 0.6.0).
+- `2015-04-09` (232k пакетов): 12.4 сек, +1 contradiction.
+
+### Тесты
+- 265 → **277 passed** (+12):
+  - `tests/contradictions/test_victim_makes_attack.py` — 5 тестов
+    (полярность attack-типов, полярность victim-signal-типов, happy
+    path pivot, self-loop, обратный порядок timestamps).
+  - +7 в существующих файлах (совместимость `build_entities` с
+    `contradictions=None`, +2 в `test_large_transfer` на direction,
+    остальные — правки под новый формат evidence).
+
+### Проверено на
+- **FIRST-2015 полный батч** (58 pcap, 9.5M пакетов, 4.7 ГБ):
+  - findings: **386** (0.5.0 → 349, Δ +37 — новые детекторы +1).
+  - contradictions: **11** (по 1 на 6 файлах, 0 на 52).
+  - 0 ошибок, 0 исключений.
+  - Топ findings по типам: `nxdomain_burst` 93, `sni_without_dns` 73,
+    `script_download` 50, `vulnerable_path` 46, `command_injection` 33.
+- **CyberCampTask.pcap** (627k пакетов):
+  - findings: 7 (без изменений).
+  - contradictions: 1 — `victim_makes_attack` на `192.168.1.12`,
+    severity=critical, confidence=0.8.
+  - Hint: «сначала атакован (10.0.1.50, ts=1754924349.1), потом
+    сам атакует (192.168.1.1, ts=1754924987.7)».
+  - Роль `pivot` появилась в сущности `192.168.1.12`.
+- **2015-04-09** (232k пакетов): 16 findings, 1 contradiction
+  на `192.168.0.53` (поймано после фикса односторонних фактов).
 
 ## [0.6.0] — 2026-10-12
 
@@ -494,4 +630,4 @@ Initial snapshot. Первый рабочий pipeline.
 
 - Исправление false positive.
 - Исправление бага в парсере.
-- Оптимизация производительности без изменения API.
+- Оптимизация производительности без изменения API .

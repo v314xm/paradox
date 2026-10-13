@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-11\\snort.log.1426032013",
     "pcap_sha256": "fad30b1ff861967ed9ff88c6043ffba04e3e496bda42841f9fe31f5405e4143a"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 107,
     "flows": 18301,
     "findings": 8,
+    "contradictions": 1,
     "extractor_errors": {},
     "tcp_streams": 4842,
     "tcp_streams_truncated": 12,
@@ -29,6 +30,7 @@
         "roles": [
           "internal",
           "victim_candidate",
+          "pivot",
           "gateway_candidate"
         ],
         "first_seen": 1426032337.426159,
@@ -910,7 +912,9 @@
           "zh.sourceforge.jp"
         ],
         "findings_indices": [
-          1
+          1,
+          3,
+          4
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1904,6 +1908,49 @@
         "country": null
       },
       {
+        "ip": "192.168.0.53",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "victim_candidate"
+        ],
+        "first_seen": 1426032068.571936,
+        "last_seen": 1426067967.506736,
+        "flows_out": 276,
+        "flows_in": 274,
+        "bytes_out": 582649,
+        "bytes_in": 1198180,
+        "unique_dsts": [
+          "192.168.0.1",
+          "192.168.0.255",
+          "212.227.111.53",
+          "212.227.17.171",
+          "217.72.201.130"
+        ],
+        "unique_srcs": [
+          "192.168.0.1",
+          "212.227.111.53",
+          "212.227.17.171",
+          "217.72.201.130"
+        ],
+        "sni_domains": [],
+        "dns_names": [
+          "3c-bs.gmx.com",
+          "navigator-bs.gmx.com"
+        ],
+        "findings_indices": [
+          5
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "00:60:6e:00:9d:f9",
+        "hostname": "HOMER-XUBUNTU",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
         "ip": "192.168.0.54",
         "is_internal": true,
         "roles": [
@@ -2059,46 +2106,6 @@
         "country": null
       },
       {
-        "ip": "192.168.0.53",
-        "is_internal": true,
-        "roles": [
-          "internal"
-        ],
-        "first_seen": 1426032068.571936,
-        "last_seen": 1426067967.506736,
-        "flows_out": 276,
-        "flows_in": 274,
-        "bytes_out": 582649,
-        "bytes_in": 1198180,
-        "unique_dsts": [
-          "192.168.0.1",
-          "192.168.0.255",
-          "212.227.111.53",
-          "212.227.17.171",
-          "217.72.201.130"
-        ],
-        "unique_srcs": [
-          "192.168.0.1",
-          "212.227.111.53",
-          "212.227.17.171",
-          "217.72.201.130"
-        ],
-        "sni_domains": [],
-        "dns_names": [
-          "3c-bs.gmx.com",
-          "navigator-bs.gmx.com"
-        ],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": "00:60:6e:00:9d:f9",
-        "hostname": "HOMER-XUBUNTU",
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "192.168.0.50",
         "is_internal": true,
         "roles": [
@@ -2158,6 +2165,106 @@
       }
     ],
     "external": [
+      {
+        "ip": "212.227.111.53",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1426032326.767449,
+        "last_seen": 1426067967.506736,
+        "flows_out": 67,
+        "flows_in": 67,
+        "bytes_out": 327948,
+        "bytes_in": 124591,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          5
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "194.105.226.20",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "c2_candidate"
+        ],
+        "first_seen": 1426059422.834417,
+        "last_seen": 1426064560.660773,
+        "flows_out": 40,
+        "flows_in": 40,
+        "bytes_out": 28940,
+        "bytes_in": 16040,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          3
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.219.56.184",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "c2_candidate"
+        ],
+        "first_seen": 1426059419.73196,
+        "last_seen": 1426064559.027533,
+        "flows_out": 40,
+        "flows_in": 40,
+        "bytes_out": 23774,
+        "bytes_in": 19160,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          4
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "23.223.26.90",
         "is_internal": false,
@@ -2697,102 +2804,6 @@
           "192.168.0.51"
         ],
         "unique_srcs": [
-          "192.168.0.51"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "108.161.188.226",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426067894.882437,
-        "last_seen": 1426067900.269363,
-        "flows_out": 8,
-        "flows_in": 8,
-        "bytes_out": 670837,
-        "bytes_in": 37376,
-        "unique_dsts": [
-          "192.168.0.51"
-        ],
-        "unique_srcs": [
-          "192.168.0.51"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "216.34.181.60",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426064430.013071,
-        "last_seen": 1426066959.856515,
-        "flows_out": 97,
-        "flows_in": 97,
-        "bytes_out": 491857,
-        "bytes_in": 172090,
-        "unique_dsts": [
-          "192.168.0.2",
-          "192.168.0.51"
-        ],
-        "unique_srcs": [
-          "192.168.0.2",
-          "192.168.0.51"
-        ],
-        "sni_domains": [
-          "sourceforge.net"
-        ],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "162.209.67.246",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426064432.400217,
-        "last_seen": 1426066919.875695,
-        "flows_out": 30,
-        "flows_in": 30,
-        "bytes_out": 541424,
-        "bytes_in": 82035,
-        "unique_dsts": [
-          "192.168.0.2",
-          "192.168.0.51"
-        ],
-        "unique_srcs": [
-          "192.168.0.2",
           "192.168.0.51"
         ],
         "sni_domains": [],
@@ -6533,7 +6544,28 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 4,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 2
+        },
+        {
+          "technique": "T1110.001",
+          "count": 2
+        },
+        {
+          "technique": "T1190",
+          "count": 2
+        },
+        {
+          "technique": "T1071.001",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -6546,7 +6578,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -6558,7 +6593,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -6576,7 +6614,10 @@
         "total_bytes": 264955
       },
       "first_seen": 1426032965.973923,
-      "last_seen": 1426067254.018499
+      "last_seen": 1426067254.018499,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "ftp_brute_force",
@@ -6592,7 +6633,10 @@
         "bytes_total": 10600
       },
       "first_seen": 1426059422.835592,
-      "last_seen": 1426064560.660773
+      "last_seen": 1426064560.660773,
+      "mitre_techniques": [
+        "T1110.001"
+      ]
     },
     {
       "type": "ftp_brute_force",
@@ -6608,7 +6652,10 @@
         "bytes_total": 13720
       },
       "first_seen": 1426059419.73196,
-      "last_seen": 1426064559.027533
+      "last_seen": 1426064559.027533,
+      "mitre_techniques": [
+        "T1110.001"
+      ]
     },
     {
       "type": "beaconing",
@@ -6631,7 +6678,8 @@
         "total_packets": 601
       },
       "first_seen": 1426032326.767449,
-      "last_seen": 1426067967.108423
+      "last_seen": 1426067967.108423,
+      "mitre_techniques": []
     },
     {
       "type": "vulnerable_path",
@@ -6680,7 +6728,10 @@
         ]
       },
       "first_seen": 1426066728.474705,
-      "last_seen": 1426066863.069609
+      "last_seen": 1426066863.069609,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -6728,7 +6779,52 @@
         ]
       },
       "first_seen": 1426066728.809139,
-      "last_seen": 1426066816.575658
+      "last_seen": 1426066816.575658,
+      "mitre_techniques": [
+        "T1190"
+      ]
+    }
+  ],
+  "contradictions": [
+    {
+      "rule": "victim_makes_attack",
+      "subject": "192.168.0.2",
+      "severity": "critical",
+      "confidence": 0.75,
+      "priority": 0.75,
+      "likely_causes": [
+        "Хост скомпрометирован: сначала атакован, потом сам атакует (pivot)",
+        "Authorized scanner в сети: жертва одного скана — инициатор другого",
+        "NAT/proxy: одна IP скрывает несколько хостов",
+        "FP одной из эвристик"
+      ],
+      "resolution_hint": "192.168.0.2: зафиксированы обе роли — victim (nxdomain_burst) и attacker (ftp_brute_force → 194.105.226.20). Timestamps недоступны, проверить хронологию по flows вручную: сначала атака на 192.168.0.2, потом атака с 192.168.0.2 — классический pivot.",
+      "facts": [
+        {
+          "source": "finding",
+          "subject": "192.168.0.2",
+          "predicate": "victim_of",
+          "value": "",
+          "ts": 0.0,
+          "confidence": 0.9,
+          "evidence": {
+            "finding_type": "nxdomain_burst",
+            "role": "victim"
+          }
+        },
+        {
+          "source": "finding",
+          "subject": "192.168.0.2",
+          "predicate": "attacker_of",
+          "value": "194.105.226.20",
+          "ts": 1426059422.835592,
+          "confidence": 0.75,
+          "evidence": {
+            "finding_type": "ftp_brute_force",
+            "role": "attacker"
+          }
+        }
+      ]
     }
   ]
 }

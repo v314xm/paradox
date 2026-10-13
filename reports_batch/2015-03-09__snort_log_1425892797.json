@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425892797",
     "pcap_sha256": "85e40b7436860699b756a9aa959fabf00654bc3182c66dbc19e23ea8804017c8"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 3,
     "flows": 8281,
     "findings": 11,
+    "contradictions": 1,
     "extractor_errors": {},
     "tcp_streams": 6725,
     "tcp_streams_truncated": 17,
@@ -29,6 +30,7 @@
         "roles": [
           "internal",
           "victim_candidate",
+          "pivot",
           "gateway_candidate"
         ],
         "first_seen": 1425892797.666763,
@@ -1135,7 +1137,8 @@
           "zor.livefyre.com"
         ],
         "findings_indices": [
-          4
+          4,
+          10
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1701,6 +1704,39 @@
       }
     ],
     "external": [
+      {
+        "ip": "23.53.42.121",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "c2_candidate"
+        ],
+        "first_seen": 1425892798.109776,
+        "last_seen": 1425894583.001345,
+        "flows_out": 14,
+        "flows_in": 14,
+        "bytes_out": 187527,
+        "bytes_in": 20231,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          10
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "191.234.4.50",
         "is_internal": false,
@@ -2306,36 +2342,6 @@
         "sni_domains": [
           "codecreationsuk.files.wordpress.com"
         ],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "80.239.237.49",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1425893749.941937,
-        "last_seen": 1425894724.920695,
-        "flows_out": 18,
-        "flows_in": 18,
-        "bytes_out": 1059966,
-        "bytes_in": 58762,
-        "unique_dsts": [
-          "192.168.0.53"
-        ],
-        "unique_srcs": [
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
         "dns_names": [],
         "findings_indices": [],
         "service_flows_in": 0,
@@ -5542,7 +5548,36 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 6,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 3
+        },
+        {
+          "technique": "T1190",
+          "count": 3
+        },
+        {
+          "technique": "T1189",
+          "count": 2
+        },
+        {
+          "technique": "T1583.001",
+          "count": 1
+        },
+        {
+          "technique": "T1110.001",
+          "count": 1
+        },
+        {
+          "technique": "T1595.002",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -5555,7 +5590,10 @@
         "queries": 4
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5567,7 +5605,10 @@
         "queries": 3
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5579,7 +5620,10 @@
         "queries": 2
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "typosquatting",
@@ -5592,7 +5636,10 @@
         "queries": 2
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1583.001"
+      ]
     },
     {
       "type": "brute_force",
@@ -5612,7 +5659,10 @@
         "rate_flows_per_sec": 0.07701
       },
       "first_seen": 1425892798.636272,
-      "last_seen": 1425893941.350394
+      "last_seen": 1425893941.350394,
+      "mitre_techniques": [
+        "T1110.001"
+      ]
     },
     {
       "type": "script_download",
@@ -5653,7 +5703,10 @@
         "extension": ".dll"
       },
       "first_seen": 1425893379.13972,
-      "last_seen": 1425894582.773326
+      "last_seen": 1425894582.773326,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -5690,7 +5743,10 @@
         "extension": ".exe"
       },
       "first_seen": 1425892797.66702,
-      "last_seen": 1425893049.404564
+      "last_seen": 1425893049.404564,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5735,7 +5791,10 @@
         ]
       },
       "first_seen": 1425893304.239082,
-      "last_seen": 1425893391.567112
+      "last_seen": 1425893391.567112,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5777,7 +5836,10 @@
         ]
       },
       "first_seen": 1425893751.332442,
-      "last_seen": 1425893773.95837
+      "last_seen": 1425893773.95837,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5819,7 +5881,10 @@
         ]
       },
       "first_seen": 1425893367.797379,
-      "last_seen": 1425893367.906784
+      "last_seen": 1425893367.906784,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "web_scanner",
@@ -5888,7 +5953,52 @@
         "threshold": 10
       },
       "first_seen": 1425892798.204064,
-      "last_seen": 1425894582.895649
+      "last_seen": 1425894582.895649,
+      "mitre_techniques": [
+        "T1595.002"
+      ]
+    }
+  ],
+  "contradictions": [
+    {
+      "rule": "victim_makes_attack",
+      "subject": "192.168.0.54",
+      "severity": "critical",
+      "confidence": 0.9,
+      "priority": 0.9,
+      "likely_causes": [
+        "Хост скомпрометирован: сначала атакован, потом сам атакует (pivot)",
+        "Authorized scanner в сети: жертва одного скана — инициатор другого",
+        "NAT/proxy: одна IP скрывает несколько хостов",
+        "FP одной из эвристик"
+      ],
+      "resolution_hint": "Порядок в захвате обратный: 192.168.0.54 атакует (web_scanner → 23.53.42.121, ts=1425892798.2) РАНЬШЕ, чем атакован (brute_force → 192.168.0.1, ts=1425892798.6). Возможен NAT/proxy или FP одной из эвристик.",
+      "facts": [
+        {
+          "source": "finding",
+          "subject": "192.168.0.54",
+          "predicate": "victim_of",
+          "value": "192.168.0.1",
+          "ts": 1425892798.636272,
+          "confidence": 0.914,
+          "evidence": {
+            "finding_type": "brute_force",
+            "role": "victim"
+          }
+        },
+        {
+          "source": "finding",
+          "subject": "192.168.0.54",
+          "predicate": "attacker_of",
+          "value": "23.53.42.121",
+          "ts": 1425892798.204064,
+          "confidence": 0.9,
+          "evidence": {
+            "finding_type": "web_scanner",
+            "role": "attacker"
+          }
+        }
+      ]
     }
   ]
 }

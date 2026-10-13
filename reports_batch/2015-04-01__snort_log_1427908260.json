@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-01\\snort.log.1427908260",
     "pcap_sha256": "6dacca12b365231f081fadb1eddc8aecea0ee997fe45f3c5bd47a19c7c115ae6"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 0,
     "flows": 895,
     "findings": 0,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 434,
     "tcp_streams_truncated": 22,
@@ -64,7 +65,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "ec:f4:bb:4f:c0:d7",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -169,8 +170,8 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
+        "mac": "ec:f4:bb:4f:b0:96",
+        "hostname": "WPAD",
         "username": null,
         "realm": null,
         "asn": null,
@@ -216,7 +217,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "ec:f4:bb:4f:b2:45",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -251,7 +252,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "78:54:2e:9f:10:28",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -313,7 +314,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "00:60:6e:00:9d:f9",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -3712,7 +3713,12 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 0,
+      "by_technique": []
+    }
   },
-  "findings": []
+  "findings": [],
+  "contradictions": []
 }

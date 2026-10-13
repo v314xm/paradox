@@ -11,9 +11,18 @@
   attacker_candidate         — internal/external, который атакует
   c2_candidate               — external с findings
   domain_controller          — internal с сервисным трафиком
+  pivot                      — victim + attacker (см. contradictions)
+
+Про pivot:
+  Роль ставится, если для IP сработало правило victim_makes_attack:
+  хост фигурирует и как жертва, и как атакующий. Роль victim_candidate
+  при этом сохраняется (актив, который надо спасать), pivot — метка
+  поверх неё. В отчёте помогает отличить «просто жертву» от
+  «скомпрометированной жертвы, которая уже движется дальше».
 """
 from dataclasses import dataclass, field
 from ipaddress import ip_address
+from typing import Any
 
 from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, Finding
@@ -158,12 +167,38 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
     return result
 
 
+def _pivot_subjects(contradictions: list[Any] | None) -> set[str]:
+    """
+    Собрать IP, для которых сработало правило victim_makes_attack.
+
+    Duck-typing: contradictions/ импортируется в pipeline, а entities.py
+    не должен от него зависеть (циклы импортов). Контракт: у объекта
+    есть атрибуты .rule (str) и .subject (str).
+    """
+    if not contradictions:
+        return set()
+    out: set[str] = set()
+    for c in contradictions:
+        if getattr(c, "rule", None) == "victim_makes_attack":
+            subj = getattr(c, "subject", None)
+            if subj:
+                out.add(subj)
+    return out
+
+
 def build_entities(
     state: CaptureState,
     findings: list[Finding],
     config: Config,
+    contradictions: list[Any] | None = None,
 ) -> Entities:
-    """Собрать сущности из CaptureState и findings."""
+    """
+    Собрать сущности из CaptureState и findings.
+
+    contradictions — опционально: результат run_all из contradictions/.
+    Нужен для проставления роли pivot. Старые вызовы без него
+    работают как раньше.
+    """
     buckets: dict[str, Entity] = {}
 
     def get(ip: str) -> Entity | None:
@@ -291,11 +326,18 @@ def build_entities(
                     tags.add("attacker_tag")
 
             elif ftype == "large_transfer":
-                # src = жертва (утекает наружу), dst = exfil-получатель
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
+                # large_transfer — статистика объёма, не роль.
+                # Шлюз, качающий 2 GB обновлений, — не victim и не attacker.
+                # Роль определится ниже через flows_out / unique_dsts
+                # (gateway_candidate) или останется без роли, если хост
+                # просто много передал. Помечать здесь victim/attacker
+                # нельзя: вытесняет настоящих жертв из топа сущностей
+                # и ломает TL;DR.
+                #
+                # findings_indices при этом всё равно пополняется
+                # (строки выше) — large_transfer виден в findings
+                # сущности и в отчёте, просто без роли.
+                pass
 
             elif ftype in ("ja3_malware", "sni_without_dns",
                            "dga_domain", "typosquatting",
@@ -330,6 +372,9 @@ def build_entities(
                 else:
                     tags.add("victim_tag")
 
+    # --- pivot-субъекты из contradictions ---
+    pivot_ips = _pivot_subjects(contradictions)
+
     # --- роли ---
     for ent in buckets.values():
         ent.roles.append("internal" if ent.is_internal else "external")
@@ -354,6 +399,14 @@ def build_entities(
                 ent.roles.append("attacker_candidate")
             elif has_findings:
                 ent.roles.append("victim_candidate")
+
+            # 2b. pivot — метка поверх victim_candidate. Ставится,
+            # если правило victim_makes_attack нашло у хоста
+            # одновременные victim_of и attacker_of факты.
+            # Роль НЕ заменяет victim_candidate, а дополняет:
+            # актив тот же, интерпретация другая.
+            if ent.ip in pivot_ips:
+                ent.roles.append("pivot")
 
             # 3. Gateway — только если не DC и не attacker
             if ("domain_controller" not in ent.roles

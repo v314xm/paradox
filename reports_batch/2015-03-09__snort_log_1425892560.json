@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425892560",
     "pcap_sha256": "28e9015aeb7908810883c9db6d3f81ba32b352a1d6bc89cff3ad1972c1c36817"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 1,
     "flows": 3116,
     "findings": 14,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 2898,
     "tcp_streams_truncated": 1,
@@ -277,7 +278,8 @@
           "x.bidswitch.net"
         ],
         "findings_indices": [
-          5
+          5,
+          6
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -465,7 +467,8 @@
         "ip": "191.234.4.50",
         "is_internal": false,
         "roles": [
-          "external"
+          "external",
+          "c2_candidate"
         ],
         "first_seen": 1425892560.55389,
         "last_seen": 1425892797.666762,
@@ -481,7 +484,9 @@
         ],
         "sni_domains": [],
         "dns_names": [],
-        "findings_indices": [],
+        "findings_indices": [
+          6
+        ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": null,
@@ -4120,7 +4125,28 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 4,
+      "by_technique": [
+        {
+          "technique": "T1189",
+          "count": 7
+        },
+        {
+          "technique": "T1071.001",
+          "count": 5
+        },
+        {
+          "technique": "T1110.001",
+          "count": 1
+        },
+        {
+          "technique": "T1105",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -4139,7 +4165,10 @@
         "total_bytes": 5834
       },
       "first_seen": 1425892779.722628,
-      "last_seen": 1425892779.909985
+      "last_seen": 1425892779.909985,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4157,7 +4186,10 @@
         "total_bytes": 3729
       },
       "first_seen": 1425892778.075179,
-      "last_seen": 1425892779.269248
+      "last_seen": 1425892779.269248,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4175,7 +4207,10 @@
         "total_bytes": 2691
       },
       "first_seen": 1425892779.536939,
-      "last_seen": 1425892780.149954
+      "last_seen": 1425892780.149954,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4193,7 +4228,10 @@
         "total_bytes": 2871
       },
       "first_seen": 1425892778.504268,
-      "last_seen": 1425892779.710157
+      "last_seen": 1425892779.710157,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4211,7 +4249,10 @@
         "total_bytes": 1929
       },
       "first_seen": 1425892779.274822,
-      "last_seen": 1425892779.469303
+      "last_seen": 1425892779.469303,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "brute_force",
@@ -4231,7 +4272,10 @@
         "rate_flows_per_sec": 0.340575
       },
       "first_seen": 1425892567.025022,
-      "last_seen": 1425892796.049204
+      "last_seen": 1425892796.049204,
+      "mitre_techniques": [
+        "T1110.001"
+      ]
     },
     {
       "type": "large_transfer",
@@ -4244,13 +4288,18 @@
         "dst_port": 49530,
         "proto": "tcp",
         "total_bytes": 148678196,
+        "bytes_in": 148678196,
+        "bytes_out": 0,
         "total_packets": 102379,
         "flow_count": 1,
         "direction": "inbound",
         "sni": null
       },
       "first_seen": 1425892560.55389,
-      "last_seen": 1425892797.666762
+      "last_seen": 1425892797.666762,
+      "mitre_techniques": [
+        "T1105"
+      ]
     },
     {
       "type": "script_download",
@@ -4289,7 +4338,10 @@
         "extension": ".dll"
       },
       "first_seen": 1425892777.632404,
-      "last_seen": 1425892777.834205
+      "last_seen": 1425892777.834205,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4326,7 +4378,10 @@
         "extension": ".exe"
       },
       "first_seen": 1425892560.554289,
-      "last_seen": 1425892797.666762
+      "last_seen": 1425892797.666762,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4363,7 +4418,10 @@
         "extension": ".img"
       },
       "first_seen": 1425892778.04105,
-      "last_seen": 1425892778.191025
+      "last_seen": 1425892778.191025,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4400,7 +4458,10 @@
         "extension": ".img"
       },
       "first_seen": 1425892778.044545,
-      "last_seen": 1425892778.110835
+      "last_seen": 1425892778.110835,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4437,7 +4498,10 @@
         "extension": ".img"
       },
       "first_seen": 1425892777.873846,
-      "last_seen": 1425892778.069585
+      "last_seen": 1425892778.069585,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4474,7 +4538,10 @@
         "extension": ".img"
       },
       "first_seen": 1425892778.039861,
-      "last_seen": 1425892778.112923
+      "last_seen": 1425892778.112923,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "script_download",
@@ -4511,7 +4578,11 @@
         "extension": ".img"
       },
       "first_seen": 1425892777.873837,
-      "last_seen": 1425892778.113379
+      "last_seen": 1425892778.113379,
+      "mitre_techniques": [
+        "T1189"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

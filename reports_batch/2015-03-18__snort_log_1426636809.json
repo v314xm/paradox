@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-18\\snort.log.1426636809",
     "pcap_sha256": "8f7db4b01d20add5c0b45366712d7c6ca0832760e510b4928b121a8ec49e8e55"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 340,
     "flows": 49571,
     "findings": 10,
+    "contradictions": 1,
     "extractor_errors": {},
     "tcp_streams": 3355,
     "tcp_streams_truncated": 0,
@@ -29,6 +30,7 @@
         "roles": [
           "internal",
           "victim_candidate",
+          "pivot",
           "gateway_candidate"
         ],
         "first_seen": 1426672613.93222,
@@ -741,6 +743,11 @@
           "yajhozsd.pwned.se"
         ],
         "findings_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
           6
         ],
         "service_flows_in": 0,
@@ -898,46 +905,11 @@
         "country": null
       },
       {
-        "ip": "192.168.0.1",
-        "is_internal": true,
-        "roles": [
-          "internal"
-        ],
-        "first_seen": 1426636857.122068,
-        "last_seen": 1426723182.230543,
-        "flows_out": 21363,
-        "flows_in": 21362,
-        "bytes_out": 8639368,
-        "bytes_in": 4507837,
-        "unique_dsts": [
-          "192.168.0.51",
-          "192.168.0.53",
-          "192.168.0.54",
-          "224.0.0.22",
-          "239.255.255.250"
-        ],
-        "unique_srcs": [
-          "192.168.0.51",
-          "192.168.0.53",
-          "192.168.0.54"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": "78:54:2e:9f:10:28",
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "192.168.0.53",
         "is_internal": true,
         "roles": [
           "internal",
+          "victim_candidate",
           "gateway_candidate"
         ],
         "first_seen": 1426636857.120934,
@@ -994,11 +966,49 @@
           "www.google-analytics.com",
           "www.google.com"
         ],
-        "findings_indices": [],
+        "findings_indices": [
+          7
+        ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "00:60:6e:00:9d:f9",
         "hostname": "HOMER-XUBUNTU",
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "192.168.0.1",
+        "is_internal": true,
+        "roles": [
+          "internal"
+        ],
+        "first_seen": 1426636857.122068,
+        "last_seen": 1426723182.230543,
+        "flows_out": 21363,
+        "flows_in": 21362,
+        "bytes_out": 8639368,
+        "bytes_in": 4507837,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54",
+          "224.0.0.22",
+          "239.255.255.250"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "78:54:2e:9f:10:28",
+        "hostname": null,
         "username": null,
         "realm": null,
         "asn": null,
@@ -1158,6 +1168,40 @@
       }
     ],
     "external": [
+      {
+        "ip": "31.13.64.1",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1426636857.120934,
+        "last_seen": 1426672580.662512,
+        "flows_out": 119,
+        "flows_in": 120,
+        "bytes_out": 192503,
+        "bytes_in": 234927,
+        "unique_dsts": [
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          7
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "195.12.232.155",
         "is_internal": false,
@@ -1571,36 +1615,6 @@
         ],
         "unique_srcs": [
           "192.168.0.51",
-          "192.168.0.53"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "31.13.64.1",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426636857.120934,
-        "last_seen": 1426672580.662512,
-        "flows_out": 119,
-        "flows_in": 120,
-        "bytes_out": 192503,
-        "bytes_in": 234927,
-        "unique_dsts": [
-          "192.168.0.53"
-        ],
-        "unique_srcs": [
           "192.168.0.53"
         ],
         "sni_domains": [],
@@ -4823,7 +4837,28 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 4,
+      "by_technique": [
+        {
+          "technique": "T1046",
+          "count": 5
+        },
+        {
+          "technique": "T1568.002",
+          "count": 2
+        },
+        {
+          "technique": "T1189",
+          "count": 1
+        },
+        {
+          "technique": "T1190",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -4881,7 +4916,10 @@
         "threshold": 10
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1046"
+      ]
     },
     {
       "type": "port_scan",
@@ -4938,7 +4976,10 @@
         "threshold": 10
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1046"
+      ]
     },
     {
       "type": "port_scan",
@@ -4995,7 +5036,10 @@
         "threshold": 10
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1046"
+      ]
     },
     {
       "type": "port_scan",
@@ -5052,7 +5096,10 @@
         "threshold": 10
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1046"
+      ]
     },
     {
       "type": "port_scan",
@@ -5109,7 +5156,10 @@
         "threshold": 10
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1046"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5121,7 +5171,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5133,7 +5186,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "beaconing",
@@ -5156,7 +5212,8 @@
         "total_packets": 1115
       },
       "first_seen": 1426636857.120934,
-      "last_seen": 1426672307.231042
+      "last_seen": 1426672307.231042,
+      "mitre_techniques": []
     },
     {
       "type": "script_download",
@@ -5193,7 +5250,10 @@
         "extension": ".exe"
       },
       "first_seen": 1426674939.354956,
-      "last_seen": 1426675210.474593
+      "last_seen": 1426675210.474593,
+      "mitre_techniques": [
+        "T1189"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5235,7 +5295,52 @@
         ]
       },
       "first_seen": 1426672585.643934,
-      "last_seen": 1426672605.328505
+      "last_seen": 1426672605.328505,
+      "mitre_techniques": [
+        "T1190"
+      ]
+    }
+  ],
+  "contradictions": [
+    {
+      "rule": "victim_makes_attack",
+      "subject": "192.168.0.54",
+      "severity": "critical",
+      "confidence": 0.9,
+      "priority": 0.9,
+      "likely_causes": [
+        "Хост скомпрометирован: сначала атакован, потом сам атакует (pivot)",
+        "Authorized scanner в сети: жертва одного скана — инициатор другого",
+        "NAT/proxy: одна IP скрывает несколько хостов",
+        "FP одной из эвристик"
+      ],
+      "resolution_hint": "192.168.0.54: зафиксированы обе роли — victim (nxdomain_burst) и attacker (port_scan). Timestamps недоступны, проверить хронологию по flows вручную: сначала атака на 192.168.0.54, потом атака с 192.168.0.54 — классический pivot.",
+      "facts": [
+        {
+          "source": "finding",
+          "subject": "192.168.0.54",
+          "predicate": "victim_of",
+          "value": "",
+          "ts": 0.0,
+          "confidence": 0.9,
+          "evidence": {
+            "finding_type": "nxdomain_burst",
+            "role": "victim"
+          }
+        },
+        {
+          "source": "finding",
+          "subject": "192.168.0.54",
+          "predicate": "attacker_of",
+          "value": "",
+          "ts": 0.0,
+          "confidence": 0.9,
+          "evidence": {
+            "finding_type": "port_scan",
+            "role": "attacker"
+          }
+        }
+      ]
     }
   ]
 }

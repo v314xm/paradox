@@ -6,6 +6,7 @@ from scapy.utils import RawPcapReader
 from pcap_triage import __version__
 from pcap_triage.aggregators.entities import build_entities
 from pcap_triage.config import Config
+from pcap_triage.contradictions import run_all as run_contradictions
 from pcap_triage.detectors.cloud_tunnel import CloudTunnelDetector
 from pcap_triage.detectors.dga import DGADetector
 from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
@@ -18,6 +19,7 @@ from pcap_triage.detectors.typosquatting import TyposquattingDetector
 from pcap_triage.extractors.dns import DNSExtractor
 from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.extractors.tls import TLSExtractor
+from pcap_triage.extractors.arp_history import ARPMacHistoryExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reassembler import TCPReassembler
@@ -51,6 +53,7 @@ EXTRACTORS = [
     TLSExtractor(),
     HTTPExtractor(),
     HostIdentityExtractor(),
+    ARPMacHistoryExtractor(),
     NBNSExtractor(),
     KerberosExtractor(),
 ]
@@ -168,7 +171,8 @@ def _detect(state: CaptureState, config: Config):
     for det in DETECTORS:
         findings.extend(det.run(state, config))
 
-    # Обогащение MITRE-техниками
+    # Обогащение MITRE-техниками. Instance-level (detector заполнил сам —
+    # например large_transfer с direction) приоритетнее type-map.
     from pcap_triage.detectors.mitre_map import get_techniques
     for f in findings:
         if not f.mitre_techniques:
@@ -224,6 +228,11 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
 
     _extract(pcap_path, state, config)
     findings = _detect(state, config)
+
+    # Contradictions — между detectors и build_entities.
+    # После detectors: используют findings. До entities: влияют на роли (pivot).
+    contradictions = run_contradictions(state, findings, config)
+
     flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
     dns_report = build_dns_report(state, top_n=config.flow_report_top_n)
     http_report = build_http_report(state, top_n=config.flow_report_top_n)
@@ -235,11 +244,14 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "files": [c.to_dict() for c in state.carved_files],
         "mitre": _summarize_mitre(findings),
     }
-    entities = build_entities(state, findings, config)
+    entities = build_entities(
+        state, findings, config, contradictions=contradictions,
+    )
     direction_summary = _summarize_direction(state, config)
 
     return {
-        "schema_version": "0.2.0",
+        # 0.3.0: добавлен top-level ключ "contradictions".
+        "schema_version": "0.3.0",
         "provenance": {
             "tool_version": __version__,
             "pcap_path": str(pcap_path),
@@ -248,9 +260,10 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "summary": {
             "packets": state.packet_count,
             "unique_dns_queries": len(state.dns_queries),
-            "nxdomain_count": sum(state.nx_domain.values()) if hasattr(state, "nx_domain") else sum(state.dns_nxdomain.values()),
+            "nxdomain_count": sum(state.dns_nxdomain.values()),
             "flows": len(state.flows),
             "findings": len(findings),
+            "contradictions": len(contradictions),
             "extractor_errors": dict(state.extractor_errors),
             "tcp_streams": len(state.tcp_streams),
             "tcp_streams_truncated": len(state.tcp_streams_truncated),
@@ -268,4 +281,5 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
         "http_objects": http_objects_report,
         "carved_files": carved_report,
         "findings": [f.to_dict() for f in findings],
+        "contradictions": [c.to_dict() for c in contradictions],
     }

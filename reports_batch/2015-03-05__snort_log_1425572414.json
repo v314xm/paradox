@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-05\\snort.log.1425572414",
     "pcap_sha256": "deaf4f2e98451b26d00a0cab39f0c835edef45c62317aa9ec171aa68a84cda31"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 0,
     "flows": 580,
     "findings": 0,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 158,
     "tcp_streams_truncated": 5,
@@ -55,7 +56,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "ec:f4:bb:4f:c0:d7",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -102,7 +103,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "ec:f4:bb:4f:b2:45",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -135,7 +136,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "00:60:6e:42:b6:35",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -166,7 +167,7 @@
         "findings_indices": [],
         "service_flows_in": 0,
         "service_unique_srcs": [],
-        "mac": null,
+        "mac": "78:54:2e:9f:10:28",
         "hostname": null,
         "username": null,
         "realm": null,
@@ -2815,7 +2816,12 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 0,
+      "by_technique": []
+    }
   },
-  "findings": []
+  "findings": [],
+  "contradictions": []
 }

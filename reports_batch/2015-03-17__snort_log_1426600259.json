@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-17\\snort.log.1426600259",
     "pcap_sha256": "e9bbc2334ae852cd79fa54597d4c804af324d77ccea3ab1d6403b1299fe6a103"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 176,
     "flows": 3518,
     "findings": 4,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 1574,
     "tcp_streams_truncated": 3,
@@ -724,7 +725,8 @@
         "ip": "192.168.0.53",
         "is_internal": true,
         "roles": [
-          "internal"
+          "internal",
+          "victim_candidate"
         ],
         "first_seen": 1426600270.961472,
         "last_seen": 1426636772.392159,
@@ -747,7 +749,9 @@
         "dns_names": [
           "www.facebook.com"
         ],
-        "findings_indices": [],
+        "findings_indices": [
+          3
+        ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
         "mac": "00:60:6e:00:9d:f9",
@@ -908,6 +912,46 @@
     ],
     "external": [
       {
+        "ip": "31.13.64.1",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1426600270.961472,
+        "last_seen": 1426636622.153108,
+        "flows_out": 154,
+        "flows_in": 154,
+        "bytes_out": 400705,
+        "bytes_in": 482641,
+        "unique_dsts": [
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.53",
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "3-edge-chat.facebook.com",
+          "api-read.facebook.com",
+          "www.facebook.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [
+          3
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
         "ip": "80.239.237.11",
         "is_internal": false,
         "roles": [
@@ -1049,42 +1093,6 @@
         ],
         "sni_domains": [
           "fbstatic-a.akamaihd.net"
-        ],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "31.13.64.1",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1426600270.961472,
-        "last_seen": 1426636622.153108,
-        "flows_out": 154,
-        "flows_in": 154,
-        "bytes_out": 400705,
-        "bytes_in": 482641,
-        "unique_dsts": [
-          "192.168.0.53",
-          "192.168.0.54"
-        ],
-        "unique_srcs": [
-          "192.168.0.53",
-          "192.168.0.54"
-        ],
-        "sni_domains": [
-          "3-edge-chat.facebook.com",
-          "api-read.facebook.com",
-          "www.facebook.com"
         ],
         "dns_names": [],
         "findings_indices": [],
@@ -4280,7 +4288,20 @@
   },
   "carved_files": {
     "total": 0,
-    "files": []
+    "files": [],
+    "mitre": {
+      "total_techniques": 2,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 2
+        },
+        {
+          "technique": "T1071.001",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -4293,7 +4314,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -4305,7 +4329,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "sni_without_dns",
@@ -4323,7 +4350,10 @@
         "total_bytes": 34453
       },
       "first_seen": 1426601905.921782,
-      "last_seen": 1426605009.204776
+      "last_seen": 1426605009.204776,
+      "mitre_techniques": [
+        "T1071.001"
+      ]
     },
     {
       "type": "beaconing",
@@ -4346,7 +4376,9 @@
         "total_packets": 1137
       },
       "first_seen": 1426600270.962707,
-      "last_seen": 1426636556.835095
+      "last_seen": 1426636556.835095,
+      "mitre_techniques": []
     }
-  ]
+  ],
+  "contradictions": []
 }

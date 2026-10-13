@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-07\\snort.log.1425686433",
     "pcap_sha256": "9a67427febe6abd498696757518627b2113059b744e8c3f530f41d619d0dc0e4"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 0,
     "flows": 16741,
     "findings": 4,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 3628,
     "tcp_streams_truncated": 0,
@@ -23,6 +24,86 @@
   },
   "entities": {
     "internal": [
+      {
+        "ip": "192.168.0.2",
+        "is_internal": true,
+        "roles": [
+          "internal",
+          "victim_candidate",
+          "gateway_candidate"
+        ],
+        "first_seen": 1425686621.294787,
+        "last_seen": 1425772798.559843,
+        "flows_out": 154,
+        "flows_in": 153,
+        "bytes_out": 300166,
+        "bytes_in": 333011,
+        "unique_dsts": [
+          "188.126.88.9",
+          "193.142.108.20",
+          "194.71.144.71",
+          "213.155.151.149",
+          "213.155.151.151",
+          "217.75.106.216",
+          "218.232.66.54",
+          "218.77.79.43",
+          "23.43.139.27",
+          "61.240.144.66",
+          "63.245.215.95",
+          "63.245.216.132",
+          "63.245.216.134",
+          "63.245.217.115",
+          "63.245.217.162",
+          "8.8.8.8",
+          "83.168.200.199",
+          "84.22.180.89",
+          "93.184.220.29"
+        ],
+        "unique_srcs": [
+          "193.142.108.20",
+          "209.130.172.178",
+          "213.155.151.149",
+          "213.155.151.151",
+          "217.75.106.216",
+          "218.232.66.54",
+          "218.77.79.43",
+          "23.43.139.27",
+          "61.240.144.66",
+          "63.245.215.95",
+          "63.245.216.132",
+          "63.245.216.134",
+          "63.245.217.115",
+          "63.245.217.162",
+          "8.8.8.8",
+          "83.168.200.199",
+          "84.22.180.89",
+          "93.184.220.29"
+        ],
+        "sni_domains": [
+          "addons.mozilla.org",
+          "blocklist.addons.mozilla.org",
+          "fhr.data.mozilla.com",
+          "services.addons.mozilla.org",
+          "versioncheck-bg.addons.mozilla.org"
+        ],
+        "dns_names": [
+          "centos.vianett.no",
+          "fhr.data.mozilla.com",
+          "gtssl-ocsp.geotrust.com",
+          "mirrorlist.centos.org"
+        ],
+        "findings_indices": [
+          0
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": "ec:f4:bb:4f:c0:d7",
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "192.168.0.51",
         "is_internal": true,
@@ -171,83 +252,6 @@
         "country": null
       },
       {
-        "ip": "192.168.0.2",
-        "is_internal": true,
-        "roles": [
-          "internal",
-          "gateway_candidate"
-        ],
-        "first_seen": 1425686621.294787,
-        "last_seen": 1425772798.559843,
-        "flows_out": 154,
-        "flows_in": 153,
-        "bytes_out": 300166,
-        "bytes_in": 333011,
-        "unique_dsts": [
-          "188.126.88.9",
-          "193.142.108.20",
-          "194.71.144.71",
-          "213.155.151.149",
-          "213.155.151.151",
-          "217.75.106.216",
-          "218.232.66.54",
-          "218.77.79.43",
-          "23.43.139.27",
-          "61.240.144.66",
-          "63.245.215.95",
-          "63.245.216.132",
-          "63.245.216.134",
-          "63.245.217.115",
-          "63.245.217.162",
-          "8.8.8.8",
-          "83.168.200.199",
-          "84.22.180.89",
-          "93.184.220.29"
-        ],
-        "unique_srcs": [
-          "193.142.108.20",
-          "209.130.172.178",
-          "213.155.151.149",
-          "213.155.151.151",
-          "217.75.106.216",
-          "218.232.66.54",
-          "218.77.79.43",
-          "23.43.139.27",
-          "61.240.144.66",
-          "63.245.215.95",
-          "63.245.216.132",
-          "63.245.216.134",
-          "63.245.217.115",
-          "63.245.217.162",
-          "8.8.8.8",
-          "83.168.200.199",
-          "84.22.180.89",
-          "93.184.220.29"
-        ],
-        "sni_domains": [
-          "addons.mozilla.org",
-          "blocklist.addons.mozilla.org",
-          "fhr.data.mozilla.com",
-          "services.addons.mozilla.org",
-          "versioncheck-bg.addons.mozilla.org"
-        ],
-        "dns_names": [
-          "centos.vianett.no",
-          "fhr.data.mozilla.com",
-          "gtssl-ocsp.geotrust.com",
-          "mirrorlist.centos.org"
-        ],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": "ec:f4:bb:4f:c0:d7",
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "192.168.0.50",
         "is_internal": true,
         "roles": [
@@ -310,6 +314,40 @@
       }
     ],
     "external": [
+      {
+        "ip": "213.155.151.151",
+        "is_internal": false,
+        "roles": [
+          "external",
+          "attacker_candidate",
+          "c2_candidate"
+        ],
+        "first_seen": 1425686847.470955,
+        "last_seen": 1425771596.541301,
+        "flows_out": 48,
+        "flows_in": 48,
+        "bytes_out": 182644,
+        "bytes_in": 88654,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [
+          0
+        ],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
       {
         "ip": "217.72.201.130",
         "is_internal": false,
@@ -544,36 +582,6 @@
         ],
         "unique_srcs": [
           "192.168.0.51"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "213.155.151.151",
-        "is_internal": false,
-        "roles": [
-          "external"
-        ],
-        "first_seen": 1425686847.470955,
-        "last_seen": 1425771596.541301,
-        "flows_out": 48,
-        "flows_in": 48,
-        "bytes_out": 182644,
-        "bytes_in": 88654,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
         ],
         "sni_domains": [],
         "dns_names": [],
@@ -4445,7 +4453,16 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 1,
+      "by_technique": [
+        {
+          "technique": "T1190",
+          "count": 3
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -4471,7 +4488,8 @@
         "total_packets": 361
       },
       "first_seen": 1425686847.470955,
-      "last_seen": 1425771536.349774
+      "last_seen": 1425771536.349774,
+      "mitre_techniques": []
     },
     {
       "type": "vulnerable_path",
@@ -4513,7 +4531,10 @@
         ]
       },
       "first_seen": 1425749404.019893,
-      "last_seen": 1425749405.290252
+      "last_seen": 1425749405.290252,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -4555,7 +4576,10 @@
         ]
       },
       "first_seen": 1425749405.290173,
-      "last_seen": 1425749406.249759
+      "last_seen": 1425749406.249759,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -4597,7 +4621,11 @@
         ]
       },
       "first_seen": 1425749406.249759,
-      "last_seen": 1425749407.209363
+      "last_seen": 1425749407.209363,
+      "mitre_techniques": [
+        "T1190"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

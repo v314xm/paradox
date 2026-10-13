@@ -23,6 +23,57 @@ def _ask_pcap_path() -> Path:
         return p
 
 
+def _safe_stem(pcap_path: Path) -> str:
+    """
+    Безопасный stem для дефолтного имени отчёта.
+
+    Точки → подчёркивания: `snort_log.1425892283.pcap` даёт
+    `snort_log_1425892283_pcap`, а не `snort_log.1425892283`. Второй
+    вариант с `.report.json` на конце выглядит как расширение и
+    ломает `Path.with_suffix` / автодополнение.
+    """
+    return pcap_path.name.replace(".", "_")[:80]
+
+
+def _resolve_output(
+    out_arg: Path | None, pcap_path: Path, config: Config,
+) -> Path:
+    """
+    Куда писать JSON. Возвращает путь к файлу (не к директории).
+
+    Правила:
+      без -o                        → config.output_dir/<stem>.report.json
+      -o dir/ или существующая dir  → <dir>/<stem>.report.json
+      -o path/to/file               → ровно этот файл, .json добавляется,
+                                       если у пути вообще нет расширения
+
+    Родительская директория создаётся. Случай «-o указывает на
+    существующую директорию» раньше падал с PermissionError —
+    write_json пытался открыть директорию как файл.
+    """
+    stem = _safe_stem(pcap_path)
+
+    if out_arg is None:
+        out = config.output_dir / f"{stem}.report.json"
+    else:
+        out_arg = out_arg.expanduser()
+        # Директорией считаем либо существующую папку, либо путь
+        # с завершающим слешем (папка может ещё не существовать).
+        raw = str(out_arg)
+        is_dir_hint = raw.endswith(("/", "\\"))
+        if out_arg.is_dir() or is_dir_hint:
+            out = out_arg / f"{stem}.report.json"
+        else:
+            out = out_arg
+            # Добавляем .json только если расширения нет совсем.
+            # `foo.bar` оставляем как есть — это осознанный выбор юзера.
+            if not out.suffix:
+                out = out.with_suffix(".json")
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    return out
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="pcap_triage")
     parser.add_argument(
@@ -36,7 +87,10 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument(
         "-o", "--output", type=Path, default=None,
-        help="output JSON path (default: reports/<name>.report.json)",
+        help=(
+            "куда писать отчёты: файл (foo.json) или директория (foo/). "
+            "По умолчанию — reports/<pcap>.report.json + .md рядом"
+        ),
     )
     args = parser.parse_args(argv)
 
@@ -73,8 +127,7 @@ def main(argv: list[str] | None = None) -> None:
                   file=sys.stderr)
             report["enrichment_stats"] = {"error": str(e)}
 
-    safe_name = pcap_path.name.replace(".", "_")[:80]
-    out = args.output or (config.output_dir / f"{safe_name}.report.json")
+    out = _resolve_output(args.output, pcap_path, config)
     write_json(report, out)
 
     md_out = out.with_suffix(".md")

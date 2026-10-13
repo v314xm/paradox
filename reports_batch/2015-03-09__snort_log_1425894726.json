@@ -1,7 +1,7 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "provenance": {
-    "tool_version": "0.6.0",
+    "tool_version": "0.7.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425894726",
     "pcap_sha256": "8fb35996c17c1f0d0f5a41ad1c55a7a723ac6ca008438d560da959e31321c63c"
   },
@@ -11,6 +11,7 @@
     "nxdomain_count": 96,
     "flows": 7560,
     "findings": 13,
+    "contradictions": 0,
     "extractor_errors": {},
     "tcp_streams": 3038,
     "tcp_streams_truncated": 7,
@@ -5741,7 +5742,24 @@
         "truncated": false,
         "saved_path": null
       }
-    ]
+    ],
+    "mitre": {
+      "total_techniques": 3,
+      "by_technique": [
+        {
+          "technique": "T1568.002",
+          "count": 7
+        },
+        {
+          "technique": "T1190",
+          "count": 4
+        },
+        {
+          "technique": "T1583.001",
+          "count": 1
+        }
+      ]
+    }
   },
   "findings": [
     {
@@ -5754,7 +5772,10 @@
         "queries": 4
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5766,7 +5787,10 @@
         "queries": 17
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5778,7 +5802,10 @@
         "queries": 8
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5790,7 +5817,10 @@
         "queries": 4
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "dga_domain",
@@ -5802,7 +5832,10 @@
         "queries": 4
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5814,7 +5847,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "nxdomain_burst",
@@ -5826,7 +5862,10 @@
         "threshold": 5
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1568.002"
+      ]
     },
     {
       "type": "typosquatting",
@@ -5839,7 +5878,10 @@
         "queries": 4
       },
       "first_seen": null,
-      "last_seen": null
+      "last_seen": null,
+      "mitre_techniques": [
+        "T1583.001"
+      ]
     },
     {
       "type": "ja3_malware",
@@ -5866,7 +5908,8 @@
         ]
       },
       "first_seen": 1425899972.100828,
-      "last_seen": 1425900282.940679
+      "last_seen": 1425900282.940679,
+      "mitre_techniques": []
     },
     {
       "type": "vulnerable_path",
@@ -5908,7 +5951,10 @@
         ]
       },
       "first_seen": 1425896977.307013,
-      "last_seen": 1425896977.436813
+      "last_seen": 1425896977.436813,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5950,7 +5996,10 @@
         ]
       },
       "first_seen": 1425896365.479207,
-      "last_seen": 1425896365.746711
+      "last_seen": 1425896365.746711,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -5992,7 +6041,10 @@
         ]
       },
       "first_seen": 1425894833.782634,
-      "last_seen": 1425894833.874404
+      "last_seen": 1425894833.874404,
+      "mitre_techniques": [
+        "T1190"
+      ]
     },
     {
       "type": "vulnerable_path",
@@ -6034,7 +6086,11 @@
         ]
       },
       "first_seen": 1425896976.767211,
-      "last_seen": 1425896977.042527
+      "last_seen": 1425896977.042527,
+      "mitre_techniques": [
+        "T1190"
+      ]
     }
-  ]
+  ],
+  "contradictions": []
 }

@@ -145,6 +145,14 @@ class CaptureState:
 
     # IP → HostIdentity (MAC, hostname)
     host_identities: dict[str, HostIdentity] = field(default_factory=dict)
+
+    # IP → {MAC: [first_ts, last_ts, count]}
+    # Отдельно от host_identities: там только последний MAC (для отчёта),
+    # здесь — все, что видели (для правила mac_ip_conflict). Потеря истории
+    # = потеря ARP-spoof: финальное значение не покажет атаку.
+    # Формат [first, last, count] — list, а не tuple, потому что count
+    # инкрементируется in-place на каждом ARP-пакете.
+    arp_macs: dict[str, dict[str, list]] = field(default_factory=dict)
     # TCP reassembly: склеенные потоки по FlowKey
     tcp_streams: dict[FlowKey, bytes] = field(default_factory=dict)
     carved_files: list = field(default_factory=list)
