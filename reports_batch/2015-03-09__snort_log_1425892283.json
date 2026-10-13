@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425892283",
     "pcap_sha256": "2ffabb57e9200e57531d673a01f6cc44b9ec7c99a0163e8894dc8be364a403ea"
   },
@@ -10,8 +10,12 @@
     "unique_dns_queries": 14,
     "nxdomain_count": 0,
     "flows": 2736,
-    "findings": 4,
+    "findings": 5,
     "extractor_errors": {},
+    "tcp_streams": 2653,
+    "tcp_streams_truncated": 3,
+    "http_objects": 16,
+    "carved_files": 0,
     "uploaded_bytes": 3364977,
     "downloaded_bytes": 151761502,
     "internal_bytes": 2157126,
@@ -190,7 +194,7 @@
           "x-0.19-a3800081.0.1644.1e36.2f4a.210.0.4cc5f6ldt8teurnz2u8srv5z3j.avts.mcafee.com"
         ],
         "findings_indices": [
-          2
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -225,7 +229,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1104,7 +1108,8 @@
         "duration": 138.106124,
         "first_ts": 1425892419.986584,
         "last_ts": 1425892558.092708,
-        "sni": "safebrowsing-cache.google.com"
+        "sni": "safebrowsing-cache.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1158,7 +1163,8 @@
         "duration": 1.770264,
         "first_ts": 1425892312.478223,
         "last_ts": 1425892314.248487,
-        "sni": "fe2.update.microsoft.com"
+        "sni": "fe2.update.microsoft.com",
+        "ja3": "4d7a28d6f2263ed61de88ca66eb011e3"
       },
       {
         "proto": "tcp",
@@ -1767,7 +1773,8 @@
         "duration": 138.106124,
         "first_ts": 1425892419.986584,
         "last_ts": 1425892558.092708,
-        "sni": "safebrowsing-cache.google.com"
+        "sni": "safebrowsing-cache.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1847,7 +1854,8 @@
         "duration": 138.984596,
         "first_ts": 1425892419.753459,
         "last_ts": 1425892558.738055,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1861,7 +1869,8 @@
         "duration": 240.169,
         "first_ts": 1425892311.728959,
         "last_ts": 1425892551.897959,
-        "sni": "www.gstatic.com"
+        "sni": "www.gstatic.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -1889,7 +1898,8 @@
         "duration": 3.634903,
         "first_ts": 1425892463.639443,
         "last_ts": 1425892467.274346,
-        "sni": "3c-bs.gmx.com"
+        "sni": "3c-bs.gmx.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -1917,7 +1927,8 @@
         "duration": 1.770264,
         "first_ts": 1425892312.478223,
         "last_ts": 1425892314.248487,
-        "sni": "fe2.update.microsoft.com"
+        "sni": "fe2.update.microsoft.com",
+        "ja3": "4d7a28d6f2263ed61de88ca66eb011e3"
       },
       {
         "proto": "tcp",
@@ -2001,7 +2012,8 @@
         "duration": 0.328653,
         "first_ts": 1425892513.950243,
         "last_ts": 1425892514.278896,
-        "sni": "tools.google.com"
+        "sni": "tools.google.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -2520,6 +2532,257 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 16,
+    "objects": [
+      {
+        "src_ip": "191.234.4.50",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49530,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/octet-stream",
+        "body_size": 18302212,
+        "truncated": true,
+        "body_preview": "485454502f312e3120323036205061727469616c20436f6e74656e740d0a436f6e74656e742d4c656e6774683a20353130320d0a436f6e74656e742d54797065"
+      },
+      {
+        "src_ip": "54.187.115.34",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41761,
+        "kind": "response",
+        "method": null,
+        "uri": "/xhr.108922217532656.js?PID=3119DF0B-3C06-308A-88B4-6118E4B86D16",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 988,
+        "truncated": false,
+        "body_preview": "2866756e6374696f6e2865297b7472797b696628652e584d4c4874747052657175657374262621652e584d4c48747470526571756573742e70726f746f747970"
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2751,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1187,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3464,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1750,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4298,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4401,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4473,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1674,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4116,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4833,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4542,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1687,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1680,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "54.187.115.34",
+        "src_port": 41761,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/xhr.108922217532656.js?PID=3119DF0B-3C06-308A-88B4-6118E4B86D16",
+        "status_code": null,
+        "host": "www.tomshardware.co.uk",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
+  },
   "findings": [
     {
       "type": "sni_without_dns",
@@ -2558,6 +2821,33 @@
       "last_seen": 1425892551.897959
     },
     {
+      "type": "ja3_malware",
+      "value": "Emotet (ja3=4d7a28d6…)",
+      "confidence": 0.85,
+      "evidence": {
+        "ja3": "4d7a28d6f2263ed61de88ca66eb011e3",
+        "tool_name": "Emotet",
+        "flow_count": 1,
+        "top_src_ips": [
+          {
+            "ip": "192.168.0.54",
+            "count": 1
+          }
+        ],
+        "top_dst_ips": [
+          {
+            "ip": "134.170.58.118",
+            "count": 1
+          }
+        ],
+        "dst_ports": [
+          443
+        ]
+      },
+      "first_seen": 1425892312.478223,
+      "last_seen": 1425892314.248487
+    },
+    {
       "type": "brute_force",
       "value": "192.168.0.1 -> 192.168.0.54:2869",
       "confidence": 0.836,
@@ -2579,21 +2869,21 @@
     },
     {
       "type": "large_transfer",
-      "value": "192.168.0.54 <-> 191.234.4.50:80",
+      "value": "191.234.4.50 <-> 192.168.0.54:49530",
       "confidence": 0.85,
       "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "191.234.4.50",
-        "src_port": 49530,
-        "dst_port": 80,
+        "src_ip": "191.234.4.50",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49530,
         "proto": "tcp",
-        "total_bytes": 120531084,
-        "total_packets": 122891,
-        "flow_count": 2,
-        "direction": "outbound",
+        "total_bytes": 117993059,
+        "total_packets": 81267,
+        "flow_count": 1,
+        "direction": "inbound",
         "sni": null
       },
-      "first_seen": 1425892316.59753,
+      "first_seen": 1425892316.628381,
       "last_seen": 1425892560.553888
     }
   ]

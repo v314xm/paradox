@@ -6,8 +6,48 @@ Markdown-рендер отчёта.
 
 Принцип: то же самое, что в JSON, но человекочитаемо.
 Не парсим JSON обратно — работаем с dict напрямую.
+
+Структура отчёта (0.7.0):
+1. Header (мета)
+2. TL;DR — что произошло, кто атакует, что скачано
+3. Timeline — хронология findings
+4. Сводка — числа
+5. Сущности — внутренние, внешние
+6. Findings — с MITRE-маппингом
+7. HTTP — хосты, URI, UA
+8. IOC — домены, IP, порты
+9. Топ-10 flows
 """
 from __future__ import annotations
+
+
+# ---------------------------------------------------------------------
+# MITRE ATT&CK маппинг: тип finding → ID + тактика
+# Источник: https://attack.mitre.org/
+# ---------------------------------------------------------------------
+_MITRE_MAP: dict[str, str] = {
+    "brute_force":        "T1110 (Brute Force)",
+    "ftp_brute_force":    "T1110.001 (Password Guessing)",
+    "command_injection":  "T1059 (Command & Scripting Interpreter)",
+    "script_download":    "T1105 (Ingress Tool Transfer)",
+    "lateral_movement":   "T1021 (Remote Services)",
+    "large_transfer":     "T1041 (Exfil Over C2 Channel)",
+    "beaconing":          "T1071 (Application Layer Protocol)",
+    "dns_tunneling":      "T1071.004 (DNS)",
+    "dga_domain":         "T1568.002 (Domain Generation Algorithms)",
+    "typosquatting":      "T1583.001 (Acquire Infrastructure: Domains)",
+    "vulnerable_path":    "T1190 (Exploit Public-Facing App)",
+    "web_scanner":        "T1595.002 (Vulnerability Scanning)",
+    "port_scan":          "T1046 (Network Service Discovery)",
+    "sni_without_dns":    "T1071.001 (Web Protocols)",
+    "ja3_malware":        "T1071.001 (Web Protocols)",
+    "ja3_tool":           "—",
+    "cloud_tunnel":       "T1572 (Protocol Tunneling)",
+    "ip_check_service":   "T1590.005 (IP Addresses)",
+    "nxdomain_burst":     "T1568 (Dynamic Resolution)",
+    "suspicious_port":    "T1571 (Non-Standard Port)",
+    "carved_file":        "T1105 (Ingress Tool Transfer)",
+}
 
 
 def _fmt_bytes(n: int) -> str:
@@ -30,12 +70,32 @@ def _fmt_duration(seconds: float) -> str:
     return f"{seconds / 86400:.1f} дн"
 
 
+def _fmt_rel(seconds: float) -> str:
+    """Время в формате H:MM:SS для timeline."""
+    if seconds < 0:
+        seconds = 0
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    if h > 0:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
+
+
 def _short(s: str, n: int = 40) -> str:
     """Обрезать длинную строку с многоточием."""
     if not s:
         return ""
     return s if len(s) <= n else s[: n - 1] + "…"
 
+
+def _mitre_for(finding_type: str) -> str:
+    return _MITRE_MAP.get(finding_type, "—")
+
+
+# ---------------------------------------------------------------------
+# IOC extraction
+# ---------------------------------------------------------------------
 
 def _extract_iocs(findings: list[dict]) -> dict:
     """Простое извлечение IOC из findings."""
@@ -67,6 +127,158 @@ def _extract_iocs(findings: list[dict]) -> dict:
     return {"domains": domains, "ips": ips, "ports": ports}
 
 
+# ---------------------------------------------------------------------
+# TL;DR
+# ---------------------------------------------------------------------
+
+def _pick_first_with_role(entities: list[dict], role: str) -> str | None:
+    for e in entities:
+        if role in e.get("roles", []):
+            return e.get("ip")
+    return None
+
+
+def _unique_finding_types(findings: list[dict]) -> list[str]:
+    seen: list[str] = []
+    for f in findings:
+        t = f.get("type")
+        if t and t not in seen:
+            seen.append(t)
+    return seen
+
+
+def _render_tldr(report: dict) -> list[str]:
+    """Короткий TL;DR: что произошло, кто атакует, что скачано."""
+    findings = report.get("findings", [])
+    entities = report.get("entities", {})
+    internal = entities.get("internal", [])
+    carved = report.get("carved_files", {}).get("files", [])
+
+    lines: list[str] = ["## TL;DR", ""]
+
+    if not findings:
+        lines.append("_Findings нет. Трафик выглядит чистым на уровне эвристик._")
+        lines.append("")
+        return lines
+
+    attacker = _pick_first_with_role(internal, "attacker_candidate")
+    victim = _pick_first_with_role(internal, "victim_candidate")
+
+    # Основное предложение
+    types = _unique_finding_types(findings)
+    types_str = ", ".join(f"`{t}`" for t in types)
+
+    if attacker and victim:
+        lines.append(
+            f"**Инцидент:** `{attacker}` атакует `{victim}`. "
+            f"Типы: {types_str}."
+        )
+    elif victim:
+        lines.append(f"**Жертва:** `{victim}`. Типы: {types_str}.")
+    elif attacker:
+        lines.append(f"**Атакующий:** `{attacker}`. Типы: {types_str}.")
+    else:
+        lines.append(f"**Findings:** {types_str}.")
+    lines.append("")
+
+    # Ключевое — список
+    if attacker:
+        lines.append(f"- Attacker: `{attacker}` (internal)")
+    if victim:
+        lines.append(f"- Victim: `{victim}` (internal)")
+
+    # Payloads
+    for f in carved[:3]:
+        uri = f.get("uri", "?")
+        size = f.get("size", 0)
+        sha = (f.get("sha256") or "")[:16]
+        ext = f.get("ext") or "?"
+        lines.append(
+            f"- Payload: `{uri}` ({ext}, {size} B, sha256 `{sha}…`)"
+        )
+    if len(carved) > 3:
+        lines.append(f"- _(ещё {len(carved) - 3} payload'ов — см. Carved Files)_")
+
+    # High-confidence findings
+    high = [f for f in findings if f.get("confidence", 0) >= 0.85]
+    if high:
+        lines.append("")
+        lines.append(f"**High-confidence ({len(high)}):**")
+        for f in high[:5]:
+            ftype = f.get("type", "?")
+            value = _short(f.get("value", "?"), 70)
+            lines.append(f"- `{ftype}` — `{value}` ({f.get('confidence', 0):.2f})")
+
+    lines.append("")
+    return lines
+
+
+# ---------------------------------------------------------------------
+# Timeline
+# ---------------------------------------------------------------------
+
+def _render_timeline(report: dict, top_n: int = 15) -> list[str]:
+    """Хронология findings по first_seen."""
+    findings = report.get("findings", [])
+    lines: list[str] = ["## Timeline", ""]
+
+    with_ts = [f for f in findings if f.get("first_seen") is not None]
+    if not with_ts:
+        lines.append("_Нет timestamps у findings._")
+        lines.append("")
+        return lines
+
+    t0 = min(f["first_seen"] for f in with_ts)
+    sorted_f = sorted(with_ts, key=lambda f: f["first_seen"])
+
+    lines.append("| Время (rel) | Тип | Значение | Conf | MITRE |")
+    lines.append("|---|---|---|---|---|")
+    for f in sorted_f[:top_n]:
+        rel = _fmt_rel(f["first_seen"] - t0)
+        ftype = f.get("type", "?")
+        value = _short(f.get("value", "?"), 60)
+        conf = f.get("confidence", 0.0)
+        mitre = _mitre_for(ftype)
+        lines.append(
+            f"| {rel} | `{ftype}` | {value} | {conf:.2f} | {mitre} |"
+        )
+    if len(sorted_f) > top_n:
+        lines.append(f"| ... | _(ещё {len(sorted_f) - top_n})_ | | | |")
+    lines.append("")
+    return lines
+
+
+# ---------------------------------------------------------------------
+# Carved files (опционально — если есть)
+# ---------------------------------------------------------------------
+
+def _render_carved_files(report: dict) -> list[str]:
+    carved = report.get("carved_files", {}).get("files", [])
+    if not carved:
+        return []
+
+    lines: list[str] = [f"## Carved Files ({len(carved)})", ""]
+    lines.append("_Metadata-only. Тело на диск не пишется._")
+    lines.append("")
+    lines.append("| URI | Ext | Size | SHA256 | First bytes (hex) |")
+    lines.append("|---|---|---|---|---|")
+    for f in carved:
+        uri = _short(f.get("uri", "?"), 50)
+        ext = f.get("ext") or "?"
+        size = f.get("size", 0)
+        sha = (f.get("sha256") or "")[:16]
+        fb = _short(f.get("first_bytes_hex", "") or "", 32)
+        lines.append(
+            f"| `{uri}` | `{ext}` | {size} B | `{sha}…` | `{fb}` |"
+        )
+    lines.append("")
+    return lines
+
+
+# ---------------------------------------------------------------------
+# Main render
+# ---------------------------------------------------------------------
+
 def render_markdown(report: dict) -> str:
     """Собрать Markdown-отчёт из dict run_pipeline."""
     lines: list[str] = []
@@ -89,6 +301,18 @@ def render_markdown(report: dict) -> str:
     lines.append(f"**Файл:** `{pcap_path}`  ")
     lines.append(f"**SHA256:** `{provenance.get('pcap_sha256', '?')}`  ")
     lines.append("")
+
+    # --- TL;DR ---
+    lines.extend(_render_tldr(report))
+
+    # --- Timeline ---
+    if findings:
+        lines.extend(_render_timeline(report))
+
+    # --- Carved files ---
+    carved_section = _render_carved_files(report)
+    if carved_section:
+        lines.extend(carved_section)
 
     # --- summary ---
     lines.append("## Сводка")
@@ -118,26 +342,11 @@ def render_markdown(report: dict) -> str:
 
     # --- entities ---
     if entities:
-        lines.extend(_render_entities(entities))
+        lines.extend(_render_entities(entities, findings))
         lines.append("")
 
     # --- findings ---
-    if findings:
-        lines.append(f"## Findings ({len(findings)})")
-        lines.append("")
-        lines.append("| # | Тип | Значение | Уверенность |")
-        lines.append("|---|---|---|---|")
-        for i, f in enumerate(findings):
-            ftype = f.get("type", "?")
-            value = f.get("value", "?")
-            conf = f.get("confidence", 0.0)
-            lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} |")
-        lines.append("")
-    else:
-        lines.append("## Findings")
-        lines.append("")
-        lines.append("_Ничего не найдено._")
-        lines.append("")
+    lines.extend(_render_findings(findings))
 
     # --- HTTP ---
     if http:
@@ -183,7 +392,7 @@ def render_markdown(report: dict) -> str:
             direction = fl.get("direction") or "—"
             proto = fl.get("proto", "?")
             b = _fmt_bytes(fl.get("bytes", 0))
-            sni = fl.get("sni") or "—"
+            sni = _short(fl.get("sni") or "—", 60)
             lines.append(
                 f"| `{src}` | `{dst}` | {direction} | {proto} | {b} | `{sni}` |"
             )
@@ -199,7 +408,50 @@ def render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
-def _render_entities(entities: dict) -> list[str]:
+# ---------------------------------------------------------------------
+# Findings
+# ---------------------------------------------------------------------
+
+def _render_findings(findings: list[dict]) -> list[str]:
+    lines: list[str] = []
+    if not findings:
+        lines.append("## Findings")
+        lines.append("")
+        lines.append("_Ничего не найдено._")
+        lines.append("")
+        return lines
+
+    lines.append(f"## Findings ({len(findings)})")
+    lines.append("")
+    lines.append("| # | Тип | Значение | Conf | MITRE |")
+    lines.append("|---|---|---|---|---|")
+    for i, f in enumerate(findings):
+        ftype = f.get("type", "?")
+        value = _short(f.get("value", "?"), 80)
+        conf = f.get("confidence", 0.0)
+        mitre = _mitre_for(ftype)
+        lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} | {mitre} |")
+    lines.append("")
+    return lines
+
+
+# ---------------------------------------------------------------------
+# Entities
+# ---------------------------------------------------------------------
+
+def _finding_types_for(entity: dict, findings: list[dict]) -> list[str]:
+    """Преобразовать findings_indices → список типов."""
+    idxs = entity.get("findings_indices", []) or []
+    types: list[str] = []
+    for i in idxs:
+        if 0 <= i < len(findings):
+            t = findings[i].get("type")
+            if t and t not in types:
+                types.append(t)
+    return types
+
+
+def _render_entities(entities: dict, findings: list[dict]) -> list[str]:
     """Секция 'Сущности' в Markdown."""
     lines: list[str] = []
 
@@ -218,7 +470,7 @@ def _render_entities(entities: dict) -> list[str]:
         for e in internal:
             ip = e.get("ip", "?")
             roles = e.get("roles", [])
-            roles_str = ", ".join(roles)
+            roles_str = ", ".join(f"`{r}`" for r in roles) if roles else "—"
             lines.append(f"**`{ip}`** — {roles_str}  ")
 
             fo = e.get("flows_out", 0)
@@ -229,12 +481,18 @@ def _render_entities(entities: dict) -> list[str]:
 
             mac = e.get("mac")
             hostname = e.get("hostname")
-            if mac or hostname:
+            username = e.get("username")
+            realm = e.get("realm")
+            if mac or hostname or username or realm:
                 parts = []
                 if hostname:
                     parts.append(f"hostname: `{hostname}`")
                 if mac:
                     parts.append(f"MAC: `{mac}`")
+                if username:
+                    parts.append(f"username: `{username}`")
+                if realm:
+                    parts.append(f"realm: `{realm}`")
                 lines.append("  " + " · ".join(parts) + "  ")
 
             sni = e.get("sni_domains", [])
@@ -249,9 +507,10 @@ def _render_entities(entities: dict) -> list[str]:
                 more = f" _(+{len(dns) - 10})_" if len(dns) > 10 else ""
                 lines.append(f"  DNS: {shown}{more}  ")
 
-            fnd = e.get("findings_indices", [])
-            if fnd:
-                lines.append(f"  Findings: #{', #'.join(str(x) for x in fnd)}  ")
+            fnd_types = _finding_types_for(e, findings)
+            if fnd_types:
+                shown = ", ".join(f"`{t}`" for t in fnd_types)
+                lines.append(f"  Findings: {shown}  ")
 
             lines.append("")
 
@@ -262,7 +521,7 @@ def _render_entities(entities: dict) -> list[str]:
         for e in external_with_findings:
             ip = e.get("ip", "?")
             roles = e.get("roles", [])
-            roles_str = ", ".join(roles)
+            roles_str = ", ".join(f"`{r}`" for r in roles) if roles else "—"
             lines.append(f"**`{ip}`** — {roles_str}  ")
 
             fi = e.get("flows_in", 0)
@@ -286,8 +545,10 @@ def _render_entities(entities: dict) -> list[str]:
                 shown = ", ".join(f"`{d}`" for d in sni[:5])
                 lines.append(f"  SNI: {shown}  ")
 
-            fnd = e.get("findings_indices", [])
-            lines.append(f"  Findings: #{', #'.join(str(x) for x in fnd)}  ")
+            fnd_types = _finding_types_for(e, findings)
+            if fnd_types:
+                shown = ", ".join(f"`{t}`" for t in fnd_types)
+                lines.append(f"  Findings: {shown}  ")
 
             lines.append("")
 
@@ -305,6 +566,10 @@ def _render_entities(entities: dict) -> list[str]:
     return lines
 
 
+# ---------------------------------------------------------------------
+# HTTP
+# ---------------------------------------------------------------------
+
 def _render_http(http: dict) -> list[str]:
     """Секция 'HTTP' в Markdown."""
     lines: list[str] = []
@@ -319,7 +584,6 @@ def _render_http(http: dict) -> list[str]:
     lines.append("## HTTP")
     lines.append("")
 
-    # methods
     methods = http.get("methods", []) or []
     if methods:
         method_str = ", ".join(
@@ -330,7 +594,6 @@ def _render_http(http: dict) -> list[str]:
                  f"**User-Agents:** {unique_ua}  ")
     lines.append("")
 
-    # top hosts
     top_hosts = http.get("top_hosts", []) or []
     if top_hosts:
         lines.append("### Топ Hosts")
@@ -341,7 +604,6 @@ def _render_http(http: dict) -> list[str]:
             lines.append(f"| {h.get('count', 0)} | `{h.get('host', '?')}` |")
         lines.append("")
 
-    # top URIs
     top_uris = http.get("top_uris", []) or []
     if top_uris:
         lines.append("### Топ URIs")
@@ -350,8 +612,8 @@ def _render_http(http: dict) -> list[str]:
         lines.append("|---|---|---|---|---|---|")
         for u in top_uris[:15]:
             method = u.get("method") or "?"
-            host = u.get("host") or "?"
-            uri = u.get("uri") or "?"
+            host = _short(u.get("host") or "?", 30)
+            uri = _short(u.get("uri") or "?", 60)
             src = f"{u.get('src_ip', '?')}:?"
             dst = f"{u.get('dst_ip', '?')}:{u.get('dst_port') or '-'}"
             ua = _short(u.get("user_agent") or "", 40)
@@ -361,7 +623,6 @@ def _render_http(http: dict) -> list[str]:
             )
         lines.append("")
 
-    # top user agents
     top_ua = http.get("top_user_agents", []) or []
     if top_ua:
         lines.append("### Топ User-Agents")

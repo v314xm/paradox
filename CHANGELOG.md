@@ -5,63 +5,167 @@
 
 ## [Unreleased]
 
-### В работе
-- Ничего не начато.
-
 ### Запланировано
-- HTTPObjectExtractor + FileCarve (для внутреннего C2 — body POST/PUT).
 - ObfuscationDetector (base64/eval в HTTP body).
 - WebShellDetector (?cmd=, ?exec= в URI + POST body).
-- Threat Intel enrichment (VirusTotal, AbuseIPDB, Shodan InternetDB + SQLite-кэш, rate limit).
-- Windowing в CaptureState (fix nxdomain_burst долга).
-- FlowAggregator + более сложные эвристики beaconing.
-- StreamReassembler (TCP reassembly).
-- Correlator (entity scoring, timeline).
+- Correlator (связки «жертва → скачала → отстучала», timeline).
 - MITRE-маппинг в findings + heatmap в JSON-отчёте.
 - IOC → STIX 2.1 экспорт.
-- REST API + Web UI (FastAPI + фронтенд).
+- Windowing в CaptureState (fix nxdomain_burst долга, медленные beaconing).
+- FlowAggregator + более сложные эвристики beaconing.
+- VirusTotal enricher (третий провайдер, домены).
 - SMB2/DHCP/SSH/SMTP экстракторы.
-- TLS certificate parser + JA3 fingerprinting.
+- TLS certificate parser.
 - IPv6 поддержка в парсере.
+- REST API + Web UI.
 
 ### Известные проблемы
-- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
+- `nxdomain_burst` считает за весь файл, не по окну — 93+ findings
   на FIN-2015, часть могут быть FP.
 - `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
   же файле захвата. Не FP, но шумно.
-- TCP reassembly отсутствует — Kerberos и большие HTTP читаются
-  частично (первый сегмент).
-- JA3/JA3S fingerprinting отсутствует.
+- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.2
+  не ловятся. Также может давать FP на CDN-трафик (Chrome keepalive).
+  Требует windowing.
+- TCP reassembly обрезает потоки > 1 МБ (per-flow limit).
 - Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении
   typosquatting.
-- Внутренний C2 (зашифрованный трафик internal → internal)
-  не детектируется. Требует HTTPObjectExtractor.
-- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.2
-  не ловятся. Требует windowing + более сложных эвристик.
+- FileCarve находит не все payload'ы: нужен MIME или magic bytes.
+- Внутренний C2 (internal → internal зашифрованный) не детектируется.
 
-## [0.6.0] — в работе
+## [0.6.0] — 2026-10-12
 
-BeaconingDetector + DNSTunnelingDetector. Тесты 145 → 165.
+Огромный скачок detection power. TCP Reassembly, HTTPObject, Command
+Injection, FileCarve, JA3, Beaconing, DNS Tunneling, Enrichment.
+Детекторов 15 → 17. Тестов 145 → 244.
 
 ### Добавлено
-- **`detectors/beaconing.py`** — `BeaconingDetector`. Ловит
-  периодические обращения к C2 (heartbeat). Признаки: N ≥ 10
-  соединений к одной паре (src, dst, port), длительность ≥ 300 сек,
-  jitter (stddev/mean) < 0.2, средний размер flow < 5 КБ.
-  Confidence 0.6 при jitter 0.2, 0.85 при jitter 0.05.
-- **`detectors/dns_tunneling.py`** — `DNSTunnelingDetector`. Ловит
-  длинные уникальные поддомены под одним базовым доменом.
-  Пороги: qname ≥ 50 символов, ≥ 20 длинных уникальных поддоменов,
-  ≥ 50 запросов всего. Allowlist DoH-сервисов.
-- `tests/test_beaconing.py` — 10 тестов.
-- `tests/test_dns_tunneling.py` — 9 тестов.
-- `config.beaconing_min_connections`, `beaconing_min_duration_sec`,
-  `beaconing_max_jitter_ratio`, `beaconing_max_avg_bytes`.
-- `config.dns_tunneling_min_qname_length`, `dns_tunneling_min_long_qnames`,
-  `dns_tunneling_min_queries`, `dns_tunneling_allowlist`.
+
+**TCP Reassembly:**
+- `reassembler.py` — `TCPReassembler`. Склейка TCP-сегментов по
+  sequence numbers. Буферизация по offset, обработка out-of-order и
+  retransmit, finalize по FIN/RST. Лимиты памяти: 1 МБ per-flow,
+  200 МБ total. 9 тестов.
+- `CaptureState.tcp_streams: dict[FlowKey, bytes]` — заполняется
+  после экстракции.
+
+**HTTPObjectExtractor:**
+- `http_object.py` — парсер полного HTTP-запроса/ответа из потока.
+  Content-Length, chunked encoding, body limit 1 МБ.
+- `extractors/http_object.py` — `HTTPObjectExtractor`. Двухпроходная
+  сборка: pass 1 — requests (собираем URI), pass 2 — responses
+  (пробрасываем URI из парного request через нормализованный
+  pair-key).
+- `CaptureState.http_objects: list[(FlowKey, HttpObject)]`.
+- На CyberCampTask — **456 HTTP-объектов**.
+
+**CommandInjectionDetector:**
+- `detectors/command_injection.py` — RCE в URI и POST body.
+  High-confidence паттерны: `io.popen`, `os.execute`, `system(`,
+  `shell_exec(`, `subprocess.popen(`. Medium: `$(`, backticks,
+  `cmd.exe`, `wget http` — требуют ≥ 2 совпадений.
+- **На CyberCampTask обнаружена Lua RCE**: `io.popen("wget http://...")`
+  в поле `username` POST `/loginok.html`. Confidence 0.9.
+  10 тестов.
+
+**FileCarve (metadata-only, безопасный):**
+- `file_carve.py` — извлечение метаданных payload'ов из HTTP-ответов.
+  **Body на диск НЕ пишется** по умолчанию. Сохраняются: sha256,
+  размер, MIME, URI, первые 64 байта в hex.
+- Определение расширения по Content-Type + magic bytes + URI-fallback.
+- MIME `text/x-sh`, `text/x-powershell` и др.
+- Если `file_carve_write_body=True` + `output_dir` — сохранит как
+  `<sha256>.bin` (не `.exe`).
+- На CyberCampTask: **`/ftp_update.sh`** — sha256
+  `e83fb5b6...`, 77 байт. 9 тестов.
+
+**JA3/JA3S fingerprinting:**
+- `ja3.py` — парсер ClientHello/ServerHello, MD5-fingerprint
+  по Salesforce-методу.
+- `FlowStats.ja3`, `FlowStats.ja3s`.
+- `detectors/ja3_malware.py` — детектор известных malware-JA3.
+  В `config.ja3_known_malware` — 10 хешей (Cobalt Strike, Tor,
+  Dridex, Trickbot, Emotet, python-requests, go-http-client).
+- На CyberCampTask: 14 из 500 flows имеют ja3 (все — Chrome).
+  8 тестов.
+
+**BeaconingDetector:**
+- `detectors/beaconing.py` — периодические C2-heartbeat. Признаки:
+  ≥ 10 соединений к одной паре (src, dst, port), длительность
+  ≥ 300 сек, jitter (stddev/mean) < 0.2, средний размер flow < 5 КБ.
+  Confidence 0.6 при jitter 0.2, 0.85 при 0.05. 10 тестов.
+
+**DNSTunnelingDetector:**
+- `detectors/dns_tunneling.py` — длинные уникальные поддомены под
+  одним базовым доменом. Пороги: qname ≥ 50 символов, ≥ 20 длинных
+  уникальных, ≥ 50 запросов. Allowlist DoH. 9 тестов.
+
+**Enrichment (Threat Intel):**
+- `integrations/` — новый слой.
+- `integrations/cache.py` — `EnrichmentCache`. SQLite-кэш с TTL.
+- `integrations/rate_limit.py` — `TokenBucket`. 5 req/sec.
+- `integrations/base.py` — `Enricher` Protocol, `EnrichmentResult`.
+- `integrations/shodan_internetdb.py` — Shodan InternetDB (без ключа).
+- `integrations/abuseipdb.py` — AbuseIPDB (нужен `ABUSEIPDB_API_KEY`
+  в env).
+- `integrations/enricher.py` — `EnricherOrchestrator`,
+  `collect_iocs_from_findings`. Приватные IP не обогащаются.
+- `integrations/pipeline.py` — `enrich_findings()`,
+  `attach_enrichment_to_findings()`. Универсально работает и с dict,
+  и с `Finding`.
+- CLI флаг `--enrich`. Кэш в `reports/.cache/enrichment.db`.
+- 28 тестов.
+
+### Изменено
+- `pipeline.py` — reassembly в `_extract`, HTTPObject построение
+  после finalize, FileCarve вызов снаружи HTTPObject try/except.
+- `reporters/flow_report.py` — новая функция
+  `build_http_object_report()`.
+- `json_reporter` — секции `http_objects`, `carved_files`,
+  `enrichment_stats`.
+- `Config` — 13 новых полей: `tcp_reassembly_*`,
+  `command_injection_*`, `file_carve_*`, `ja3_known_malware`,
+  `beaconing_*`, `dns_tunneling_*`, `enrichment_*`.
+
+### Исправлено
+- **HTTPObject URI pairing**: response не имел URI (он в request).
+  Двухпроходный парсинг с нормализованным pair-key.
+- **FileCarve skip MIME**: `text/x-sh` не был в таблице, короткие
+  loaders (< 1 КБ) обрезались по min_size 1024. Снижено до 64.
+- **FileCarve вызов** был внутри `except HTTPObjectExtractor` —
+  никогда не выполнялся, вынесен наружу.
+- **Duplicates** в `DETECTORS` (FTPBruteForceDetector — 2 раза,
+  BeaconingDetector — потерялся при рефакторинге).
+- **`carve_files` на диск** — переписано на metadata-only.
+  Запись body в `.bin` только по явному флагу.
+
+### Производительность
+- FIN-2015 полный батч: 58 файлов, 9.5M пакетов, 4.7 ГБ.
+  Время с reassembly ~9-10 минут (было 8).
+- CyberCampTask (627k пакетов): 19 сек (было 12 без reassembly).
 
 ### Тесты
-- 145 → **165 passed**.
+- 145 → **244 passed** (+99 новых).
+- Новые файлы: `test_reassembler.py` (9),
+  `test_http_object.py` (12), `test_command_injection.py` (10),
+  `test_file_carve.py` (9), `test_ja3.py` (8),
+  `test_beaconing.py` (10), `test_dns_tunneling.py` (9),
+  `test_enrichment_cache.py` (9), `test_shodan_enricher.py` (11),
+  `test_abuseipdb.py` (7), `test_enrich_pipeline.py` (4).
+
+### Проверено на
+- **CyberCampTask.pcap** — 7 findings, **0 FP**:
+  - `command_injection` — Lua RCE (io.popen + wget)
+  - `brute_force` — HTTP /loginok.html
+  - `ftp_brute_force` — 474 попытки
+  - `lateral_movement` — Ruby WinRM Client
+  - `large_transfer` — 126 MB rtbcdn.ru
+  - `script_download` × 2
+  - `carved_files` — `/ftp_update.sh` (77 байт, sha256)
+  - `http_objects` — 456 объектов
+  - `enrichment` — AbuseIPDB по `80.64.102.71` (RU, CJSC Rascom,
+    abuseConfidenceScore=0)
+- **FIRST-2015** — полный батч (результаты в batch_run.log).
 
 ## [0.5.1] — 2026-10-12
 

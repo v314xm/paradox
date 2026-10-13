@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-04-08\\snort.log.1428535715",
     "pcap_sha256": "b005ccbe9887b21e97d29015fcca5e17796a8bfbd0f4d3d7b023cfc4a15c8b77"
   },
@@ -12,6 +12,10 @@
     "flows": 416,
     "findings": 2,
     "extractor_errors": {},
+    "tcp_streams": 221,
+    "tcp_streams_truncated": 1,
+    "http_objects": 2,
+    "carved_files": 0,
     "uploaded_bytes": 836429,
     "downloaded_bytes": 16672023,
     "internal_bytes": 62527,
@@ -1387,7 +1391,8 @@
         "duration": 421.551168,
         "first_ts": 1428537176.348734,
         "last_ts": 1428537597.899902,
-        "sni": "talkgadget.google.com"
+        "sni": "talkgadget.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1401,7 +1406,8 @@
         "duration": 901.356465,
         "first_ts": 1428536704.351,
         "last_ts": 1428537605.707465,
-        "sni": "1.client-channel.google.com"
+        "sni": "1.client-channel.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1428,7 +1434,8 @@
         "duration": 185.669526,
         "first_ts": 1428537413.300619,
         "last_ts": 1428537598.970145,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1468,7 +1475,8 @@
         "duration": 47.907765,
         "first_ts": 1428537123.151993,
         "last_ts": 1428537171.059758,
-        "sni": "imap.gmail.com"
+        "sni": "imap.gmail.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -1495,7 +1503,8 @@
         "duration": 307.129664,
         "first_ts": 1428536401.305275,
         "last_ts": 1428536708.434939,
-        "sni": "talkgadget.google.com"
+        "sni": "talkgadget.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "udp",
@@ -1588,7 +1597,8 @@
         "duration": 415.416415,
         "first_ts": 1428537175.473228,
         "last_ts": 1428537590.889643,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1602,7 +1612,8 @@
         "duration": 300.848215,
         "first_ts": 1428536397.585735,
         "last_ts": 1428536698.43395,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1629,7 +1640,8 @@
         "duration": 177.284921,
         "first_ts": 1428535854.774363,
         "last_ts": 1428536032.059284,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -1683,7 +1695,8 @@
         "duration": 250.261562,
         "first_ts": 1428536700.051752,
         "last_ts": 1428536950.313314,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1724,7 +1737,8 @@
         "duration": 0.256215,
         "first_ts": 1428537567.602693,
         "last_ts": 1428537567.858908,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -1738,7 +1752,8 @@
         "duration": 415.543521,
         "first_ts": 1428537175.352529,
         "last_ts": 1428537590.89605,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "5039c2e4865acfa462910ad50a1ecd66"
       },
       {
         "proto": "tcp",
@@ -1752,7 +1767,8 @@
         "duration": 301.108658,
         "first_ts": 1428536397.325056,
         "last_ts": 1428536698.433714,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "5039c2e4865acfa462910ad50a1ecd66"
       },
       {
         "proto": "tcp",
@@ -1779,7 +1795,8 @@
         "duration": 249.79226,
         "first_ts": 1428536218.617065,
         "last_ts": 1428536468.409325,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -1793,7 +1810,8 @@
         "duration": 177.582506,
         "first_ts": 1428535855.359733,
         "last_ts": 1428536032.942239,
-        "sni": "safebrowsing-cache.google.com"
+        "sni": "safebrowsing-cache.google.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -1807,7 +1825,8 @@
         "duration": 248.589821,
         "first_ts": 1428536818.648984,
         "last_ts": 1428537067.238805,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       }
     ],
     "top_by_packets": [
@@ -1902,7 +1921,8 @@
         "duration": 47.907765,
         "first_ts": 1428537123.151993,
         "last_ts": 1428537171.059758,
-        "sni": "imap.gmail.com"
+        "sni": "imap.gmail.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -2022,7 +2042,8 @@
         "duration": 901.356465,
         "first_ts": 1428536704.351,
         "last_ts": 1428537605.707465,
-        "sni": "1.client-channel.google.com"
+        "sni": "1.client-channel.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2194,7 +2215,8 @@
         "duration": 240.284927,
         "first_ts": 1428537054.0214,
         "last_ts": 1428537294.306327,
-        "sni": "clients4.google.com"
+        "sni": "clients4.google.com",
+        "ja3": "e417b0731e0f2c81dc81ca57cb597b25"
       },
       {
         "proto": "tcp",
@@ -2208,7 +2230,8 @@
         "duration": 185.669526,
         "first_ts": 1428537413.300619,
         "last_ts": 1428537598.970145,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2277,7 +2300,8 @@
         "duration": 80.098454,
         "first_ts": 1428536106.854706,
         "last_ts": 1428536186.95316,
-        "sni": "a.config.skype.com"
+        "sni": "a.config.skype.com",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -2305,7 +2329,8 @@
         "duration": 421.551168,
         "first_ts": 1428537176.348734,
         "last_ts": 1428537597.899902,
-        "sni": "talkgadget.google.com"
+        "sni": "talkgadget.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2319,7 +2344,8 @@
         "duration": 177.582506,
         "first_ts": 1428535855.359733,
         "last_ts": 1428536032.942239,
-        "sni": "safebrowsing-cache.google.com"
+        "sni": "safebrowsing-cache.google.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -2389,7 +2415,8 @@
         "duration": 415.416415,
         "first_ts": 1428537175.473228,
         "last_ts": 1428537590.889643,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2430,7 +2457,8 @@
         "duration": 307.129664,
         "first_ts": 1428536401.305275,
         "last_ts": 1428536708.434939,
-        "sni": "talkgadget.google.com"
+        "sni": "talkgadget.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2458,7 +2486,8 @@
         "duration": 177.284921,
         "first_ts": 1428535854.774363,
         "last_ts": 1428536032.059284,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -2472,7 +2501,8 @@
         "duration": 300.848215,
         "first_ts": 1428536397.585735,
         "last_ts": 1428536698.43395,
-        "sni": "clients6.google.com"
+        "sni": "clients6.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2937,6 +2967,46 @@
         "user_agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0)"
       }
     ]
+  },
+  "http_objects": {
+    "total": 2,
+    "objects": [
+      {
+        "src_ip": "173.194.40.243",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 54418,
+        "kind": "response",
+        "method": null,
+        "uri": "/recaptcha/api/reload?c=03AHJ_VusnX2VVhvEAvnxseQE--UOOjDikOq3gO-fAlyZ45b7cwuvmHFO_Id8FEREEnoj_c1gqfcqAdK95_4V_MypmT_IOv87xFW3mhVNMNa_PjRXofMgNBed5qH-oL4v61_SbOwOPhO7-_Tl-52LF_k5hBsoAY5oMZ2tHOc5BWMk4W5FC-Vx1TOvFYdw_rGsG8fZEV9DPcjpurhMJOmOYksxlF_xhyGDHcqzqbPoqFMkh4jIeaqKF9zpb1v4IFN4owdm5Yf5qzA1qZt37haXvcCOAMJF3uAkgmA&k=6LdzYN4SAAAAAEZIKBG_PKLJlSAaMBMeODFH2jxE&reason=t&type=image&lang=sv&th=,6Bmw0d79G94tC0y2WwlwZY4S2v3wAAAAEaAAAAAE2AC7_t7PdnOf4Z9QkDZHo-S7UyNllxAf-gkllmYq0Ze7aG8nM4iSBCAwrJGjU6dtE02_cDukcEwjqPGZA5zaNif4zgM95JRVJt0_9ZJi4vrjmJyS-vl48D5iJ8oryXuxig-IDjK-STnzYu3-Nubv0fZ5zxrnicG0iQaGmFSbvJ2uXlQg2n3D7bUUVlmvrCQ6c6UOe2hyPrkUC7OZMhxJiP89dKK3rZSj9gEhxij72rQ3gJb6rOLOBXHwApZXJQ",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript",
+        "body_size": 311,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000025c6c76e83300000d05fe92dadd4541056514f100528a3cc0cfb82c01002b11d87114cbebe957a797a498d0a36a24bf1716e693b5cf2"
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "173.194.40.243",
+        "src_port": 54418,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/recaptcha/api/reload?c=03AHJ_VusnX2VVhvEAvnxseQE--UOOjDikOq3gO-fAlyZ45b7cwuvmHFO_Id8FEREEnoj_c1gqfcqAdK95_4V_MypmT_IOv87xFW3mhVNMNa_PjRXofMgNBed5qH-oL4v61_SbOwOPhO7-_Tl-52LF_k5hBsoAY5oMZ2tHOc5BWMk4W5FC-Vx1TOvFYdw_rGsG8fZEV9DPcjpurhMJOmOYksxlF_xhyGDHcqzqbPoqFMkh4jIeaqKF9zpb1v4IFN4owdm5Yf5qzA1qZt37haXvcCOAMJF3uAkgmA&k=6LdzYN4SAAAAAEZIKBG_PKLJlSAaMBMeODFH2jxE&reason=t&type=image&lang=sv&th=,6Bmw0d79G94tC0y2WwlwZY4S2v3wAAAAEaAAAAAE2AC7_t7PdnOf4Z9QkDZHo-S7UyNllxAf-gkllmYq0Ze7aG8nM4iSBCAwrJGjU6dtE02_cDukcEwjqPGZA5zaNif4zgM95JRVJt0_9ZJi4vrjmJyS-vl48D5iJ8oryXuxig-IDjK-STnzYu3-Nubv0fZ5zxrnicG0iQaGmFSbvJ2uXlQg2n3D7bUUVlmvrCQ6c6UOe2hyPrkUC7OZMhxJiP89dKK3rZSj9gEhxij72rQ3gJb6rOLOBXHwApZXJQ",
+        "status_code": null,
+        "host": "www.google.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
   },
   "findings": [
     {

@@ -7,10 +7,10 @@
 Роли:
   internal / external        — базовая классификация
   gateway_candidate          — internal с большим числом исходящих
-  victim_candidate           — internal, который жертва (brute_force dst,
-                               nxdomain_burst src, suspicious_port src)
-  attacker_candidate         — internal, который атакует (brute_force src)
+  victim_candidate           — internal, который жертва
+  attacker_candidate         — internal/external, который атакует
   c2_candidate               — external с findings
+  domain_controller          — internal с сервисным трафиком
 """
 from dataclasses import dataclass, field
 from ipaddress import ip_address
@@ -39,12 +39,10 @@ class Entity:
 
     sni_domains: set[str] = field(default_factory=set)
     dns_names: set[str] = field(default_factory=set)
-    # статистика для роли domain_controller
-    service_flows_in: int = 0                     # flows на порты DC
+    service_flows_in: int = 0
     service_unique_srcs: set[str] = field(default_factory=set)
     findings_indices: list[int] = field(default_factory=list)
 
-    # --- зарезервировано под будущие экстракторы ---
     mac: str | None = None
     hostname: str | None = None
     username: str | None = None
@@ -120,40 +118,44 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
 
     Возвращает список (ip, side), где side = "src" или "dst".
 
-    Поддерживаются:
-      nxdomain_burst    — value = src_ip (сторона src)
-      suspicious_port   — value = "dst_ip:port" + evidence.src_ip
-      brute_force       — evidence.src_ip (attacker) + evidence.dst_ip (victim)
-      vulnerable_path   — evidence.src_ip + evidence.dst_ip
-      script_download   — evidence.src_ip + evidence.dst_ip
+    Стратегия:
+      1. Explicit для findings, где IP зашит в value.
+      2. Universal fallback — из evidence.src_ip / evidence.dst_ip.
     """
     result: list[tuple[str, str]] = []
     ftype = f.type
     value = f.value or ""
+    ev = f.evidence or {}
+
+    # --- explicit: value содержит IP ---
 
     if ftype == "nxdomain_burst":
         if value:
             result.append((value, "src"))
+        return result
 
-    elif ftype == "suspicious_port":
+    if ftype == "suspicious_port":
         if ":" in value:
             dst_ip = value.rsplit(":", 1)[0]
             result.append((dst_ip, "dst"))
-        src_ip = f.evidence.get("src_ip") if f.evidence else None
-        if src_ip:
-            result.append((src_ip, "src"))
-
-    elif ftype in ("brute_force", "vulnerable_path", "script_download"):
-        ev = f.evidence or {}
         src_ip = ev.get("src_ip")
-        dst_ip = ev.get("dst_ip")
         if src_ip:
             result.append((src_ip, "src"))
-        if dst_ip:
-            result.append((dst_ip, "dst"))
+        return result
 
+    # --- universal: evidence.src_ip / evidence.dst_ip ---
+
+    src_ip = ev.get("src_ip")
+    dst_ip = ev.get("dst_ip")
+    # command_injection кладёт dst_ip отдельным полем
+    if dst_ip is None and ftype == "command_injection":
+        dst_ip = ev.get("dst_ip")
+
+    if src_ip:
+        result.append((src_ip, "src"))
+    if dst_ip:
+        result.append((dst_ip, "dst"))
     return result
-
 
 
 def build_entities(
@@ -204,7 +206,7 @@ def build_entities(
         dst.service_flows_in += 1
         dst.service_unique_srcs.add(key.src_ip)
 
-    # --- SNI: пишем обоим концам (через session_sni) ---
+    # --- SNI: пишем обоим концам ---
     from pcap_triage.models import get_session_sni
 
     for key, flow in state.flows.items():
@@ -224,8 +226,20 @@ def build_entities(
         for name in counter.keys():
             ent.dns_names.add(name)
 
-
-
+    # --- host identity: MAC + hostname + username + realm ---
+    # ВАЖНО: до findings, вне цикла по findings (был O(N×M)).
+    for ip, ident in state.host_identities.items():
+        ent = get(ip)
+        if ent is None:
+            continue
+        if ident.mac:
+            ent.mac = ident.mac
+        if ident.hostnames:
+            ent.hostname = sorted(ident.hostnames)[0]
+        if ident.username:
+            ent.username = ident.username
+        if ident.realm:
+            ent.realm = ident.realm
 
     # --- findings ---
     role_tags: dict[str, set[str]] = {}
@@ -237,20 +251,31 @@ def build_entities(
                 continue
             if idx not in ent.findings_indices:
                 ent.findings_indices.append(idx)
+
             tags = role_tags.setdefault(ip, set())
-            if f.type == "brute_force":
+            ftype = f.type
+
+            if ftype in ("brute_force", "vulnerable_path",
+                         "ftp_brute_force", "command_injection",
+                         "port_scan", "web_scanner"):
                 # src = атакующий, dst = цель
                 if side == "src":
                     tags.add("attacker_tag")
                 else:
                     tags.add("victim_tag")
-            elif f.type == "vulnerable_path":
-                # src = сканер (attacker), dst = цель (victim)
+
+            elif ftype == "lateral_movement":
+                # src = скомпрометированный хост (pivot), dst = следующая цель
+                # Помечаем src как attacker (он атакует), dst как victim.
+                # Роль victim_candidate у pivot'а выигрывает по приоритету
+                # (см. ниже), потому что у него уже есть victim_tag от
+                # brute_force.
                 if side == "src":
                     tags.add("attacker_tag")
                 else:
                     tags.add("victim_tag")
-            elif f.type == "script_download":
+
+            elif ftype == "script_download":
                 # ИНВЕРТИРОВАНО: src = жертва (качает payload),
                 # dst = источник malware (attacker)
                 if side == "src":
@@ -258,19 +283,52 @@ def build_entities(
                 else:
                     tags.add("attacker_tag")
 
-        # --- host identity: MAC + hostname + username + realm ---
-        for ip, ident in state.host_identities.items():
-            ent = get(ip)
-            if ent is None:
-                continue
-            if ident.mac:
-                ent.mac = ident.mac
-            if ident.hostnames:
-                ent.hostname = sorted(ident.hostnames)[0]
-            if ident.username:
-                ent.username = ident.username
-            if ident.realm:
-                ent.realm = ident.realm
+            elif ftype in ("beaconing", "dns_tunneling"):
+                # src = жертва (отстукивает), dst = C2
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
+
+            elif ftype == "large_transfer":
+                # src = жертва (утекает наружу), dst = exfil-получатель
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
+
+            elif ftype in ("ja3_malware", "sni_without_dns",
+                           "dga_domain", "typosquatting",
+                           "cloud_tunnel", "ip_check_service"):
+                # Внешние индикаторы, src = инициатор
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
+
+            elif ftype == "nxdomain_burst":
+                # src = жертва: инфекция резолвит DGA-домены,
+                # либо сканер перебирает мусорные имена.
+                # Finding приходит только для src-стороны.
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
+
+            elif ftype == "suspicious_port":
+                # src = жертва (внутренний хост стучится наружу),
+                # dst = C2 (внешний сервер на подозрительном порту)
+                if side == "src":
+                    tags.add("victim_tag")
+                else:
+                    tags.add("attacker_tag")
+
+            else:
+                # Fallback: src = attacker, dst = victim
+                if side == "src":
+                    tags.add("attacker_tag")
+                else:
+                    tags.add("victim_tag")
 
     # --- роли ---
     for ent in buckets.values():
@@ -278,6 +336,8 @@ def build_entities(
 
         has_findings = bool(ent.findings_indices)
         tags = role_tags.get(ent.ip, set())
+        has_attacker = "attacker_tag" in tags
+        has_victim = "victim_tag" in tags
 
         if ent.is_internal:
             # 1. Приоритет: DC
@@ -285,11 +345,13 @@ def build_entities(
                     and len(ent.service_unique_srcs) >= config.dc_min_unique_srcs):
                 ent.roles.append("domain_controller")
 
-            # 2. Роли по findings — семантические теги
-            elif "attacker_tag" in tags:
-                ent.roles.append("attacker_candidate")
-            elif "victim_tag" in tags:
+            # 2. Victim > attacker: жертва — актив, который надо спасать.
+            # Pivot (скомпрометированная жертва, атакующая дальше) —
+            # тоже victim: у неё есть brute_force dst.
+            elif has_victim:
                 ent.roles.append("victim_candidate")
+            elif has_attacker:
+                ent.roles.append("attacker_candidate")
             elif has_findings:
                 ent.roles.append("victim_candidate")
 
@@ -300,11 +362,13 @@ def build_entities(
                     and len(ent.unique_dsts) >= config.gateway_min_unique_dsts):
                 ent.roles.append("gateway_candidate")
         else:
-            if "attacker_tag" in tags:
+            # external: attacker и C2 — не взаимоисключающие.
+            # Внешний сервер с finding'ом = C2-кандидат.
+            # Если активный attacker_tag (реально атакует) — добавляем.
+            if has_attacker:
                 ent.roles.append("attacker_candidate")
-            elif has_findings:
+            if has_findings:
                 ent.roles.append("c2_candidate")
-
 
     # --- сортировка и разделение ---
     internal = sorted(

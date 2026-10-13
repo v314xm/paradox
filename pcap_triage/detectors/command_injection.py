@@ -44,6 +44,7 @@ class _Bucket:
     body_samples: list[bytes] = field(default_factory=list)
     methods: set[str] = field(default_factory=set)
     hosts: set[str] = field(default_factory=set)
+    dst_ips: set[str] = field(default_factory=set)
     dst_ports: set[int] = field(default_factory=set)
     first_seen: float | None = None
     last_seen: float | None = None
@@ -118,8 +119,22 @@ class CommandInjectionDetector:
                 b.methods.add(obj.method)
             if obj.headers and obj.headers.get("host"):
                 b.hosts.add(obj.headers["host"])
+            if key.dst_ip:
+                b.dst_ips.add(key.dst_ip)
             if key.dst_port is not None:
                 b.dst_ports.add(key.dst_port)
+
+            # Заполняем timestamps из flow.
+            # Один URI может прийти через несколько flows —
+            # берём min(first_ts) и max(last_ts).
+            flow = state.flows.get(key)
+            if flow is not None:
+                if flow.first_ts is not None:
+                    if b.first_seen is None or flow.first_ts < b.first_seen:
+                        b.first_seen = flow.first_ts
+                if flow.last_ts is not None:
+                    if b.last_seen is None or flow.last_ts > b.last_seen:
+                        b.last_seen = flow.last_ts
 
         findings: list[Finding] = []
         for (src_ip, uri), b in buckets.items():
@@ -133,6 +148,7 @@ class CommandInjectionDetector:
             all_patterns: list[str] = sorted(
                 set(b.matched_high) | set(b.matched_medium)
             )
+            dst_ips_sorted = sorted(b.dst_ips)
             evidence = {
                 "src_ip": src_ip,
                 "uri": uri,
@@ -142,6 +158,8 @@ class CommandInjectionDetector:
                 "matched_patterns": all_patterns,
                 "methods": sorted(b.methods),
                 "hosts": sorted(b.hosts)[:5],
+                "dst_ip": dst_ips_sorted[0] if dst_ips_sorted else None,
+                "dst_ips": dst_ips_sorted,
                 "dst_ports": sorted(b.dst_ports),
             }
             if b.body_samples:

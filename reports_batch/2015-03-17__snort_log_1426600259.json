@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-17\\snort.log.1426600259",
     "pcap_sha256": "e9bbc2334ae852cd79fa54597d4c804af324d77ccea3ab1d6403b1299fe6a103"
   },
@@ -10,8 +10,12 @@
     "unique_dns_queries": 127,
     "nxdomain_count": 176,
     "flows": 3518,
-    "findings": 3,
+    "findings": 4,
     "extractor_errors": {},
+    "tcp_streams": 1574,
+    "tcp_streams_truncated": 3,
+    "http_objects": 30,
+    "carved_files": 0,
     "uploaded_bytes": 5045225,
     "downloaded_bytes": 60844409,
     "internal_bytes": 772115,
@@ -2055,7 +2059,8 @@
         "duration": 2158.837093,
         "first_ts": 1426603299.399654,
         "last_ts": 1426605458.236747,
-        "sni": "ms54.slack-msgs.com"
+        "sni": "ms54.slack-msgs.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2069,7 +2074,8 @@
         "duration": 2486.670025,
         "first_ts": 1426600818.724312,
         "last_ts": 1426603305.394337,
-        "sni": "ms54.slack-msgs.com"
+        "sni": "ms54.slack-msgs.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2181,7 +2187,8 @@
         "duration": 519.741291,
         "first_ts": 1426600670.739143,
         "last_ts": 1426601190.480434,
-        "sni": "clients4.google.com"
+        "sni": "clients4.google.com",
+        "ja3": "5039c2e4865acfa462910ad50a1ecd66"
       },
       {
         "proto": "tcp",
@@ -2389,7 +2396,8 @@
         "duration": 156.125721,
         "first_ts": 1426600814.343684,
         "last_ts": 1426600970.469405,
-        "sni": "pwned-se.slack.com"
+        "sni": "pwned-se.slack.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2528,7 +2536,8 @@
         "duration": 2158.837093,
         "first_ts": 1426603299.399654,
         "last_ts": 1426605458.236747,
-        "sni": "ms54.slack-msgs.com"
+        "sni": "ms54.slack-msgs.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2555,7 +2564,8 @@
         "duration": 2486.670025,
         "first_ts": 1426600818.724312,
         "last_ts": 1426603305.394337,
-        "sni": "ms54.slack-msgs.com"
+        "sni": "ms54.slack-msgs.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2746,7 +2756,8 @@
         "duration": 24.875949,
         "first_ts": 1426600815.585547,
         "last_ts": 1426600840.461496,
-        "sni": "slack.global.ssl.fastly.net"
+        "sni": "slack.global.ssl.fastly.net",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -2841,7 +2852,8 @@
         "duration": 156.125721,
         "first_ts": 1426600814.343684,
         "last_ts": 1426600970.469405,
-        "sni": "pwned-se.slack.com"
+        "sni": "pwned-se.slack.com",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -2910,7 +2922,8 @@
         "duration": 519.741291,
         "first_ts": 1426600670.739143,
         "last_ts": 1426601190.480434,
-        "sni": "clients4.google.com"
+        "sni": "clients4.google.com",
+        "ja3": "5039c2e4865acfa462910ad50a1ecd66"
       },
       {
         "proto": "tcp",
@@ -2924,7 +2937,8 @@
         "duration": 197.661596,
         "first_ts": 1426600325.189413,
         "last_ts": 1426600522.851009,
-        "sni": "fbstatic-a.akamaihd.net"
+        "sni": "fbstatic-a.akamaihd.net",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -2964,7 +2978,8 @@
         "duration": 2162.546677,
         "first_ts": 1426603294.327917,
         "last_ts": 1426605456.874594,
-        "sni": "chat-main.hipchat.com"
+        "sni": "chat-main.hipchat.com",
+        "ja3": "d6d0268c238e629784c6440543062546"
       },
       {
         "proto": "tcp",
@@ -3112,7 +3127,8 @@
         "duration": 91.168361,
         "first_ts": 1426600431.773001,
         "last_ts": 1426600522.941362,
-        "sni": "apps.skype.com"
+        "sni": "apps.skype.com",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -3126,7 +3142,8 @@
         "duration": 12.593983,
         "first_ts": 1426600667.858953,
         "last_ts": 1426600680.452936,
-        "sni": "slack.global.ssl.fastly.net"
+        "sni": "slack.global.ssl.fastly.net",
+        "ja3": "e03fdb6b99211ce6d1ed8a21abf4b25b"
       },
       {
         "proto": "tcp",
@@ -3140,7 +3157,8 @@
         "duration": 198.026476,
         "first_ts": 1426600324.825109,
         "last_ts": 1426600522.851585,
-        "sni": "fbstatic-a.akamaihd.net"
+        "sni": "fbstatic-a.akamaihd.net",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -3791,6 +3809,479 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 30,
+    "objects": [
+      {
+        "src_ip": "137.135.178.18",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49806,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/xml; charset=utf-8",
+        "body_size": 9904,
+        "truncated": false,
+        "body_preview": "3c3f786d6c2076657273696f6e3d22312e302220656e636f64696e673d227574662d38223f3e0d0a3c6f3a726573756c747320786d6c6e733a6f3d2275726e3a"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "95.213.143.180",
+        "src_port": 80,
+        "dst_port": 52201,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 1041,
+        "truncated": false,
+        "body_preview": "3c6d65746120687474702d65717569763d22726566726573682220636f6e74656e743d22303b2075726c3d2f736b79626c75652f22202f3e0a3c68746d6c3e0a"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47752,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-441426600711892&&c=pollevents&q=3589.11892.44&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14265991161333&next_poll_time=957916.5999999999&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.290512143617216",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 527,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000374534d73da3010bdf32b185f0299e2f84336767b6a2933e510c8b4093964329a4516a02224d7922184e1bf57c2064c66a2d36a77dfdb"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47758,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-451426601670351&&c=pollevents&q=4627.70350.45&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14265999856263&next_poll_time=1005839.55&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.6808659433901317",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 525,
+        "truncated": false,
+        "body_preview": "1f8b08000000000000037453c18eda3010bdf31528978555c9863809a43db52ba4d2aa41ddd2566ab5b206c78085636763270521febd761220acb43e8d67e6bd"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47760,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-461426602676918&&c=pollevents&q=5168.76917.46&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266008984394&next_poll_time=1056167.9&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.4387556925539401",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 525,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000374534d6fe23010bdf32b502e856a4903f922bb27baea81ed16cab6aa545595659c012c1c3b1b3b6c2394ffbe360e102ad5a7f1ccbc37"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47769,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-481426604843361&&c=pollevents&q=2921.43361.48&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266028620857&next_poll_time=1164490.0499999998&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.15452709621949257",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 525,
+        "truncated": false,
+        "body_preview": "1f8b08000000000000037453516fda30107ee757a0bc14aa9126719a84ed695d3b8d8781b64548db54598763c0c3d859ecb04688ff3e1b070895eaa7f3dd7ddf"
+      },
+      {
+        "src_ip": "198.101.228.83",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 39567,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-501426607231599&&c=pollevents&q=4298.31599.50&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266050246593&next_poll_time=1283901.95&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.7180315246836536",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 524,
+        "truncated": false,
+        "body_preview": "1f8b08000000000000037453516fda30107ee757a0bc14aa91260487657beaa64ae36150ad553569aa2cc776c0c2b1ddd8a14488ff3e3b0e102ad54fe7bbfbbe"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47766,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-471426603733621&&c=pollevents&q=8427.33621.47&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266018565184&next_poll_time=1109003.1&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.055561480051232404",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 523,
+        "truncated": false,
+        "body_preview": "1f8b08000000000000037453db6e1a31107de72bd0be04a2b259f64efbd40ba95010546dd44aad226bf01a70f1daceda4b8310ff5e1b2fb0448a9f6ccf9c7366"
+      },
+      {
+        "src_ip": "198.101.228.66",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47774,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-491426606008334&&c=pollevents&q=4807.8333.49&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266039198373&next_poll_time=1222738.65&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.3147499243169307",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 523,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000374534d8fda3010bdf32b502e0bab924de29092f6d48f3d8076416a515ba95a5913c7808563a7b1c31221fe7b6d1c20acb43e8d67e6bd"
+      },
+      {
+        "src_ip": "198.101.228.83",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 39576,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-521426609865149&&c=pollevents&q=4130.65149.52&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266074155269&next_poll_time=1415579.45&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.4409465685450735",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 523,
+        "truncated": false,
+        "body_preview": "1f8b08000000000000037453df6fda30107ee7af4079295423cd0f12c8f6b4567d40d340ead03469aaac8b73500bc7ce62878110ff7b6d1c2054aa9fce77f77d"
+      },
+      {
+        "src_ip": "198.101.228.83",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 39572,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-511426608516089&&c=pollevents&q=9763.16089.51&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266061945101&next_poll_time=1348126.4999999998&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.8969992617203714",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 519,
+        "truncated": false,
+        "body_preview": "1f8b080000000000000374534d8fda3010bdf32b502e0bab9275429292f6d40f0e5c406a5795da6a650dce00168e9dc60e0b42fcf7da384058697db23df3de9b"
+      },
+      {
+        "src_ip": "216.58.209.142",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 39729,
+        "kind": "response",
+        "method": null,
+        "uri": "/ocsp",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/ocsp-response",
+        "body_size": 463,
+        "truncated": false,
+        "body_preview": "308201cb0a0100a08201c4308201c006092b0601050507300101048201b1308201ad308196a21604144add06161bbcf668b576f581b6bb621aba5a812f180f32"
+      },
+      {
+        "src_ip": "198.101.228.83",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 39582,
+        "kind": "response",
+        "method": null,
+        "uri": "/nrpc/p?j=olark-531426611281548&&c=pollevents&q=2933.81547.53&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266087005595&next_poll_time=1486399.35&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.20868343567293923",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 221,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003748fb16ec3300c44777f05e12576d038709a0441ba15e8d0af101489ad8530624bd16e03c3ff5e0b5eb2941371b87b3c6ed7ebadca7d"
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "216.58.209.142",
+        "src_port": 39729,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "POST",
+        "uri": "/ocsp",
+        "status_code": null,
+        "host": "clients1.google.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": "application/ocsp-request",
+        "body_size": 75,
+        "truncated": false,
+        "body_preview": "30493047304530433041300906052b0e03021a05000414f2e06af9858a1d8d709b4919237aa9b51a287e6404144add06161bbcf668b576f581b6bb621aba5a81"
+      },
+      {
+        "src_ip": "23.97.152.190",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49511,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 301,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "95.213.143.180",
+        "dst_ip": "192.168.0.2",
+        "src_port": 52201,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/",
+        "status_code": null,
+        "host": "90.236.3.35",
+        "user_agent": "Mozilla/5.0 (Windows; I; Windows NT 5.1; ru; rv:1.9.2.13) Gecko/20100101 Firefox/4.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.252.206.149",
+        "src_port": 38802,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/",
+        "status_code": null,
+        "host": "qa.sockets.stackexchange.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.252.206.149",
+        "src_port": 38804,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/",
+        "status_code": null,
+        "host": "qa.sockets.stackexchange.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "198.252.206.149",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38802,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 101,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "198.252.206.149",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38804,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 101,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47752,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-441426600711892&&c=pollevents&q=3589.11892.44&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14265991161333&next_poll_time=957916.5999999999&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.290512143617216",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47758,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-451426601670351&&c=pollevents&q=4627.70350.45&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14265999856263&next_poll_time=1005839.55&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.6808659433901317",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47760,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-461426602676918&&c=pollevents&q=5168.76917.46&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266008984394&next_poll_time=1056167.9&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.4387556925539401",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47766,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-471426603733621&&c=pollevents&q=8427.33621.47&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266018565184&next_poll_time=1109003.1&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.055561480051232404",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47769,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-481426604843361&&c=pollevents&q=2921.43361.48&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266028620857&next_poll_time=1164490.0499999998&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.15452709621949257",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.66",
+        "src_port": 47774,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-491426606008334&&c=pollevents&q=4807.8333.49&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266039198373&next_poll_time=1222738.65&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.3147499243169307",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.83",
+        "src_port": 39567,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-501426607231599&&c=pollevents&q=4298.31599.50&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266050246593&next_poll_time=1283901.95&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.7180315246836536",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.83",
+        "src_port": 39572,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-511426608516089&&c=pollevents&q=9763.16089.51&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266061945101&next_poll_time=1348126.4999999998&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.8969992617203714",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.83",
+        "src_port": 39576,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-521426609865149&&c=pollevents&q=4130.65149.52&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266074155269&next_poll_time=1415579.45&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.4409465685450735",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "198.101.228.83",
+        "src_port": 39582,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/nrpc/p?j=olark-531426611281548&&c=pollevents&q=2933.81547.53&i=RdAcjnDhST2VsUpC179Br0Y5JO1DU20X&cb=hbl.client.callbacks.pollevents&after=14266087005595&next_poll_time=1486399.35&v=OwU2lPmGsrjwLkoM179Br0Y5JOoX2O0U&version=api-1.2.1&pretty=true&_rnd=0.20868343567293923",
+        "status_code": null,
+        "host": "324-events.olark.com",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
+  },
   "findings": [
     {
       "type": "nxdomain_burst",
@@ -3833,6 +4324,29 @@
       },
       "first_seen": 1426601905.921782,
       "last_seen": 1426605009.204776
+    },
+    {
+      "type": "beaconing",
+      "value": "192.168.0.53 -> 31.13.64.1:443",
+      "confidence": 0.801,
+      "evidence": {
+        "src_ip": "192.168.0.53",
+        "dst_ip": "31.13.64.1",
+        "dst_port": 443,
+        "count": 122,
+        "duration_sec": 36285.9,
+        "flow_rate_per_min": 0.2,
+        "mean_interval_sec": 299.88,
+        "stdev_interval_sec": 5.919,
+        "jitter_ratio": 0.02,
+        "avg_bytes_per_conn": 1961.6,
+        "payload_stddev_ratio": 0.089,
+        "unique_destinations": [],
+        "total_bytes": 239313,
+        "total_packets": 1137
+      },
+      "first_seen": 1426600270.962707,
+      "last_seen": 1426636556.835095
     }
   ]
 }

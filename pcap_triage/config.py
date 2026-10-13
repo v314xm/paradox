@@ -52,21 +52,32 @@ class Config:
     #
     # Источники: abuse.ch SSL Blacklist, Salesforce JA3,
     # публичные отчёты по malware.
+    #
+    # ВАЖНО: python-requests / urllib / go-http-client — это
+    # инструменты разработчика и аналитика, а не malware.
+    # Держим их отдельно в ja3_known_tools, чтобы не FP-ить
+    # на любом легитимном скрипте в сети.
     ja3_known_malware: Mapping[str, str] = field(
         default_factory=lambda: MappingProxyType({
             # Cobalt Strike
             "a0e9f5d64349fb13191bc781f81f42e1": "Cobalt Strike (default)",
             "72a589da586844d7f0818ce684948eea": "Cobalt Strike (variant 1)",
             "8e01a8b1be8e3a4b3be0f7e5b3adceba": "Cobalt Strike (variant 2)",
-            # Pentest / anonymizers
+            # Anonymizers / malware
             "e7d705a3286e19ea42f587b344ee6865": "Tor client",
-            "3b5074b1b5d032e5620f69f9f700ff0e": "python-requests (default)",
-            "579ccef312d18482fc42e2b822ca2430": "python-urllib",
-            "894cc2ab0f7e28b3e0c32fcbd1a3a2a8": "go-http-client",
-            # Malware
             "6734f37431670b3ab4292b8f60f29984": "Dridex",
             "51c64c77e60f3980eea90869b68c58a8": "Trickbot",
             "4d7a28d6f2263ed61de88ca66eb011e3": "Emotet",
+        }),
+    )
+    # Известные инструменты (не malware). Findings по ним —
+    # информационные, confidence ниже, чем у malware. Позволяет
+    # видеть «в сети есть питон-скрипт», не путая с C2.
+    ja3_known_tools: Mapping[str, str] = field(
+        default_factory=lambda: MappingProxyType({
+            "3b5074b1b5d032e5620f69f9f700ff0e": "python-requests (default)",
+            "579ccef312d18482fc42e2b822ca2430": "python-urllib",
+            "894cc2ab0f7e28b3e0c32fcbd1a3a2a8": "go-http-client",
         }),
     )
 
@@ -106,6 +117,10 @@ class Config:
     )
     # Порог: один finding на (src_ip, uri).
     command_injection_min_patterns: int = 1
+    # Агрегация: если с одного (src_ip, dst_ip) набралось
+    # >= этого числа hit'ов — один finding с count вместо N.
+    # В CTF 2015-03-17 было 32 hit'а с одного src на один endpoint.
+    command_injection_aggregate_min: int = 5
 
     # --- file carve ---
     # Метаданные payload'ов — всегда (безопасно, без записи на диск).
@@ -194,15 +209,117 @@ class Config:
     tcp_reassembly_max_bytes_per_flow: int = 1024 * 1024
     tcp_reassembly_max_total_bytes: int = 200 * 1024 * 1024
 
-
     # --- beaconing ---
     # C2-heartbeat: регулярные обращения к одной паре (src, dst, port).
     # Признаки: N соединений, длительность, малый jitter (stddev/mean),
     # маленький размер соединения.
-    beaconing_min_connections: int = 10
-    beaconing_min_duration_sec: int = 300
-    beaconing_max_jitter_ratio: float = 0.2
+    #
+    # История порогов:
+    #   0.6.0: min=10, duration=300, jitter<0.2, bytes<5000
+    #          → 310 FP на FIN-2015 (analytics/CDN дёргаются по таймеру).
+    #   0.7.0: min=20, duration=600, jitter<0.1, +allowlist SNI/Host,
+    #          +payload stddev, +rate check, +skip internal dst,
+    #          +multi-tenant filter (shared CDN), +mail-port filter.
+    #
+    # Что такое multi-tenant filter:
+    #   Если через (src, dst_ip, dst_port) идёт > 1 уникального SNI/Host —
+    #   это shared CDN/edge (Akamai, Cloudflare). Chrome открывает
+    #   десятки соединений к одному edge, но каждый — к разному домену.
+    #   C2 использует ОДИН домен. Это самый сильный сигнал против
+    #   CDN-шума, и он не требует хардкода IP-префиксов.
+    #
+    # Что такое mail polling:
+    #   POP3/IMAP клиенты поллят ящик каждые 5–15 минут по таймеру.
+    #   jitter < 0.1, payload const — идеальный ложный beacon.
+    #   SMTP (25/465/587) НЕ исключаем: бывает SMTP-туннель от malware.
+    beaconing_min_connections: int = 20
+    beaconing_min_duration_sec: int = 600
+    beaconing_max_jitter_ratio: float = 0.1
     beaconing_max_avg_bytes: int = 5000
+    beaconing_max_flows_per_minute: float = 5.0
+    beaconing_payload_stddev_ratio_max: float = 0.5
+    beaconing_skip_internal_dst: bool = True
+
+    # POP3/IMAP. Клиент дёргает ящик по таймеру — design, не C2.
+    beaconing_mail_polling_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({
+            110,  # POP3
+            143,  # IMAP
+            993,  # IMAPS
+            995,  # POP3S
+        }),
+    )
+
+    # Allowlist по SNI/HTTP Host (endswith). Analytics, CDN, cloud.
+    # Срабатывает, когда у группы ЕДИНСТВЕННЫЙ SNI/Host из списка.
+    # Если SNI/Host больше одного — сработает multi-tenant filter
+    # раньше этого allowlist'а.
+    beaconing_allowlist_suffixes: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            # Analytics / telemetry
+            "google-analytics.com",
+            "analytics.google.com",
+            "googletagmanager.com",
+            "googlesyndication.com",
+            "googleadservices.com",
+            "doubleclick.net",
+            "gstatic.com",
+            "googleusercontent.com",
+            "googlevideo.com",
+            "facebook.com",
+            "fbcdn.net",
+            "scorecardresearch.com",
+            "quantserve.com",
+            "adsrvr.org",
+            "adnxs.com",
+            "criteo.com",
+            "criteo.net",
+            "casalemedia.com",
+            "rubiconproject.com",
+            "pubmatic.com",
+            "openx.net",
+            "yimg.com",
+            "licdn.com",
+            # Microsoft / Skype
+            "skypeassets.com",
+            "skype.com",
+            "msn.com",
+            "rad.msn.com",
+            # CDN / cloud
+            "cloudflare.com",
+            "cloudflare-dns.com",
+            "cloudfront.net",
+            "akamai.net",
+            "akamaized.net",
+            "akamaihd.net",
+            "akamaiedge.net",
+            "fastly.net",
+            "fastlylb.net",
+            "edgekey.net",
+            "edgesuite.net",
+            "llnwd.net",
+            "amazonaws.com",
+            "azure.com",
+            "azureedge.net",
+            "windowsupdate.com",
+            "download.microsoft.com",
+            "update.microsoft.com",
+            "swcdn.apple.com",
+            "swdist.apple.com",
+            "mesu.apple.com",
+            "gdmf.apple.com",
+            "apple.com",
+            "microsoft.com",
+            "msedge.net",
+            "smartscreen.microsoft.com",
+        ),
+    )
+
+    # Точечные IP для skip (analytics без SNI, специфика окружения).
+    # Основной механизм — multi-tenant filter, а не этот список.
+    beaconing_allowlist_ips: frozenset[str] = field(
+        default_factory=frozenset,
+    )
 
     # --- DNS tunneling ---
     # Классический признак: длинные уникальные поддомены под одним
@@ -446,6 +563,8 @@ class Config:
             errors.append("file_carve_max_size must be > 0")
         if self.command_injection_min_patterns <= 0:
             errors.append("command_injection_min_patterns must be > 0")
+        if self.command_injection_aggregate_min <= 0:
+            errors.append("command_injection_aggregate_min must be > 0")
         if self.tcp_reassembly_max_bytes_per_flow <= 0:
             errors.append("tcp_reassembly_max_bytes_per_flow must be > 0")
         if self.tcp_reassembly_max_total_bytes <= 0:
@@ -470,6 +589,21 @@ class Config:
             )
         if self.beaconing_max_avg_bytes <= 0:
             errors.append("beaconing_max_avg_bytes must be > 0")
+        if self.beaconing_max_flows_per_minute <= 0:
+            errors.append("beaconing_max_flows_per_minute must be > 0")
+        if self.beaconing_payload_stddev_ratio_max < 0:
+            errors.append(
+                "beaconing_payload_stddev_ratio_max must be >= 0"
+            )
+        if not self.beaconing_mail_polling_ports:
+            errors.append("beaconing_mail_polling_ports must not be empty")
+        if any(
+            p <= 0 or p > 65535
+            for p in self.beaconing_mail_polling_ports
+        ):
+            errors.append(
+                "beaconing_mail_polling_ports must be in range 1..65535"
+            )
         if self.ftp_brute_force_min_flows <= 0:
             errors.append("ftp_brute_force_min_flows must be > 0")
         if self.ftp_brute_force_min_unique_src_ports <= 0:

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-11\\snort.log.1426068001",
     "pcap_sha256": "3977308fd23e30a1714989dd3052cf18751c3077c200f51164b50f24178f82c2"
   },
@@ -10,8 +10,12 @@
     "unique_dns_queries": 368,
     "nxdomain_count": 275,
     "flows": 10030,
-    "findings": 8,
+    "findings": 6,
     "extractor_errors": {},
+    "tcp_streams": 3966,
+    "tcp_streams_truncated": 4,
+    "http_objects": 440,
+    "carved_files": 1,
     "uploaded_bytes": 7562760,
     "downloaded_bytes": 22357644,
     "internal_bytes": 6636049,
@@ -530,7 +534,7 @@
           "wymeditor.github.io"
         ],
         "findings_indices": [
-          3
+          0
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -684,7 +688,7 @@
           "www.gstatic.com"
         ],
         "findings_indices": [
-          6
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1007,7 +1011,7 @@
           "www.pwned.se.pwned.se"
         ],
         "findings_indices": [
-          5
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1180,8 +1184,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          2,
-          6
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1214,73 +1217,7 @@
         "sni_domains": [],
         "dns_names": [],
         "findings_indices": [
-          5
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "194.105.226.20",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426105691.108386,
-        "last_seen": 1426105691.328438,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1546,
-        "bytes_in": 898,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          0
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "212.219.56.184",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426105690.959585,
-        "last_seen": 1426105691.106441,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1192,
-        "bytes_in": 958,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          1
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -1810,6 +1747,66 @@
         "realm": null,
         "asn": null,
         "country": null
+      },
+      {
+        "ip": "37.48.81.50",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426080613.334176,
+        "last_seen": 1426080620.249943,
+        "flows_out": 6,
+        "flows_in": 6,
+        "bytes_out": 19584,
+        "bytes_in": 251161,
+        "unique_dsts": [
+          "192.168.0.2"
+        ],
+        "unique_srcs": [
+          "192.168.0.2"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "216.58.209.102",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426085248.246899,
+        "last_seen": 1426085364.588831,
+        "flows_out": 7,
+        "flows_in": 7,
+        "bytes_out": 231354,
+        "bytes_in": 29946,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
       }
     ]
   },
@@ -2279,7 +2276,8 @@
         "duration": 271.316858,
         "first_ts": 1426074221.041341,
         "last_ts": 1426074492.358199,
-        "sni": "encrypted-tbn3.gstatic.com"
+        "sni": "encrypted-tbn3.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -2358,7 +2356,8 @@
         "duration": 271.310075,
         "first_ts": 1426074221.040227,
         "last_ts": 1426074492.350302,
-        "sni": "encrypted-tbn1.gstatic.com"
+        "sni": "encrypted-tbn1.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -2385,7 +2384,8 @@
         "duration": 271.280977,
         "first_ts": 1426074221.074796,
         "last_ts": 1426074492.355773,
-        "sni": "encrypted-tbn0.gstatic.com"
+        "sni": "encrypted-tbn0.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "udp",
@@ -2503,7 +2503,8 @@
         "duration": 274.836322,
         "first_ts": 1426074218.53617,
         "last_ts": 1426074493.372492,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -2715,7 +2716,8 @@
         "duration": 344.368541,
         "first_ts": 1426070041.584448,
         "last_ts": 1426070385.952989,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -2757,7 +2759,8 @@
         "duration": 178.274235,
         "first_ts": 1426069874.135115,
         "last_ts": 1426070052.40935,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "f7e2ba5b1c5bad431e35b53e0cfc344f"
       }
     ],
     "top_by_packets": [
@@ -2813,7 +2816,8 @@
         "duration": 271.316858,
         "first_ts": 1426074221.041341,
         "last_ts": 1426074492.358199,
-        "sni": "encrypted-tbn3.gstatic.com"
+        "sni": "encrypted-tbn3.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -2973,7 +2977,8 @@
         "duration": 271.310075,
         "first_ts": 1426074221.040227,
         "last_ts": 1426074492.350302,
-        "sni": "encrypted-tbn1.gstatic.com"
+        "sni": "encrypted-tbn1.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -2987,7 +2992,8 @@
         "duration": 271.280977,
         "first_ts": 1426074221.074796,
         "last_ts": 1426074492.355773,
-        "sni": "encrypted-tbn0.gstatic.com"
+        "sni": "encrypted-tbn0.gstatic.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -3001,7 +3007,8 @@
         "duration": 42141.084313,
         "first_ts": 1426076258.623388,
         "last_ts": 1426118399.707701,
-        "sni": "mtalk.google.com"
+        "sni": "mtalk.google.com",
+        "ja3": "daca8a9af4450c4d2e0ef0c691db8d7a"
       },
       {
         "proto": "tcp",
@@ -3029,7 +3036,8 @@
         "duration": 274.836322,
         "first_ts": 1426074218.53617,
         "last_ts": 1426074493.372492,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -3137,7 +3145,8 @@
         "duration": 40396.958126,
         "first_ts": 1426078008.114432,
         "last_ts": 1426118405.072558,
-        "sni": "imap.gmail.com"
+        "sni": "imap.gmail.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -3151,7 +3160,8 @@
         "duration": 178.274235,
         "first_ts": 1426069874.135115,
         "last_ts": 1426070052.40935,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "f7e2ba5b1c5bad431e35b53e0cfc344f"
       },
       {
         "proto": "tcp",
@@ -3165,7 +3175,8 @@
         "duration": 178.209544,
         "first_ts": 1426071787.277605,
         "last_ts": 1426071965.487149,
-        "sni": "safebrowsing.google.com"
+        "sni": "safebrowsing.google.com",
+        "ja3": "f7e2ba5b1c5bad431e35b53e0cfc344f"
       },
       {
         "proto": "tcp",
@@ -3302,7 +3313,8 @@
         "duration": 344.368541,
         "first_ts": 1426070041.584448,
         "last_ts": 1426070385.952989,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -3316,7 +3328,8 @@
         "duration": 47659.529331,
         "first_ts": 1426070215.206643,
         "last_ts": 1426117874.735974,
-        "sni": "qa.sockets.stackexchange.com"
+        "sni": "qa.sockets.stackexchange.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -4226,55 +4239,830 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 440,
+    "objects": [
+      {
+        "src_ip": "91.198.174.208",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 40911,
+        "kind": "response",
+        "method": null,
+        "uri": "/wikipedia/en/8/84/Ned_Flanders.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 73628,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d4948445200000112000001b8080600000089b068ab000000097048597300000b1300000b1301009a9c1800000a4f694343505068"
+      },
+      {
+        "src_ip": "23.235.43.194",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 53965,
+        "kind": "response",
+        "method": null,
+        "uri": "/simpsons/images/d/d6/Ned_Flanders_2.png/revision/latest?cb=20141024230457",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 57197,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000001e0000001e008060000007dd4be950000200049444154789cecbd777c5ce59defff7ece39535566d4255bcd969b"
+      },
+      {
+        "src_ip": "216.58.209.102",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38326,
+        "kind": "response",
+        "method": null,
+        "uri": "/879366/html_inpage_rendering_lib_200_68.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript",
+        "body_size": 47817,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000c5fd697bdb38d2008a7ef7afb0396937d9821539e9eee916c3e855bc27dee2259be3c903ae92b55a921d3bb1ee6fbf558585004939e9"
+      },
+      {
+        "src_ip": "216.58.209.98",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 35000,
+        "kind": "response",
+        "method": null,
+        "uri": "/gampad/ads?gdfp_req=1&correlator=4219789099576840&output=json_html&callback=googletag.impl.pubads.setAdContentsBySlotForSync&impl=s&eid=108809022&sfv=1-0-2&iu=%2F4140%2Fostg.sourceforge%2FSF_ProjectSum_728x90_A&sz=728x90&scp=tpc%3Dskybluecanvas%2Cdynamic%2Cwww%2Cphp%2Ccms%2Cinternet%26shortname%3Dskybluecanvas%26aud%3Ddevelopers%2Cendusers%26dcopt%3Dist%26dc_ref%3Dhttp%253A%252F%252Fsourceforge.net%252Fprojects%252Fskybluecanvas%252F%26sz%3D728x90%26u%3De%253A88d9e642-c7fd-11e4-8415-0200ac1d1d0b%26page_type%3Dpg_project&cookie=ID%3D42d14291fd4e716d%3AT%3D1426064432%3AS%3DALNI_MY_4RwphxH2JPyvoEJWv9seIzr8zA&lmt=1426085247&dt=1426085248155&cc=100&frm=20&biw=1662&bih=960&oid=3&adx=351&ady=92&adk=176054550&gut=v2&ifi=1&u_tz=60&u_his=3&u_h=1080&u_w=1920&u_ah=1055&u_aw=1920&u_cd=24&u_sd=1&flash=0&url=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fskybluecanvas%2F&ref=http%3A%2F%2Fwww.google.se%2Furl%3Fsa%3Dt%26rct%3Dj%26q%3D%26esrc%3Ds%26source%3Dweb%26cd%3D1%26ved%3D0CCYQFjAA%26url%3Dhttp%253A%252F%252Fsourceforge.net%252Fprojects%252Fskybluecanvas%252F%26ei%3De1UAVfraE4PfaNPmgeAB%26usg%3DAFQjCNH-niI4bwiaKDBetN5-aD8ZTgAqHQ%26bvm%3Dbv.87611401%2Cd.d2s&vrg=57&vrp=57&ga_vid=1990665637.1426064433&ga_sid=1426085248&ga_hid=427476099",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 40175,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffec7dd7761bc992e0af80b7bbcf41358b20408a32a8070cad4479899425393a590646b0040a3422f137bb5f323fb661d296212175df9d"
+      },
+      {
+        "src_ip": "216.58.209.98",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 33986,
+        "kind": "response",
+        "method": null,
+        "uri": "/simgad/11176107303010117588",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 39457,
+        "truncated": false,
+        "body_preview": "474946383961d8025a00f70000f9b149003455ef100033647669d2f20736980243760246930354960238750938a71a6dcc7abf48002944fcfef6d9d5ce365963"
+      },
+      {
+        "src_ip": "192.229.233.25",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 52005,
+        "kind": "response",
+        "method": null,
+        "uri": "/widgets.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript; charset=utf-8",
+        "body_size": 35827,
+        "truncated": false,
+        "body_preview": "1f8b0800f2a9f7540003dcbd6b77e4c87520f87d7e4512b629a01999cc643d1b2914b7ba8aede6aa5e53644bb3cbe6e40133914c7421813480248b26738f5bb2"
+      },
+      {
+        "src_ip": "185.31.17.194",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43794,
+        "kind": "response",
+        "method": null,
+        "uri": "/__cb20100810232701/simpsons/images/2/25/Ned-flanders.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 25988,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010201004800480000ffdb0043000604040405040605050609060506090b080606080b0c0a0a0b0a0a0c100c0c0c0c0c0c100c0c0c"
+      },
+      {
+        "src_ip": "198.252.206.140",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 58099,
+        "kind": "response",
+        "method": null,
+        "uri": "/questions/5411538/redirect-from-an-html-page",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 25441,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000400ecbdeb76db46d228fa3bb3d6f70e3dccb72d69472471e5cd923c8e737326178f2f936f26678e3708344958204003a06425f15afb35ce"
+      },
+      {
+        "src_ip": "162.209.67.246",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41452,
+        "kind": "response",
+        "method": null,
+        "uri": "/tag.aspx?1122015",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript; charset=utf-8",
+        "body_size": 22901,
+        "truncated": false,
+        "body_preview": "0d0a696628747970656f66204a534f4e213d3d226f626a65637422297b4a534f4e3d7b7d7d2866756e6374696f6e28297b66756e6374696f6e20662865297b72"
+      },
+      {
+        "src_ip": "162.209.67.246",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41475,
+        "kind": "response",
+        "method": null,
+        "uri": "/tag.aspx?1122015",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript; charset=utf-8",
+        "body_size": 22901,
+        "truncated": false,
+        "body_preview": "0d0a696628747970656f66204a534f4e213d3d226f626a65637422297b4a534f4e3d7b7d7d2866756e6374696f6e28297b66756e6374696f6e20662865297b72"
+      },
+      {
+        "src_ip": "162.209.67.246",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41496,
+        "kind": "response",
+        "method": null,
+        "uri": "/tag.aspx?1122015",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript; charset=utf-8",
+        "body_size": 22901,
+        "truncated": false,
+        "body_preview": "0d0a696628747970656f66204a534f4e213d3d226f626a65637422297b4a534f4e3d7b7d7d2866756e6374696f6e28297b66756e6374696f6e20662865297b72"
+      },
+      {
+        "src_ip": "198.252.206.140",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57873,
+        "kind": "response",
+        "method": null,
+        "uri": "/questions/4684454/error-message-strict-standards-non-static-method-should-not-be-called-staticall",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 20008,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000400ecbdeb96dbb69230fa3b596bbf03227bbbd51351127597dc92a7633b89f7248ee3b677664f4ebe5e1409497453a44c52dd561caff53d"
+      },
+      {
+        "src_ip": "198.252.206.140",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57897,
+        "kind": "response",
+        "method": null,
+        "uri": "/questions/10768576/how-can-i-solve-non-static-method-xxxxxx-should-not-be-called-statically-in",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 19438,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000400ecbdeb76dbc6b230f83b59ebbc436f666f4bfa42f07e954479143b4e9c2f1727b277ce3e998c57136892b040800640c9b2e3b5ce3bcc"
+      },
+      {
+        "src_ip": "216.34.181.60",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 60359,
+        "kind": "response",
+        "method": null,
+        "uri": "/projects/skybluecanvas/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 18759,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000403b2514cc94f2ea92c4855c828c9cdb1e3b251d4d555084e2d2a4b2db252284e2bd64dcecf2b2ecd4dd5353452d0d5b5e3022b88ce4c53"
+      },
+      {
+        "src_ip": "216.58.209.98",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 35004,
+        "kind": "response",
+        "method": null,
+        "uri": "/pagead/osd.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 18751,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffad7df957db3ad3f0effc15e0b7876b5f8449806e366a0e6da1a52da585962e90a747b6e524251bd98036f9fef66f6624d9b2637aeff3"
+      },
+      {
+        "src_ip": "216.58.209.102",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38330,
+        "kind": "response",
+        "method": null,
+        "uri": "/ads/richmedia/studio/pv2/35720802/20150225033632684/index.html",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html",
+        "body_size": 18381,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000edbddb56e3c89628fa9e5f21d4635156218c2f5ced142c12a82aba33936ca0aaba9acd6087a4b0ad44969c928c21c163ecdfd86fe7e5"
+      },
+      {
+        "src_ip": "198.252.206.140",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57932,
+        "kind": "response",
+        "method": null,
+        "uri": "/questions/8328481/chmod-777-to-a-folder-and-all-contents",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 17435,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000400ecbdeb76db46b230fa3bb3d6bc430f3363493b0449f04e59548e62c78967e7e2c4f6cede5f4e8e57136892b041800640c98ae3b5be07"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "37.48.81.50",
+        "src_port": 80,
+        "dst_port": 49684,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/header.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 16829,
+        "truncated": false,
+        "body_preview": "4749463839619803cd00f700001a6da9196da83787bc1c6faadad0c4196ca83888bd1b6eaa1368a52f80b71a6ea9186ca7186ca81b6faa3484ba3686bb2e7fb6"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 50878,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/header.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 16829,
+        "truncated": false,
+        "body_preview": "4749463839619803cd00f700001a6da9196da83787bc1c6faadad0c4196ca83888bd1b6eaa1368a52f80b71a6ea9186ca7186ca81b6faa3484ba3686bb2e7fb6"
+      },
+      {
+        "src_ip": "198.252.206.140",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57970,
+        "kind": "response",
+        "method": null,
+        "uri": "/questions/13276324/php-strict-standards-errors-on-localhost",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 16357,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000400ecbdeb761b37b228fc3b596bde01c3cc58d20e9b64f32252b2281fc597c4b313db13d993999d9dcf0bec06c9b69add747753b2e2f85b"
+      },
+      {
+        "src_ip": "216.58.209.98",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 34993,
+        "kind": "response",
+        "method": null,
+        "uri": "/tag/js/gpt.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 15411,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffd57d6973dbba0ee8f7fc0a47b72f473a561d3bddadaa9e6c6dd3354dba9c9e34374351b2add8b15d494e9a36feef0f0017518b9df6ce"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52969,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/css/techjunkie.css",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/css",
+        "body_size": 15001,
+        "truncated": false,
+        "body_preview": "2f2a202d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d0d0a0954656d706c617465204e616d"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38397,
+        "kind": "response",
+        "method": null,
+        "uri": "/piwik.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 14893,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003b57d6977dac812e8f7fc0aacb98791828cc17612db44f1cd3889c7996c133b0318939c9610201b2422092f31bcdffeaaaa17b5847032"
+      },
+      {
+        "src_ip": "54.192.98.238",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37979,
+        "kind": "response",
+        "method": null,
+        "uri": "/get?name=notice.js&domain=slashdot.org&c=teconsent&text=true",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript",
+        "body_size": 13324,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d57d7973db48b2e7fffa14107a86064c8822254bb649a3156eb7a7c76fdb6d87ed9e37bb945a818b249a204103a00eabf8ddf7977500"
+      },
+      {
+        "src_ip": "216.34.181.60",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 60449,
+        "kind": "response",
+        "method": null,
+        "uri": "/projects/skybluecanvas/files/?source=navbar",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 12980,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000403b2514cc94f2ea92c4855c828c9cdb1e3b251d4d555084e2d2a4b2db252284e2bd64dcecf2b2ecd4dd5353456d0d5b5e3022b88ce4c53"
+      },
+      {
+        "src_ip": "216.34.181.60",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 60425,
+        "kind": "response",
+        "method": null,
+        "uri": "/projects/skybluecanvas/files/?source=navbar",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 12973,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000403b2514cc94f2ea92c4855c828c9cdb1e3b251d4d555084e2d2a4b2db252284e2bd64dcecf2b2ecd4dd5b554d0d5b5e302cb4767a629e4"
+      },
+      {
+        "src_ip": "216.58.209.102",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38347,
+        "kind": "response",
+        "method": null,
+        "uri": "/ads/richmedia/studio/pv2/35720802/20150225033632684/zth.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 12704,
+        "truncated": false,
+        "body_preview": "ffd8ffe1001845786966000049492a00080000000000000000000000ffec00114475636b79000100040000003c0000ffee000e41646f62650064c000000001ff"
+      },
+      {
+        "src_ip": "216.34.181.60",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 60461,
+        "kind": "response",
+        "method": null,
+        "uri": "/projects/skybluecanvas/files/older-versions/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 12077,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000403b2514cc94f2ea92c4855c828c9cdb1e3b251d4d555084e2d2a4b2db252284e2bd64dcecf2b2ecd4dd5353250d0d5b5e3022b88ce4c53"
+      },
+      {
+        "src_ip": "216.34.181.60",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 60438,
+        "kind": "response",
+        "method": null,
+        "uri": "/projects/skybluecanvas/files/older-versions/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_size": 12076,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000403b2514cc94f2ea92c4855c828c9cdb1e3b251d4d555084e2d2a4b2db252284e2bd64dcecf2b2ecd4dd5353250d0d5b5e3022b88ce4c53"
+      },
+      {
+        "src_ip": "216.58.209.102",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38348,
+        "kind": "response",
+        "method": null,
+        "uri": "/ads/richmedia/studio/pv2/35720802/20150225033632684/nudalogga_6.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 11405,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000000a80000002e0806000000bca25271000000097048597300000b1300000b1301009a9c1800000a4f694343505068"
+      },
+      {
+        "src_ip": "213.155.151.149",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57660,
+        "kind": "response",
+        "method": null,
+        "uri": "/analytics.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript",
+        "body_size": 11122,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffa57d7b77dab8d6f7fff914c5d393650f8a0349dae9403cacf49e3697b6e99dd02e5952080d010a26695a783efbbb7f5b926d087dce39"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38395,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/icons/internet-explorer.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 8362,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000000300000003008060000012005c911000000097048597300000b1300000b1301009a9c1800000a4f694343505068"
+      },
+      {
+        "src_ip": "74.125.232.121",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 54754,
+        "kind": "response",
+        "method": null,
+        "uri": "/pagead/ads?client=ca-pub-4006818487458500&output=html&h=600&slotname=5041963931&adk=3312271594&w=160&lmt=1426085247&flash=0&url=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fskybluecanvas%2F&dt=1426085248774&bpp=2&bdt=968&shv=r20150305&cbv=r20150224&saldr=sa&correlator=5710444027524&frm=20&ga_vid=1990665637.1426064433&ga_sid=1426085248&ga_hid=427476099&ga_fc=0&u_tz=60&u_his=3&u_java=0&u_h=1080&u_w=1920&u_ah=1055&u_aw=1920&u_cd=24&u_nplug=0&u_nmime=0&dff=sans-serif&dfs=13&adx=0&ady=0&biw=1662&bih=960&eid=575144603%2C317150304&oid=3&ref=http%3A%2F%2Fwww.google.se%2Furl%3Fsa%3Dt%26rct%3Dj%26q%3D%26esrc%3Ds%26source%3Dweb%26cd%3D1%26ved%3D0CCYQFjAA%26url%3Dhttp%253A%252F%252Fsourceforge.net%252Fprojects%252Fskybluecanvas%252F%26ei%3De1UAVfraE4PfaNPmgeAB%26usg%3DAFQjCNH-niI4bwiaKDBetN5-aD8ZTgAqHQ%26bvm%3Dbv.87611401%2Cd.d2s&rx=0&eae=0&fc=24&brdim=%2C%2C0%2C25%2C1920%2C25%2C1920%2C1031%2C1677%2C960&vis=1&rsz=0%7C0%7Cao%7C&abl=CA&ppjl=u&fu=0&bc=1&ifi=5&xpc=tNYTOZV1cM&p=http%3A//sourceforge.net&dtd=36",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 8333,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffed3c0957e248b77f0572e6a3933662026adb89d51c4454545cc07d194f252920b29a04101bfefbbbb72a81b038d333dfbc73de3b674e"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38394,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/icons/firefox.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 7664,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000000300000003008060000005702f987000000097048597300000dd600000dd601906f799c00000a4d694343505068"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38391,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/icons/safari.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 5592,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000000300000003008060000005702f9870000000473424954080808087c086488000000097048597300000f1200000f"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38390,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html",
+        "body_size": 5533,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003c55c7d73db369aff7bfb2950edecc59e9aa265276992daca24b693b867279ec86ddafb27039190849822b8046959d9dbcf73739f63bf"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 59273,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52952,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52953,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52954,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52965,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 41636,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 45093,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 41061,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 45238,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/index.php?pid=4",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 5426,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205374726963742f2f454e22200d0a2020202022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52917,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/ui/admin/js/imagehover.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 5138,
+        "truncated": false,
+        "body_preview": "2f2a0a53696d706c6520496d61676520547261696c207363726970742d204279204a6176615363726970744b69742e636f6d0a566973697420687474703a2f2f"
+      },
+      {
+        "src_ip": "216.58.209.98",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 35022,
+        "kind": "response",
+        "method": null,
+        "uri": "/xbbe/creative/adj?d=APEucNXx1zMsWjUa1AeMbM9Bf0bjkDoOYgyJqYodFF8p0T333u7JOa4BwoxwaASHmw0cZfGOV4m6SFbsYyPk0UAEMCmwecFSDDyfWVpuQK8flPbQ1aIjMCRl3AhSnJgpzB1rGcrmYs3E11nfAmNnCa2RKnODZjjoSgBvQC2LSA4k9bHALnEsv0hTstcjTwGtsnSpzzJGm-pyLOyqYSpmKUZwbXthx-2Spyyp6czreps5Eatcj0dRHqMe-eaXTJ-y2xZcW34yGLjr0i6nVRqz1ZrQA8AH6ts4J3Nhr-YOftYZKg0R8YM1r-0xBO1s0Y8W2LCGH-3kMLPq1NJVGTBu5OTy-uWAbafsr_a6HAK9lZ2rhkg00Hyy5MdHV3Z1MIk3VSGYzwUqpSOA-SCrlKp2pNHADyVaBWiVyA&pr=VQBVfwAM7rMKGQpUAACQEG3wBvWLVIlEDyuqRA&c=http://adclick.g.doubleclick.net/aclk%3Fsa%3DL%26ai%3DC5SNlf1UAVbPdM9SUZJCggrALrZif4AbdsYPfjgHAjbcBEAEgAGDxrfyFpB-CARdjYS1wdWItNDAwNjgxODQ4NzQ1ODUwMMgBCagDAZgEAKoEkQFP0DNqCyyLAEhSKQCSSi0M5KE4Ra7b3A6QidaYYGe9mHt9hVxZORP7K3Pz2dqSDD6iHsMtATm-eMG5YK-QNB-E63xG6FpTHopSZPNCt8eRNrs_Z7rA__-786_ARIAKbu2epuIRz7KdH1MP-CVCXXBj2hNnxUIY7oLYo06uqhsJ43j3KAuURRzI_XjAeLO5XCeUgAaRtIarsLLX1zigBiHYBwA%26num%3D1%26sig%3DAOD64_3hCCEP67lDXKLfD4Pi0lRTPAQ8FQ%26client%3Dca-pub-4006818487458500%26adurl%3D",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=ISO-8859-1",
+        "body_size": 4547,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffed3b6b53e3b8b2dff75778a8332414903871de4c76ca240132bc09ccc00037a5d84a22f00bc9490833fcf7d392df4e78ecdddd73cfad"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "217.195.49.112",
+        "src_port": 80,
+        "dst_port": 52920,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/ui/admin/css/ssm.tables.css",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/css",
+        "body_size": 4237,
+        "truncated": false,
+        "body_preview": "2f2a204d41494e20424f4459204449564953494f4e53202a2f0a0a23627574746f6e5f7461626c652074640a7b0a202070616464696e672d72696768743a2033"
+      },
+      {
+        "src_ip": "91.121.219.90",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 38393,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/icons/opera.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 3893,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000000300000003008060000005702f9870000000467414d410000b18f0bfc610500000006624b474400ff00ff00ffa0"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "37.48.81.50",
+        "src_port": 80,
+        "dst_port": 49685,
+        "kind": "response",
+        "method": null,
+        "uri": "/skyblue/data/skins/techjunkie/images/nav.gif",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 3868,
+        "truncated": false,
+        "body_preview": "47494638396198033200d50000dad0c4d5cbbfd3cabed7cdc1d2c8bccfc6bad9cfc3d8cec2d0c7bcc4bbb0f6f0e8bab2a7beb5abbfb7acf0eae3e8e3dcc2baaf"
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 1,
+    "files": [
+      {
+        "sha256": "97a44a542bfdac4eb42602a159ecd4cba3317e99ed935e83cc9d1e5f14f1cbbe",
+        "ext": ".gz",
+        "size": 1332,
+        "content_type": "application/x-javascript",
+        "src_ip": "23.223.28.77",
+        "dst_ip": "192.168.0.51",
+        "uri": "/surly.js?;ad_w=160;ad_h=600;coid=322;nid=4311;cps=1",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000000008556cb72db3614ddfb2b642c44a06448294ea7ad68581377bcc84cf3983a3bc9cd8000f8b029920120db1a89ffde0b9094a5ba4a3612",
+        "truncated": false,
+        "saved_path": null
+      }
+    ]
+  },
   "findings": [
-    {
-      "type": "suspicious_port",
-      "value": "194.105.226.20:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "194.105.226.20",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 626
-      },
-      "first_seen": 1426105691.120561,
-      "last_seen": 1426105691.328438
-    },
-    {
-      "type": "suspicious_port",
-      "value": "212.219.56.184:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "212.219.56.184",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 686
-      },
-      "first_seen": 1426105690.960188,
-      "last_seen": 1426105691.106441
-    },
-    {
-      "type": "suspicious_port",
-      "value": "77.67.22.165:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "77.67.22.165",
-        "dst_port": 21,
-        "flow_count": 25,
-        "src_ips": [
-          "192.168.0.54"
-        ],
-        "total_bytes": 21228
-      },
-      "first_seen": 1426095841.337056,
-      "last_seen": 1426095883.459517
-    },
     {
       "type": "nxdomain_burst",
       "value": "192.168.0.51",
@@ -4360,6 +5148,29 @@
       },
       "first_seen": 1426095841.337056,
       "last_seen": 1426095883.459517
+    },
+    {
+      "type": "beaconing",
+      "value": "192.168.0.53 -> 212.227.111.53:443",
+      "confidence": 0.85,
+      "evidence": {
+        "src_ip": "192.168.0.53",
+        "dst_ip": "212.227.111.53",
+        "dst_port": 443,
+        "count": 93,
+        "duration_sec": 49680.5,
+        "flow_rate_per_min": 0.11,
+        "mean_interval_sec": 540.01,
+        "stdev_interval_sec": 0.054,
+        "jitter_ratio": 0.0,
+        "avg_bytes_per_conn": 1860.0,
+        "payload_stddev_ratio": 0.01,
+        "unique_destinations": [],
+        "total_bytes": 172977,
+        "total_packets": 835
+      },
+      "first_seen": 1426068507.122768,
+      "last_seen": 1426118187.672675
     }
   ]
 }

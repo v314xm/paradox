@@ -574,4 +574,30 @@ def test_ftp_brute_force_ignores_port_80():
         state.flows[key] = FlowStats(packets=5, bytes_sent=500)
 
     findings = FTPBruteForceDetector().run(state, Config())
-    assert findings == []
+    assert findings == []# ---------- MITRE mapping ----------
+
+def test_mitre_map_covers_all_detectors():
+    from pcap_triage.detectors.mitre_map import MITRE_MAP
+    for key, techniques in MITRE_MAP.items():
+        assert techniques
+        for t in techniques:
+            assert t.startswith("T")
+
+
+def test_mitre_enrichment_in_pipeline():
+    from pcap_triage.pipeline import _detect
+    from pcap_triage.config import Config
+    from pcap_triage.models import CaptureState, FlowKey, FlowStats
+
+    state = CaptureState()
+    for i in range(15):
+        key = FlowKey(
+            proto="tcp", src_ip="192.168.0.53", dst_ip=f"203.0.113.{i}",
+            src_port=50000 + i, dst_port=8080,
+        )
+        state.flows[key] = FlowStats(packets=1, bytes_sent=62)
+
+    findings = _detect(state, Config())
+    port_scans = [f for f in findings if f.type == "port_scan"]
+    assert port_scans
+    assert "T1046" in port_scans[0].mitre_techniques

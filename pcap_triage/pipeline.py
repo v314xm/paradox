@@ -167,6 +167,13 @@ def _detect(state: CaptureState, config: Config):
     findings = []
     for det in DETECTORS:
         findings.extend(det.run(state, config))
+
+    # Обогащение MITRE-техниками
+    from pcap_triage.detectors.mitre_map import get_techniques
+    for f in findings:
+        if not f.mitre_techniques:
+            f.mitre_techniques = get_techniques(f.type)
+
     return findings
 
 
@@ -197,6 +204,20 @@ def _summarize_direction(state: CaptureState, config: Config) -> dict:
         "external_bytes": external,
     }
 
+def _summarize_mitre(findings) -> dict:
+    from collections import Counter
+    counter = Counter()
+    for f in findings:
+        for t in f.mitre_techniques:
+            counter[t] += 1
+    return {
+        "total_techniques": len(counter),
+        "by_technique": [
+            {"technique": t, "count": c}
+            for t, c in counter.most_common()
+        ],
+    }
+
 
 def run_pipeline(pcap_path: Path, config: Config) -> dict:
     state = CaptureState()
@@ -212,6 +233,7 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
     carved_report = {
         "total": len(state.carved_files),
         "files": [c.to_dict() for c in state.carved_files],
+        "mitre": _summarize_mitre(findings),
     }
     entities = build_entities(state, findings, config)
     direction_summary = _summarize_direction(state, config)

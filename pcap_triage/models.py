@@ -31,6 +31,7 @@ class Finding:
     evidence: dict[str, Any] = field(default_factory=dict)
     first_seen: float | None = None
     last_seen: float | None = None
+    mitre_techniques: tuple[str, ...] = ()
 
     def to_dict(self) -> dict:
         return asdict(self)

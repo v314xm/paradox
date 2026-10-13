@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425900311",
     "pcap_sha256": "703062b837fb8130efdce30b571ef27533120d25f2075718d0a087cbf6618213"
   },
@@ -12,6 +12,10 @@
     "flows": 363,
     "findings": 3,
     "extractor_errors": {},
+    "tcp_streams": 74,
+    "tcp_streams_truncated": 1,
+    "http_objects": 0,
+    "carved_files": 0,
     "uploaded_bytes": 2400035,
     "downloaded_bytes": 154817519,
     "internal_bytes": 56228,
@@ -1178,7 +1182,8 @@
         "duration": 113.988757,
         "first_ts": 1425900583.88093,
         "last_ts": 1425900697.869687,
-        "sni": "watson.microsoft.com"
+        "sni": "watson.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -1274,7 +1279,8 @@
         "duration": 249.863789,
         "first_ts": 1425900326.368306,
         "last_ts": 1425900576.232095,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -1382,7 +1388,8 @@
         "duration": 259.459679,
         "first_ts": 1425900312.56245,
         "last_ts": 1425900572.022129,
-        "sni": "www.gstatic.com"
+        "sni": "www.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1422,7 +1429,8 @@
         "duration": 240.276891,
         "first_ts": 1425900331.861477,
         "last_ts": 1425900572.138368,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -1449,7 +1457,8 @@
         "duration": 240.181457,
         "first_ts": 1425900331.885356,
         "last_ts": 1425900572.066813,
-        "sni": "ssl.google-analytics.com"
+        "sni": "ssl.google-analytics.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1491,7 +1500,8 @@
         "duration": 240.175371,
         "first_ts": 1425900325.688279,
         "last_ts": 1425900565.86365,
-        "sni": "lh3.googleusercontent.com"
+        "sni": "lh3.googleusercontent.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1518,7 +1528,8 @@
         "duration": 90.25386,
         "first_ts": 1425901125.268176,
         "last_ts": 1425901215.522036,
-        "sni": "clients2.google.com"
+        "sni": "clients2.google.com",
+        "ja3": "4b1f19f8d75dbeb15da4376032001620"
       },
       {
         "proto": "tcp",
@@ -1532,7 +1543,8 @@
         "duration": 240.250648,
         "first_ts": 1425900340.386074,
         "last_ts": 1425900580.636722,
-        "sni": "clients2.google.com"
+        "sni": "clients2.google.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -1586,7 +1598,8 @@
         "duration": 1.457726,
         "first_ts": 1425900696.41198,
         "last_ts": 1425900697.869706,
-        "sni": "wer.microsoft.com"
+        "sni": "wer.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -1600,7 +1613,8 @@
         "duration": 1.144988,
         "first_ts": 1425900624.528173,
         "last_ts": 1425900625.673161,
-        "sni": "wer.microsoft.com"
+        "sni": "wer.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -1841,7 +1855,8 @@
         "duration": 113.988757,
         "first_ts": 1425900583.88093,
         "last_ts": 1425900697.869687,
-        "sni": "watson.microsoft.com"
+        "sni": "watson.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       },
       {
         "proto": "tcp",
@@ -1855,7 +1870,8 @@
         "duration": 249.863789,
         "first_ts": 1425900326.368306,
         "last_ts": 1425900576.232095,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -1934,7 +1950,8 @@
         "duration": 259.459679,
         "first_ts": 1425900312.56245,
         "last_ts": 1425900572.022129,
-        "sni": "www.gstatic.com"
+        "sni": "www.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2018,7 +2035,8 @@
         "duration": 240.276891,
         "first_ts": 1425900331.861477,
         "last_ts": 1425900572.138368,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -2084,7 +2102,8 @@
         "duration": 240.181457,
         "first_ts": 1425900331.885356,
         "last_ts": 1425900572.066813,
-        "sni": "ssl.google-analytics.com"
+        "sni": "ssl.google-analytics.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2125,7 +2144,8 @@
         "duration": 240.175371,
         "first_ts": 1425900325.688279,
         "last_ts": 1425900565.86365,
-        "sni": "lh3.googleusercontent.com"
+        "sni": "lh3.googleusercontent.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "udp",
@@ -2166,7 +2186,8 @@
         "duration": 240.250648,
         "first_ts": 1425900340.386074,
         "last_ts": 1425900580.636722,
-        "sni": "clients2.google.com"
+        "sni": "clients2.google.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -2180,7 +2201,8 @@
         "duration": 90.25386,
         "first_ts": 1425901125.268176,
         "last_ts": 1425901215.522036,
-        "sni": "clients2.google.com"
+        "sni": "clients2.google.com",
+        "ja3": "4b1f19f8d75dbeb15da4376032001620"
       },
       {
         "proto": "tcp",
@@ -2288,7 +2310,8 @@
         "duration": 1.457726,
         "first_ts": 1425900696.41198,
         "last_ts": 1425900697.869706,
-        "sni": "wer.microsoft.com"
+        "sni": "wer.microsoft.com",
+        "ja3": "1d095e68489d3c535297cd8dffb06cb9"
       }
     ]
   },
@@ -2349,6 +2372,14 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 0,
+    "objects": []
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
+  },
   "findings": [
     {
       "type": "sni_without_dns",
@@ -2370,21 +2401,21 @@
     },
     {
       "type": "large_transfer",
-      "value": "192.168.0.54 <-> 195.12.232.163:80",
+      "value": "195.12.232.163 <-> 192.168.0.54:49493",
       "confidence": 0.85,
       "evidence": {
-        "src_ip": "192.168.0.54",
-        "dst_ip": "195.12.232.163",
-        "src_port": 49493,
-        "dst_port": 80,
+        "src_ip": "195.12.232.163",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 49493,
         "proto": "tcp",
-        "total_bytes": 155765496,
-        "total_packets": 141092,
-        "flow_count": 2,
-        "direction": "outbound",
+        "total_bytes": 153637677,
+        "total_packets": 105684,
+        "flow_count": 1,
+        "direction": "inbound",
         "sni": null
       },
-      "first_seen": 1425901199.308865,
+      "first_seen": 1425901199.335743,
       "last_seen": 1425901238.338297
     },
     {

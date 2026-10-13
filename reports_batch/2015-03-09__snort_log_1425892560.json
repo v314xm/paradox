@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-09\\snort.log.1425892560",
     "pcap_sha256": "28e9015aeb7908810883c9db6d3f81ba32b352a1d6bc89cff3ad1972c1c36817"
   },
@@ -12,6 +12,10 @@
     "flows": 3116,
     "findings": 14,
     "extractor_errors": {},
+    "tcp_streams": 2898,
+    "tcp_streams_truncated": 1,
+    "http_objects": 42,
+    "carved_files": 0,
     "uploaded_bytes": 3483750,
     "downloaded_bytes": 151388576,
     "internal_bytes": 2414148,
@@ -1498,7 +1502,8 @@
         "duration": 26.964461,
         "first_ts": 1425892766.112053,
         "last_ts": 1425892793.076514,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1591,7 +1596,8 @@
         "duration": 30.073357,
         "first_ts": 1425892736.816291,
         "last_ts": 1425892766.889648,
-        "sni": "accounts.google.com"
+        "sni": "accounts.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -1605,7 +1611,8 @@
         "duration": 39.583041,
         "first_ts": 1425892754.697123,
         "last_ts": 1425892794.280164,
-        "sni": "ssl.gstatic.com"
+        "sni": "ssl.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1647,7 +1654,8 @@
         "duration": 0.290676,
         "first_ts": 1425892785.878959,
         "last_ts": 1425892786.169635,
-        "sni": "encrypted-tbn0.gstatic.com"
+        "sni": "encrypted-tbn0.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1674,7 +1682,8 @@
         "duration": 8.657632,
         "first_ts": 1425892760.486151,
         "last_ts": 1425892769.143783,
-        "sni": "googleads.g.doubleclick.net"
+        "sni": "googleads.g.doubleclick.net",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1702,7 +1711,8 @@
         "duration": 3.175732,
         "first_ts": 1425892765.92608,
         "last_ts": 1425892769.101812,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -1729,7 +1739,8 @@
         "duration": 3.268766,
         "first_ts": 1425892759.371901,
         "last_ts": 1425892762.640667,
-        "sni": "www.googleadservices.com"
+        "sni": "www.googleadservices.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1772,7 +1783,8 @@
         "duration": 23.927026,
         "first_ts": 1425892759.456995,
         "last_ts": 1425892783.384021,
-        "sni": "apis.google.com"
+        "sni": "apis.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -1800,7 +1812,8 @@
         "duration": 4.08675,
         "first_ts": 1425892759.366311,
         "last_ts": 1425892763.453061,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -1842,7 +1855,8 @@
         "duration": 0.235913,
         "first_ts": 1425892785.872259,
         "last_ts": 1425892786.108172,
-        "sni": "encrypted-tbn2.gstatic.com"
+        "sni": "encrypted-tbn2.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2055,7 +2069,8 @@
         "duration": 26.964461,
         "first_ts": 1425892766.112053,
         "last_ts": 1425892793.076514,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2097,7 +2112,8 @@
         "duration": 39.583041,
         "first_ts": 1425892754.697123,
         "last_ts": 1425892794.280164,
-        "sni": "ssl.gstatic.com"
+        "sni": "ssl.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2111,7 +2127,8 @@
         "duration": 0.290676,
         "first_ts": 1425892785.878959,
         "last_ts": 1425892786.169635,
-        "sni": "encrypted-tbn0.gstatic.com"
+        "sni": "encrypted-tbn0.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2195,7 +2212,8 @@
         "duration": 23.927026,
         "first_ts": 1425892759.456995,
         "last_ts": 1425892783.384021,
-        "sni": "apis.google.com"
+        "sni": "apis.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2209,7 +2227,8 @@
         "duration": 0.235913,
         "first_ts": 1425892785.872259,
         "last_ts": 1425892786.108172,
-        "sni": "encrypted-tbn2.gstatic.com"
+        "sni": "encrypted-tbn2.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2223,7 +2242,8 @@
         "duration": 30.073357,
         "first_ts": 1425892736.816291,
         "last_ts": 1425892766.889648,
-        "sni": "accounts.google.com"
+        "sni": "accounts.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2265,7 +2285,8 @@
         "duration": 0.187357,
         "first_ts": 1425892779.722628,
         "last_ts": 1425892779.909985,
-        "sni": "fbstatic-a.akamaihd.net"
+        "sni": "fbstatic-a.akamaihd.net",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -2321,7 +2342,8 @@
         "duration": 8.657632,
         "first_ts": 1425892760.486151,
         "last_ts": 1425892769.143783,
-        "sni": "googleads.g.doubleclick.net"
+        "sni": "googleads.g.doubleclick.net",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2335,7 +2357,8 @@
         "duration": 0.224638,
         "first_ts": 1425892785.881959,
         "last_ts": 1425892786.106597,
-        "sni": "encrypted-tbn1.gstatic.com"
+        "sni": "encrypted-tbn1.gstatic.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2349,7 +2372,8 @@
         "duration": 2.030739,
         "first_ts": 1425892780.759808,
         "last_ts": 1425892782.790547,
-        "sni": "www.google.se"
+        "sni": "www.google.se",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -2377,7 +2401,8 @@
         "duration": 3.268766,
         "first_ts": 1425892759.371901,
         "last_ts": 1425892762.640667,
-        "sni": "www.googleadservices.com"
+        "sni": "www.googleadservices.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2419,7 +2444,8 @@
         "duration": 3.175732,
         "first_ts": 1425892765.92608,
         "last_ts": 1425892769.101812,
-        "sni": "www.google.com"
+        "sni": "www.google.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2433,7 +2459,8 @@
         "duration": 4.08675,
         "first_ts": 1425892759.366311,
         "last_ts": 1425892763.453061,
-        "sni": "mail.google.com"
+        "sni": "mail.google.com",
+        "ja3": "0a7d2a1f4e376ba050fdcc5fd6b59021"
       },
       {
         "proto": "tcp",
@@ -2519,7 +2546,8 @@
         "duration": 3.198483,
         "first_ts": 1425892760.484134,
         "last_ts": 1425892763.682617,
-        "sni": "ssl.google-analytics.com"
+        "sni": "ssl.google-analytics.com",
+        "ja3": "bfa1674e65282fa3b5444623156e83bd"
       },
       {
         "proto": "tcp",
@@ -2546,7 +2574,8 @@
         "duration": 1.194069,
         "first_ts": 1425892778.075179,
         "last_ts": 1425892779.269248,
-        "sni": "login.live.com"
+        "sni": "login.live.com",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -2658,7 +2687,8 @@
         "duration": 135.411875,
         "first_ts": 1425892618.695344,
         "last_ts": 1425892754.107219,
-        "sni": "clients2.google.com"
+        "sni": "clients2.google.com",
+        "ja3": "6062f6c7c72e5cf557cc9698f4f31fce"
       },
       {
         "proto": "tcp",
@@ -2687,7 +2717,8 @@
         "duration": 1.104188,
         "first_ts": 1425892778.075186,
         "last_ts": 1425892779.179374,
-        "sni": "login.live.com"
+        "sni": "login.live.com",
+        "ja3": "2a458dd9c65afbcf591cd8c2a194b804"
       },
       {
         "proto": "tcp",
@@ -3446,6 +3477,651 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 42,
+    "objects": [
+      {
+        "src_ip": "54.187.115.34",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41764,
+        "kind": "response",
+        "method": null,
+        "uri": "/xhr.108922217532656.js?PID=3119DF0B-3C06-308A-88B4-6118E4B86D16",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 989,
+        "truncated": false,
+        "body_preview": "2866756e6374696f6e2865297b7472797b696628652e584d4c4874747052657175657374262621652e584d4c48747470526571756573742e70726f746f747970"
+      },
+      {
+        "src_ip": "23.53.38.135",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51774,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 408,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html",
+        "body_size": 218,
+        "truncated": false,
+        "body_preview": "3c48544d4c3e3c484541443e0a3c5449544c453e526571756573742054696d656f75743c2f5449544c453e0a3c2f484541443e3c424f44593e0a3c48313e5265"
+      },
+      {
+        "src_ip": "195.93.85.166",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51827,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 43,
+        "truncated": false,
+        "body_preview": "47494638396101000100800000ffffff00000021f90401000000002c00000000010001000002024401003b"
+      },
+      {
+        "src_ip": "31.186.225.24",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51805,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 42,
+        "truncated": false,
+        "body_preview": "47494638396101000100800000000000ffffff21f90401000000002c000000000100010000020144003b"
+      },
+      {
+        "src_ip": "95.172.94.53",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51891,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 35,
+        "truncated": false,
+        "body_preview": "474946383961010001000000002c000000000100010080ffffff00000002024401003b"
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51859,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/gif",
+        "body_size": 35,
+        "truncated": false,
+        "body_preview": "4749463839610100010080ff00ffffff0000002c00000000010001000002024401003b"
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2910,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4757,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3316,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4691,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1578,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2282,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3168,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1367,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2415,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3368,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1517,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2427,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4828,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2452,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2584,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1159,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4736,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3125,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4392,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2483,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1351,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 1571,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2785,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 2855,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3291,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4804,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 3304,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "195.93.85.166",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51828,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 302,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.54",
+        "dst_ip": "192.168.0.1",
+        "src_port": 2869,
+        "dst_port": 4508,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51858,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51860,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51861,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51856,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51857,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "85.235.246.2",
+        "dst_ip": "192.168.0.54",
+        "src_port": 80,
+        "dst_port": 51870,
+        "kind": "response",
+        "method": null,
+        "uri": null,
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      },
+      {
+        "src_ip": "192.168.0.51",
+        "dst_ip": "54.187.115.34",
+        "src_port": 41764,
+        "dst_port": 80,
+        "kind": "request",
+        "method": "GET",
+        "uri": "/xhr.108922217532656.js?PID=3119DF0B-3C06-308A-88B4-6118E4B86D16",
+        "status_code": null,
+        "host": "www.tomshardware.co.uk",
+        "user_agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:33.0) Gecko/20100101 Firefox/33.0",
+        "content_type": null,
+        "body_size": 0,
+        "truncated": false
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 0,
+    "files": []
+  },
   "findings": [
     {
       "type": "sni_without_dns",
@@ -3567,9 +4243,9 @@
         "src_port": 80,
         "dst_port": 49530,
         "proto": "tcp",
-        "total_bytes": 151836274,
-        "total_packets": 154264,
-        "flow_count": 2,
+        "total_bytes": 148678196,
+        "total_packets": 102379,
+        "flow_count": 1,
         "direction": "inbound",
         "sni": null
       },

