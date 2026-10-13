@@ -50,6 +50,7 @@ from PySide6.QtWidgets import (
 
 # >>> ИМПОРТЫ VIEWS <<<
 from pcap_triage_gui.views.run_view import RunView
+from pcap_triage_gui.views.settings_view import SettingsView
 # Шаг 12: from pcap_triage_gui.views.settings_view import SettingsView
 # Шаг 13: from pcap_triage_gui.views.enrich_view import EnrichView
 #         from pcap_triage_gui.views.history_view import HistoryView
@@ -133,7 +134,13 @@ class MainWindow(QMainWindow):
         # >>> /ДОБАВИТЬ МЕНЮ <<<
         self._menu_view(mb)
         self._menu_help(mb)
+        self._menu_settings(mb)
 
+    def _menu_settings(self, mb) -> None:
+        m = mb.addMenu("Настройки")
+        m.addAction(self._act(
+            "Открыть настройки…", "Ctrl+,", self._on_open_settings, enabled=True,
+        ))
     def _menu_file(self, mb) -> None:
         m = mb.addMenu("Файл")
         m.addAction(self._act("Открыть pcap…", "Ctrl+O", self._on_open_pcap))
@@ -198,21 +205,29 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
 
-        # --- Реальные вкладки ---
+        # --- Прогон ---
         self.run_view = RunView()
         self.run_view.analysis_started.connect(self._on_analysis_started)
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
         self.tabs.addTab(self.run_view, TAB_TITLES[0])
 
-        # >>> ДОБАВИТЬ ВКЛАДКИ <<<
-        # Шаг 12: self.settings_view = SettingsView()
-        #         self.tabs.insertTab(2, self.settings_view, TAB_TITLES[2])
-        # Шаг 13: EnrichView / HistoryView / RoadmapView
-        # >>> /ДОБАВИТЬ ВКЛАДКИ <<<
+        # --- Настройки ---
+        # Создание и connect идут ПАРАМИ, в правильном порядке:
+        # сначала объект, потом подписки.
+        self.settings_view = SettingsView()
+        self.settings_view.thresholds_applied.connect(
+            self.run_view.set_config_overrides
+        )
+        self.settings_view.detectors_applied.connect(
+            self.run_view.set_disabled_detectors
+        )
+        self.settings_view.contradictions_applied.connect(
+            self.run_view.set_disabled_contradictions
+        )
+        self.tabs.insertTab(2, self.settings_view, TAB_TITLES[2])
 
-        # --- Заглушки ---
-        self.tabs.addTab(self._placeholder_page(TAB_TITLES[1]), TAB_TITLES[1])
-        self.tabs.addTab(self._placeholder_page(TAB_TITLES[2]), TAB_TITLES[2])
+        # --- Заглушки остальных вкладок ---
+        self.tabs.insertTab(1, self._placeholder_page(TAB_TITLES[1]), TAB_TITLES[1])
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[3]), TAB_TITLES[3])
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[4]), TAB_TITLES[4])
 
@@ -270,7 +285,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Остановка — на шаге 8", 3000)
 
     def _on_open_settings(self) -> None:
-        self.statusBar().showMessage("Настройки — на шаге 12", 3000)
+        self.tabs.setCurrentWidget(self.settings_view)
 
     def _on_about(self) -> None:
         QMessageBox.about(

@@ -18,34 +18,57 @@ class AnalysisWorker(QThread):
     finished_ok = Signal(object)
     error = Signal(str)
 
-    def __init__(self, pcap_path: str, config, parent=None) -> None:
+    def __init__(
+            self,
+            pcap_path: str,
+            config,
+            disabled_detectors: set[str] | None = None,
+            disabled_contradictions: set[str] | None = None,
+            parent=None,
+    ) -> None:
         super().__init__(parent)
         self._pcap_path = Path(pcap_path)
         self._config = config
+        self._disabled_detectors = disabled_detectors or set()
+        self._disabled_contradictions = disabled_contradictions or set()
 
     def run(self) -> None:
-        # Импорт внутри run, а не на уровне модуля: если ядро упадёт
-        # при импорте, GUI не будет падать целиком при старте — только
-        # конкретный прогон.
         try:
+            import pcap_triage.pipeline as core
             from pcap_triage.pipeline import run_pipeline
+            from pcap_triage.contradictions import registry as contra_registry
         except ImportError as e:
             self.error.emit(f"Не удалось импортировать ядро: {e}")
             return
+
+        # Monkey-patch: DETECTORS и RULES — модульные переменные,
+        # _detect() и run_all() читают их при каждом вызове.
+        # finally возвращает оригиналы даже при исключении.
+        original_detectors = core.DETECTORS
+        original_rules = contra_registry.RULES
+
+        if self._disabled_detectors:
+            core.DETECTORS = [
+                d for d in original_detectors
+                if d.name not in self._disabled_detectors
+            ]
+        if self._disabled_contradictions:
+            contra_registry.RULES = [
+                r for r in original_rules
+                if type(r).__name__ not in self._disabled_contradictions
+            ]
 
         t0 = time.perf_counter()
         try:
             report = run_pipeline(self._pcap_path, self._config)
         except Exception as e:
-            # Ловим всё: воркер живёт в своём потоке, необработанное
-            # исключение уронит приложение без следа.
             self.error.emit(f"{type(e).__name__}: {e}")
             return
+        finally:
+            core.DETECTORS = original_detectors
+            contra_registry.RULES = original_rules
         elapsed = time.perf_counter() - t0
 
-        # Дополняем summary тем, чего в ядре нет.
-        # setdefault, а не присваивание: если ядро когда-нибудь начнёт
-        # отдавать size_bytes само — не затрём.
         summary = dict(report.get("summary", {}))
         summary.setdefault("size_bytes", self._pcap_path.stat().st_size)
         summary.setdefault("duration_sec", elapsed)

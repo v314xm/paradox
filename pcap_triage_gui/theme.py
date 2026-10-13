@@ -318,6 +318,30 @@ QLabel#summaryValueContra[hasContra="true"] {{
    >>> СЛЕДУЮЩИЙ ВИДЖЕТ ДОБАВЛЯТЬ СЮДА <<<
    ========================================================================= */
    
+   /* =========================================================================
+   ВИДЖЕТ: SettingsView
+   ========================================================================= */
+QListWidget#settingsSidebar {{
+    background-color: {bg_light};
+    border: none;
+    border-right: 1px solid {border};
+    padding: 8px 4px;
+    outline: none;
+}}
+QListWidget#settingsSidebar::item {{
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: {text_muted};
+}}
+QListWidget#settingsSidebar::item:hover {{
+    background: {bg_lighter};
+    color: {text};
+}}
+QListWidget#settingsSidebar::item:selected {{
+    background: {accent};
+    color: #ffffff;
+}}
+   
 /* =========================================================================
    ВИДЖЕТ: Toast
    ========================================================================= */
