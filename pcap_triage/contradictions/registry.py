@@ -5,8 +5,14 @@ from __future__ import annotations
 
 from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, Finding
+from pcap_triage.contradictions.rules.g_direct_ip_no_dns import (
+    DirectIpNoDnsRule,
+)
 from pcap_triage.contradictions.rules.e_reverse_asymmetry import (
     ReverseAsymmetryRule,
+)
+from pcap_triage.contradictions.rules.f_port_service_mismatch import (
+    PortServiceMismatchRule,
 )
 from pcap_triage.contradictions.rules.d_ja3_ua_mismatch import (
     Ja3UaMismatchRule,
@@ -33,6 +39,8 @@ RULES: list[ContradictionRule] = [
     SniHostMismatchRule(),
     Ja3UaMismatchRule(),
     ReverseAsymmetryRule(),
+    PortServiceMismatchRule(),
+    DirectIpNoDnsRule(),
 ]
 
 

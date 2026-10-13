@@ -29,7 +29,7 @@ from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, Finding, make_session_key
 from pcap_triage.net_utils import is_internal_ip
 from pcap_triage.contradictions.base import Fact
-
+from ipaddress import ip_address
 
 # =====================================================================
 # Attack facts: кто кого атакует по findings
@@ -589,7 +589,185 @@ def extract_asymmetry_facts(
         ))
 
     return facts
+# =====================================================================
+# Protocol-on-port facts: что реально ходит поверх порта
+# =====================================================================
 
+def extract_protocol_on_port_facts(
+    state: CaptureState,
+    config: Config,
+) -> list[Fact]:
+    """
+    Факты protocol_on_port: одна запись на flow × распознанный протокол.
+
+    Протокол детектируется только там, где у нас есть надёжный признак:
+      "tls"  — flow.ja3 или flow.sni заполнены (TLSExtractor распарсил
+               ClientHello). Сам факт ja3/sni уже означает, что в
+               payload был TLS handshake.
+      "http" — flow.http_method заполнен (HTTPExtractor распарсил
+               первую строку как валидный HTTP-метод).
+
+    Оба — не эвристики, а результат парсинга. Confidence = 0.95.
+
+    Сессии без явного протокола (чистый TCP, UDP без наших
+    экстракторов) не попадают — сравнивать нечего.
+
+    Если на flow и TLS, и HTTP (HTTP/2-negotiation на том же
+    соединении) — генерим два факта. Правило всё равно сгруппирует
+    по (subject, dst_ip, dst_port).
+
+    config сейчас не используется — сигнатура зафиксирована на будущее,
+    чтобы добавление, например, allowlist'а не ломало callers.
+    """
+    _ = config
+
+    facts: list[Fact] = []
+
+    for key, flow in state.flows.items():
+        if key.proto != "tcp":
+            continue
+        if key.dst_port is None:
+            continue
+
+        ts = flow.first_ts if flow.first_ts is not None else 0.0
+        base_evidence = {
+            "dst_ip": key.dst_ip,
+            "dst_port": key.dst_port,
+            "src_port": key.src_port,
+        }
+
+        if flow.ja3 or flow.sni:
+            facts.append(Fact(
+                source="tls",
+                subject=key.src_ip,
+                predicate="protocol_on_port",
+                value="tls",
+                ts=ts,
+                confidence=0.95,
+                evidence={
+                    **base_evidence,
+                    "sni": flow.sni,
+                    "ja3": flow.ja3,
+                },
+            ))
+
+        if flow.http_method:
+            facts.append(Fact(
+                source="http",
+                subject=key.src_ip,
+                predicate="protocol_on_port",
+                value="http",
+                ts=ts,
+                confidence=0.95,
+                evidence={
+                    **base_evidence,
+                    "method": flow.http_method,
+                    "host": flow.http_host,
+                    "uri": flow.http_uri,
+                },
+            ))
+
+    return facts
+
+# =====================================================================
+# Direct-IP / DNS facts: hardcoded IP в обход DNS
+# =====================================================================
+
+def _looks_like_public_ip(ip: str) -> bool:
+    """
+    Грубая отсечка: не internal, не multicast, не link-local.
+    Используем ту же логику, что и Config.private_networks —
+    если внутри проекта что-то поменяется, здесь отстанет.
+
+    Проще: util-проверка через ipaddress. Не тянем net_utils, чтобы
+    не плодить зависимости внутри contradictions/.
+    """
+    try:
+        addr = ip_address(ip)
+    except ValueError:
+        return False
+    if addr.is_private or addr.is_loopback or addr.is_link_local:
+        return False
+    if addr.is_multicast or addr.is_reserved or addr.is_unspecified:
+        return False
+    return True
+
+
+def extract_direct_ip_facts(
+    state: CaptureState,
+    config: Config,
+) -> list[Fact]:
+    """
+    Факты direct_ip_connect и makes_dns_queries по клиенту (src_ip).
+
+    direct_ip_connect — на каждый external IP, к которому клиент
+    ходил. Группируем по (src_ip, dst_ip), не по flow, чтобы не
+    плодить N фактов на один dst.
+
+    makes_dns_queries — маркер «этот клиент вообще резолвит».
+    Не привязываем к конкретному домену, потому что сопоставить
+    DNS-ответ с flow мы не можем (нет A-записей). Значит — грубая,
+    но работающая эвристика: «клиент с DNS-запросами» vs «клиент
+    без DNS-запросов».
+
+    Фильтр:
+      - только external dst (внутренний обмен — не в зону правила);
+      - min_bucket_size: пропускаем единичные flows — мусор.
+    """
+    # (src_ip, dst_ip) → набор портов + суммарные байты.
+    buckets: dict[tuple[str, str], dict] = {}
+
+    for key, flow in state.flows.items():
+        if not _looks_like_public_ip(key.dst_ip):
+            continue
+        pair = (key.src_ip, key.dst_ip)
+        b = buckets.setdefault(pair, {
+            "ports": set(),
+            "bytes": 0,
+            "first_ts": None,
+        })
+        if key.dst_port is not None:
+            b["ports"].add(key.dst_port)
+        b["bytes"] += flow.bytes_sent
+        if flow.first_ts is not None:
+            if b["first_ts"] is None or flow.first_ts < b["first_ts"]:
+                b["first_ts"] = flow.first_ts
+
+    facts: list[Fact] = []
+    for (src, dst), b in buckets.items():
+        facts.append(Fact(
+            source="flow",
+            subject=src,
+            predicate="direct_ip_connect",
+            value=dst,
+            ts=b["first_ts"] or 0.0,
+            confidence=0.9,
+            evidence={
+                "dst_ip": dst,
+                "ports": sorted(b["ports"]),
+                "bytes_sent": b["bytes"],
+            },
+        ))
+
+    # Маркеры: клиент X сделал ≥1 DNS-запрос.
+    for client_ip, counter in state.dns_queries_by_src.items():
+        total = sum(counter.values())
+        if total == 0:
+            continue
+        facts.append(Fact(
+            source="dns",
+            subject=client_ip,
+            predicate="makes_dns_queries",
+            value="",
+            ts=0.0,
+            confidence=0.9,
+            evidence={
+                "count": total,
+                "sample": sorted(counter.keys())[:5],
+            },
+        ))
+
+    return facts
 
 # =====================================================================
 # Общая точка входа

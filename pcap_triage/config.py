@@ -365,6 +365,40 @@ class Config:
         ),
     )
 
+    # --- port service mismatch ---
+    # Какие протоколы разрешены на порту. Ключ — порт, значение —
+    # набор допустимых протоколов. Протокол детектируется в facts.py:
+    #   "tls"  — ClientHello (есть ja3/sni)
+    #   "http" — HTTP-метод в payload
+    #
+    # Порты НЕ в этом словаре — вне зоны проверки. Так мы не трогаем
+    # нестандартные 8443/9443/5000: там явных ожиданий нет.
+    #
+    # SMTP/POP3/IMAP разрешают tls — STARTTLS/STLS стандарт.
+    # 80 разрешает tls — некоторые сервисы пускают HTTPS на 80.
+    # 443 не в таблице: h2c и HTTP на 443 редки, а «ничего не
+    # проверять на 443» — осознанный отказ от FP.
+    port_service_allowed: Mapping[int, frozenset[str]] = field(
+        default_factory=lambda: MappingProxyType({
+            22:    frozenset({"ssh"}),
+            23:    frozenset({"telnet"}),
+            25:    frozenset({"smtp", "tls"}),     # STARTTLS
+            53:    frozenset({"dns"}),
+            80:    frozenset({"http", "tls"}),     # HTTPS на 80 бывает
+            110:   frozenset({"pop3", "tls"}),     # STLS
+            143:   frozenset({"imap", "tls"}),     # STARTTLS
+            139:   frozenset({"netbios"}),
+            445:   frozenset({"smb"}),
+            1433:  frozenset({"mssql"}),
+            1521:  frozenset({"oracle"}),
+            3306:  frozenset({"mysql"}),
+            3389:  frozenset({"rdp"}),
+            5432:  frozenset({"postgres"}),
+            5900:  frozenset({"vnc"}),
+            6379:  frozenset({"redis"}),
+            27017: frozenset({"mongodb"}),
+        }),
+    )
     # --- reverse asymmetry ---
     # Пропорция трафика в сессии: 5 МБ out при 50 КБ in — это
     # эксфильтрация или C2 beacon-behavior, даже если absolute
