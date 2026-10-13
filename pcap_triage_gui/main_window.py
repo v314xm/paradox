@@ -8,29 +8,38 @@ Dead menu items хуже, чем их отсутствие — пункты по
  КАРТА ВСТАВОК — где что дописывать
 =============================================================================
 
- Импорты сверху:          добавляй новые view/worker/widget по мере появления.
-                          Порядок: сначала PySide6, потом pcap_triage_gui.
+ Импорты сверху:          PySide6 → pcap_triage_gui → stdlib.
+                          Порядок внутри блока не важен, главное — три группы.
 
- _build_menubar:          добавляй меню и action'ы. Если action ведёт на
-                          нереализованное — enabled=False, не скрывай.
+ _build_menubar:          центральный метод. Каждое меню — отдельный
+                          метод _menu_xxx, вызывается отсюда.
+                          Маркер >>> ДОБАВИТЬ МЕНЮ <<< — точка расширения.
 
- _build_tabs:             для каждой новой вкладки замени _placeholder_page
-                          на реальный *View() и подключи сигналы.
+ _menu_file:              подменю «Экспорт» — маркер >>> ФАЙЛ: ЭКСПОРТ <<<.
+                          Новые форматы (CSV, STIX) добавляются туда же.
+
+ _build_tabs:             для каждой новой вкладки замени
+                          _placeholder_page на реальный *View()
+                          и подключи сигналы. Маркер >>> ДОБАВИТЬ ВКЛАДКИ <<<.
 
  _build_statusbar:        permanent widgets (версия, TI) — справа,
                           обычные (статус, файл) — слева.
 
- handlers:                слоты окна. Сгруппированы: меню-действия, потом
-                          подписчики сигналов от views.
+ HANDLERS — действия меню: слоты от QAction'ов.
+ HANDLERS — подписчики:    слоты от сигналов views.
+ EXPORT:                   всё, что связано с сохранением отчётов.
 
- keyPressEvent:           глобальные клавиши окна. Esc живёт тут, а не в
-                          QAction — чтобы модалки ловили Esc первыми.
-
+ keyPressEvent:           глобальные клавиши окна. Esc живёт тут, а не
+                          в QAction — чтобы модалки ловили Esc первыми.
 =============================================================================
 """
+import json
+from pathlib import Path
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
+    QFileDialog,
     QLabel,
     QMainWindow,
     QMessageBox,
@@ -39,18 +48,42 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# >>> ИМПОРТЫ VIEWS/WORKERS/WIDGETS <<<
-# По мере появления новых вкладок добавляй сюда их view-классы.
+# >>> ИМПОРТЫ VIEWS <<<
 from pcap_triage_gui.views.run_view import RunView
-# from pcap_triage_gui.views.enrich_view import EnrichView        # шаг 13
-# from pcap_triage_gui.views.settings_view import SettingsView    # шаг 12
-# from pcap_triage_gui.views.history_view import HistoryView      # шаг 13
-# from pcap_triage_gui.views.roadmap_view import RoadmapView      # шаг 13
-# >>> /ИМПОРТЫ <<<
+# Шаг 12: from pcap_triage_gui.views.settings_view import SettingsView
+# Шаг 13: from pcap_triage_gui.views.enrich_view import EnrichView
+#         from pcap_triage_gui.views.history_view import HistoryView
+#         from pcap_triage_gui.views.roadmap_view import RoadmapView
+# >>> /ИМПОРТЫ VIEWS <<<
 
 
 TAB_TITLES = ("Прогон", "Обогащение", "Настройки", "История", "Развитие")
 APP_VERSION = "0.7.0"
+
+
+# Соответствие латиница → кириллица в ЙЦУКЕН-раскладке.
+# Qt матчит shortcut по символу, а не по физической клавише:
+# Ctrl+O в русской раскладке приходит как Ctrl+Щ.
+_LATIN_TO_CYR = {
+    "A": "Ф", "B": "И", "C": "С", "D": "В", "E": "У", "F": "А",
+    "G": "П", "H": "Р", "I": "Ш", "J": "О", "K": "Л", "L": "Д",
+    "M": "Ь", "N": "Т", "O": "Щ", "P": "З", "Q": "Й", "R": "К",
+    "S": "Ы", "T": "Е", "U": "Г", "V": "М", "W": "Ц", "X": "Ч",
+    "Y": "Н", "Z": "Я",
+}
+
+
+def _cyr_variant(seq: str) -> str | None:
+    out, changed = [], False
+    for ch in seq:
+        up = ch.upper()
+        if up in _LATIN_TO_CYR:
+            cyr = _LATIN_TO_CYR[up]
+            out.append(cyr if ch.isupper() else cyr.lower())
+            changed = True
+        else:
+            out.append(ch)
+    return "".join(out) if changed else None
 
 
 class MainWindow(QMainWindow):
@@ -64,22 +97,31 @@ class MainWindow(QMainWindow):
         self._build_statusbar()
 
     # =========================================================================
-    # MENU BAR
+    # ФАБРИКИ
     # =========================================================================
 
     def _act(self, text, shortcut=None, slot=None, enabled=True) -> QAction:
-        """Фабрика QAction: меньше boilerplate в каждом меню."""
         a = QAction(text, self)
         if shortcut:
-            a.setShortcut(QKeySequence(shortcut))
+            # Оба варианта шортката: латиница + кириллица. Иначе Ctrl+O
+            # не работает в русской раскладке.
+            variants = [QKeySequence(shortcut)]
+            cyr = _cyr_variant(shortcut)
+            if cyr:
+                variants.append(QKeySequence(cyr))
+            a.setShortcuts(variants)
         if slot:
             a.triggered.connect(slot)
         a.setEnabled(enabled)
         return a
 
+    # =========================================================================
+    # MENU BAR
+    # =========================================================================
+
     def _build_menubar(self) -> None:
         mb = self.menuBar()
-        mb.setNativeMenuBar(False)  # хотим единый вид, а не нативный macOS-стиль
+        mb.setNativeMenuBar(False)  # единый вид, а не нативный macOS-стиль
 
         self._menu_file(mb)
         self._menu_run(mb)
@@ -95,26 +137,39 @@ class MainWindow(QMainWindow):
     def _menu_file(self, mb) -> None:
         m = mb.addMenu("Файл")
         m.addAction(self._act("Открыть pcap…", "Ctrl+O", self._on_open_pcap))
+
+        # >>> ФАЙЛ: ЭКСПОРТ <<<
+        # Подменю «Экспорт». Пункты выключены до первого успешного
+        # анализа — включаются в _on_analysis_finished.
+        m.addSeparator()
+        export = m.addMenu("Экспорт")
+        self._act_export_json = self._act(
+            "JSON-отчёт…", slot=self._on_export_json, enabled=False,
+        )
+        self._act_export_md = self._act(
+            "Markdown-отчёт…", slot=self._on_export_md, enabled=False,
+        )
+        self._act_export_conn = self._act(
+            "Flow report (conn.log)…", slot=self._on_export_conn, enabled=False,
+        )
+        export.addAction(self._act_export_json)
+        export.addAction(self._act_export_md)
+        export.addSeparator()
+        export.addAction(self._act_export_conn)
+        # >>> /ФАЙЛ: ЭКСПОРТ <<<
+
         m.addSeparator()
         m.addAction(self._act("Выход", "Ctrl+Q", self.close))
 
-        # >>> ФАЙЛ: ЭКСПОРТ <<<
-        # Шаг 14: подменю «Экспорт» (JSON / MD / conn.log).
-        #         enabled=True появится вместе с обёрткой над reporters.
-        # >>> /ФАЙЛ: ЭКСПОРТ <<<
-
     def _menu_run(self, mb) -> None:
         m = mb.addMenu("Прогон")
-        # F5 включён с шага 9 — вызывает reanalyze() на текущем файле.
         self._act_analyze = self._act(
             "Анализировать", "F5", self._on_analyze, enabled=True,
         )
-        # Ctrl+F5 включится после шага 12 (settings_view).
         self._act_analyze_cfg = self._act(
             "Анализировать с настройками…", "Ctrl+F5",
             self._on_analyze_with_config, enabled=False,
         )
-        # Остановить включится после шага 8-stop (worker.stop).
         self._act_stop = self._act(
             "Остановить", slot=self._on_stop, enabled=False,
         )
@@ -123,20 +178,8 @@ class MainWindow(QMainWindow):
         m.addSeparator()
         m.addAction(self._act_stop)
 
-        # >>> ПРОГОН: ПРЕСЕТЫ <<<
-        # Пресеты детекторов появятся, когда Config научится принимать
-        # подмножество детекторов (правка ядра — вне текущей сессии).
-        # >>> /ПРОГОН: ПРЕСЕТЫ <<<
-
-    def _menu_settings(self, mb) -> None:
-        """Шаг 12. Пока в _build_menubar не вызывается."""
-        m = mb.addMenu("Настройки")
-        m.addAction(self._act("Открыть настройки…", "Ctrl+,",
-                              self._on_open_settings, enabled=False))
-
     def _menu_view(self, mb) -> None:
         m = mb.addMenu("Вид")
-        # Навигация по вкладкам — работает сразу.
         for i, title in enumerate(TAB_TITLES):
             m.addAction(self._act(title, slot=lambda i=i: self.tabs.setCurrentIndex(i)))
         m.addSeparator()
@@ -155,8 +198,7 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
 
-        # --- Реальные вкладки (по мере готовности) ---
-        # Шаг 9: Прогон
+        # --- Реальные вкладки ---
         self.run_view = RunView()
         self.run_view.analysis_started.connect(self._on_analysis_started)
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
@@ -168,10 +210,7 @@ class MainWindow(QMainWindow):
         # Шаг 13: EnrichView / HistoryView / RoadmapView
         # >>> /ДОБАВИТЬ ВКЛАДКИ <<<
 
-        # --- Заглушки вместо ещё не готовых вкладок ---
-        # Индекс 0 занят RunView, остальные — пока заглушки.
-        # При появлении реального view — убирай соответствующий title
-        # из этого цикла.
+        # --- Заглушки ---
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[1]), TAB_TITLES[1])
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[2]), TAB_TITLES[2])
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[3]), TAB_TITLES[3])
@@ -195,7 +234,6 @@ class MainWindow(QMainWindow):
     def _build_statusbar(self) -> None:
         sb = self.statusBar()
 
-        # Слева: статус + файл.
         self._status_text = QLabel("Готов")
         self._status_file = QLabel("—")
         self._status_file.setObjectName("muted")
@@ -203,7 +241,6 @@ class MainWindow(QMainWindow):
         sb.addWidget(QLabel("  Файл:"))
         sb.addWidget(self._status_file)
 
-        # Справа (permanent): версия, потом TI-провайдеры.
         sb.addPermanentWidget(QLabel(f"Версия: {APP_VERSION}"))
 
         # >>> СТАТУС-БАР: TI <<<
@@ -215,8 +252,6 @@ class MainWindow(QMainWindow):
     # =========================================================================
 
     def _on_open_pcap(self) -> None:
-        # try/except временно: Qt молча глотает ошибки в слотах, и мы
-        # не видим причину. Покажем её в QMessageBox и в консоль.
         try:
             self.tabs.setCurrentIndex(0)
             self.run_view.open_file_dialog()
@@ -270,11 +305,96 @@ class MainWindow(QMainWindow):
             f"Готово · {s.get('findings', 0)} findings · "
             f"{s.get('contradictions', 0)} противоречий"
         )
+        # Есть что сохранять — включаем экспорт.
+        for a in (self._act_export_json, self._act_export_md, self._act_export_conn):
+            a.setEnabled(True)
     # >>> /СИГНАЛЫ ОТ RunView <<<
 
     # >>> СИГНАЛЫ ОТ ДРУГИХ VIEWS <<<
     # Шаг 12–13: слоты для settings_view / enrich_view / history_view.
     # >>> /СИГНАЛЫ ОТ ДРУГИХ VIEWS <<<
+
+    # =========================================================================
+    # EXPORT
+    # =========================================================================
+
+    def _on_export_json(self) -> None:
+        report = self.run_view.last_report()
+        if not report:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Сохранить JSON-отчёт", self._default_export_name("json"),
+            "JSON (*.json);;Все файлы (*)",
+        )
+        if not path:
+            return
+        try:
+            # Пишем напрямую через json.dump — не зависим от имени
+            # функции в ядре (write_json / save_json / ...).
+            Path(path).write_text(
+                json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True),
+                encoding="utf-8",
+            )
+            self._status_text.setText(f"Сохранено: {path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+
+    def _on_export_md(self) -> None:
+        report = self.run_view.last_report()
+        if not report:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Сохранить Markdown-отчёт", self._default_export_name("md"),
+            "Markdown (*.md);;Все файлы (*)",
+        )
+        if not path:
+            return
+        try:
+            # render_markdown — из присланного markdown_reporter.py.
+            from pcap_triage.reporters.markdown_reporter import render_markdown
+            Path(path).write_text(render_markdown(report), encoding="utf-8")
+            self._status_text.setText(f"Сохранено: {path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+
+    def _on_export_conn(self) -> None:
+        report = self.run_view.last_report()
+        if not report:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Сохранить flow report", self._default_export_name("log"),
+            "Log (*.log);;Все файлы (*)",
+        )
+        if not path:
+            return
+        try:
+            # report["flows"] — dict от build_flow_report. Ключ со списком
+            # top-flow'ов может называться по-разному; пробуем варианты.
+            flows = report.get("flows", {})
+            rows = (
+                flows.get("top_by_bytes")
+                or flows.get("top")
+                or flows.get("rows")
+                or []
+            )
+            lines = []
+            for r in rows:
+                if isinstance(r, dict):
+                    lines.append("\t".join(str(r.get(k, "")) for k in (
+                        "first_seen", "proto",
+                        "src_ip", "src_port", "dst_ip", "dst_port",
+                        "bytes",
+                    )))
+            Path(path).write_text("\n".join(lines), encoding="utf-8")
+            self._status_text.setText(f"Сохранено: {path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+
+    def _default_export_name(self, ext: str) -> str:
+        report = self.run_view.last_report() or {}
+        pcap = report.get("provenance", {}).get("pcap_path", "")
+        stem = Path(pcap).stem if pcap else "report"
+        return f"{stem}.{ext}"
 
     # =========================================================================
     # MISC
@@ -287,8 +407,6 @@ class MainWindow(QMainWindow):
             self.showFullScreen()
 
     def keyPressEvent(self, event) -> None:
-        # Esc держим в окне, а не в QAction — чтобы в будущем модалки
-        # ловили Esc первыми и не закрывали окно.
         if event.key() == Qt.Key.Key_Escape:
             self.statusBar().showMessage("Остановка анализа — на шаге 8", 2000)
             return

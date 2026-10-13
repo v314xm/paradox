@@ -56,6 +56,7 @@ class RunView(QWidget):
         # >>> СОСТОЯНИЕ <<<
         self._worker: AnalysisWorker | None = None
         self._current_path: str | None = None
+        self._last_report: dict | None = None
         # self._last_report: dict | None = None   # если понадобится для истории
         # >>> /СОСТОЯНИЕ <<<
         self._build_ui()
@@ -157,6 +158,7 @@ class RunView(QWidget):
     # =========================================================================
 
     def _on_ok(self, report: dict) -> None:
+        self._last_report = report
         s = report.get("summary", {})
         self.summary.set_values(s)
         self.contradictions.set_contradictions(report.get("contradictions", []))
@@ -222,9 +224,10 @@ class RunView(QWidget):
         # >>> /ПРОГРЕСС <<<
 
     def _reset_results(self) -> None:
-        """Сброс всего, что показывает результаты прошлого прогона."""
         self.summary.clear()
         self.contradictions.clear()
+        self.findings.clear()
+        self._last_report = None
 
         # >>> СБРОС ДРУГИХ СЕКЦИЙ <<<
         self.findings.clear()
@@ -244,6 +247,9 @@ class RunView(QWidget):
         self._reset_results()
         self._run_analysis()
 
+    def last_report(self) -> dict | None:
+        """Последний успешный report или None. Для экспорта из меню."""
+        return self._last_report
     def open_file_dialog(self) -> None:
         """Ctrl+O из главного меню — открыть QFileDialog на drop zone."""
         self.drop_zone.open_dialog()
