@@ -365,6 +365,19 @@ class Config:
         ),
     )
 
+    # --- reverse asymmetry ---
+    # Пропорция трафика в сессии: 5 МБ out при 50 КБ in — это
+    # эксфильтрация или C2 beacon-behavior, даже если absolute
+    # порог large_transfer (100 МБ) не пройден.
+    #
+    # min_total_bytes — абсолютный пол. Ниже — не смотрим (шум).
+    # min_ratio — во сколько раз большая сторона должна превышать
+    # меньшую. 10:1 — уже аномалия для нормального двустороннего
+    # обмена. 25:1 — почти односторонний канал, high severity.
+    reverse_asymmetry_min_total_bytes: int = 1024 * 1024  # 1 МБ
+    reverse_asymmetry_min_ratio: float = 10.0
+    reverse_asymmetry_high_ratio: float = 25.0
+
     # --- lateral movement ---
     lateral_movement_ports: frozenset[int] = field(
         default_factory=lambda: frozenset({

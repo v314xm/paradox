@@ -144,7 +144,7 @@ ContradictionDetector — новый слой анализа. Не детект�
 - `2015-04-09` (232k пакетов): 12.4 сек, +1 contradiction.
 
 ### Тесты
-- 265 → **277 passed** (+12):
+- 265 → 292 **passed** (+12):
   - `tests/contradictions/test_victim_makes_attack.py` — 5 тестов
     (полярность attack-типов, полярность victim-signal-типов, happy
     path pivot, self-loop, обратный порядок timestamps).
@@ -253,6 +253,51 @@ Injection, FileCarve, JA3, Beaconing, DNS Tunneling, Enrichment.
 - 28 тестов.
 
 ### Изменено
+**Правило `mac_ip_conflict` (ARP spoof):**
+- Срабатывает, когда на одном IP в ARP-трафике видны ≥ 2 MAC.
+- Severity зависит от пересечения временных окон:
+  - `critical` — окна пересекаются, оба MAC устойчивы (count ≥ 2).
+  - `high` — пересечение есть, один MAC единичный.
+  - `medium` — окна не пересекаются (lease change, смена NIC).
+- Confidence = min(conf_a, conf_b) × {1.0, 0.85, 0.6} по severity.
+- Новый экстрактор `extractors/arp_history.py` — параллельно
+  с `host_identity`, ведёт полную историю `CaptureState.arp_macs`
+  (IP → MAC → first_ts, last_ts, count). `host_identities.mac`
+  хранит только последний MAC — теряет ARP-spoof.
+- На FIN-2015 0 срабатываний: ARP-spoof в корпусе отсутствует.
+
+**Правило `sni_host_mismatch` (domain fronting):**
+- SNI в TLS ClientHello ≠ HTTP Host в том же flow.
+- Фильтр: DoH/OCSP + CDN allowlist (уже в config).
+- Severity: `high`. Confidence = min(conf_sni, conf_host) × 0.9.
+- ОГРАНИЧЕНИЕ: SNI в TLS (443), Host в plaintext HTTP (80) — обычно
+  разные соединения. Правило ловит узкий кейс. На FIN-2015 0
+  срабатываний — внутри TLS Host не видим, шифр.
+
+**Правило `ja3_ua_mismatch` (спуфинг TLS-стека / UA):**
+- JA3 клиента несовместим с UA в HTTP.
+- `malware-JA3 + любой UA` → critical.
+- `tool-JA3 (python/go/curl) + browser-UA` → high (мимикрия).
+- `browser-JA3 + tool-UA` → medium.
+- ОГРАНИЧЕНИЕ: Chrome/Firefox JA3-хешей в config нет, все
+  браузерные JA3 классифицируются как `normal` и не дают фактов.
+  Правило срабатывает только на tool/malware JA3. На FIN-2015
+  0 срабатываний — в корпусе нет известных tools с JA3.
+- per-client (src_ip), не per-flow: JA3 и UA обычно на разных
+  соединениях, внутри TLS UA не виден.
+
+**Правило `reverse_asymmetry` (эксфильтрация / односторонний канал):**
+- Одна сторона сессии передала в разы больше другой.
+- Пороги: ratio ≥ 10 + total ≥ 1 МБ. Дополняет large_transfer:
+  тот ловит absolute > 100 МБ, этот — пропорцию.
+- Severity: `high` (ratio ≥ 25), `medium` (ratio ≥ 10),
+  `low` (bulk-паттерн, ≥ 5 сессий с одного IP).
+- Confidence = min(0.95, 0.5 + log10(ratio) × 0.15) × 0.7 для bulk.
+- Агрегация по subject: одна Contradiction на IP, не на каждую
+  сессию. Иначе шлюз (192.168.1.1) даёт 9 «эксфильтраций».
+- На CyberCampTask: шлюз `192.168.1.1` → `low` (9 сессий, bulk).
+- На FIN-2015 2015-03-17: 3 contradictions — `192.168.0.2` и
+  `192.168.0.51` (`medium`), `192.168.0.54` (`low`).
 - `pipeline.py` — reassembly в `_extract`, HTTPObject построение
   после finalize, FileCarve вызов снаружи HTTPObject try/except.
 - `reporters/flow_report.py` — новая функция
@@ -290,6 +335,13 @@ Injection, FileCarve, JA3, Beaconing, DNS Tunneling, Enrichment.
   `test_abuseipdb.py` (7), `test_enrich_pipeline.py` (4).
 
 ### Проверено на
+- **CyberCampTask.pcap** (627k пакетов):
+  - findings: 7 (без изменений).
+  - contradictions: 2 — `victim_makes_attack` на `192.168.1.12`
+    (critical, 0.8) и `reverse_asymmetry` на `192.168.1.1`
+    (low, 0.541, bulk-паттерн — шлюз).
+  - Роль `pivot` в сущности `192.168.1.12`.
+  - 
 - **CyberCampTask.pcap** — 7 findings, **0 FP**:
   - `command_injection` — Lua RCE (io.popen + wget)
   - `brute_force` — HTTP /loginok.html

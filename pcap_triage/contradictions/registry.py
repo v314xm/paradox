@@ -1,19 +1,15 @@
 """
 Реестр правил contradictions.
-
-run_all прогоняет все правила, извлекает факты per-rule и
-собирает Contradiction'ы в единый сортированный список.
-
-Факты извлекаются для каждого правила отдельно — это дороже по CPU,
-но правило не зависит от чужих фактов и легко тестируется изолированно.
-При росте числа правил >10 — перейти на батч-извлечение.
 """
 from __future__ import annotations
 
 from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.rules.b_mac_ip_conflict import (
-    MacIpConflictRule,
+from pcap_triage.contradictions.rules.e_reverse_asymmetry import (
+    ReverseAsymmetryRule,
+)
+from pcap_triage.contradictions.rules.d_ja3_ua_mismatch import (
+    Ja3UaMismatchRule,
 )
 from pcap_triage.contradictions.base import (
     Contradiction,
@@ -23,11 +19,20 @@ from pcap_triage.contradictions.base import (
 from pcap_triage.contradictions.rules.e_victim_makes_attack import (
     VictimMakesAttackRule,
 )
+from pcap_triage.contradictions.rules.b_mac_ip_conflict import (
+    MacIpConflictRule,
+)
+from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
+    SniHostMismatchRule,
+)
 
 
 RULES: list[ContradictionRule] = [
     VictimMakesAttackRule(),
     MacIpConflictRule(),
+    SniHostMismatchRule(),
+    Ja3UaMismatchRule(),
+    ReverseAsymmetryRule(),
 ]
 
 
