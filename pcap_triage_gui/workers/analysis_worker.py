@@ -18,6 +18,22 @@ class AnalysisWorker(QThread):
     finished_ok = Signal(object)
     error = Signal(str)
 
+    def stop(self) -> None:
+        """Жёсткая остановка: terminate() + короткое ожидание.
+
+        Почему terminate, а не requestInterruption:
+            run_pipeline — одна длинная синхронная функция, она не
+            проверяет флаги. Мягко прервать её без правок в ядро
+            нельзя. terminate() убивает поток в произвольной точке —
+            текущий отчёт будет неполным, но GUI его не покажет
+            (см. RunView._on_thread_done).
+
+        wait(3000) — даём потоку шанс завершиться чисто. Если не успел
+        за 3 сек (маловероятно), Qt отвалится по своему таймауту.
+        """
+        if self.isRunning():
+            self.terminate()
+            self.wait(3000)
     def __init__(
             self,
             pcap_path: str,

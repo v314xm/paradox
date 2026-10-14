@@ -49,10 +49,14 @@ from PySide6.QtWidgets import (
 )
 
 # >>> ИМПОРТЫ VIEWS <<<
+
+from pcap_triage_gui.views.enrich_view import EnrichView        # >>> ОБОГАЩЕНИЕ <<<
+# Шаг 13: from pcap_triage_gui.views.history_view import HistoryView
 from pcap_triage_gui.views.run_view import RunView
 from pcap_triage_gui.views.settings_view import SettingsView
+from pcap_triage_gui.views.history_view import HistoryView
 # >>> РАЗВИТИЕ <<<
-from pcap_triage_gui.views.roadmap_view import RoadmapView
+from pcap_triage_gui.views.roadmap_view import RoadmapView # >>> ИСТОРИЯ <<<
 # >>> /РАЗВИТИЕ <<<
 # Шаг 13: from pcap_triage_gui.views.enrich_view import EnrichView
 #         from pcap_triage_gui.views.history_view import HistoryView
@@ -178,9 +182,11 @@ class MainWindow(QMainWindow):
             "Анализировать с настройками…", "Ctrl+F5",
             self._on_analyze_with_config, enabled=False,
         )
+        # >>> ОСТАНОВКА <<<
         self._act_stop = self._act(
-            "Остановить", slot=self._on_stop, enabled=False,
+            "Остановить", "Esc", self._on_stop, enabled=False,
         )
+        # >>> /ОСТАНОВКА <<<
         m.addAction(self._act_analyze)
         m.addAction(self._act_analyze_cfg)
         m.addSeparator()
@@ -210,6 +216,10 @@ class MainWindow(QMainWindow):
         self.run_view = RunView()
         self.run_view.analysis_started.connect(self._on_analysis_started)
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
+        # >>> ОСТАНОВКА <<<
+        self.run_view.analysis_failed.connect(self._on_analysis_failed)
+        self.run_view.analysis_cancelled.connect(self._on_analysis_cancelled)
+        # >>> /ОСТАНОВКА <<<
         self.tabs.addTab(self.run_view, TAB_TITLES[0])
 
         # --- Настройки ---
@@ -217,6 +227,11 @@ class MainWindow(QMainWindow):
         # сначала объект, потом подписки.
         self.settings_view = SettingsView()
         self.settings_view.thresholds_applied.connect(
+            self.run_view.set_config_overrides
+        )
+        # Brute force / Сеть / Производительность — тоже идут через
+        # config_overrides, но своими ключами. run_view мерджит.
+        self.settings_view.config_applied.connect(
             self.run_view.set_config_overrides
         )
         self.settings_view.detectors_applied.connect(
@@ -227,9 +242,30 @@ class MainWindow(QMainWindow):
         )
         self.tabs.insertTab(2, self.settings_view, TAB_TITLES[2])
 
-        # --- Заглушки остальных вкладок ---
-        self.tabs.insertTab(1, self._placeholder_page(TAB_TITLES[1]), TAB_TITLES[1])
-        self.tabs.addTab(self._placeholder_page(TAB_TITLES[3]), TAB_TITLES[3])
+        # --- Обогащение ---
+        # >>> ОБОГАЩЕНИЕ <<<
+        # Заглушка заменена на реальную вкладку. Report приходит из
+        # _on_analysis_finished. Ключи API читаются ядром из
+        # os.environ — их выставляет секция Threat Intel в настройках.
+        self.enrich_view = EnrichView()
+        self.settings_view.config_applied.connect(
+            self.enrich_view.set_config_overrides
+        )
+        # После обогащения запись в истории нужно перерисовать:
+        # report мутирован in-place (evidence.enrichment), но
+        # QTextBrowser сам про это не узнает.
+        self.enrich_view.enrichment_finished.connect(
+            self._on_enrichment_finished
+        )
+        self.tabs.insertTab(1, self.enrich_view, TAB_TITLES[1])
+        # >>> /ОБОГАЩЕНИЕ <<<
+
+        # --- История ---
+        # >>> ИСТОРИЯ <<<
+        # In-memory список прогонов. Наполняется из _on_analysis_finished.
+        self.history_view = HistoryView()
+        self.tabs.addTab(self.history_view, TAB_TITLES[3])
+        # >>> /ИСТОРИЯ <<<
 
         # >>> РАЗВИТИЕ <<<
         # Вкладка «Развитие» — статический роадмап, индексов не касается.
@@ -289,7 +325,9 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Анализ с настройками — после шага 12", 3000)
 
     def _on_stop(self) -> None:
-        self.statusBar().showMessage("Остановка — на шаге 8", 3000)
+        # >>> ОСТАНОВКА <<<
+        self.run_view.stop_analysis()
+        # >>> /ОСТАНОВКА <<<
 
     def _on_open_settings(self) -> None:
         self.tabs.setCurrentWidget(self.settings_view)
@@ -320,6 +358,10 @@ class MainWindow(QMainWindow):
     def _on_analysis_started(self, path: str) -> None:
         self._status_text.setText("Анализ…")
         self._status_file.setText(path)
+        # >>> ОСТАНОВКА <<<
+        self._act_stop.setEnabled(True)
+        self._act_analyze.setEnabled(False)
+        # >>> /ОСТАНОВКА <<<
 
     def _on_analysis_finished(self, report: object) -> None:
         s = report.get("summary", {}) if isinstance(report, dict) else {}
@@ -330,15 +372,56 @@ class MainWindow(QMainWindow):
         # Есть что сохранять — включаем экспорт.
         for a in (self._act_export_json, self._act_export_md, self._act_export_conn):
             a.setEnabled(True)
-    # >>> /СИГНАЛЫ ОТ RunView <<<
 
+        # >>> ИСТОРИЯ <<<
+        if isinstance(report, dict) and hasattr(self, "history_view"):
+            self.history_view.add_run(report)
+        # >>> /ИСТОРИЯ <<<
+
+        # >>> ОБОГАЩЕНИЕ <<<
+        # Каждый новый прогон сбрасывает состояние вкладки «Обогащение»:
+        # кнопка «Обогатить» снова активна, таблица очищена.
+        if isinstance(report, dict) and hasattr(self, "enrich_view"):
+            self.enrich_view.set_report(report)
+
+        # >>> ОСТАНОВКА <<<
+        self._act_stop.setEnabled(False)
+        self._act_analyze.setEnabled(True)
+        # >>> /ОСТАНОВКА <<<
+        # >>> /ИСТОРИЯ <<<
+    # >>> /СИГНАЛЫ ОТ RunView <<<
+    # >>> ОСТАНОВКА <<<
+    def _on_analysis_cancelled(self) -> None:
+        self._status_text.setText("Остановлено пользователем")
+        self._act_stop.setEnabled(False)
+        self._act_analyze.setEnabled(True)
+    # >>> /ОСТАНОВКА <<<
     # >>> СИГНАЛЫ ОТ ДРУГИХ VIEWS <<<
     # Шаг 12–13: слоты для settings_view / enrich_view / history_view.
     # >>> /СИГНАЛЫ ОТ ДРУГИХ VIEWS <<<
 
+    # >>> ОСТАНОВКА <<<
+    def _on_analysis_failed(self, msg: str) -> None:
+        # Ошибку показывает RunView своим QMessageBox и toast.
+        # Здесь только меню: даём пользователю снова нажать F5.
+        self._act_stop.setEnabled(False)
+        self._act_analyze.setEnabled(True)
+    # >>> /ОСТАНОВКА <<<
+
     # =========================================================================
     # EXPORT
     # =========================================================================
+
+    def _on_enrichment_finished(self) -> None:
+        """После успешного обогащения — обновить текущую
+        запись в «Истории».
+
+        report в истории — тот же объект, что в run_view /
+        enrich_view. Обогащение мутирует его in-place.
+        QTextBrowser сам не перерисуется, поэтому дёргаем явно.
+        """
+        if hasattr(self, "history_view"):
+            self.history_view.refresh_current()
 
     def _on_export_json(self) -> None:
         report = self.run_view.last_report()
@@ -430,6 +513,13 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Escape:
-            self.statusBar().showMessage("Остановка анализа — на шаге 8", 2000)
+            # >>> ОСТАНОВКА <<<
+            # Esc приоритетнее меню: если идёт анализ — стоп, иначе
+            # не делаем ничего (модалки ловят Esc раньше главного окна,
+            # так что сюда попадаем только когда модалок нет).
+            if self.run_view.is_busy():
+                self.run_view.stop_analysis()
+                return
+            # >>> /ОСТАНОВКА <<<
             return
         super().keyPressEvent(event)

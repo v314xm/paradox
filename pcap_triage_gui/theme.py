@@ -319,6 +319,38 @@ QLabel#summaryValueContra[hasContra="true"] {{
    ========================================================================= */
    
    /* =========================================================================
+   ВИДЖЕТ: HistoryView
+   ========================================================================= */
+QListWidget#historyList {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 6px;
+    padding: 4px;
+    outline: none;
+}}
+QListWidget#historyList::item {{
+    padding: 8px 10px;
+    border-radius: 4px;
+    color: {text};
+}}
+QListWidget#historyList::item:hover {{
+    background: {bg_lighter};
+}}
+QListWidget#historyList::item:selected {{
+    background: {bg_hover};
+    color: {accent};
+}}
+
+QTextBrowser#historyDetails {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: {text};
+    selection-background-color: {accent};
+}}
+   
+   /* =========================================================================
    ВИДЖЕТ: SettingsView
    ========================================================================= */
 QListWidget#settingsSidebar {{

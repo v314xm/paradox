@@ -42,35 +42,38 @@ _ROADMAP_HTML = """
 <h3>Готово в v0.7.0</h3>
 <ul>
     <li class="done">Вкладка «Прогон»: drop zone, summary grid, противоречия, findings, toast, progress</li>
-    <li class="done">Вкладка «Настройки»: Пороги, Детекторы, Противоречия — end-to-end</li>
+    <li class="done">Вкладка «Настройки» — 11 секций: Пороги, Детекторы, Противоречия, Allowlist, DGA, Brute force, Сеть, Отчёты, Threat Intel, Производительность. «Общие» — заглушка с описанием</li>
+    <li class="done">Вкладка «Обогащение»: Threat Intel по выбранным IOC (Shodan InternetDB, AbuseIPDB)</li>
+    <li class="done">Вкладка «История»: in-memory список прогонов с обогащением, маркер ✓ enriched</li>
+    <li class="done">Вкладка «Развитие»: этот экран</li>
     <li class="done">Экспорт: JSON, Markdown, conn.log</li>
-    <li class="done">Меню, горячие клавиши, статус-бар, тёмная тема</li>
+    <li class="done">Сборка .exe через PyInstaller (onedir, без консоли, collect_submodules ядра)</li>
+    <li class="done">Меню, горячие клавиши (Ctrl+O с кириллицей), статус-бар, тёмная тема</li>
 </ul>
 
 <h3>Ближайшие шаги</h3>
 <ul>
-    <li class="wip">B — вкладка «Развитие» (этот экран)</li>
-    <li class="plan">D — PyInstaller → .exe (после стабилизации GUI)</li>
-    <li class="plan">A — секции Allowlist / Brute force / Сеть / Производительность в «Настройках»</li>
-    <li class="plan">C — вкладка «История» (in-memory список прогонов, без БД)</li>
-    <li class="plan">E — остановка анализа (требует worker.terminate — рискованно)</li>
-    <li class="plan">F — обогащение (AbuseIPDB, нужен API-ключ и сеть)</li>
+    <li class="plan">E — остановка анализа: QThread.terminate() валит процесс. Нужен detach-подход: отключить сигналы, держать воркер в списке, пока не досчитает в фоне</li>
+    <li class="plan">Иконка .ico для .exe и окна приложения</li>
+    <li class="plan">Сравнение двух прогонов (diff findings между записями истории)</li>
 </ul>
 
 <h3>Идеи на потом</h3>
 <ul>
-    <li class="plan">Сравнение двух прогонов (diff findings)</li>
     <li class="plan">Экспорт отчёта в PDF</li>
     <li class="plan">Светлая тема / переключатель тем</li>
     <li class="plan">Плагины для кастомных детекторов</li>
+    <li class="plan">Сохранение истории на диск (SQLite) вместо in-memory</li>
+    <li class="plan">Сохранение API-ключей в .env (сейчас — только os.environ, до перезапуска)</li>
 </ul>
 
 <h3>Известные ограничения</h3>
 <ul>
-    <li class="plan">Progress bar — indeterminate: ядро пишет прогресс в stdout, callback не отдаёт</li>
-    <li class="plan">Config — frozen dataclass: переопределения из GUI идут через <code>object.__setattr__</code></li>
+    <li class="plan">Progress bar — indeterminate: ядро пишет прогресс в stdout, callback не отдаёт. Правка ядра запрещена</li>
+    <li class="plan">Config — frozen dataclass: переопределения из GUI идут через <code>object.__setattr__</code>. Мердж через <code>dict.update()</code>, чтобы применения разных секций не затирали друг друга</li>
     <li class="plan">Severity findings в ядре нет: в таблице столбец не показываем</li>
     <li class="plan">Ядро — только импорт, monkey-patch DETECTORS / RULES в воркере с откатом в <code>finally</code></li>
+    <li class="plan">VirusTotal в ядре не подключён к pipeline обогащения — поле в настройках пока без потребителя</li>
 </ul>
 """
 

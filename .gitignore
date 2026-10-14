@@ -9,3 +9,29 @@ reports/
 profile.out
 *.pcap
 *.pcapng
+# --- PyInstaller ---
+build/
+dist/
+*.spec
+
+# --- Scripts/temp (my tools) ---
+apply_patches.py
+diagnose_fix.py
+fix_*.py
+compact_ui.py
+polish_enrich.py
+add_observations_to_gui.py
+HANDOFF.md.py
+
+# --- Backups ---
+*.bak
+*.bak_*
+*.bak2
+
+# --- Reports/analysis output (not source) ---
+CyberCampTask.json
+CyberCampTask.md
+CyberCampTask.log
+pygount-report.json
+batch_results.json
+batch_run.log
