@@ -51,10 +51,11 @@ from PySide6.QtWidgets import (
 # >>> ИМПОРТЫ VIEWS <<<
 from pcap_triage_gui.views.run_view import RunView
 from pcap_triage_gui.views.settings_view import SettingsView
-# Шаг 12: from pcap_triage_gui.views.settings_view import SettingsView
+# >>> РАЗВИТИЕ <<<
+from pcap_triage_gui.views.roadmap_view import RoadmapView
+# >>> /РАЗВИТИЕ <<<
 # Шаг 13: from pcap_triage_gui.views.enrich_view import EnrichView
 #         from pcap_triage_gui.views.history_view import HistoryView
-#         from pcap_triage_gui.views.roadmap_view import RoadmapView
 # >>> /ИМПОРТЫ VIEWS <<<
 
 
@@ -229,7 +230,13 @@ class MainWindow(QMainWindow):
         # --- Заглушки остальных вкладок ---
         self.tabs.insertTab(1, self._placeholder_page(TAB_TITLES[1]), TAB_TITLES[1])
         self.tabs.addTab(self._placeholder_page(TAB_TITLES[3]), TAB_TITLES[3])
-        self.tabs.addTab(self._placeholder_page(TAB_TITLES[4]), TAB_TITLES[4])
+
+        # >>> РАЗВИТИЕ <<<
+        # Вкладка «Развитие» — статический роадмап, индексов не касается.
+        # Создаём после всех вставок и просто добавляем в конец (индекс 4).
+        self.roadmap_view = RoadmapView()
+        self.tabs.addTab(self.roadmap_view, TAB_TITLES[4])
+        # >>> /РАЗВИТИЕ <<<
 
         self.setCentralWidget(self.tabs)
 

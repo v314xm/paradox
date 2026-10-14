@@ -490,6 +490,31 @@ QPushButton#small {{
     padding: 3px 10px;
     font-size: 12px;
 }}
+ 
+/* =========================================================================
+   ВИДЖЕТ: RoadmapView + общие h1 / muted
+   ========================================================================= */
+/* QLabel#h1 и QLabel#muted уже используются в SettingsView и RunView,
+   но глобального правила не было — цвет брался дефолтный. Вводим. */
+QLabel#h1 {{
+    font-size: 18px;
+    font-weight: 600;
+    color: {text};
+}}
+QLabel#muted {{
+    color: {text_muted};
+}}
+
+/* QTextBrowser наследует стиль QTextEdit, но как страница-документ
+   не должен выглядеть как поле ввода: убираем рамку и паддинги. */
+QTextBrowser {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: {text};
+    selection-background-color: {accent};
+}} 
     
    
 """.format(
