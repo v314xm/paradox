@@ -22,6 +22,9 @@ from pcap_triage.contradictions.base import (
     ContradictionRule,
     SEVERITY_ORDER,
 )
+from pcap_triage.contradictions.rules.a_sni_without_dns import (
+    SniWithoutDnsRule,
+)
 from pcap_triage.contradictions.rules.e_victim_makes_attack import (
     VictimMakesAttackRule,
 )
@@ -37,6 +40,7 @@ from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
 # чистые функции от аргументов. Если появится stateful правило —
 # заменить список на фабрику build_rules() и вызывать в run_all().
 RULES: list[ContradictionRule] = [
+    SniWithoutDnsRule(),
     VictimMakesAttackRule(),
     MacIpConflictRule(),
     SniHostMismatchRule(),

@@ -272,6 +272,16 @@ def extract_tls_host_facts(
     """
     allow_doh = config.sni_mismatch_allowlist
     allow_cdn = config.beaconing_allowlist_suffixes
+    allow_brands = config.legitimate_brand_domains
+
+    # Резолв-проверка: домен считается разрешённым, если он
+    # упоминается в dns_answers_by_name либо как ключ (прямой A-запрос),
+    # либо как значение (CNAME-таргет в цепочке другого запроса).
+    # Так ловим случай: клиент резолвил www.foo.com, а SNI = cdn.foo.com
+    # (CNAME-таргет того же запроса) — не FP.
+    dns_all_values: set[str] = set()
+    for ips in state.dns_answers_by_name.values():
+        dns_all_values |= ips
 
     facts: list[Fact] = []
     for key, flow in state.flows.items():
@@ -285,7 +295,12 @@ def extract_tls_host_facts(
         if flow.sni:
             sni = flow.sni.lower().rstrip(".")
             if not (_suffix_match(sni, allow_doh)
-                    or _suffix_match(sni, allow_cdn)):
+                    or _suffix_match(sni, allow_cdn)
+                    or _suffix_match(sni, allow_brands)):
+                resolved = (
+                    sni in state.dns_answers_by_name
+                    or sni in dns_all_values
+                )
                 facts.append(Fact(
                     source="sni",
                     subject=key.src_ip,
@@ -293,7 +308,10 @@ def extract_tls_host_facts(
                     value=sni,
                     ts=ts,
                     confidence=0.9,
-                    evidence=dict(dst_info),
+                    evidence={
+                        **dst_info,
+                        "resolved": resolved,
+                    },
                 ))
 
         if flow.http_host:
