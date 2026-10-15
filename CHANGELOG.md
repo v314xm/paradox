@@ -6,38 +6,37 @@
 ## [Unreleased]
 
 #### Запланировано
-- ContradictionDetector — оставшиеся 6 правил (см. 0.7.0):
-  `mac_ip_conflict` (ARP spoof), `sni_host_mismatch` (domain fronting),
-  `ja3_ua_mismatch` (spoof), `reverse_asymmetry` (exfil),
-  `port_service_mismatch` (tunnel), `direct_ip_no_dns` (hardcoded IP).
 - ObfuscationDetector (base64/eval в HTTP body).
 - WebShellDetector (?cmd=, ?exec= в URI + POST body).
-- IOC → STIX 2.1 экспорт.
-- Windowing в CaptureState (fix nxdomain_burst долга, медленные beaconing).
+- IOC -> STIX 2.1 экспорт.
+- Windowing в CaptureState (fix nxdomain_burst долга,
+  медленные beaconing).
 - FlowAggregator + более сложные эвристики beaconing.
 - VirusTotal enricher (третий провайдер, домены).
+- DNS-ответы (A/AAAA/CNAME) для sni_host_mismatch v2
+  и direct_ip_no_dns v2.
+- TLS certificate parser (CN, SAN).
 - SMB2/DHCP/SSH/SMTP экстракторы.
-- TLS certificate parser.
 - IPv6 поддержка в парсере.
 - REST API + Web UI.
 
 ### Известные проблемы
-- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
-  на FIN-2015 после 0.7.0-wip, часть могут быть FP.
-- `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
+- nxdomain_burst считает за весь файл, не по окну - 93 findings
+  на FIN-2015, часть могут быть FP.
+- sni_without_dns - 73 findings на FIN-2015, CDN без DNS в этом
   же файле захвата. Не FP, но шумно.
-- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.2
-  не ловятся. Может давать FP на CDN-трафик (Chrome keepalive
-  на Facebook/Google edge). Требует windowing.
-- `victim_makes_attack` использует `beaconing`/`nxdomain_burst` как
-  источник victim-факта. Если beaconing FP — правило сработает ложно
-  (пример: 192.168.0.53 → Facebook 31.13.91.2 на 2015-04-09).
-  Решается через тюнинг beaconing allowlist.
-- TCP reassembly обрезает потоки > 1 МБ (per-flow limit).
-- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD-извлечении
-  typosquatting.
-- FileCarve находит не все payload'ы: нужен MIME или magic bytes.
-- Внутренний C2 (internal → internal зашифрованный) не детектируется.
+- beaconing чувствителен к jitter: реальные C2 с jitter > 0.1
+  не ловятся. Может давать FP на CDN-трафик. Требует windowing.
+- victim_makes_attack использует beaconing/nxdomain_burst
+  как источник victim-факта. Если beaconing FP - правило сработает
+  ложно. Решается через тюнинг beaconing allowlist.
+- TCP reassembly обрезает потоки больше 1 МБ (per-flow limit).
+- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD.
+- http_parse.py без прямых тестов.
+- Внутренний C2 (internal -> internal зашифрованный) не
+  детектируется без HTTP/2 framing.
+- Timeline / kill-chain отсутствуют как структура.
+- Универсальный контракт Finding не зафиксирован.
 
 ## [0.7.0] — 2026-10-13
 
