@@ -378,9 +378,10 @@ def test_sni_mismatch_detects_sni_not_in_dns():
 
 
 def test_sni_mismatch_ignores_sni_in_dns():
-    """SNI есть и домен резолвился — нормально, не finding."""
+    """SNI есть и домен резолвился (ответ был) — не finding."""
     state = CaptureState()
-    state.dns_queries["example.com"] = 1
+    # Новая семантика: детектор смотрит на ОТВЕТЫ, не запросы.
+    state.dns_answers_by_name["example.com"] = {"203.0.113.66"}
 
     key = FlowKey(
         proto="tcp",

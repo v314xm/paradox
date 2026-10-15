@@ -6,24 +6,42 @@ from pcap_triage.models import CaptureState, Finding
 
 class SNIMismatchDetector:
     """
-    TLS-соединения, чей SNI не встречался в DNS-запросах этого захвата.
+    TLS-соединения, чей SNI не встречался в DNS-ОТВЕТАХ этого захвата.
+
+    Отличие от старой логики (v0.7.0): сравниваем с dns_answers_by_name
+    (ответы), а не dns_queries (запросы). Что это даёт:
+      - DoH: клиент спросил example.com, но ответ шёл через DoH-канал
+        (в plaintext DNS не виден). Старое правило — FP, новое молчит.
+      - NXDOMAIN: запрос был, ответа нет → правильно сигналим.
+      - CNAME: клиент резолвил www.foo.com → cdn.foo.com. Правило
+        считает cdn.foo.com резолвнутым (он в значениях), FP нет.
 
     Что это означает:
     - domain fronting (SNI ≠ реальный хост);
-    - DoH (DNS over HTTPS) — легитимно, но используется malware
-      для обхода DNS-фильтров;
-    - hardcoded IP/домен в малвари — резолвится не через локальный DNS.
+    - hardcoded IP/домен в малвари — резолвится не через локальный DNS;
+    - клиент с долгим DNS-кешем (резолв был до захвата).
 
     Агрегация по SNI, а не по flow: 8 соединений к одному домену —
     один finding, а не 8.
 
-    Allowlist (DoH, OCSP) — в config.sni_mismatch_allowlist.
+    Allowlist: sni_mismatch_allowlist (DoH/OCSP) +
+    legitimate_brand_domains (google/microsoft/apple и пр.).
     """
     name = "sni_mismatch"
 
     def run(self, state: CaptureState, config: Config) -> list[Finding]:
-        queried = set(state.dns_queries.keys())
-        allowlist = config.sni_mismatch_allowlist
+        # Резолв по ОТВЕТАМ, не по запросам. См. docstring.
+        # resolved_names — ключи (прямой A-запрос для этого имени).
+        # resolved_values — значения (CNAME-таргеты в цепочке).
+        resolved_names = set(state.dns_answers_by_name.keys())
+        resolved_values: set[str] = set()
+        for ips in state.dns_answers_by_name.values():
+            resolved_values |= ips
+
+        allowlist = (
+            config.sni_mismatch_allowlist
+            | config.legitimate_brand_domains
+        )
 
         # SNI → агрегат
         agg: dict[str, dict] = defaultdict(lambda: {
@@ -39,7 +57,7 @@ class SNIMismatchDetector:
             sni = flow.sni
             if not sni:
                 continue
-            if sni in queried:
+            if sni in resolved_names or sni in resolved_values:
                 continue
             if self._in_allowlist(sni, allowlist):
                 continue
