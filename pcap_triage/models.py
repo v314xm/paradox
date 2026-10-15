@@ -165,6 +165,11 @@ class CaptureState:
     # ключ — (FlowKey запроса, FlowKey ответа) или одиночный FlowKey
     http_objects: list = field(default_factory=list)
 
+    # X.509 сертификаты из TLS-хендшейков.
+    # list[tuple[FlowKey, Certificate]] — как carved_files,
+    # чтобы не плодить импорт-цикл models ↔ x509_cert.
+    tls_certs: list = field(default_factory=list)
+
 
 def get_session_sni(
     key: FlowKey,

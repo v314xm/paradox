@@ -165,6 +165,16 @@ def _extract(pcap_path: Path, state: CaptureState, config: Config) -> None:
         except Exception:
             state.extractor_errors["http_object"] += 1
 
+        # X.509 сертификаты из TLS-хендшейков. Требуют reassembly,
+        # потому что сертификат часто больше одного TCP-сегмента.
+        try:
+            from pcap_triage.extractors.tls_cert import (
+                TlsCertificateExtractor,
+            )
+            TlsCertificateExtractor().run_post_extract(state, config)
+        except Exception:
+            state.extractor_errors["tls_cert"] += 1
+
         # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
         if config.file_carve_enabled:
             try:
