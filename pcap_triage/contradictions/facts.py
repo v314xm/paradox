@@ -835,6 +835,73 @@ def extract_direct_ip_facts(
     return facts
 
 # =====================================================================
+# TLS certificate facts: для sni_cert_mismatch / self_signed / expired
+# =====================================================================
+
+def _parse_iso_ts(iso: str) -> float:
+    """ISO-строка из X.509 (UTC) → unix timestamp. 0.0 на битом."""
+    from datetime import datetime, timezone
+    try:
+        dt = datetime.fromisoformat(iso).replace(tzinfo=timezone.utc)
+        return dt.timestamp()
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def extract_tls_cert_facts(state: CaptureState) -> list[Fact]:
+    """
+    Факты tls_cert: одна запись на каждый распарсенный сертификат.
+
+    Источник — `state.tls_certs`, список (FlowKey, Certificate).
+    Заполняется TlsCertificateExtractor после TCP-reassembly.
+
+    В evidence кладём всё, что нужно трём правилам:
+      - sni (из flow, если есть)
+      - subject_cn, issuer_cn
+      - is_self_signed
+      - not_before_iso, not_after_iso, not_after_ts
+      - san_dns, san_ips
+      - dst_ip, dst_port, first_ts
+
+    Один Fact = один сертификат. Группировку и анализ делают правила.
+    """
+    facts: list[Fact] = []
+    for key, cert in state.tls_certs:
+        flow = state.flows.get(key)
+        if flow is None:
+            continue
+        sni = flow.sni or ""
+        ts = flow.first_ts if flow.first_ts is not None else 0.0
+
+        facts.append(Fact(
+            source="tls_cert",
+            subject=key.src_ip,
+            predicate="tls_cert",
+            value=cert.subject_cn or "",
+            ts=ts,
+            confidence=0.9,
+            evidence={
+                "sni": sni,
+                "subject_cn": cert.subject_cn,
+                "issuer_cn": cert.issuer_cn,
+                "is_self_signed": cert.is_self_signed,
+                "not_before": cert.not_before,
+                "not_after": cert.not_after,
+                "not_after_ts": (
+                    _parse_iso_ts(cert.not_after)
+                    if cert.not_after else 0.0
+                ),
+                "san_dns": list(cert.san_dns),
+                "san_ips": list(cert.san_ips),
+                "dst_ip": key.dst_ip,
+                "dst_port": key.dst_port,
+            },
+        ))
+
+    return facts
+
+
+# =====================================================================
 # Общая точка входа
 # =====================================================================
 

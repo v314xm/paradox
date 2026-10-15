@@ -25,6 +25,15 @@ from pcap_triage.contradictions.base import (
 from pcap_triage.contradictions.rules.a_sni_without_dns import (
     SniWithoutDnsRule,
 )
+from pcap_triage.contradictions.rules.i_sni_cert_mismatch import (
+    SniCertMismatchRule,
+)
+from pcap_triage.contradictions.rules.j_self_signed_cert import (
+    SelfSignedCertRule,
+)
+from pcap_triage.contradictions.rules.k_expired_cert import (
+    ExpiredCertRule,
+)
 from pcap_triage.contradictions.rules.h_dns_answer_mismatch import (
     DnsAnswerMismatchRule,
 )
@@ -45,6 +54,9 @@ from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
 RULES: list[ContradictionRule] = [
     SniWithoutDnsRule(),
     DnsAnswerMismatchRule(),
+    SniCertMismatchRule(),
+    SelfSignedCertRule(),
+    ExpiredCertRule(),
     VictimMakesAttackRule(),
     MacIpConflictRule(),
     SniHostMismatchRule(),
