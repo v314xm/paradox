@@ -66,15 +66,16 @@ class DirectIpNoDnsRule:
 
         out: list[Contradiction] = []
         for src, buckets in by_subject.items():
-            connects = buckets["direct_ip_connect"]
-            dns = buckets["makes_dns_queries"]
+            # Отбрасываем факты, где dst был резолвнут через DNS
+            # в этом же захвате. Остаётся только то, что действительно
+            # не имело DNS-ответа — hardcoded IP или закешированный
+            # резолв (последнее — FP, но неизбежный без истории).
+            connects = [
+                f for f in buckets["direct_ip_connect"]
+                if not f.evidence.get("resolved", False)
+            ]
 
             if not connects:
-                continue
-            if dns:
-                # Клиент делал хоть какие-то DNS-запросы — не наш кейс.
-                # Слишком много FP: процессы с долгим кешем, или клиент
-                # резолвил другой домен в этом же pcap.
                 continue
 
             # Фильтр по объёму: единичные connect'ы не интересны.

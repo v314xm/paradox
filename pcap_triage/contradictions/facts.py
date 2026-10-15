@@ -735,6 +735,11 @@ def extract_direct_ip_facts(
 
     facts: list[Fact] = []
     for (src, dst), b in buckets.items():
+        # resolved: был ли DNS-ответ для этого dst_ip в этом захвате.
+        # Если да — это не hardcoded IP, правило direct_ip_no_dns
+        # должно молчать. Точность per-IP вместо старого «клиент
+        # вообще делал DNS-запросы» (слишком широкий фильтр).
+        resolved = dst in state.dns_answers_by_ip
         facts.append(Fact(
             source="flow",
             subject=src,
@@ -746,6 +751,7 @@ def extract_direct_ip_facts(
                 "dst_ip": dst,
                 "ports": sorted(b["ports"]),
                 "bytes_sent": b["bytes"],
+                "resolved": resolved,
             },
         ))
 
