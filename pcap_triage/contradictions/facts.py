@@ -248,6 +248,40 @@ def _base_domain(host: str) -> str:
     return host.lower()
 
 
+def _collect_ips_for(
+    name: str,
+    dns_by_name: dict[str, set[str]],
+    max_depth: int = 5,
+) -> set[str]:
+    """
+    Собрать все IP, достижимые от name через CNAME-цепочку.
+
+    Пример: name=www.foo.com,
+      dns_by_name['www.foo.com'] = {'cdn.foo.com'},
+      dns_by_name['cdn.foo.com'] = {'1.2.3.4'}
+    → вернёт {'1.2.3.4'}
+
+    Логика различения CNAME vs A-запись: если значение встречается
+    как ключ в dns_by_name — это CNAME-таргет (домен), идём дальше.
+    Иначе считаем IP. Ограничение max_depth защищает от циклов.
+    """
+    ips: set[str] = set()
+    seen: set[str] = {name}
+    queue: list[tuple[str, int]] = [(name, 0)]
+    while queue:
+        cur, depth = queue.pop(0)
+        if depth > max_depth:
+            continue
+        for val in dns_by_name.get(cur, ()):
+            if val in dns_by_name:
+                if val not in seen:
+                    seen.add(val)
+                    queue.append((val, depth + 1))
+            else:
+                ips.add(val)
+    return ips
+
+
 def extract_tls_host_facts(
     state: CaptureState,
     config: Config,
@@ -301,6 +335,12 @@ def extract_tls_host_facts(
                     sni in state.dns_answers_by_name
                     or sni in dns_all_values
                 )
+                # resolved_ips: все IP, достижимые от sni через
+                # CNAME-цепочку. Нужно правилу h_dns_answer_mismatch:
+                # «dst_ip входит в резолвленный набор или нет».
+                resolved_ips = _collect_ips_for(
+                    sni, state.dns_answers_by_name,
+                ) if resolved else set()
                 facts.append(Fact(
                     source="sni",
                     subject=key.src_ip,
@@ -311,6 +351,7 @@ def extract_tls_host_facts(
                     evidence={
                         **dst_info,
                         "resolved": resolved,
+                        "resolved_ips": sorted(resolved_ips),
                     },
                 ))
 
