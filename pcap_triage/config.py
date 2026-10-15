@@ -582,6 +582,14 @@ class Config:
     # больше rate limit попаданий.
     enrichment_max_iocs: int = 100
 
+    # --- debug ---
+    # Логировать первую ошибку каждого экстрактора через
+    # logging.exception. По умолчанию выключено: hot-loop
+    # на 9.5M пакетов не должен платить за traceback при
+    # единичных сбоях. Счётчик extractor_errors ведётся
+    # всегда, независимо от флага.
+    debug_log_extractor_errors: bool = False
+
     # --- output ---
     output_dir: Path = Path("reports")
 

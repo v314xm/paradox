@@ -33,6 +33,9 @@ from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
 )
 
 
+# Контракт: правила STATELESS. extract_facts / find_contradictions
+# чистые функции от аргументов. Если появится stateful правило —
+# заменить список на фабрику build_rules() и вызывать в run_all().
 RULES: list[ContradictionRule] = [
     VictimMakesAttackRule(),
     MacIpConflictRule(),

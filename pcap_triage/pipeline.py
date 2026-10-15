@@ -1,4 +1,5 @@
 import hashlib
+import logging
 from pathlib import Path
 
 from scapy.utils import RawPcapReader
@@ -47,6 +48,13 @@ from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
+#
+# Контракт: экстракторы STATELESS. Работают только через параметры
+# (record, state). Между прогонами run_pipeline в одном процессе
+# (важно для GUI) внутреннего мусора не остаётся.
+#
+# Если добавляешь stateful экстрактор (буфер, кэш, счётчик в self) —
+# замени список на фабрику build_extractors() и вызывай её в _extract().
 EXTRACTORS = [
     FlowExtractor(),
     DNSExtractor(),
@@ -136,7 +144,13 @@ def _extract(pcap_path: Path, state: CaptureState, config: Config) -> None:
                 try:
                     ex.process(record, state)
                 except Exception:
-                    state.extractor_errors[ex.name] += 1
+                    prev = state.extractor_errors[ex.name]
+                    state.extractor_errors[ex.name] = prev + 1
+                    if config.debug_log_extractor_errors and prev == 0:
+                        logging.exception(
+                            "extractor %s failed (first occurrence)",
+                            ex.name,
+                        )
     finally:
         reader.close()
 

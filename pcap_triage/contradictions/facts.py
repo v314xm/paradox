@@ -794,4 +794,7 @@ def extract_facts(
         + extract_arp_facts(state)
         + extract_tls_host_facts(state, config)
         + extract_ja3_ua_facts(state, config)
+        + extract_asymmetry_facts(state, config)
+        + extract_protocol_on_port_facts(state, config)
+        + extract_direct_ip_facts(state, config)
     )
