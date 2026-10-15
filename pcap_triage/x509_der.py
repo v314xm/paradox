@@ -221,7 +221,9 @@ def as_time(node: DerNode) -> tuple[str, str] | None:
         try:
             month, day = int(s[2:4]), int(s[4:6])
             hour, minute = int(s[6:8]), int(s[8:10])
-            sec = int(s[10:12]) if len(s) >= 14 else 0
+            # YYMMDDHHMMSSZ = 13 символов; YYMMDDHHMMZ = 11 (без сек).
+            # Раньше было >= 14 — резало секунды в 0.
+            sec = int(s[10:12]) if len(s) >= 12 else 0
         except ValueError:
             return None
         return (
