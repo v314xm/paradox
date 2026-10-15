@@ -38,9 +38,15 @@ class SNIMismatchDetector:
         for ips in state.dns_answers_by_name.values():
             resolved_values |= ips
 
+        # Три набора, согласовано с extract_tls_host_facts
+        # (правило SniWithoutDnsRule использует те же самые):
+        #   - sni_mismatch_allowlist: DoH, OCSP, CRL
+        #   - legitimate_brand_domains: google/apple/microsoft/twitter
+        #   - beaconing_allowlist_suffixes: CDN (akamai, cloudflare и пр.)
         allowlist = (
             config.sni_mismatch_allowlist
             | config.legitimate_brand_domains
+            | config.beaconing_allowlist_suffixes
         )
 
         # SNI → агрегат

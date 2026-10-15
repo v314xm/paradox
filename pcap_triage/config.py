@@ -478,6 +478,7 @@ class Config:
         "amazon.com", "aws.amazon.com", "amazonaws.com",
         # Соцсети / сервисы
         "facebook.com", "fb.com", "instagram.com", "whatsapp.com",
+        "twitter.com", "x.com", "t.co",
         "telegram.org", "paypal.com", "netflix.com",
         "dropbox.com", "binance.com", "metamask.io", "coinbase.com",
         # FP-триггеры (app.*)
