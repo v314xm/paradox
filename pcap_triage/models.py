@@ -122,6 +122,13 @@ class CaptureState:
     # DNS по источнику: src_ip → {qname: count}
     dns_queries_by_src: dict[str, Counter] = field(default_factory=dict)
 
+    # DNS-ответы: name → {IP}, IP → {name}. Нужно для правил
+    # sni_without_dns / direct_ip_no_dns: связывают домен, который
+    # клиент резолвил, с IP, куда он ходил. set, не list — при
+    # повторных ответах дублей быть не должно.
+    dns_answers_by_name: dict[str, set[str]] = field(default_factory=dict)
+    dns_answers_by_ip: dict[str, set[str]] = field(default_factory=dict)
+
     # flows
     flows: dict[FlowKey, FlowStats] = field(default_factory=dict)
 

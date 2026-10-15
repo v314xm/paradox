@@ -72,3 +72,34 @@ class DNSExtractor:
             state.dns_nxdomain[name] += 1
             if client_ip:
                 state.dns_nxdomain_by_src[client_ip] += 1
+
+        # DNS-ответы: A / AAAA / CNAME. Только для ответов (qr=1),
+        # только для поддерживаемых типов. Ключ — qname из вопроса,
+        # не rrname каждого ответа: так CNAME-цепочка
+        # www.foo.com → foo.cdn.com → 1.2.3.4 собирается в один
+        # набор {foo.cdn.com, 1.2.3.4} под именем www.foo.com,
+        # как его видит клиент.
+        if dns.qr == 1 and dns.an:
+            for rr in dns.an:
+                # SOA/MX/TXT и др. могут не иметь rdata — читаем
+                # только для известных типов. Без этой проверки
+                # rr.rdata падает с AttributeError.
+                if rr.type not in (1, 28, 5):
+                    continue
+                raw = getattr(rr, 'rdata', None)
+                if raw is None:
+                    continue
+                # scapy отдаёт rdata как bytes для CNAME/AAAA;
+                # str(bytes) даёт "b'...'" — мусор в отчёте.
+                if isinstance(raw, bytes):
+                    raw = raw.decode('ascii', errors='ignore')
+                value = str(raw)
+                if not value:
+                    continue
+                if rr.type in (1, 28):  # A / AAAA
+                    state.dns_answers_by_name.setdefault(name, set()).add(value)
+                    state.dns_answers_by_ip.setdefault(value, set()).add(name)
+                else:  # 5 = CNAME
+                    cname = value.rstrip('.').lower()
+                    if cname:
+                        state.dns_answers_by_name.setdefault(name, set()).add(cname)
