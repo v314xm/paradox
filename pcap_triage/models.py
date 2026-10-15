@@ -90,9 +90,6 @@ class FlowStats:
     last_ts: float | None = None
 
 
-    # TODO: не хранить все timestamps для долгих захватов.
-    # Заменить на онлайн-агрегаты (Welford) + reservoir sampling.
-    timestamps: list[float] = field(default_factory=list)
 
     # инициатор сессии: True если src отправил первый SYN,
     # False если src получил SYN (то есть инициатор — dst),

@@ -35,7 +35,6 @@ class FlowExtractor:
         ts = record.ts
         flow.packets += 1
         flow.bytes_sent += record.length
-        flow.timestamps.append(ts)
 
         if flow.first_ts is None:
             flow.first_ts = ts
