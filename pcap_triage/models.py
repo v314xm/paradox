@@ -293,6 +293,16 @@ class CaptureState:
     # чтобы не плодить импорт-цикл models ↔ x509_cert.
     tls_certs: list = field(default_factory=list)
 
+    # v0.9.0: SSH баннеры (RFC 4253).
+    # server: (ip, port) -> software version, напр. "OpenSSH_8.2p1"
+    # client: ip -> набор software-версий, от которых приходили баннеры
+    ssh_server_versions: dict[tuple[str, int], str] = field(
+        default_factory=dict,
+    )
+    ssh_client_versions: dict[str, set[str]] = field(
+        default_factory=dict,
+    )
+
 
 def get_session_sni(
     key: FlowKey,
