@@ -142,9 +142,9 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
     value = f.value or ""
     ev = f.evidence or {}
 
-    # v0.8.0: top-level приоритет, evidence fallback.
-    src_ip = f.src_ip or ev.get("src_ip")
-    dst_ip = f.dst_ip or ev.get("dst_ip")
+    # v0.9.0: top-level поля заполняются в Finding.__post_init__.
+    src_ip = f.src_ip
+    dst_ip = f.dst_ip
 
     # --- explicit: value содержит IP ---
 

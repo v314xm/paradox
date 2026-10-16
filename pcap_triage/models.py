@@ -23,6 +23,57 @@ class HostIdentity:
             "realm": self.realm,
         }
 
+# v0.9.0: карта тип finding → severity по умолчанию.
+#
+# Детектор может задать severity явно. Если оставил "medium" —
+# применяется эта карта.
+_SEVERITY_BY_TYPE: dict[str, str] = {
+    "command_injection": "high",
+    "brute_force": "high",
+    "ftp_brute_force": "high",
+    "lateral_movement": "high",
+    "ja3_malware": "high",
+    "script_download": "high",
+
+    "port_scan": "medium",
+    "web_scanner": "medium",
+    "vulnerable_path": "medium",
+    "beaconing": "medium",
+    "dns_tunneling": "medium",
+    "suspicious_port": "medium",
+    "cloud_tunnel": "medium",
+    "sni_mismatch": "medium",
+    "dga_domain": "medium",
+    "large_transfer": "medium",
+    "carved_file": "medium",
+
+    "nxdomain_burst": "low",
+    "typosquatting": "low",
+    "ip_check_service": "low",
+}
+
+
+def _first_from_list(v):
+    """Первый элемент списка/кортежа или None."""
+    if isinstance(v, (list, tuple)) and v:
+        return v[0]
+    return None
+
+
+def _first_ip_from_aggregated(v):
+    """
+    Первый IP из агрегированного списка top_src_ips:
+        [{"ip": "192.168.1.12", "count": 1}, ...]
+    """
+    if isinstance(v, (list, tuple)) and v:
+        first = v[0]
+        if isinstance(first, dict):
+            return first.get("ip")
+        if isinstance(first, str):
+            return first
+    return None
+
+
 @dataclass
 class Finding:
     """
@@ -34,9 +85,10 @@ class Finding:
     reporters. Всё остальное (специфика конкретного детектора) —
     в evidence.
 
-    Мост совместимости: v0.8.0 нормализует поля из evidence в
-    pipeline._detect через _normalize_finding. По мере обновления
-    детекторов дубли в evidence убираются, fallback тоже.
+        v0.9.0: нормализация встроена в __post_init__. Детекторы могут
+    писать src_ip / dst_ip / dst_port либо напрямую, либо в evidence
+    (в том числе агрегированные top_src_ips / dst_ips / dst_ports).
+    На выходе конструктора top-level поля всегда заполнены.
     """
     type: str
     value: str
@@ -60,6 +112,32 @@ class Finding:
     # Специфика детектора. Никаких гарантий по ключам — каждый
     # детектор пишет что хочет.
     evidence: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """
+        v0.9.0: поднять top-level поля из evidence.
+
+        Порядок:
+          1. Одиночные ключи (src_ip / dst_ip / dst_port) — приоритет.
+          2. Агрегированные (top_src_ips / dst_ips / dst_ports) — fallback.
+          3. severity — из _SEVERITY_BY_TYPE, если осталось "medium".
+        """
+        ev = self.evidence or {}
+        if self.src_ip is None:
+            self.src_ip = (
+                ev.get("src_ip")
+                or _first_ip_from_aggregated(ev.get("top_src_ips"))
+            )
+        if self.dst_ip is None:
+            self.dst_ip = (
+                ev.get("dst_ip") or _first_from_list(ev.get("dst_ips"))
+            )
+        if self.dst_port is None:
+            self.dst_port = (
+                ev.get("dst_port") or _first_from_list(ev.get("dst_ports"))
+            )
+        if self.severity == "medium" and self.type in _SEVERITY_BY_TYPE:
+            self.severity = _SEVERITY_BY_TYPE[self.type]
 
     @property
     def mitre_id(self) -> str | None:

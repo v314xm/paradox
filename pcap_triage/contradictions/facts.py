@@ -92,11 +92,9 @@ def extract_attack_facts(findings: list[Finding]) -> list[Fact]:
 
     for f in findings:
         ev = f.evidence or {}
-        # v0.8.0: top-level приоритет, evidence fallback.
-        # pipeline._normalize_finding заполняет f.src_ip / f.dst_ip
-        # из evidence — читаем контракт. Fallback уйдёт в v0.9.
-        src = f.src_ip or ev.get("src_ip")
-        dst = f.dst_ip or ev.get("dst_ip")
+        # v0.9.0: top-level поля заполняются в Finding.__post_init__.
+        src = f.src_ip
+        dst = f.dst_ip
 
         if f.type in _ATTACK_TYPES:
             if src:

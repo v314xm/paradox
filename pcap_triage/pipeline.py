@@ -219,123 +219,6 @@ def _extract(
         )
 
 
-_SEVERITY_BY_TYPE: dict[str, str] = {
-    # v0.8.0: временный маппинг тип finding → severity.
-    #
-    # Уйдёт в v0.9, когда детекторы начнут задавать severity сами.
-    # Пока — мост: заполняем через _normalize_finding.
-    #
-    # Принцип деления:
-    #   high   — активная атака / установленный malware-признак
-    #   medium — подозрительный паттерн, требует валидации
-    #   low    — шум / контекстная информация
-    #
-    # Типы вне этого словаря остаются на дефолтной "medium".
-    # Если добавляешь детектор — реши, нужна ли ему строка здесь,
-    # или пусть падает в default.
-    "command_injection": "high",
-    "brute_force": "high",
-    "ftp_brute_force": "high",
-    "lateral_movement": "high",
-    "ja3_malware": "high",
-    "script_download": "high",
-
-    "port_scan": "medium",
-    "web_scanner": "medium",
-    "vulnerable_path": "medium",
-    "beaconing": "medium",
-    "dns_tunneling": "medium",
-    "suspicious_port": "medium",
-    "cloud_tunnel": "medium",
-    "sni_mismatch": "medium",
-    "dga_domain": "medium",
-    "large_transfer": "medium",
-    "carved_file": "medium",
-
-    "nxdomain_burst": "low",
-    "typosquatting": "low",
-    "ip_check_service": "low",
-}
-
-
-def _first_from_list(v):
-    """
-    Первый элемент списка/кортежа или None.
-
-    v0.8.0: используется для агрегированных evidence-ключей:
-      dst_ips:   ["10.0.1.152"]
-      dst_ports: [80]
-    """
-    if isinstance(v, (list, tuple)) and v:
-        return v[0]
-    return None
-
-
-def _first_ip_from_aggregated(v):
-    """
-    Первый IP из агрегированного списка.
-
-    v0.8.0: vulnerable_path / script_download кладут источник в виде
-    top_src_ips: [{"ip": "192.168.1.12", "count": 1}, ...]
-    Первый элемент — самый значимый (детектор сортирует по count).
-
-    Толерантно к строкам: если прилетит ["1.2.3.4"], тоже подойдёт.
-    """
-    if isinstance(v, (list, tuple)) and v:
-        first = v[0]
-        if isinstance(first, dict):
-            return first.get("ip")
-        if isinstance(first, str):
-            return first
-    return None
-
-
-def _normalize_finding(f) -> None:
-    """
-    v0.8.0: поднять top-level поля Finding из evidence.
-
-    Существующие детекторы пишут src_ip / dst_ip / dst_port только в
-    evidence. Этот шаг вытаскивает их наверх, чтобы потребители
-    (contradictions/facts, aggregators/entities, reporters) могли
-    читать единообразно.
-
-    Два формата evidence:
-      1. Одиночный — src_ip / dst_ip / dst_port (большинство детекторов).
-      2. Агрегированный — top_src_ips / dst_ips / dst_ports (vulnerable_path,
-         script_download). Один finding сворачивает несколько flow,
-         поля — списки.
-
-    Приоритет: одиночные ключи → агрегированные. Первый элемент
-    агрегированного списка — самый значимый (детектор сортирует по
-    count / байтам).
-
-    Правила:
-      - src_ip / dst_ip / dst_port: только если None. Пустая строка
-        "" не перетирается — детектор мог сознательно её поставить.
-      - severity: только если осталось дефолтное "medium" и тип в
-        _SEVERITY_BY_TYPE. Как только детектор начнёт задавать
-        severity сам — эта ветка не сработает, и её можно удалить
-        вместе со словарём.
-
-    НЕ трогаем first_seen / last_seen: они уже top-level с v0.7.0,
-    если детектор их не заполнил — это отдельный долг, не здесь.
-    """
-    ev = f.evidence or {}
-    if f.src_ip is None:
-        f.src_ip = (
-            ev.get("src_ip")
-            or _first_ip_from_aggregated(ev.get("top_src_ips"))
-        )
-    if f.dst_ip is None:
-        f.dst_ip = ev.get("dst_ip") or _first_from_list(ev.get("dst_ips"))
-    if f.dst_port is None:
-        f.dst_port = (
-            ev.get("dst_port") or _first_from_list(ev.get("dst_ports"))
-        )
-    if f.severity == "medium" and f.type in _SEVERITY_BY_TYPE:
-        f.severity = _SEVERITY_BY_TYPE[f.type]
-
-
 def _detect(
     state: CaptureState,
     config: Config,
@@ -359,14 +242,6 @@ def _detect(
     for f in findings:
         if not f.mitre_techniques:
             f.mitre_techniques = get_techniques(f.type)
-
-    # v0.8.0: normalize finding — вытаскиваем src_ip / dst_ip / dst_port /
-    # severity из evidence наверх. Делается ПОСЛЕ MITRE и ДО возврата
-    # findings, чтобы run_contradictions и build_entities в run_pipeline
-    # видели уже нормализованный контракт.
-    for f in findings:
-        _normalize_finding(f)
-
     return findings
 
 
