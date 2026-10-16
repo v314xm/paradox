@@ -303,6 +303,16 @@ class CaptureState:
         default_factory=dict,
     )
 
+    # v0.9.0: SMTP.
+    #   helo_by_src   — последний EHLO/HELO-домен клиента
+    #   from_by_src   — все MAIL FROM адреса от клиента
+    #   rcpt_by_src   — все RCPT TO адреса от клиента
+    #   mailer_by_src — X-Mailer / User-Agent из DATA
+    smtp_helo_by_src: dict[str, str] = field(default_factory=dict)
+    smtp_from_by_src: dict[str, set[str]] = field(default_factory=dict)
+    smtp_rcpt_by_src: dict[str, set[str]] = field(default_factory=dict)
+    smtp_mailer_by_src: dict[str, set[str]] = field(default_factory=dict)
+
 
 def get_session_sni(
     key: FlowKey,
