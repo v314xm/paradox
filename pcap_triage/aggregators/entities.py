@@ -298,7 +298,8 @@ def build_entities(
             ftype = f.type
 
             if ftype in ("brute_force", "vulnerable_path",
-                         "ftp_brute_force", "command_injection",
+                         "ftp_brute_force", "ssh_brute_force",
+                         "command_injection",
                          "port_scan", "web_scanner"):
                 # src = атакующий, dst = цель
                 if side == "src":

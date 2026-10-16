@@ -43,6 +43,7 @@ from ipaddress import ip_address
 _ATTACK_TYPES: frozenset[str] = frozenset({
     "brute_force",
     "ftp_brute_force",
+    "ssh_brute_force",
     "vulnerable_path",
     "command_injection",
     "port_scan",

@@ -48,6 +48,7 @@ _PHASE_BY_TYPE: dict[str, str] = {
     "vulnerable_path": "initial_access",
     "brute_force": "initial_access",
     "ftp_brute_force": "initial_access",
+    "ssh_brute_force": "initial_access",
     "typosquatting": "initial_access",
 
     # Execution

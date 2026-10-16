@@ -448,6 +448,12 @@ class Config:
     ftp_brute_force_min_unique_src_ports: int = 20
 
 
+    # --- SSH brute force ---
+    # SSH-клиент шлёт баннер один раз на соединение. Много баннеров
+    # с одного src к одной (dst_ip, dst_port) — перебор паролей.
+    # 20 — как ftp_brute_force, для консистентности.
+    ssh_brute_force_min_flows: int = 20
+
     # --- NXDOMAIN burst ---
     # v0.9.0: threshold — сколько NXDOMAIN в окне _window_sec.
     # Было: сколько за весь файл. Считаем максимум в скользящем
@@ -666,6 +672,8 @@ class Config:
             )
         if self.ftp_brute_force_min_flows <= 0:
             errors.append("ftp_brute_force_min_flows must be > 0")
+        if self.ssh_brute_force_min_flows <= 0:
+            errors.append("ssh_brute_force_min_flows must be > 0")
         if self.ftp_brute_force_min_unique_src_ports <= 0:
             errors.append(
                 "ftp_brute_force_min_unique_src_ports must be > 0"

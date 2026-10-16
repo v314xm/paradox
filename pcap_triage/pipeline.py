@@ -49,6 +49,7 @@ from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
 from pcap_triage.detectors.command_injection import CommandInjectionDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
 from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
+from pcap_triage.detectors.ssh_brute_force import SSHBruteForceDetector
 
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
@@ -89,6 +90,7 @@ DETECTORS = [
     FTPBruteForceDetector(),
     BeaconingDetector(),
     DNSTunnelingDetector(),
+    SSHBruteForceDetector(),       # v0.9.0
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),

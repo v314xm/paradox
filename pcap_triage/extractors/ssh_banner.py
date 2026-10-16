@@ -95,3 +95,11 @@ class SSHBannerExtractor:
                 state.ssh_client_versions.setdefault(
                     record.src_ip, set(),
                 ).add(software)
+                # v0.9.0: считаем попытки подключения. Один баннер =
+                # одна сессия (RFC 4253). Ключ (src, dst, dst_port) —
+                # для детектора ssh_brute_force.
+                if record.dst_ip and dst_port is not None:
+                    key = (record.src_ip, record.dst_ip, dst_port)
+                    state.ssh_client_attempts[key] = (
+                        state.ssh_client_attempts.get(key, 0) + 1
+                    )

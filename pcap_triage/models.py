@@ -31,6 +31,7 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "command_injection": "high",
     "brute_force": "high",
     "ftp_brute_force": "high",
+    "ssh_brute_force": "high",
     "lateral_movement": "high",
     "ja3_malware": "high",
     "script_download": "high",
@@ -300,6 +301,14 @@ class CaptureState:
         default_factory=dict,
     )
     ssh_client_versions: dict[str, set[str]] = field(
+        default_factory=dict,
+    )
+
+    # v0.9.0: счётчик попыток SSH-подключений.
+    # Ключ — (src_ip, dst_ip, dst_port). Инкремент при каждом
+    # клиентском баннере (RFC 4253: один баннер на соединение).
+    # Нужно детектору ssh_brute_force.
+    ssh_client_attempts: dict[tuple[str, str, int], int] = field(
         default_factory=dict,
     )
 

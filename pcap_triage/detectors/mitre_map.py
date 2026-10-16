@@ -13,6 +13,7 @@ MITRE_MAP: dict[str, tuple[str, ...]] = {
     # Initial Access
     "brute_force": ("T1110.001",),
     "ftp_brute_force": ("T1110.001",),
+    "ssh_brute_force": ("T1110.001", "T1021.004"),
     "script_download": ("T1189",),
     "typosquatting": ("T1583.001",),
 
