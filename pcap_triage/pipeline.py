@@ -22,6 +22,7 @@ from pcap_triage.extractors.dns import DNSExtractor
 from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.extractors.arp_history import ARPMacHistoryExtractor
+from pcap_triage.extractors.dhcp import DHCPExtractor
 from pcap_triage.models import CaptureState
 from pcap_triage.parsers import parse_packet
 from pcap_triage.reassembler import TCPReassembler
@@ -64,6 +65,7 @@ EXTRACTORS = [
     HTTPExtractor(),
     HostIdentityExtractor(),
     ARPMacHistoryExtractor(),
+    DHCPExtractor(),           # v0.9.0
     NBNSExtractor(),
     KerberosExtractor(),
 ]
