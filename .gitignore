@@ -35,3 +35,11 @@ CyberCampTask.log
 pygount-report.json
 batch_results.json
 batch_run.log
+
+# Dev scripts Ч локальные, не часть пакета
+
+# tools/ Ч рабочие скрипты, но только именованные
+tools/*
+!tools/README.md
+!tools/make_test_pcap.py
+!tools/batch_analyze.py
