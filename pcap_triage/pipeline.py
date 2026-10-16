@@ -350,6 +350,24 @@ def run_pipeline(
     )
     direction_summary = _summarize_direction(state, config)
 
+    # v0.9.0: экспорт IOC для EDR/SIEM.
+    ioc_files: dict = {}
+    if getattr(config, "ioc_export_enabled", True):
+        try:
+            from pcap_triage.reporters.ioc_reporter import (
+                build_ioc_report, write_ioc_files,
+            )
+            ioc_report = build_ioc_report({
+                "findings": [f.to_dict() for f in findings],
+                "carved_files": carved_report,
+            })
+            ioc_files = {
+                k: str(v) for k, v in
+                write_ioc_files(ioc_report, config.output_dir).items()
+            }
+        except Exception:
+            ioc_files = {}
+
     if on_phase is not None:
         on_phase("report", 1, 1)
 
@@ -389,4 +407,6 @@ def run_pipeline(
         # v0.8.0: timeline / kill-chain reconstruction.
         # Плоский список TimelineEvent, отсортированный по ts.
         "timeline": [e.to_dict() for e in timeline_events],
+        # v0.9.0: пути записанных IOC-файлов (пустой dict если отключено).
+        "ioc_files": ioc_files,
     }

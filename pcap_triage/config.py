@@ -613,6 +613,9 @@ class Config:
 
     # --- output ---
     output_dir: Path = Path("reports")
+    # v0.9.0: писать iocs.txt/csv/json + suricata.rules + queries.txt
+    # в output_dir после каждого прогона. Файлы маленькие, полезны.
+    ioc_export_enabled: bool = True
 
     def __post_init__(self) -> None:
         # dga_allowlist = extra + tunnel-домены + ip-check сервисы.
