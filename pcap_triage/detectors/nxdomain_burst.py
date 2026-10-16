@@ -44,6 +44,7 @@ class NXDOMAINBurstDetector:
         findings: list[Finding] = []
         threshold = config.nxdomain_burst_threshold
         window = config.nxdomain_burst_window_sec
+        min_ratio = config.nxdomain_burst_min_ratio
 
         for src_ip, total in state.dns_nxdomain_by_src.items():
             if total == 0:
@@ -63,6 +64,16 @@ class NXDOMAINBurstDetector:
             if signal < threshold:
                 continue
 
+            # v0.9.0: ratio-фильтр. Сколько всего DNS-запросов от
+            # этого src (включая успешные). Если доля NXDOMAIN низка —
+            # это шум от браузера с историей.
+            all_q = state.dns_queries_by_src.get(src_ip)
+            total_dns = sum(all_q.values()) if all_q else signal
+            ratio = signal / total_dns if total_dns > 0 else 1.0
+
+            if ratio < min_ratio:
+                continue
+
             confidence = round(min(0.9, 0.4 + signal * 0.05), 3)
 
             findings.append(Finding(
@@ -76,6 +87,8 @@ class NXDOMAINBurstDetector:
                     "window_sec": window,
                     "threshold": threshold,
                     "windowed": windowed,
+                    "ratio": round(ratio, 3),
+                    "total_dns_queries": total_dns,
                 },
             ))
 

@@ -466,6 +466,10 @@ class Config:
     # окне W секунд; на FIN-2015 93 → ожидаемо ~5-15.
     nxdomain_burst_threshold: int = 5
     nxdomain_burst_window_sec: int = 60
+    # v0.9.0: минимум NXDOMAIN / всех DNS-запросов от src.
+    # Ниже — шум (браузер с редкими опечатками в большой истории).
+    # DGA/malware: >0.3 (мало успешных, много NXDOMAIN).
+    nxdomain_burst_min_ratio: float = 0.2
 
     # --- typosquatting ---
     protected_brands: frozenset[str] = field(default_factory=lambda: _frozen(
@@ -701,6 +705,10 @@ class Config:
             errors.append("nxdomain_burst_threshold must be > 0")
         if self.nxdomain_burst_window_sec <= 0:
             errors.append("nxdomain_burst_window_sec must be > 0")
+        if not (0.0 < self.nxdomain_burst_min_ratio <= 1.0):
+            errors.append(
+                "nxdomain_burst_min_ratio must be in (0, 1]"
+            )
         if self.typosquatting_levenshtein_threshold < 0:
             errors.append("typosquatting_levenshtein_threshold must be >= 0")
         if self.sni_mismatch_min_flows <= 0:
