@@ -25,16 +25,52 @@ class HostIdentity:
 
 @dataclass
 class Finding:
+    """
+    Универсальный контракт находки.
+
+    Top-level поля (src_ip, dst_ip, dst_port, severity, first_seen,
+    last_seen, mitre_techniques) — то, чем пользуются кросс-детекторные
+    потребители: contradictions/facts.py, aggregators/entities.py,
+    reporters. Всё остальное (специфика конкретного детектора) —
+    в evidence.
+
+    Мост совместимости: v0.8.0 нормализует поля из evidence в
+    pipeline._detect через _normalize_finding. По мере обновления
+    детекторов дубли в evidence убираются, fallback тоже.
+    """
     type: str
     value: str
     confidence: float
-    evidence: dict[str, Any] = field(default_factory=dict)
+
+    # Универсальные поля (v0.8.0). None — детектор не задал,
+    # читатель падает на evidence как fallback.
+    src_ip: str | None = None
+    dst_ip: str | None = None
+    dst_port: int | None = None
+    severity: str = "medium"   # critical | high | medium | low | info
+
     first_seen: float | None = None
     last_seen: float | None = None
+
+    # MITRE. Один источник правды — tuple техник. mitre_id ниже —
+    # производное (первая техника), чтобы JSON-reporter и
+    # markdown-reporter не тащили весь список в заголовке.
     mitre_techniques: tuple[str, ...] = ()
 
+    # Специфика детектора. Никаких гарантий по ключам — каждый
+    # детектор пишет что хочет.
+    evidence: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def mitre_id(self) -> str | None:
+        """Основная (первая) техника или None, если техник нет."""
+        return self.mitre_techniques[0] if self.mitre_techniques else None
+
     def to_dict(self) -> dict:
-        return asdict(self)
+        # asdict не подхватывает property — добавляем mitre_id вручную.
+        d = asdict(self)
+        d["mitre_id"] = self.mitre_id
+        return d
 
 
 @dataclass(frozen=True)

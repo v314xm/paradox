@@ -129,12 +129,22 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
 
     Стратегия:
       1. Explicit для findings, где IP зашит в value.
-      2. Universal fallback — из evidence.src_ip / evidence.dst_ip.
+      2. Universal — src_ip / dst_ip с top-level Finding.
+
+    v0.8.0: top-level приоритет, evidence fallback. После шага 2
+    pipeline._normalize_finding заполняет f.src_ip / f.dst_ip из
+    evidence — читаем их напрямую. Fallback оставлен на переходный
+    период; уйдёт в v0.9, когда детекторы начнут заполнять контракт
+    сами и дубли в evidence уберутся.
     """
     result: list[tuple[str, str]] = []
     ftype = f.type
     value = f.value or ""
     ev = f.evidence or {}
+
+    # v0.8.0: top-level приоритет, evidence fallback.
+    src_ip = f.src_ip or ev.get("src_ip")
+    dst_ip = f.dst_ip or ev.get("dst_ip")
 
     # --- explicit: value содержит IP ---
 
@@ -145,20 +155,17 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
 
     if ftype == "suspicious_port":
         if ":" in value:
-            dst_ip = value.rsplit(":", 1)[0]
-            result.append((dst_ip, "dst"))
-        src_ip = ev.get("src_ip")
+            dst_from_value = value.rsplit(":", 1)[0]
+            result.append((dst_from_value, "dst"))
         if src_ip:
             result.append((src_ip, "src"))
         return result
 
-    # --- universal: evidence.src_ip / evidence.dst_ip ---
+    # --- universal ---
 
-    src_ip = ev.get("src_ip")
-    dst_ip = ev.get("dst_ip")
-    # command_injection кладёт dst_ip отдельным полем
-    if dst_ip is None and ftype == "command_injection":
-        dst_ip = ev.get("dst_ip")
+    # (Раньше здесь был блок "if dst_ip is None and ftype == command_injection"
+    # — он был no-op даже в старой версии: dst_ip только что прочитан
+    # из того же ev.get("dst_ip"). Убран при переходе на top-level.)
 
     if src_ip:
         result.append((src_ip, "src"))

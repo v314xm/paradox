@@ -16,12 +16,27 @@ MITRE_MAP: dict[str, tuple[str, ...]] = {
     "script_download": ("T1189",),
     "typosquatting": ("T1583.001",),
 
+    # Execution
+    # command_injection: RCE через HTTP (URI / POST body) —
+    # эксплуатирует публично доступный сервис (T1190) и вызывает
+    # интерпретатор (T1059). Обе техники уместны.
+    "command_injection": ("T1190", "T1059"),
+
     # Command and Control
     "dga_domain": ("T1568.002",),
-    "cloud_tunnel_domain": ("T1572",),
+    "cloud_tunnel": ("T1572",),
+    "cloud_tunnel_domain": ("T1572",),   # старое имя — оставлено для совместимости
     "large_transfer": ("T1041",),
     "ip_check_service": ("T1016",),
     "sni_without_dns": ("T1071.001",),
+
+    # C2-beaconing / exfil / fingerprinting
+    "beaconing": ("T1071.001",),         # Web Protocols — heartbeat через HTTP(S)
+    "dns_tunneling": ("T1071.004",),     # DNS
+    "ja3_malware": ("T1071.001",),       # известный malware-JA3
+
+    # Domain fronting / SNI-mismatch
+    "sni_mismatch": ("T1071.001",),
 
     # Lateral Movement
     "lateral_movement": (
