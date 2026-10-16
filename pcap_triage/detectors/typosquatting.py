@@ -16,9 +16,9 @@ Levenshtein дополнительно ограничен длиной:
   - SLD < 5 символов не считается (app/web/mail — обычные имена)
   - SLD короче бренда на 2+ — не считается
 
-Ограничение: двухуровневые TLD (co.uk, com.au) не поддержаны —
-SLD для bbc.co.uk будет определён как "co". Для нашего датасета
-не критично. TODO: public suffix list.
+v0.9.0: двухуровневые TLD (co.uk, com.au, co.jp, ...) поддержаны
+через domain_utils. bbc.co.uk → SLD "bbc", не "co". Полный Public
+Suffix List не тянем — только реальные кейсы.
 """
 from pcap_triage.config import Config
 from pcap_triage.models import CaptureState, Finding
@@ -45,11 +45,14 @@ def levenshtein(a: str, b: str) -> int:
 
 
 def _registered_label(domain: str) -> str:
-    """SLD без поддоменов и TLD. googleads.g.doubleclick.net -> doubleclick."""
-    parts = domain.lower().strip(".").split(".")
-    if len(parts) >= 2:
-        return parts[-2]
-    return parts[0] if parts else ""
+    """
+    v0.9.0: SLD без поддоменов и TLD с поддержкой двухуровневых TLD.
+
+    googleads.g.doubleclick.net -> doubleclick
+    a.b.foo.co.uk              -> foo
+    """
+    from pcap_triage.domain_utils import registered_label
+    return registered_label(domain)
 
 
 def _check_squat(sld: str, brand: str, lev_threshold: int) -> str | None:

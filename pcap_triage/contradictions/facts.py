@@ -221,32 +221,22 @@ def extract_arp_facts(state: CaptureState) -> list[Fact]:
 # =====================================================================
 
 def _suffix_match(value: str, suffixes: frozenset[str]) -> bool:
-    """
-    endswith по доменному суффиксу с обязательной точкой.
-
-    www.google-analytics.com matches google-analytics.com
-    notgoogle-analytics.com — НЕ matches (нужна точка перед суффиксом).
-    """
-    if not value:
-        return False
-    v = value.lower().rstrip(".")
-    return any(v == s or v.endswith("." + s) for s in suffixes)
+    """Обёртка над domain_utils.matches_suffix (v0.9.0)."""
+    from pcap_triage.domain_utils import matches_suffix
+    return matches_suffix(value, suffixes)
 
 
 def _base_domain(host: str) -> str:
     """
-    Грубое SLD: последние две метки. Не поддерживает co.uk, com.au —
-    та же ограниченность, что и в typosquatting. Для проверки «это
-    одна организация или разные» этого хватает.
+    v0.9.0: минимальный регистрируемый домен с поддержкой
+    двухуровневых TLD (co.uk, com.au, co.jp, ...).
 
     api.example.com → example.com
-    cdn.legit.com   → legit.com
+    a.b.foo.co.uk   → foo.co.uk
     attacker.com    → attacker.com
     """
-    parts = host.rstrip(".").lower().split(".")
-    if len(parts) >= 2:
-        return ".".join(parts[-2:])
-    return host.lower()
+    from pcap_triage.domain_utils import base_domain
+    return base_domain(host)
 
 
 def _collect_ips_for(
