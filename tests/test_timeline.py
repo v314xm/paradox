@@ -306,3 +306,59 @@ def test_subject_empty_when_no_src():
     )
     events = build_timeline([f])
     assert events[0].subject == ""
+
+
+# ---------- v0.9.0: carved_file в timeline ----------
+
+class _Carved:
+    """Заглушка CarvedFile для тестов."""
+    def __init__(self, ts, uri="a.sh", size=100, ext=".sh",
+                 sha256="deadbeef" * 8, dst_ip="192.168.1.1"):
+        self.first_ts = ts
+        self.uri = uri
+        self.size = size
+        self.ext = ext
+        self.sha256 = sha256
+        self.dst_ip = dst_ip
+
+
+def test_carved_file_event_created():
+    cf = _Carved(ts=100.0, uri="/payload.sh")
+    events = build_timeline([], [], carved_files=[cf])
+    assert len(events) == 1
+    e = events[0]
+    assert e.kind == "carved_file"
+    assert e.type == "carved_file"
+    assert e.phase == "execution"
+    assert e.chain_order == 30
+    assert e.mitre_id == "T1105"
+    assert "/payload.sh" in e.description
+
+
+def test_carved_file_no_ts_skipped():
+    cf = _Carved(ts=None)
+    events = build_timeline([], [], carved_files=[cf])
+    assert events == []
+
+
+def test_carved_file_zero_ts_skipped():
+    cf = _Carved(ts=0.0)
+    events = build_timeline([], [], carved_files=[cf])
+    assert events == []
+
+
+def test_carved_file_mixed_with_findings():
+    f = _f("brute_force", 50.0, src="10.0.0.1")
+    cf = _Carved(ts=100.0, uri="/x.ps1")
+    events = build_timeline([f], [], carved_files=[cf])
+    assert len(events) == 2
+    assert events[0].ts == 50.0
+    assert events[1].ts == 100.0
+    assert events[1].kind == "carved_file"
+
+
+def test_carved_file_backward_compat_no_arg():
+    """build_timeline(findings, contradictions) без carved_files — ок."""
+    f = _f("port_scan", 10.0)
+    events = build_timeline([f], [])
+    assert len(events) == 1

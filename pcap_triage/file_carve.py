@@ -87,6 +87,10 @@ class CarvedFile:
     first_bytes_hex: str        # первые 64 байта (для сигнатурного анализа)
     truncated: bool
     saved_path: str | None = None  # None если write_body=False
+    # v0.9.0: timestamp первого flow, в котором пришёл этот payload.
+    # Нужно timeline для сортировки. None если flow уже удалён или
+    # не имел first_ts (теоретически).
+    first_ts: float | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -101,6 +105,7 @@ class CarvedFile:
             "first_bytes_hex": self.first_bytes_hex,
             "truncated": self.truncated,
             "saved_path": self.saved_path,
+            "first_ts": self.first_ts,
         }
 
 
@@ -173,6 +178,10 @@ def carve_files(
             except OSError:
                 saved_path = None
 
+        # v0.9.0: ts из flow, в котором пришёл ответ.
+        flow = state.flows.get(key)
+        first_ts = flow.first_ts if flow is not None else None
+
         carved.append(CarvedFile(
             sha256=sha,
             ext=ext,
@@ -185,6 +194,7 @@ def carve_files(
             first_bytes_hex=obj.body[:64].hex(),
             truncated=obj.truncated,
             saved_path=saved_path,
+            first_ts=first_ts,
         ))
 
     return carved

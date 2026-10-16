@@ -164,6 +164,64 @@ def _describe_contradiction(c) -> str:
     return f"{subj}: {rule}"
 
 
+def _describe_carved_file(cf) -> str:
+    """Краткое описание payload'а для timeline."""
+    uri = getattr(cf, "uri", None) or "?"
+    size = getattr(cf, "size", 0)
+    ext = getattr(cf, "ext", "") or ""
+    sha = (getattr(cf, "sha256", "") or "")[:12]
+    return f"{uri} ({ext}, {size} B, sha256 {sha}…)"
+
+
+def _event_from_carved_file(cf, idx: int):
+    """None если нет first_ts или нулевой."""
+    ts = getattr(cf, "first_ts", None)
+    if ts is None or ts <= 0:
+        return None
+    return TimelineEvent(
+        ts=ts,
+        kind="carved_file",
+        type="carved_file",
+        subject=getattr(cf, "dst_ip", "") or "",
+        severity="medium",
+        confidence=0.9,
+        phase="execution",
+        chain_order=_PHASE_ORDER["execution"],
+        description=_describe_carved_file(cf),
+        mitre_id="T1105",
+        ref_id=idx,
+    )
+
+
+def _describe_carved_file(cf) -> str:
+    """Краткое описание payload'а для timeline."""
+    uri = getattr(cf, "uri", None) or "?"
+    size = getattr(cf, "size", 0)
+    ext = getattr(cf, "ext", "") or ""
+    sha = (getattr(cf, "sha256", "") or "")[:12]
+    return f"{uri} ({ext}, {size} B, sha256 {sha}…)"
+
+
+def _event_from_carved_file(cf, idx: int) -> TimelineEvent | None:
+    """None если нет first_ts или нулевой."""
+    ts = getattr(cf, "first_ts", None)
+    if ts is None or ts <= 0:
+        return None
+    return TimelineEvent(
+        ts=ts,
+        kind="carved_file",
+        type="carved_file",
+        subject=getattr(cf, "dst_ip", "") or "",
+        severity="medium",
+        confidence=0.9,
+        phase="execution",
+        chain_order=_PHASE_ORDER["execution"],
+        description=_describe_carved_file(cf),
+        mitre_id="T1105",
+        ref_id=idx,
+    )
+
+
 def _event_from_finding(f: Finding, idx: int) -> TimelineEvent | None:
     """None если нет first_seen — сортировать нечем."""
     if f.first_seen is None:
@@ -216,12 +274,14 @@ def _event_from_contradiction(c, idx: int) -> TimelineEvent | None:
 def build_timeline(
     findings: list[Finding],
     contradictions: list | None = None,
+    carved_files: list | None = None,
 ) -> list[TimelineEvent]:
     """
-    Собрать timeline из findings и contradictions.
+    Собрать timeline из findings, contradictions и carved_files.
 
     - Findings без first_seen пропускаются.
     - Contradictions без facts или с ts <= 0 пропускаются.
+    - Carved files без first_ts пропускаются.
     - Сортировка: ts → chain_order → subject → type → kind.
 
     Детерминированно: одинаковый вход → одинаковый список.
@@ -234,6 +294,11 @@ def build_timeline(
     if contradictions:
         for i, c in enumerate(contradictions):
             ev = _event_from_contradiction(c, i)
+            if ev is not None:
+                events.append(ev)
+    if carved_files:
+        for i, cf in enumerate(carved_files):
+            ev = _event_from_carved_file(cf, i)
             if ev is not None:
                 events.append(ev)
 

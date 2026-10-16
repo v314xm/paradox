@@ -330,7 +330,9 @@ def run_pipeline(
     # Собираем события из findings + contradictions, сортируем по ts,
     # группируем по фазам kill-chain (группировка — на стороне reporters).
     # Делается ДО reporters: они читают готовый список.
-    timeline_events = build_timeline(findings, contradictions)
+    timeline_events = build_timeline(
+        findings, contradictions, carved_files=state.carved_files,
+    )
 
     flow_report = build_flow_report(state, config, top_n=config.flow_report_top_n)
     dns_report = build_dns_report(state, top_n=config.flow_report_top_n)
