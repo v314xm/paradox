@@ -67,7 +67,11 @@ RCE в HTTP. Command injection в URI и POST body
 attacker_candidate, c2_candidate, gateway_candidate,
 pivot.
 
-Противоречия. 7 правил, см. секцию ниже.
+Противоречия. 13 правил, см. секцию ниже.
+
+Timeline / kill-chain. Хронология findings и противоречий,
+сгруппированная по фазам атаки (recon → initial_access →
+execution → lateral_movement → c2 → exfiltration).
 
 GUI. PySide6, 5 вкладок. Отдельный пакет
 pcap_triage_gui/, собран в .exe через PyInstaller.
@@ -82,12 +86,31 @@ victim_makes_attack	critical	Хост одновременно жертва и �
 mac_ip_conflict	critical	ARP-spoof: два MAC на одном IP
 sni_host_mismatch	high	Domain fronting: SNI ≠ HTTP Host
 ja3_ua_mismatch	high	JA3 tool + browser UA → мимикрия скрипта
-reverse_asymmetry	medium	Пропорция сессии 10:1 (эксфильтрация)
 port_service_mismatch	high	TLS на 22, HTTP на 445 → туннель
+reverse_asymmetry	medium	Пропорция сессии 10:1 (эксфильтрация)
 direct_ip_no_dns	medium	Клиент ходит на IP без DNS-резолва
-На CyberCampTask pivot-правило находит 192.168.1.12 — хост,
-которого сначала атакуют (brute_force), а затем он сам атакует
-(lateral movement на шлюз). Классический сценарий компромисса.
+sni_without_dns	medium	SNI без DNS-ответа в захвате
+dns_answer_mismatch	medium	SNI не совпадает с резолвнутым IP (CNAME-aware)
+sni_cert_mismatch	medium	SNI ≠ CN/SAN сертификата
+self_signed_cert	medium	Самоподписанный сертификат на внешнем ресурсе
+expired_cert	low	Просроченный сертификат
+
+### Timeline (kill-chain)
+
+Timeline строится над findings и contradictions:
+сортирует по времени, группирует по фазам атаки:
+
+text
+recon            port_scan, web_scanner
+initial_access   brute_force, ftp_brute_force, vulnerable_path, ...
+execution        command_injection, script_download
+lateral_movement lateral_movement, victim_makes_attack
+c2               beaconing, dns_tunneling, ja3_malware, ...
+exfiltration     large_transfer, reverse_asymmetry
+
+Секция «Timeline» в Markdown-отчёте показывает события
+по фазам, с указанием kind (`finding` / `contradiction`),
+subject, MITRE и относительного времени от первого события.
 
 Быстрый старт
 powershell
@@ -154,7 +177,7 @@ victim_candidate.
 scapy. Scapy используется точечно — только для сложных payload.
 
 Что внутри
-Экстракторы (8)
+### Экстракторы (8 + post-extract)
 Слой	Модуль	Что извлекает
 L0	flow.py	5-tuple, байты, timestamps, инициатор
 L0	dns.py	DNS-запросы, NXDOMAIN, по источнику
@@ -166,6 +189,7 @@ L0	nbns.py	Hostname из NBNS (NetBIOS)
 L0	kerberos.py	Username, realm, sname из Kerberos
 Плюс пост-обработка: reassembler.py — склейка TCP-сегментов,
 http_object.py — полные HTTP запросы/ответы из потока,
+tls_cert.py — X.509 сертификаты из TLS-хендшейков,
 file_carve.py — метаданные payload'ов (sha256, MIME,
 первые 64 байта).
 
@@ -188,10 +212,12 @@ Meta: nxdomain_burst.
 Каждый детектор пишет универсальные поля в evidence:
 src_ip, dst_ip, dst_port, first_seen, last_seen.
 
-Правила ContradictionDetector (7)
+### Правила ContradictionDetector (13)
 victim_makes_attack, mac_ip_conflict, sni_host_mismatch,
-ja3_ua_mismatch, reverse_asymmetry, port_service_mismatch,
-direct_ip_no_dns. Реализованы как реестр.
+ja3_ua_mismatch, port_service_mismatch, reverse_asymmetry,
+direct_ip_no_dns, sni_without_dns, dns_answer_mismatch,
+sni_cert_mismatch, self_signed_cert, expired_cert.
+Реализованы как реестр.
 
 Reporters (3)
 JSON — с schema_version, provenance (sha256 pcap),
@@ -225,11 +251,16 @@ PCAP → Extractors → CaptureState → Detectors → Findings
                                               ↓
                                   Contradictions
                                               ↓
+                              Timeline / kill-chain
+                              (findings + contradictions)
+                                              ↓
                                     build_entities
                                     (роль pivot)
                                               ↓
                               Reporters → JSON + Markdown
-Почему contradictions после detectors и до build_entities:
+Timeline строится после contradictions: нужны оба источника
+событий (findings и contradictions). До build_entities и
+reporters — они читают готовый список.
 
 После detectors — потому что используют findings как факты.
 
@@ -242,7 +273,7 @@ PCAP → Extractors → CaptureState → Detectors → Findings
 Тесты
 powershell
 pytest tests/ -q
-302 теста в 25 файлах. Всё зелёное.
+412 тестов в ~34 файлах. Всё зелёное.
 
 Группа	Файлов	Что покрывает
 Парсеры	1	TLS ClientHello (test_tls_parse.py, 10)
@@ -283,43 +314,25 @@ Windows / Linux / macOS. Разрабатывалось под Windows.
 
 Roadmap
 0.7.0 (текущая) — ContradictionDetector, 7 правил, GUI v0.1,
-302 теста.
+302 теста.0.7.0 — ContradictionDetector, 7 правил, GUI v0.1, 302 теста.
 
-0.8.0 — расширение видимости:
+0.7.0+ (backend-сессия) — DNS-ответы (A/AAAA/CNAME),
+TLS-сертификаты (CN, SAN, self_signed, validity), 6 новых
+правил contradictions (13 всего), per-IP direct_ip_no_dns,
+380 тестов.
 
-DNS-ответы (A/AAAA/CNAME) — для sni_host_mismatch v2 и
-direct_ip_no_dns v2.
-
-TLS-сертификаты (CN, SAN) — для cert_cn_sni_mismatch,
-self_signed_on_external.
-
-Универсальный контракт Finding (top-level src_ip, dst_ip,
-severity, mitre_id).
-
-Timeline / kill-chain reconstruction.
-
-0.9.0 — новые экстракторы:
-
-SMB2, DHCP, SSH-баннер, SMTP.
-
-HTTP/2 framing.
-
-IPv6 в парсере.
-
-1.0.0 — стабильный API:
-
-STIX 2.1 экспорт IOC.
-
-REST API + Web UI.
-
-Плагины (пользовательские правила contradictions).
-
-Структура репозитория
-text
+0.8.0 (текущая) — универсальный контракт Finding
+(top-level src_ip / dst_ip / dst_port / severity, property
+mitre_id), нормализация агрегированных evidence-ключей,
+MITRE_MAP 100% покрытие, timeline / kill-chain
+(pcap_triage/timeline.py, интеграция в pipeline и markdown),
+412 тестов.
 pcap_triage/            # ядро
 ├── extractors/         # 8 экстракторов + post-extract
+│                       # (http_object, tls_cert, file_carve)
 ├── detectors/          # 17 детекторов + mitre_map
-├── contradictions/     # 7 правил + факты + реестр
+├── contradictions/     # 13 правил + факты + реестр
+├── timeline.py         # v0.8.0: timeline / kill-chain
 ├── aggregators/        # entities + роли + pivot
 ├── integrations/       # Threat Intel (опционально)
 └── reporters/          # JSON, Markdown, flow report
@@ -330,7 +343,7 @@ pcap_triage_gui/        # GUI (PySide6)
 ├── dialogs/            # модалы
 └── workers/            # QThread-обёртки
 
-tests/                  # 302 теста, 25 файлов
+tests/                  # 412 тестов, ~34 файла
 
 tools/                  # dev-скрипты (не часть пакета)
 Вклад

@@ -14,8 +14,9 @@ RawPcapReader / PcapReader (по magic bytes)
 parse_packet (struct) → PacketRecord
 │
 ▼
-Extractors (8) + TCPReassembler (on the fly)
-├── flow, dns, tls, http, host_identity, arp_history, nbns, kerberos
+Extractors (9) + TCPReassembler (on the fly)
+├── flow, dns, tls, http, host_identity, arp_history, nbns,
+    kerberos, tls_cert (post-extract)
 │
 ▼
 CaptureState (flows, dns, host_identities, arp_macs, tcp_streams)
@@ -24,6 +25,7 @@ CaptureState (flows, dns, host_identities, arp_macs, tcp_streams)
 Post-extract (после чтения всех пакетов)
 ├── TCPReassembler.finalize_all → tcp_streams
 ├── HTTPObjectExtractor.run_post_extract → http_objects
+├── TlsCertificateExtractor.run_post_extract → tls_certs
 └── carve_files → carved_files
 │
 ▼
@@ -32,8 +34,13 @@ Detectors (17) → Findings
 ▼
 ContradictionDetector (слой 4.5)
 ├── facts.py — извлечение фактов
-├── rules/ — 7 правил
+├── rules/ — 13 правил
 └── Contradictions
+│
+▼
+Timeline / kill-chain (слой 4.6)
+├── timeline.py — build_timeline, summarize_by_phase
+└── TimelineEvents (findings + contradictions по фазам атаки)
 │
 ▼
 build_entities → Entities (internal / external, роли + pivot)
@@ -112,7 +119,7 @@ scapy (для сложных payload) и ручные парсеры.
 экстракторы, пишущие в FlowStats, ищут существующий flow по
 FlowKey и падают явно, если его нет.
 
-Реализованы (8)
+Реализованы (8 + post-extract)
 Экстрактор	Источник	Что пишет
 flow.py	IP/TCP/UDP заголовки	state.flows[FlowKey] → FlowStats
 dns.py	UDP/53 payload	state.dns_queries, dns_nxdomain_by_src
@@ -122,6 +129,8 @@ host_identity.py	ARP	state.host_identities[ip].mac, mac_history
 arp_history.py	ARP	state.arp_macs[ip][mac] = [first, last, count]
 nbns.py	UDP/137	state.host_identities[ip].hostnames
 kerberos.py	UDP/88, TCP/88	state.host_identities[ip].username/realm
+| tls_cert.py | TCP stream (TLS Certificate handshake) | state.tls_certs: list[(FlowKey, Certificate)] — CN, SAN, issuer, validity, self_signed |
+
 Почему два ARP-экстрактора:
 
 host_identity.py — последний MAC на IP, для отчёта сущностей.
@@ -146,6 +155,19 @@ requests (собираем URI), pass 2 — responses (URI пробрасыва�
 из парного request по нормализованному pair-key).
 Не process(record, state) — метод run_post_extract(state, config).
 
+tls_cert.py — TlsCertificateExtractor. Из tcp_streams
+извлекает X.509 Certificate из TLS-хендшейка. Работает на
+TLS 1.2 (в 1.3 сертификат зашифрован). Внутри:
+
+  - x509_der.py — минимальный DER TLV-парсер (~250 LOC);
+  - x509_cert.py — извлечение CN, issuer, validity,
+    self_signed, SAN (DNS + IP) из DER-структуры;
+  - tls_cert.py — парсер Certificate handshake (определяет
+    границы сертификата в TCP-потоке).
+
+Не process(record, state) — метод run_post_extract(state, config).
+Заполняет state.tls_certs.
+
 file_carve.py — метаданные payload'ов (sha256, размер,
 MIME, первые 64 байта). Тело не пишется на диск по умолчанию.
 Флаг file_carve_write_body позволяет сохранить как
@@ -168,11 +190,18 @@ MIME, первые 64 байта). Тело не пишется на диск п
 python
 @dataclass
 class CaptureState:
-    # DNS
+       # DNS
     dns_queries: Counter           # qname → count
     dns_nxdomain: Counter
     dns_nxdomain_by_src: Counter
     dns_queries_by_src: dict[str, Counter]
+
+    # DNS-ответы: name → {IP}, IP → {name}.
+    # Нужно для правил sni_without_dns / direct_ip_no_dns /
+    # dns_answer_mismatch — связывают домен, который клиент
+    # резолвил, с IP, куда он ходил.
+    dns_answers_by_name: dict[str, set[str]]
+    dns_answers_by_ip: dict[str, set[str]]
 
     # flows
     flows: dict[FlowKey, FlowStats]
@@ -182,11 +211,18 @@ class CaptureState:
     host_identities: dict[str, HostIdentity]
     arp_macs: dict[str, dict[str, list]]  # ip → {mac → [first, last, count]}
 
-    # TCP reassembly
+       # TCP reassembly
     tcp_streams: dict[FlowKey, bytes]
     tcp_streams_truncated: set[FlowKey]
     http_objects: list
     carved_files: list
+
+    # X.509 сертификаты из TLS-хендшейков.
+    # list[tuple[FlowKey, Certificate]] — как carved_files,
+    # чтобы не плодить импорт-цикл models ↔ x509_cert.
+    tls_certs: list
+
+   
 
     # meta
     packet_count: int
@@ -197,7 +233,12 @@ FlowStats
 Точка сборки контекста сессии:
 
 базовая телеметрия: packets, bytes_sent, first_ts,
-last_ts, timestamps, initiated_by_src
+last_ts, initiated_by_src
+
+(v0.7.0+: поле timestamps удалено — занимало до 160 МБ
+на 4.7 ГБ pcap, использовалось только в старых версиях
+beaconing. Список timestamps растёт неограниченно и
+не нужен: beaconing работает по first_ts / last_ts.)
 
 протокол-специфичные поля: sni, ja3, ja3s, http_host,
 http_uri, http_method, http_user_agent
@@ -377,8 +418,26 @@ pcap_triage/contradictions/
     ├── e_reverse_asymmetry.py
     ├── e_victim_makes_attack.py
     ├── f_port_service_mismatch.py
-    └── g_direct_ip_no_dns.py
-Функции извлечения фактов (facts.py)
+    ├── g_direct_ip_no_dns.py
+    ├── h_dns_answer_mismatch.py       # v0.7.0+: SNI vs резолвнутый IP
+    ├── h_sni_without_dns.py           # v0.7.0+: SNI без DNS-ответа
+    └── (tls_cert-правила)             # v0.7.0+: sni_cert_mismatch,
+                                       # self_signed_cert, expired_cert
+Функции извлечения фактов (facts.py) Замени её содержимое — старые 7 остаются, добавь 6 новых:
+Правило	Severity base	
+Источник фактов
+victim_makes_attack	critical	findings (роли)
+mac_ip_conflict	critical	state.arp_macs
+sni_host_mismatch	high	flows (sni + http_host)
+ja3_ua_mismatch	high	flows (ja3 + ua)
+reverse_asymmetry	medium	flows (сессии)
+port_service_mismatch	high	flows (protocol on port)
+direct_ip_no_dns	medium	flows + dns_answers_by_ip
+sni_without_dns	medium	flows (sni) + dns_answers_by_name
+dns_answer_mismatch	medium	flows (sni) + dns_answers_by_name (CNAME-aware)
+sni_cert_mismatch	medium	flows (sni) + state.tls_certs
+self_signed_cert	medium	state.tls_certs
+expired_cert	low	state.tls_certs
 Функция	Что генерирует
 extract_attack_facts(findings)	victim_of / attacker_of из findings
 extract_arp_facts(state)	has_mac из state.arp_macs
@@ -435,6 +494,67 @@ reverse_asymmetry: одна Contradiction на subject. Если
 сессий ≥ 5 (bulk-паттерн), severity понижается до low,
 conf × 0.7. Фикс FP на шлюзах/NAT — CyberCampTask 192.168.1.1
 давал 9 «эксфильтраций» без агрегации.
+
+Слой 4.6. Timeline / kill-chain (timeline.py)
+Новый слой в v0.8.0. Собирает из findings и contradictions
+хронологию событий и группирует по фазам kill-chain. Нового
+анализа не делает — только упорядочивает уже найденное.
+
+Модель данных (timeline.py)
+python
+@dataclass
+class TimelineEvent:
+    ts: float              # unix timestamp
+    kind: str              # "finding" | "contradiction"
+    type: str              # f.type / c.rule
+    subject: str           # обычно IP
+    severity: str
+    confidence: float
+    phase: str             # kill-chain фаза
+    chain_order: int       # число для сортировки фаз
+    description: str
+    mitre_id: str | None
+    ref_id: int            # индекс в исходном списке
+
+Фазы kill-chain
+Численный порядок:
+
+recon          10   port_scan, web_scanner
+initial_access 20   vulnerable_path, brute_force, ftp_brute_force,
+                    typosquatting, mac_ip_conflict
+execution      30   command_injection, script_download, carved_file
+persistence    40   (зарезервировано)
+lateral_movement 50 lateral_movement, victim_makes_attack
+c2             60   beaconing, dns_tunneling, dga_domain, cloud_tunnel,
+                    ja3_malware, ip_check_service, sni_without_dns,
+                    sni_mismatch, suspicious_port, nxdomain_burst,
+                    sni_host_mismatch, ja3_ua_mismatch,
+                    port_service_mismatch, direct_ip_no_dns,
+                    sni_cert_mismatch, self_signed_cert, expired_cert,
+                    dns_answer_mismatch
+exfiltration   70   large_transfer, reverse_asymmetry
+impact         80   (зарезервировано)
+other         999   всё, что не заведено
+
+ts события: для finding — first_seen; для contradiction —
+max(facts.ts) (момент, когда все подтверждающие факты уже
+произошли).
+
+Сортировка: ts → chain_order → subject → type → kind.
+Детерминированно: одинаковый вход → побитово одинаковый список.
+
+Функции
+build_timeline(findings, contradictions=None) -> list[TimelineEvent]
+summarize_by_phase(events) -> list[dict]
+    Группировка по phase, отсортированная по chain_order:
+    [{"phase": ..., "chain_order": ..., "count": ..., "events": [...]}, ...]
+
+Интеграция
+pipeline.run_pipeline строит timeline после contradictions и до
+reporters. Возвращает ключ "timeline" в dict (плоский список).
+Markdown-репортёр группирует по фазам в секции «Timeline»,
+JSON — плоский список + по фазам (через summarize_by_phase в
+потребителе).
 
 Слой 5. Агрегаторы (aggregators/)
 Превращают flow'ы, findings и contradictions в сущности (хосты).
@@ -626,12 +746,18 @@ def run_pipeline(pcap_path: Path, config: Config) -> dict:
     _extract(pcap_path, state, config)
     findings = _detect(state, config)
 
-    # Contradictions — между detectors и build_entities.
+       # Contradictions — между detectors и build_entities.
     # После detectors: используют findings.
     # До entities: влияют на роли (pivot).
     contradictions = run_contradictions(state, findings, config)
 
+    # v0.8.0: timeline / kill-chain reconstruction.
+    # Собираем события из findings + contradictions. Делается
+    # ДО reporters: они читают готовый список.
+    timeline_events = build_timeline(findings, contradictions)
+
     flow_report = build_flow_report(state, config, ...)
+
     dns_report = build_dns_report(state, ...)
     http_report = build_http_report(state, ...)
     http_objects_report = build_http_object_report(state, ...)
@@ -678,7 +804,11 @@ EXTRACTORS = [
     HostIdentityExtractor(),
     ARPMacHistoryExtractor(),      # 0.7.0: история MAC для mac_ip_conflict
     NBNSExtractor(),
-    KerberosExtractor(),
+     KerberosExtractor(),
+    # tls_cert — не в EXTRACTORS: работает post-extract на готовых
+    # TCP-потоках, вызывается из _extract отдельно.
+]
+
 ]
 
 DETECTORS = [
@@ -709,6 +839,12 @@ RULES = [
     ReverseAsymmetryRule(),
     PortServiceMismatchRule(),
     DirectIpNoDnsRule(),
+    SniWithoutDnsRule(),           # v0.7.0+
+    DnsAnswerMismatchRule(),       # v0.7.0+
+    SniCertMismatchRule(),         # v0.7.0+
+    SelfSignedCertRule(),          # v0.7.0+
+    ExpiredCertRule(),             # v0.7.0+
+]
 ]
 Известная ошибка: если случайно поместить детектор в
 EXTRACTORS или задублировать в DETECTORS — получишь либо
@@ -760,15 +896,74 @@ find_contradictions(facts).
 Вызов из pipeline.py + добавление в возвращаемый dict +
 вызов из cli.py.
 
-Известные долги (0.7.0)
-Timestamps в FlowStats растут неограниченно. На 334 МБ —
-106 МБ RAM, не критично, но Welford нужен для гигабайтных файлов.
+Finding
+Универсальный контракт находки. Top-level поля — то, чем
+пользуются кросс-детекторные потребители: contradictions/facts.py,
+aggregators/entities.py, reporters. Всё остальное (специфика
+конкретного детектора) — в evidence.
 
-DNS-ответы (A/AAAA/CNAME) не парсятся. Только запросы.
-Блокирует точный direct_ip_no_dns и часть правил категории A.
+python
+@dataclass
+class Finding:
+    type: str
+    value: str
+    confidence: float
 
-TLS-сертификаты (CN, SAN) не парсятся. Блокирует
-cert_cn_sni_mismatch, self_signed_on_external.
+    # Универсальные поля (v0.8.0)
+    src_ip: str | None = None
+    dst_ip: str | None = None
+    dst_port: int | None = None
+    severity: str = "medium"   # critical | high | medium | low | info
+
+    first_seen: float | None = None
+    last_seen: float | None = None
+    mitre_techniques: tuple[str, ...] = ()
+
+    evidence: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def mitre_id(self) -> str | None:
+        return self.mitre_techniques[0] if self.mitre_techniques else None
+
+Мост совместимости v0.8.0 — pipeline._normalize_finding.
+После _detect и MITRE-обогащения pipeline проходит по всем
+findings и вытаскивает top-level поля из evidence:
+  src_ip / dst_ip / dst_port   — fallback на evidence-ключи
+                                 (в т.ч. агрегированные
+                                 top_src_ips / dst_ips / dst_ports
+                                 для vulnerable_path и script_download)
+  severity                     — из _SEVERITY_BY_TYPE: dict по типу
+                                 (временный, уйдёт в v0.9)
+
+Читатели (facts.py, entities.py) в переходный период используют
+fallback: `src = f.src_ip or ev.get("src_ip")`. Уйдёт в v0.9,
+когда детекторы начнут заполнять контракт сами.
+
+MITRE заполняется в pipeline._detect после всех детекторов:
+если instance-level mitre_techniques пуст — берём из
+detectors/mitre_map.py::get_techniques(f.type). В v0.8.0
+покрытие MITRE_MAP доведено до 100% типов findings (добавлены
+command_injection, beaconing, dns_tunneling, ja3_malware,
+sni_mismatch, cloud_tunnel).
+
+Известные долги (0.8.0)
+_normalize_finding в pipeline — временный мост v0.8.0. Вытаскивает
+top-level поля Finding из evidence. Уйдёт в v0.9, когда детекторы
+начнут заполнять контракт сами и дубли в evidence уберутся.
+Пока работают оба механизма параллельно.
+
+_SEVERITY_BY_TYPE в pipeline — временная карта тип→severity.
+Уйдёт вместе с _normalize_finding.
+
+vulnerable_path / script_download пишут findings в агрегированном
+виде (top_src_ips / dst_ips / dst_ports — списки, не одиночные
+поля). _normalize_finding это нормализует, но правильнее —
+чтобы детекторы писали src_ip / dst_ip в self явно на этапе
+агрегации. TODO v0.9.
+
+TLS 1.3 Certificate зашифрован. Правила sni_cert_mismatch /
+self_signed_cert / expired_cert работают только на TLS 1.2
+(и на pcap до 2018). Обходной путь — keylog, пока не сделан.
 
 JA3-хеши браузеров не в config. Все неизвестные → family=normal.
 Правило ja3_ua_mismatch ловит только tool/malware.
@@ -778,21 +973,14 @@ IPv6 не поддержан в парсере.
 nxdomain_burst считает за весь файл — не по окну. 93
 findings на FIN-2015, часть могут быть FP.
 
-sni_without_dns — 73 findings на FIN-2015, CDN без DNS.
-
 beaconing чувствителен к jitter — медленные C2 (> 1 часа)
 не ловятся без windowing.
 
 Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD.
+Влияет на sni_host_mismatch, dns_answer_mismatch, typosquatting.
 
 Внутренний C2 (internal → internal зашифрованный) не
 детектируется без HTTP/2 framing.
-
-Timeline / kill-chain отсутствуют как структура — contradictions
-дают точки, TL;DR даёт порядок, но не цепочки с причинностью.
-
-Универсальный контракт Finding не зафиксирован — часть
-полей остаётся в evidence со своими именами.
 
 http_parse.py без прямых тестов после удаления мусорного
 test_http_parse.py.
@@ -856,7 +1044,7 @@ SQLite-кэш.
 
 17 детекторов, 244 теста.
 
-0.7.0 (текущая)
+0.7.0
 ContradictionDetector — новый слой анализа.
 
 pcap_triage/contradictions/ — base, facts, registry, rules.
@@ -892,27 +1080,85 @@ CLI -o корректно работает с директориями.
 302 теста. FIN-2015: 386 findings, 11 contradictions.
 CyberCampTask: 7 findings, 2 contradictions.
 
+0.7.0+ (backend-сессия: DNS + TLS)
+DNS-ответы:
+- парсер A/AAAA/CNAME в extractors/dns.py
+- dns_answers_by_name / dns_answers_by_ip в CaptureState
+- CNAME-цепочки склеиваются (www.foo.com → cdn.foo.com → 1.2.3.4)
+- direct_ip_no_dns переделан: per-IP фильтр через
+  dns_answers_by_ip вместо «клиент вообще делал DNS-запросы»
+- новое правило sni_without_dns (SNI без DNS-ответа, medium)
+- новое правило dns_answer_mismatch (CNAME-aware, medium)
+- SNIMismatchDetector расширен: сравнение с dns_answers_by_name
+- allowlist CDN + twitter — FP на FIN-2015 срезаны
+
+TLS-сертификаты:
+- pcap_triage/x509_der.py — минимальный DER TLV-парсер (~250 LOC)
+- pcap_triage/x509_cert.py — извлечение CN/issuer/validity/SAN
+- pcap_triage/tls_cert.py — парсер Certificate handshake из TCP-потока
+- pcap_triage/extractors/tls_cert.py — post-extract экстрактор
+- state.tls_certs: list[tuple[FlowKey, Certificate]]
+- 3 новых правила: sni_cert_mismatch (medium),
+  self_signed_cert (medium), expired_cert (low)
+
+Убрано мёртвое FlowStats.timestamps — ~160 МБ экономии
+на 4.7 ГБ pcap (использовалось только в старом beaconing).
+
+Тесты: 302 → 380 passed (+78), 25 → 33 файла тестов.
+
+Проверено:
+- FIN-2015: 58 pcap, 9.5M пакетов, 0 ошибок
+- CyberCampTask: 7 findings / 2 contradictions (baseline)
+- sni_without_dns findings: 73 → 0 (allowlist CDN/brands)
+- direct_ip_no_dns: ожило на FIN-2015 (192.168.0.54)
+- tls_certs: 2 сертификата извлечено на тестовом pcap
+
+0.8.0 (текущая)
+Универсальный контракт Finding:
+- top-level поля src_ip / dst_ip / dst_port / severity
+- property mitre_id (первая техника из mitre_techniques)
+- to_dict() добавляет mitre_id в сериализацию
+- pipeline._normalize_finding — мост из evidence в top-level
+- _SEVERITY_BY_TYPE — временная карта тип→severity
+- fallback в читателях: src = f.src_ip or ev.get("src_ip")
+- нормализация агрегированных ключей top_src_ips / dst_ips /
+  dst_ports (vulnerable_path, script_download)
+
+MITRE_MAP: 100% покрытие типов findings. Добавлены:
+command_injection (T1190, T1059), beaconing (T1071.001),
+dns_tunneling (T1071.004), ja3_malware (T1071.001),
+sni_mismatch (T1071.001), cloud_tunnel (T1572).
+
+Timeline / kill-chain reconstruction:
+- pcap_triage/timeline.py — новый модуль
+- TimelineEvent, build_timeline, summarize_by_phase
+- фазы recon / initial_access / execution / persistence /
+  lateral_movement / c2 / exfiltration / impact / other
+- интеграция в pipeline (ключ "timeline") и markdown
+  (секция "Timeline" с группировкой по фазам)
+- 32 теста в tests/test_timeline.py
+
+Читатели переключены на контракт с fallback:
+- contradictions/facts.py::extract_attack_facts
+- aggregators/entities.py::_ips_from_finding
+
+Тесты: 380 → 412 passed (+32).
+
 Что дальше
-0.8.0 — расширение видимости:
+0.9.0 — новые экстракторы и снятие моста:
 
-DNS-ответы (A/AAAA/CNAME) — оживит sni_host_mismatch через DNS,
-точный direct_ip_no_dns, sni_dns_different_ip.
+Новые экстракторы:
+- SMB2, DHCP, SSH-баннер, SMTP.
+- HTTP/2 framing (HPACK для headers).
+- IPv6 в парсере.
 
-TLS-сертификаты (CN, SAN) — cert_cn_sni_mismatch,
-self_signed_on_external.
-
-Универсальный контракт Finding — top-level поля src_ip,
-dst_ip, severity, mitre_id.
-
-Timeline / kill-chain reconstruction.
-
-0.9.0 — новые экстракторы:
-
-SMB2, DHCP, SSH-баннер, SMTP.
-
-HTTP/2 framing (HPACK для headers).
-
-IPv6 в парсере.
+Снятие моста v0.8.0:
+- детекторы пишут src_ip / dst_ip / dst_port напрямую,
+  дубли в evidence убираются.
+- удаление _normalize_finding и _SEVERITY_BY_TYPE.
+- удаление fallback `f.src_ip or ev.get("src_ip")` в читателях.
+- vulnerable_path / script_download пишут одиночные поля
+  на этапе агрегации.
 
 1.0.0 — стабильный API:
 
