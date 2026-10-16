@@ -449,7 +449,11 @@ class Config:
 
 
     # --- NXDOMAIN burst ---
+    # v0.9.0: threshold — сколько NXDOMAIN в окне _window_sec.
+    # Было: сколько за весь файл. Считаем максимум в скользящем
+    # окне W секунд; на FIN-2015 93 → ожидаемо ~5-15.
     nxdomain_burst_threshold: int = 5
+    nxdomain_burst_window_sec: int = 60
 
     # --- typosquatting ---
     protected_brands: frozenset[str] = field(default_factory=lambda: _frozen(
@@ -679,6 +683,8 @@ class Config:
             errors.append("dga_min_label_length must be > 0")
         if self.nxdomain_burst_threshold <= 0:
             errors.append("nxdomain_burst_threshold must be > 0")
+        if self.nxdomain_burst_window_sec <= 0:
+            errors.append("nxdomain_burst_window_sec must be > 0")
         if self.typosquatting_levenshtein_threshold < 0:
             errors.append("typosquatting_levenshtein_threshold must be >= 0")
         if self.sni_mismatch_min_flows <= 0:

@@ -72,6 +72,11 @@ class DNSExtractor:
             state.dns_nxdomain[name] += 1
             if client_ip:
                 state.dns_nxdomain_by_src[client_ip] += 1
+                # v0.9.0: помним ts для скользящего окна в
+                # nxdomain_burst. list, не set — повторы ts нужны.
+                state.dns_nxdomain_ts_by_src.setdefault(
+                    client_ip, [],
+                ).append(record.ts)
 
         # DNS-ответы: A / AAAA / CNAME. Только для ответов (qr=1),
         # только для поддерживаемых типов. Ключ — qname из вопроса,

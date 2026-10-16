@@ -243,6 +243,15 @@ class CaptureState:
     dns_answers_by_name: dict[str, set[str]] = field(default_factory=dict)
     dns_answers_by_ip: dict[str, set[str]] = field(default_factory=dict)
 
+    # v0.9.0: timestamps каждого NXDOMAIN по src_ip.
+    # Нужно nxdomain_burst для скользящего окна. Раньше
+    # dns_nxdomain_by_src считал за весь файл — на FIN-2015 давало
+    # 93 findings, из которых большинство — размазанные по часу
+    # опечатки. Здесь храним ts, окно считаем в детекторе.
+    dns_nxdomain_ts_by_src: dict[str, list[float]] = field(
+        default_factory=dict,
+    )
+
     # flows
     flows: dict[FlowKey, FlowStats] = field(default_factory=dict)
 
