@@ -45,7 +45,14 @@ class Toast(QWidget):
         self.setObjectName(f"toast_{self._kind}")
 
     def _schedule_close(self) -> None:
-        QTimer.singleShot(_TOAST_LIFETIME_MS, self.close)
+        # Instance QTimer (child of toast) — удаляется вместе
+        # с виджетом. QTimer.singleShot с bound-методом переживёт
+        # delete C++-объекта и упадёт при вызове self.close()
+        # из таймаута.
+        self._close_timer = QTimer(self)
+        self._close_timer.setSingleShot(True)
+        self._close_timer.timeout.connect(self.close)
+        self._close_timer.start(_TOAST_LIFETIME_MS)
 
 
 class ToastManager:
@@ -58,13 +65,29 @@ class ToastManager:
     def __init__(self, parent_window) -> None:
         self._parent = parent_window
         self._active: list[Toast] = []
+        # parent (RunView) может быть удалён Qt раньше, чем закроются
+        # висящие toast'ы. С момента destroyed не трогаем self._parent:
+        # обращение к удалённому C++-объекту даёт RuntimeError.
+        self._alive = True
+        try:
+            parent_window.destroyed.connect(self._on_parent_destroyed)
+        except Exception:
+            pass
 
     def show(self, message: str, kind: str = "info") -> None:
+        if not self._alive:
+            return
         t = Toast(message, kind, parent=self._parent)
         t.destroyed.connect(lambda *_: self._drop(t))
         self._active.append(t)
         t.show()
         self._reposition()
+
+    def _on_parent_destroyed(self, *_args) -> None:
+        """Родитель удалён. Toast'ы уже под удалением — просто
+        забываем про них и больше не дёргаем self._parent."""
+        self._alive = False
+        self._active.clear()
 
     def _drop(self, t: Toast) -> None:
         if t in self._active:
@@ -73,9 +96,19 @@ class ToastManager:
 
     def _reposition(self) -> None:
         """Снизу вверх: свежий toast над остальными."""
-        if not self._active:
+        if not self._alive or not self._active:
             return
-        screen = self._parent.screen().availableGeometry()
+        try:
+            parent_screen = self._parent.screen()
+        except RuntimeError:
+            # parent C++-объект удалён, а destroyed-сигнал почему-то
+            # не пришёл. Страхуемся сами.
+            self._alive = False
+            self._active.clear()
+            return
+        if parent_screen is None:
+            return
+        screen = parent_screen.availableGeometry()
 
         # Снизу растём: y убывает для каждого следующего toast'а.
         y_cursor = screen.bottom() - _TOAST_MARGIN

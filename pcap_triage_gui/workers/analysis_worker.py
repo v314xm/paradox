@@ -17,23 +17,37 @@ class AnalysisWorker(QThread):
     # контейнерные типы через Signal(dict), object работает всегда.
     finished_ok = Signal(object)
     error = Signal(str)
+    cancelled = Signal()
+    progress = Signal(int, int)  # bytes_read, total_bytes
+    phase = Signal(str, int, int, str)  # phase_name, done, total, detail
 
     def stop(self) -> None:
-        """Жёсткая остановка: terminate() + короткое ожидание.
+        """Кооперативная остановка: requestInterruption.
 
-        Почему terminate, а не requestInterruption:
-            run_pipeline — одна длинная синхронная функция, она не
-            проверяет флаги. Мягко прервать её без правок в ядро
-            нельзя. terminate() убивает поток в произвольной точке —
-            текущий отчёт будет неполным, но GUI его не покажет
-            (см. RunView._on_thread_done).
-
-        wait(3000) — даём потоку шанс завершиться чисто. Если не успел
-        за 3 сек (маловероятно), Qt отвалится по своему таймауту.
+        run_pipeline проверяет isInterruptionRequested каждые
+        10 000 пакетов и бросает PipelineCancelled.
+        terminate() не используется — он валил процесс.
         """
         if self.isRunning():
-            self.terminate()
-            self.wait(3000)
+            self.requestInterruption()
+
+    def _emit_progress(self, bytes_read: int, total: int) -> None:
+        """Called from the worker thread.
+
+        Qt queued-connection handles cross-thread signal delivery
+        safely — GUI thread reads the value in its own slot.
+        """
+        self.progress.emit(int(bytes_read), int(total))
+
+    def _emit_phase(self, name: str, done: int, total: int,
+                    detail: str = "") -> None:
+        """Coarse phase ticks: detect / contradictions / report.
+
+        detail — имя текущего детектора для фазы detect, пусто
+        для остальных.
+        """
+        self.phase.emit(str(name), int(done), int(total), str(detail))
+
     def __init__(
             self,
             pcap_path: str,
@@ -51,7 +65,10 @@ class AnalysisWorker(QThread):
     def run(self) -> None:
         try:
             import pcap_triage.pipeline as core
-            from pcap_triage.pipeline import run_pipeline
+            from pcap_triage.pipeline import (
+                PipelineCancelled,
+                run_pipeline,
+            )
             from pcap_triage.contradictions import registry as contra_registry
         except ImportError as e:
             self.error.emit(f"Не удалось импортировать ядро: {e}")
@@ -76,7 +93,16 @@ class AnalysisWorker(QThread):
 
         t0 = time.perf_counter()
         try:
-            report = run_pipeline(self._pcap_path, self._config)
+            report = run_pipeline(
+                self._pcap_path,
+                self._config,
+                should_stop=self.isInterruptionRequested,
+                on_progress=self._emit_progress,
+                on_phase=self._emit_phase,
+            )
+        except PipelineCancelled:
+            self.cancelled.emit()
+            return
         except Exception as e:
             self.error.emit(f"{type(e).__name__}: {e}")
             return

@@ -40,31 +40,28 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMenuBar,
     QMessageBox,
+    QStackedWidget,
+    QTabBar,
     QTabWidget,
     QVBoxLayout,
     QWidget,
 )
 
 # >>> ИМПОРТЫ VIEWS <<<
-
-from pcap_triage_gui.views.enrich_view import EnrichView        # >>> ОБОГАЩЕНИЕ <<<
-# Шаг 13: from pcap_triage_gui.views.history_view import HistoryView
 from pcap_triage_gui.views.run_view import RunView
 from pcap_triage_gui.views.settings_view import SettingsView
+from pcap_triage_gui.views.enrich_view import EnrichView
 from pcap_triage_gui.views.history_view import HistoryView
-# >>> РАЗВИТИЕ <<<
-from pcap_triage_gui.views.roadmap_view import RoadmapView # >>> ИСТОРИЯ <<<
-# >>> /РАЗВИТИЕ <<<
-# Шаг 13: from pcap_triage_gui.views.enrich_view import EnrichView
-#         from pcap_triage_gui.views.history_view import HistoryView
 # >>> /ИМПОРТЫ VIEWS <<<
 
 
-TAB_TITLES = ("Прогон", "Обогащение", "Настройки", "История", "Развитие")
-APP_VERSION = "0.7.0"
+TAB_TITLES = ("Прогон", "История", "Обогащение", "Настройки")
+APP_VERSION = "0.9.0"
 
 
 # Соответствие латиница → кириллица в ЙЦУКЕН-раскладке.
@@ -97,7 +94,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(f"pcap-triage v{APP_VERSION}")
         self.resize(1440, 900)
+        self._apply_dark_titlebar()
 
+        # Standalone QMenuBar (не self.menuBar()): кладётся в HBox
+        # рядом с QTabBar, поэтому QMainWindow не управляет им.
+        self._topmenu = QMenuBar(self)
         self._build_menubar()
         self._build_tabs()
         self._build_statusbar()
@@ -126,29 +127,64 @@ class MainWindow(QMainWindow):
     # =========================================================================
 
     def _build_menubar(self) -> None:
-        mb = self.menuBar()
+        mb = self._topmenu
         mb.setNativeMenuBar(False)  # единый вид, а не нативный macOS-стиль
 
+        # На панели — только «Файл» и «Помощь». Пункты
+        # Прогон / Вид / Настройки живут хоткеями (F5, F11, Ctrl+,),
+        # но не занимают место — их содержимое и так доступно
+        # вкладками и стандартными сочетаниями.
         self._menu_file(mb)
-        self._menu_run(mb)
-        # >>> ДОБАВИТЬ МЕНЮ <<<
-        # Шаг 12:  self._menu_settings(mb)
-        # Шаг 13:  self._menu_enrich(mb)
-        #          self._menu_history(mb)
-        #          self._menu_roadmap(mb)
-        # >>> /ДОБАВИТЬ МЕНЮ <<<
-        self._menu_view(mb)
         self._menu_help(mb)
+        # Только регистрация QAction'ов, без addMenu().
+        self._menu_run(mb)
+        self._menu_view(mb)
         self._menu_settings(mb)
 
+    def _apply_dark_titlebar(self) -> None:
+        """Тёмный заголовок окна на Windows 10 1809+ / 11.
+
+        Системный заголовок и menuBar Qt не читают QSS темы —
+        DwmSetWindowAttribute(DWMWA_USE_IMMERSIVE_DARK_MODE)
+        единственный способ их покрасить. На прочих платформах
+        no-op, поведение не меняется.
+        """
+        import sys as _sys
+        if _sys.platform != "win32":
+            return
+        try:
+            import ctypes
+            hwnd = int(self.winId())
+            # 20 — Win10 1909+ и Win11; 19 — Win10 1809/1903.
+            # Пробуем 20, если dwmapi вернёт ошибку — 19.
+            for attr in (20, 19):
+                value = ctypes.c_int(1)
+                ret = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    ctypes.c_void_p(hwnd),
+                    ctypes.c_uint(attr),
+                    ctypes.byref(value),
+                    ctypes.sizeof(value),
+                )
+                if ret == 0:
+                    return
+        except Exception:
+            # На старых сборках dwmapi может отсутствовать —
+            # молча оставляем системный цвет заголовка.
+            return
+
     def _menu_settings(self, mb) -> None:
-        m = mb.addMenu("Настройки")
-        m.addAction(self._act(
-            "Открыть настройки…", "Ctrl+,", self._on_open_settings, enabled=True,
-        ))
+        # Меню «Настройки» убрано с панели. Ctrl+, — хоткей окна.
+        self._act_open_settings = self._act(
+            "Открыть настройки…", "Ctrl+,", self._on_open_settings,
+            enabled=True,
+        )
+        self.addAction(self._act_open_settings)
     def _menu_file(self, mb) -> None:
         m = mb.addMenu("Файл")
         m.addAction(self._act("Открыть pcap…", "Ctrl+O", self._on_open_pcap))
+        m.addAction(self._act(
+            "Открыть отчёт…", "Ctrl+Shift+O", self._on_open_report,
+        ))
 
         # >>> ФАЙЛ: ЭКСПОРТ <<<
         # Подменю «Экспорт». Пункты выключены до первого успешного
@@ -174,7 +210,9 @@ class MainWindow(QMainWindow):
         m.addAction(self._act("Выход", "Ctrl+Q", self.close))
 
     def _menu_run(self, mb) -> None:
-        m = mb.addMenu("Прогон")
+        # Меню «Прогон» убрано с панели. F5 / Ctrl+F5 / Esc
+        # остаются хоткеями окна. QAction'ы нужны
+        # MainWindow._on_analysis_* для enable/disable.
         self._act_analyze = self._act(
             "Анализировать", "F5", self._on_analyze, enabled=True,
         )
@@ -182,25 +220,26 @@ class MainWindow(QMainWindow):
             "Анализировать с настройками…", "Ctrl+F5",
             self._on_analyze_with_config, enabled=False,
         )
-        # >>> ОСТАНОВКА <<<
         self._act_stop = self._act(
             "Остановить", "Esc", self._on_stop, enabled=False,
         )
-        # >>> /ОСТАНОВКА <<<
-        m.addAction(self._act_analyze)
-        m.addAction(self._act_analyze_cfg)
-        m.addSeparator()
-        m.addAction(self._act_stop)
+        for a in (self._act_analyze, self._act_analyze_cfg,
+                  self._act_stop):
+            self.addAction(a)
 
     def _menu_view(self, mb) -> None:
-        m = mb.addMenu("Вид")
-        for i, title in enumerate(TAB_TITLES):
-            m.addAction(self._act(title, slot=lambda i=i: self.tabs.setCurrentIndex(i)))
-        m.addSeparator()
-        m.addAction(self._act("Полноэкранный режим", "F11", self._toggle_fullscreen))
+        # Меню «Вид» убрано с панели. F11 остаётся хоткеем окна.
+        self._act_fullscreen = self._act(
+            "Полноэкранный режим", "F11", self._toggle_fullscreen,
+        )
+        self.addAction(self._act_fullscreen)
 
     def _menu_help(self, mb) -> None:
         m = mb.addMenu("Помощь")
+        m.addAction(self._act(
+            "Справка", slot=self._on_help_reference,
+        ))
+        m.addSeparator()
         m.addAction(self._act("О программе", slot=self._on_about))
         m.addAction(self._act("Горячие клавиши", slot=self._on_hotkeys))
 
@@ -212,25 +251,30 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
 
-        # --- Прогон ---
+        # Создаём все view'шки сразу. Порядок создания не связан с
+        # порядком вкладок: settings_view нужен раньше, чем мы будем
+        # подключать его сигналы к enrich_view, а вкладку при этом
+        # показываем после Обогащения.
         self.run_view = RunView()
+        self.settings_view = SettingsView()
+        self.enrich_view = EnrichView()
+        self.history_view = HistoryView()
+
+        # --- Прогон → главное окно ---
         self.run_view.analysis_started.connect(self._on_analysis_started)
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
-        # >>> ОСТАНОВКА <<<
         self.run_view.analysis_failed.connect(self._on_analysis_failed)
         self.run_view.analysis_cancelled.connect(self._on_analysis_cancelled)
-        # >>> /ОСТАНОВКА <<<
-        self.tabs.addTab(self.run_view, TAB_TITLES[0])
 
-        # --- Настройки ---
-        # Создание и connect идут ПАРАМИ, в правильном порядке:
-        # сначала объект, потом подписки.
-        self.settings_view = SettingsView()
+        # --- Настройки → Прогон и Обогащение ---
+        # thresholds_applied — отдельный сигнал для Порогов, шлёт плоский dict.
+        # config_applied — общий сигнал остальных секций (Brute force, Сеть,
+        # Производительность, Allowlist, DGA, Threat Intel, Отчёты).
+        # Оба идут в run_view через dict.update (мердж), чтобы применения
+        # разных секций не затирали друг друга.
         self.settings_view.thresholds_applied.connect(
             self.run_view.set_config_overrides
         )
-        # Brute force / Сеть / Производительность — тоже идут через
-        # config_overrides, но своими ключами. run_view мерджит.
         self.settings_view.config_applied.connect(
             self.run_view.set_config_overrides
         )
@@ -240,41 +284,39 @@ class MainWindow(QMainWindow):
         self.settings_view.contradictions_applied.connect(
             self.run_view.set_disabled_contradictions
         )
-        self.tabs.insertTab(2, self.settings_view, TAB_TITLES[2])
-
-        # --- Обогащение ---
-        # >>> ОБОГАЩЕНИЕ <<<
-        # Заглушка заменена на реальную вкладку. Report приходит из
-        # _on_analysis_finished. Ключи API читаются ядром из
-        # os.environ — их выставляет секция Threat Intel в настройках.
-        self.enrich_view = EnrichView()
+        # Config (Threat Intel: провайдеры, кэш, лимит IOC) → Обогащение.
         self.settings_view.config_applied.connect(
             self.enrich_view.set_config_overrides
         )
-        # После обогащения запись в истории нужно перерисовать:
-        # report мутирован in-place (evidence.enrichment), но
-        # QTextBrowser сам про это не узнает.
+
+        # --- Обогащение → История ---
+        # После обогащения report мутирован in-place; История должна
+        # перерисовать текущую запись, иначе секция «Обогащение» не
+        # появится до повторного клика.
         self.enrich_view.enrichment_finished.connect(
             self._on_enrichment_finished
         )
-        self.tabs.insertTab(1, self.enrich_view, TAB_TITLES[1])
-        # >>> /ОБОГАЩЕНИЕ <<<
 
-        # --- История ---
-        # >>> ИСТОРИЯ <<<
-        # In-memory список прогонов. Наполняется из _on_analysis_finished.
-        self.history_view = HistoryView()
-        self.tabs.addTab(self.history_view, TAB_TITLES[3])
-        # >>> /ИСТОРИЯ <<<
+        # --- Вкладки: Прогон · История · Обогащение · Настройки · Развитие ---
+        # addTab последовательно = порядок кода = порядок вкладок.
+        # История сразу после Прогона: смотреть прошлые результаты
+        # приходится чаще, чем менять настройки или обогащать.
+        self.tabs.addTab(self.run_view, TAB_TITLES[0])
+        self.tabs.addTab(self.history_view, TAB_TITLES[1])
+        self.tabs.addTab(self.enrich_view, TAB_TITLES[2])
+        self.tabs.addTab(self.settings_view, TAB_TITLES[3])
 
-        # >>> РАЗВИТИЕ <<<
-        # Вкладка «Развитие» — статический роадмап, индексов не касается.
-        # Создаём после всех вставок и просто добавляем в конец (индекс 4).
-        self.roadmap_view = RoadmapView()
-        self.tabs.addTab(self.roadmap_view, TAB_TITLES[4])
-        # >>> /РАЗВИТИЕ <<<
-
-        self.setCentralWidget(self.tabs)
+        # Меню — отдельный QMenuBar НАД табами. QMainWindow с одним
+        # setCentralWidget не покажет self._topmenu, если он не внутри
+        # центрального виджета. Оборачиваем всё в контейнер с QVBox:
+        # меню сверху, табы растягиваются ниже.
+        container = QWidget()
+        vbox = QVBoxLayout(container)
+        vbox.setContentsMargins(0, 0, 0, 0)
+        vbox.setSpacing(0)
+        vbox.addWidget(self._topmenu)
+        vbox.addWidget(self.tabs, stretch=1)
+        self.setCentralWidget(container)
 
     def _placeholder_page(self, title: str) -> QWidget:
         w = QWidget()
@@ -318,6 +360,42 @@ class MainWindow(QMainWindow):
             traceback.print_exc()
             QMessageBox.critical(self, "Ошибка", f"{type(e).__name__}: {e}")
 
+    def _on_open_report(self) -> None:
+        """Загрузить JSON-отчёт, сохранённый через «Экспорт → JSON».
+
+        Прогон не запускается: JSON подаётся туда же, где оказался бы
+        результат run_pipeline — в _on_analysis_finished. Значит,
+        summary / contradictions / findings / история / обогащение
+        заполняются так же, как после обычного прогона.
+        """
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Открыть отчёт", "",
+            "JSON (*.json);;Все файлы (*)",
+        )
+        if not path:
+            return
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Ошибка чтения", f"{type(e).__name__}: {e}",
+            )
+            return
+        if not isinstance(data, dict) or "findings" not in data:
+            QMessageBox.critical(
+                self, "Не тот файл",
+                "Это не JSON-отчёт pcap-triage: нет ключа 'findings'.",
+            )
+            return
+        self.tabs.setCurrentIndex(0)
+        # Сначала заполняем RunView, потом рассылаем в
+        # историю / обогащение / статус-бар. Порядок важен:
+        # load_report не эмитит analysis_finished, поэтому
+        # дубликата записи в Истории не будет.
+        self.run_view.load_report(data)
+        self._on_analysis_finished(data)
+        self.statusBar().showMessage(f"Загружен отчёт: {path}", 5000)
+
     def _on_analyze(self) -> None:
         self.run_view.reanalyze()
 
@@ -330,7 +408,40 @@ class MainWindow(QMainWindow):
         # >>> /ОСТАНОВКА <<<
 
     def _on_open_settings(self) -> None:
-        self.tabs.setCurrentWidget(self.settings_view)
+        # «Настройки» — четвёртый таб (индекс 3) после перестановки.
+        self.tabs.setCurrentIndex(3)
+
+    def _on_help_reference(self) -> None:
+        """Заглушка справки: экстракторы, детекторы, правила.
+
+        Полноценное содержимое будет отдельно — с описанием
+        каждого модуля, что он ищет и на что обращать внимание.
+        Сейчас — компактный список, чтобы пользователь видел
+        состав инструмента, а не пустое окно.
+        """
+        QMessageBox.information(
+            self,
+            "Справка по инструменту",
+            "<b>Что делает pcap-triage</b><br>"
+            "Извлекает факты о сети из pcap и ищет противоречия "
+            "между слоями данных: DNS vs SNI, JA3 vs UA, MAC vs IP, "
+            "роли vs поведение.<br><br>"
+            "<b>Экстракторы (8):</b><br>"
+            "flow, dns, host_identity, arp_history, nbns, "
+            "kerberos, tls, http.<br><br>"
+            "<b>Детекторы (17):</b><br>"
+            "dga, cloud_tunnel, ip_check_service, typosquatting, "
+            "sni_mismatch, suspicious_port, port_scan, web_scanner, "
+            "brute_force, ftp_brute_force, beaconing, dns_tunneling, "
+            "lateral_movement, large_transfer, vulnerable_path, "
+            "command_injection, ja3_malware, nxdomain_burst.<br><br>"
+            "<b>Правила противоречий (7):</b><br>"
+            "victim_makes_attack, mac_ip_conflict, "
+            "sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry, "
+            "port_service_mismatch, direct_ip_no_dns.<br><br>"
+            "<i>Подробное описание каждого модуля — в отдельном "
+            "релизе.</i>",
+        )
 
     def _on_about(self) -> None:
         QMessageBox.about(

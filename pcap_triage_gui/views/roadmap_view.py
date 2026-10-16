@@ -19,7 +19,7 @@ from PySide6.QtWidgets import QTextBrowser, QVBoxLayout, QWidget
 
 # Содержимое — единственная точка правки. Обновляется руками.
 # Отступ HTML не в столбик 0 ради читаемости diff'ов.
-_ROADMAP_HTML = """
+_ROADMAP_HTML = r"""
 <style>
     h2    { color: #e0e0e0; font-size: 17px; margin-bottom: 4px; }
     h3    { color: #5b8cff; font-size: 14px; margin-top: 16px; margin-bottom: 4px; }
@@ -35,17 +35,24 @@ _ROADMAP_HTML = """
 
 <h2>Развитие pcap-triage GUI</h2>
 <p class="note">
-    Ядро <code>pcap_triage/</code> не трогаем. GUI — отдельный пакет,
-    работает через контракт <code>run_pipeline(pcap_path, config) -&gt; dict</code>.
+    Ядро <code>pcap_triage/</code> не трогаем без нужды. GUI — отдельный
+    пакет, работает через контракт
+    <code>run_pipeline(pcap_path, config, should_stop=, on_progress=, on_phase=) -&gt; dict</code>.
+    Расширения контракта — опциональные, CLI не задет.
 </p>
 
 <h3>Готово в v0.7.0</h3>
 <ul>
-    <li class="done">Вкладка «Прогон»: drop zone, summary grid, противоречия, findings, toast, progress</li>
+    <li class="done">Вкладка «Прогон»: drop zone, summary grid, «что видел инструмент», «что привлекло внимание», противоречия, findings, toast</li>
+    <li class="done">Прогресс по фазам: extract 0–90% (МБ/с, ETA), detect 90–95% (<code>N/17 · имя</code>), contradictions 95–98%, report 98–100%</li>
+    <li class="done">Кооперативная остановка: Esc или «Остановить» → <code>requestInterruption</code> → <code>PipelineCancelled</code> в ядре. <code>terminate()</code> больше не используется</li>
+    <li class="done">Фильтры findings: поиск по value/типу/MITRE, combo типа, порог confidence, счётчик <code>N из M</code>, сброс</li>
+    <li class="done">Открытие JSON-отчёта (<code>Ctrl+Shift+O</code>) без повторного прогона: заполняет RunView, кладёт запись в Историю, отдаёт в Обогащение</li>
+    <li class="done">Persistent history: SQLite в <code>%APPDATA%\pcap-triage\history.db</code>, переживает перезапуск, обогащение синкается обратно в БД</li>
+    <li class="done">Toast-фикс: instance QTimer + подписка на <code>destroyed</code>; закрытие окна во время показа уведомления больше не роняет процесс</li>
     <li class="done">Вкладка «Настройки» — 11 секций: Пороги, Детекторы, Противоречия, Allowlist, DGA, Brute force, Сеть, Отчёты, Threat Intel, Производительность. «Общие» — заглушка с описанием</li>
     <li class="done">Вкладка «Обогащение»: Threat Intel по выбранным IOC (Shodan InternetDB, AbuseIPDB)</li>
-    <li class="done">Вкладка «История»: in-memory список прогонов с обогащением, маркер ✓ enriched</li>
-    <li class="done">Вкладка «Развитие»: этот экран</li>
+    <li class="done">Вкладка «История»: список прогонов, read-only HTML-превью, маркер <code>✓ enriched</code></li>
     <li class="done">Экспорт: JSON, Markdown, conn.log</li>
     <li class="done">Сборка .exe через PyInstaller (onedir, без консоли, collect_submodules ядра)</li>
     <li class="done">Меню, горячие клавиши (Ctrl+O с кириллицей), статус-бар, тёмная тема</li>
@@ -53,27 +60,27 @@ _ROADMAP_HTML = """
 
 <h3>Ближайшие шаги</h3>
 <ul>
-    <li class="plan">E — остановка анализа: QThread.terminate() валит процесс. Нужен detach-подход: отключить сигналы, держать воркер в списке, пока не досчитает в фоне</li>
-    <li class="plan">Иконка .ico для .exe и окна приложения</li>
-    <li class="plan">Сравнение двух прогонов (diff findings между записями истории)</li>
+    <li class="plan">Иконка <code>.ico</code> для .exe и окна приложения</li>
+    <li class="plan">Сравнение двух прогонов (diff findings между записями Истории)</li>
+    <li class="plan">Экспорт отчёта в PDF</li>
 </ul>
 
 <h3>Идеи на потом</h3>
 <ul>
-    <li class="plan">Экспорт отчёта в PDF</li>
     <li class="plan">Светлая тема / переключатель тем</li>
     <li class="plan">Плагины для кастомных детекторов</li>
-    <li class="plan">Сохранение истории на диск (SQLite) вместо in-memory</li>
-    <li class="plan">Сохранение API-ключей в .env (сейчас — только os.environ, до перезапуска)</li>
+    <li class="plan">Сохранение API-ключей в <code>.env</code> (сейчас — только <code>os.environ</code>, до перезапуска)</li>
+    <li class="plan">VirusTotal в pipeline обогащения (поле в настройках пока без потребителя)</li>
+    <li class="plan">Прогресс в фазе detect с оценкой остатка (по среднему времени детекторов)</li>
 </ul>
 
 <h3>Известные ограничения</h3>
 <ul>
-    <li class="plan">Progress bar — indeterminate: ядро пишет прогресс в stdout, callback не отдаёт. Правка ядра запрещена</li>
     <li class="plan">Config — frozen dataclass: переопределения из GUI идут через <code>object.__setattr__</code>. Мердж через <code>dict.update()</code>, чтобы применения разных секций не затирали друг друга</li>
     <li class="plan">Severity findings в ядре нет: в таблице столбец не показываем</li>
-    <li class="plan">Ядро — только импорт, monkey-patch DETECTORS / RULES в воркере с откатом в <code>finally</code></li>
-    <li class="plan">VirusTotal в ядре не подключён к pipeline обогащения — поле в настройках пока без потребителя</li>
+    <li class="plan">Ядро — только импорт, monkey-patch <code>DETECTORS</code> / <code>RULES</code> в воркере с откатом в <code>finally</code></li>
+    <li class="plan">TLS 1.3 Certificate зашифрован: правила на сертификатах (sni_cert_mismatch, self_signed_cert, expired_cert) работают только на TLS 1.2</li>
+    <li class="plan">Scapy печатает <code>WARNING: No libpcap provider</code> в консоль — косметика, на парсер не влияет (fallback на встроенный RawPcapReader)</li>
 </ul>
 """
 

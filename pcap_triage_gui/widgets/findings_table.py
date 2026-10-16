@@ -7,11 +7,14 @@ Severity не показываем — в ядре её нет, а маппин�
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
-    QSizePolicy,          # ← добавить
+    QLineEdit,
+    QPushButton,
+    QSizePolicy,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -43,6 +46,7 @@ class FindingsTable(QFrame):
             QSizePolicy.Policy.Expanding,
         )
         self.setMinimumHeight(280)  # ← ЭТА СТРОКА
+        self._findings_cache: list[dict] = []
         self._build_ui()
         self.setVisible(False)
 
@@ -60,6 +64,7 @@ class FindingsTable(QFrame):
         header.addWidget(self._count_label)
         header.addStretch(1)
         layout.addLayout(header)
+        layout.addLayout(self._build_filter_bar())
 
         self._table = QTableWidget(0, len(_COLUMNS))
         self._table.setSizePolicy(
@@ -89,23 +94,26 @@ class FindingsTable(QFrame):
     # ---------- публичный API ----------
 
     def set_findings(self, findings: list[dict]) -> None:
+        self._findings_cache = list(findings)
         self._table.setSortingEnabled(False)  # на время заполнения — иначе пляшет
         self._table.setRowCount(0)
 
         if not findings:
+            self._rebuild_type_filter()
+            self._count_label.setText("")
             self.setVisible(False)
             return
-
-        self._count_label.setText(f"({len(findings)})")
 
         for f in findings:
             row = self._table.rowCount()
             self._table.insertRow(row)
             self._fill_row(row, f)
 
+        self._rebuild_type_filter()
         self._table.setSortingEnabled(True)
         # Сортировка по Conf desc — самый сильный сигнал сверху.
         self._table.sortItems(2, Qt.SortOrder.DescendingOrder)
+        self._apply_filters()
         self.setVisible(True)
 
     def clear(self) -> None:
@@ -154,6 +162,118 @@ class FindingsTable(QFrame):
         data = item.data(_ROW_DATA_ROLE)
         if isinstance(data, dict):
             self.row_activated.emit(data)
+
+    # =========================================================================
+    # ФИЛЬТРЫ
+    # =========================================================================
+
+    def _build_filter_bar(self) -> QHBoxLayout:
+        bar = QHBoxLayout()
+        bar.setSpacing(8)
+
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("Поиск по value / типу / MITRE…")
+        self._search.setClearButtonEnabled(True)
+        self._search.textChanged.connect(self._apply_filters)
+        bar.addWidget(self._search, stretch=1)
+
+        self._type_filter = QComboBox()
+        self._type_filter.setMinimumWidth(160)
+        self._type_filter.currentIndexChanged.connect(self._apply_filters)
+        bar.addWidget(self._type_filter)
+
+        self._conf_filter = QComboBox()
+        self._conf_filter.setMinimumWidth(100)
+        self._conf_filter.addItem("Conf: все", None)
+        self._conf_filter.addItem("Conf ≥ 0.5", 0.5)
+        self._conf_filter.addItem("Conf ≥ 0.7", 0.7)
+        self._conf_filter.addItem("Conf ≥ 0.85", 0.85)
+        self._conf_filter.currentIndexChanged.connect(self._apply_filters)
+        bar.addWidget(self._conf_filter)
+
+        reset = QPushButton("✕")
+        reset.setToolTip("Сбросить фильтры")
+        reset.setFixedWidth(32)
+        reset.clicked.connect(self._reset_filters)
+        bar.addWidget(reset)
+
+        return bar
+
+    def _reset_filters(self) -> None:
+        self._search.blockSignals(True)
+        self._type_filter.blockSignals(True)
+        self._conf_filter.blockSignals(True)
+        self._search.clear()
+        self._type_filter.setCurrentIndex(0)
+        self._conf_filter.setCurrentIndex(0)
+        self._search.blockSignals(False)
+        self._type_filter.blockSignals(False)
+        self._conf_filter.blockSignals(False)
+        self._apply_filters()
+
+    def _rebuild_type_filter(self) -> None:
+        current = self._type_filter.currentData()
+        self._type_filter.blockSignals(True)
+        self._type_filter.clear()
+        self._type_filter.addItem("Все типы", None)
+        types = sorted({str(f.get("type", "")) for f in self._findings_cache if f.get("type")})
+        for t in types:
+            self._type_filter.addItem(t, t)
+        # восстановить выбор, если тип ещё присутствует
+        idx = self._type_filter.findData(current) if current else 0
+        self._type_filter.setCurrentIndex(max(0, idx))
+        self._type_filter.blockSignals(False)
+
+    @staticmethod
+    def _mitre_text(f: dict) -> str:
+        m = f.get("mitre_techniques") or ()
+        if isinstance(m, str):
+            return m
+        if isinstance(m, (list, tuple)):
+            return ", ".join(map(str, m))
+        return str(m)
+
+    def _apply_filters(self) -> None:
+        text = self._search.text().strip().lower()
+        type_sel = self._type_filter.currentData()
+        conf_min = self._conf_filter.currentData()
+
+        total = self._table.rowCount()
+        shown = 0
+        for row in range(total):
+            item = self._table.item(row, 0)
+            f = item.data(_ROW_DATA_ROLE) if item is not None else None
+            if not isinstance(f, dict):
+                self._table.setRowHidden(row, True)
+                continue
+
+            if type_sel is not None and str(f.get("type", "")) != str(type_sel):
+                self._table.setRowHidden(row, True)
+                continue
+
+            if conf_min is not None:
+                conf = f.get("confidence")
+                if not isinstance(conf, (int, float)) or float(conf) < float(conf_min):
+                    self._table.setRowHidden(row, True)
+                    continue
+
+            if text:
+                haystack = " ".join((
+                    str(f.get("type", "")),
+                    str(f.get("value", "")),
+                    self._mitre_text(f),
+                )).lower()
+                if text not in haystack:
+                    self._table.setRowHidden(row, True)
+                    continue
+
+            self._table.setRowHidden(row, False)
+            shown += 1
+
+        if shown == total:
+            self._count_label.setText(f"({total})")
+        else:
+            self._count_label.setText(f"({shown} из {total})")
 
     @staticmethod
     def _format_ts(ts) -> str:

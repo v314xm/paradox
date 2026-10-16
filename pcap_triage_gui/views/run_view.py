@@ -3,6 +3,8 @@
 Цепочка: drop zone → QThread(worker) → run_pipeline → report →
 summary grid + секция противоречий + таблица findings.
 """
+import time
+
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QScrollArea,
@@ -51,6 +53,7 @@ class RunView(QWidget):
         # True — пользователь нажал «Остановить» или Esc. Сбрасывается
         # в _on_ok / _on_error / _on_thread_done.
         self._stop_requested: bool = False
+        self._analysis_t0: float = 0.0
         # >>> /ОСТАНОВКА <<<
         # >>> /СОСТОЯНИЕ <<<
         self._build_ui()
@@ -158,7 +161,10 @@ class RunView(QWidget):
             return
 
         self._set_busy(True)
-        self.status_label.setText(f"Анализ: {self._current_path}")
+        self.progress.setRange(0, 100)
+        self.progress.setValue(0)
+        self._analysis_t0 = time.monotonic()
+        self.status_label.setText("Извлечение · 0%")
 
         self._worker = AnalysisWorker(
             self._current_path, config,
@@ -167,6 +173,9 @@ class RunView(QWidget):
         )
         self._worker.finished_ok.connect(self._on_ok)
         self._worker.error.connect(self._on_error)
+        self._worker.cancelled.connect(self._on_cancelled)
+        self._worker.progress.connect(self._on_progress)
+        self._worker.phase.connect(self._on_phase)
         self._worker.finished.connect(self._on_thread_done)
         self._worker.start()
         self.analysis_started.emit(self._current_path)
@@ -204,6 +213,32 @@ class RunView(QWidget):
         if self._current_path:
             self.drop_zone.set_compact(self._current_path)
 
+    def load_report(self, report: dict) -> None:
+        """Заполнить RunView отчётом из внешнего источника (JSON).
+
+        Отличие от _on_ok: не эмитит analysis_finished. Это
+        критично — иначе MainWindow._on_analysis_finished
+        получит сигнал и добавит в Историю дубликат записи,
+        которую сам же уже добавил при открытии файла.
+        """
+        self._stop_requested = False
+        self._last_report = report
+        s = report.get("summary", {}) or {}
+        self.summary.set_values(s)
+        if hasattr(self, "observations"):
+            self.observations.update_report(report)
+        if hasattr(self, "highlights"):
+            self.highlights.update_report(report)
+        self.contradictions.set_contradictions(
+            report.get("contradictions", [])
+        )
+        self.findings.set_findings(report.get("findings", []))
+        self.status_label.setText(
+            f"Загружено · {s.get('findings', 0)} findings · "
+            f"{s.get('contradictions', 0)} противоречий"
+        )
+        self._set_busy(False)
+
     def _on_error(self, msg: str) -> None:
         self._stop_requested = False
         self.status_label.setText(f"Ошибка: {msg}")
@@ -214,6 +249,63 @@ class RunView(QWidget):
     # =========================================================================
     # HANDLERS — детали (модалки)
     # =========================================================================
+
+    # Доли фаз на общем баре 0..100. Extract — 90% времени,
+    # поэтому он единственная "длинная" полоса, остальные — тонкие.
+    _PHASE_RANGES = {
+        "extract":        (0,  90),
+        "detect":         (90, 95),
+        "contradictions": (95, 98),
+        "report":         (98, 100),
+    }
+
+    def _map_phase(self, name: str, done: int, total: int) -> int:
+        lo, hi = self._PHASE_RANGES.get(name, (0, 100))
+        if total <= 0:
+            return hi
+        frac = min(1.0, done / total)
+        return int(lo + (hi - lo) * frac)
+
+    def _on_progress(self, bytes_read: int, total: int) -> None:
+        """Фаза extract: 0..90% + скорость + ETA."""
+        if total <= 0:
+            return
+        pct = self._map_phase("extract", bytes_read, total)
+        self.progress.setValue(pct)
+
+        elapsed = time.monotonic() - self._analysis_t0
+        if elapsed >= 1.0 and bytes_read > 0:
+            speed_mbs = (bytes_read / elapsed) / (1024 * 1024)
+            remaining = max(0.0, (total - bytes_read) / (bytes_read / elapsed))
+            self.status_label.setText(
+                f"Извлечение · {pct}% · {speed_mbs:.1f} МБ/с · ~{remaining:.0f} с"
+            )
+        else:
+            self.status_label.setText(f"Извлечение · {pct}%")
+
+    def _on_phase(self, name: str, done: int, total: int,
+                  detail: str = "") -> None:
+        """Coarse phases after extract.
+
+        detail для detect — имя текущего детектора.
+        """
+        pct = self._map_phase(name, done, total)
+        self.progress.setValue(pct)
+        if name == "detect":
+            label = f"Детекторы · {done}/{total}"
+            if detail:
+                label += f" · {detail}"
+            self.status_label.setText(label)
+        elif name == "contradictions":
+            self.status_label.setText("Противоречия…")
+        elif name == "report":
+            self.status_label.setText("Отчёты…")
+
+    def _on_cancelled(self) -> None:
+        """Пользователь остановил прогон. Не ошибка."""
+        self._stop_requested = False
+        self.status_label.setText("Остановлено пользователем")
+        self.analysis_cancelled.emit()
 
     def _on_contra_details(self, contra: dict) -> None:
         ContradictionDialog(contra, parent=self).exec()
@@ -267,13 +359,13 @@ class RunView(QWidget):
     # =========================================================================
 
     def stop_analysis(self) -> None:
-        """Временно отключено: QThread.terminate() валит процесс.
-
-        Вернёмся к реализации через detach воркера отдельным шагом.
-        Пока метод — no-op: Esc и кнопка не делают ничего,
-        окно не падает.
-        """
-        return
+        """Кооперативная остановка текущего прогона."""
+        if not (self._worker and self._worker.isRunning()):
+            return
+        self._stop_requested = True
+        self.status_label.setText("Останавливаю…")
+        self.stop_btn.setEnabled(False)
+        self._worker.stop()
 
     def is_busy(self) -> bool:
         """True — идёт анализ. Нужно MainWindow для Esc-хендлера."""

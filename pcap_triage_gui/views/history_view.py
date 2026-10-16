@@ -29,6 +29,8 @@
 from datetime import datetime
 
 from PySide6.QtCore import Qt
+from pcap_triage_gui.storage import HistoryDB
+
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -59,8 +61,10 @@ class HistoryView(QWidget):
         # report здесь — ССЫЛКА на тот же объект, что в RunView. Не копия.
         # Именно поэтому обогащение, мутирующее report in-place,
         # автоматически становится видимым истории.
-        self._runs: list[tuple[datetime, dict]] = []
+        self._runs: list[tuple[datetime, dict, int | None]] = []
+        self._db = HistoryDB()
         self._build_ui()
+        self._load_from_db()
 
     # =========================================================================
     # UI
@@ -132,6 +136,17 @@ class HistoryView(QWidget):
     # ПУБЛИЧНОЕ API
     # =========================================================================
 
+    def _load_from_db(self) -> None:
+        """Подтянуть последние 20 прогонов из БД при старте."""
+        rows = self._db.load_recent(limit=20)
+        for run_id, ts, report in rows:
+            self._runs.append((ts, report, run_id))
+            item = QListWidgetItem(self._label_for(ts, report))
+            item.setData(Qt.ItemDataRole.UserRole, len(self._runs) - 1)
+            self._list.addItem(item)
+        if self._runs:
+            self._list.setCurrentRow(0)
+
     def add_run(self, report: dict) -> None:
         """Добавить успешный прогон. Вызывается из main_window.
 
@@ -142,11 +157,12 @@ class HistoryView(QWidget):
         enrich_view) будут видны здесь автоматически.
         """
         ts = datetime.now()
+        run_id = self._db.insert(report)
         # insert(0, ...) — новые записи сверху. Старые уезжают вниз
         # по списку, визуально «проваливаются» в историю.
         # Держим ссылку на оригинальный report, чтобы обогащение,
         # мутирующее его in-place, было видно в истории.
-        self._runs.insert(0, (ts, report))
+        self._runs.insert(0, (ts, report, run_id))
 
         # Держим не больше MAX_RUNS записей. report'ы тяжёлые
         # (десятки МБ на больших pcap), история иначе съедает RAM
@@ -197,8 +213,13 @@ class HistoryView(QWidget):
         # 1) HTML справа — полностью пересобираем. Не пытаемся частично
         # обновлять секцию «Обогащение»: новая секция могла появиться
         # там, где раньше её не было. Проще пересобрать всё.
-        _, report = self._runs[row]
+        _, report, run_id = self._runs[row]
         self._details.setHtml(self._render_html(report))
+
+        # Обогащение мутировало report in-place — синхронизируем БД,
+        # чтобы после перезапуска enriched-данные не потерялись.
+        if run_id is not None and _count_enriched_iocs(report) > 0:
+            self._db.update_report(run_id, report, enriched=True)
 
         # 2) Метка в списке — пересобираем текст. Меняется суффикс
         # «✓ enriched», потому что _label_for пересчитывает его от
@@ -216,6 +237,7 @@ class HistoryView(QWidget):
         # в UI, либо старый HTML справа.
         self._runs.clear()
         self._list.clear()
+        self._db.clear()
         self._details.setHtml(
             '<p style="color:#a0a0b0;">История очищена.</p>'
         )
@@ -265,7 +287,7 @@ class HistoryView(QWidget):
         # неаккуратных правках.
         if row < 0 or row >= len(self._runs):
             return
-        _, report = self._runs[row]
+        _, report, _run_id = self._runs[row]
         self._details.setHtml(self._render_html(report))
 
     def _render_html(self, report: dict) -> str:
