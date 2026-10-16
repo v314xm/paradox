@@ -193,7 +193,7 @@ tls_cert.py — X.509 сертификаты из TLS-хендшейков,
 file_carve.py — метаданные payload'ов (sha256, MIME,
 первые 64 байта).
 
-Детекторы (17)
+Детекторы (19)
 C2 / инфраструктура: dga, cloud_tunnel,
 ip_check_service, typosquatting, sni_mismatch,
 suspicious_port, ja3_malware.
@@ -273,7 +273,7 @@ reporters — они читают готовый список.
 Тесты
 powershell
 pytest tests/ -q
-412 тестов в ~34 файлах. Всё зелёное.
+570 тестов в ~34 файлах. Всё зелёное.
 
 Группа	Файлов	Что покрывает
 Парсеры	1	TLS ClientHello (test_tls_parse.py, 10)
@@ -282,7 +282,7 @@ HTTPObject / JA3	2	test_http_object.py (12), test_ja3.py (8)
 Reassembly	1	test_reassembler.py (9)
 Детекторы (базовые)	3	test_detectors.py (41), test_beaconing.py (31), test_brute_force.py (9)
 Детекторы (0.6.0)	3	test_command_injection.py (10), test_dns_tunneling.py (9), test_file_carve.py (9)
-Contradictions	7	по 5 тестов на правило × 7 правил
+Contradictions	7	по 5 тестов на правило × 13 правил
 Агрегаторы	1	test_aggregators_entities.py (10)
 Enrichment	4	cache (9), shodan (11), abuseipdb (7), pipeline (4)
 Регрессии	1	test_regressions.py (42)
@@ -313,24 +313,24 @@ PySide6 (только для GUI)
 Windows / Linux / macOS. Разрабатывалось под Windows.
 
 Roadmap
-0.7.0 (текущая) — ContradictionDetector, 7 правил, GUI v0.1,
-302 теста.0.7.0 — ContradictionDetector, 7 правил, GUI v0.1, 302 теста.
+0.7.0 — ContradictionDetector, 13 правил, GUI v0.1,
+570 теста.0.7.0 — ContradictionDetector, 13 правил, GUI v0.1, 570 теста.
 
 0.7.0+ (backend-сессия) — DNS-ответы (A/AAAA/CNAME),
 TLS-сертификаты (CN, SAN, self_signed, validity), 6 новых
 правил contradictions (13 всего), per-IP direct_ip_no_dns,
-380 тестов.
+570 тестов.
 
-0.8.0 (текущая) — универсальный контракт Finding
+0.8.0 — универсальный контракт Finding
 (top-level src_ip / dst_ip / dst_port / severity, property
 mitre_id), нормализация агрегированных evidence-ключей,
 MITRE_MAP 100% покрытие, timeline / kill-chain
 (pcap_triage/timeline.py, интеграция в pipeline и markdown),
-412 тестов.
+570 тестов.
 pcap_triage/            # ядро
-├── extractors/         # 8 экстракторов + post-extract
+├── extractors/         # 11 экстракторов + post-extract
 │                       # (http_object, tls_cert, file_carve)
-├── detectors/          # 17 детекторов + mitre_map
+├── detectors/          # 19 детекторов + mitre_map
 ├── contradictions/     # 13 правил + факты + реестр
 ├── timeline.py         # v0.8.0: timeline / kill-chain
 ├── aggregators/        # entities + роли + pivot
@@ -343,7 +343,7 @@ pcap_triage_gui/        # GUI (PySide6)
 ├── dialogs/            # модалы
 └── workers/            # QThread-обёртки
 
-tests/                  # 412 тестов, ~34 файла
+tests/                  # 570 тестов, ~34 файла
 
 tools/                  # dev-скрипты (не часть пакета)
 Вклад

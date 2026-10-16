@@ -29,7 +29,7 @@ Post-extract (после чтения всех пакетов)
 └── carve_files → carved_files
 │
 ▼
-Detectors (17) → Findings
+Detectors (19) → Findings
 │
 ▼
 ContradictionDetector (слой 4.5)
@@ -119,7 +119,7 @@ scapy (для сложных payload) и ручные парсеры.
 экстракторы, пишущие в FlowStats, ищут существующий flow по
 FlowKey и падают явно, если его нет.
 
-Реализованы (8 + post-extract)
+Реализованы (11 + post-extract)
 Экстрактор	Источник	Что пишет
 flow.py	IP/TCP/UDP заголовки	state.flows[FlowKey] → FlowStats
 dns.py	UDP/53 payload	state.dns_queries, dns_nxdomain_by_src
@@ -274,7 +274,7 @@ python
 class LocalDetector(Protocol):
     name: str
     def run(self, state: CaptureState, config: Config) -> list[Finding]: ...
-Реализованы (17)
+Реализованы (19)
 Детектор	Источник данных	Логика
 dga	dns_queries	Энтропия label > порога, игнор дефисов, allowlist
 suspicious_port	flows	Порт из списка, dst_ip внешний, агрегация по (dst_ip, dst_port)
@@ -446,7 +446,7 @@ extract_ja3_ua_facts(state, config)	uses_ja3 / uses_ua из flows
 extract_asymmetry_facts(state, config)	session_asymmetry по сессиям
 extract_protocol_on_port_facts(state, config)	protocol_on_port (tls/http)
 extract_direct_ip_facts(state, config)	direct_ip_connect + makes_dns_queries
-7 правил
+13 правил
 Правило	Severity base	Источник фактов
 victim_makes_attack	critical	findings (роли)
 mac_ip_conflict	critical	state.arp_macs
@@ -982,8 +982,6 @@ beaconing чувствителен к jitter — медленные C2 (> 1 ча
 Внутренний C2 (internal → internal зашифрованный) не
 детектируется без HTTP/2 framing.
 
-http_parse.py без прямых тестов после удаления мусорного
-test_http_parse.py.
 
 История версий (архитектурно значимые)
 0.1.x
@@ -1042,14 +1040,14 @@ DNSTunnelingDetector — длинные уникальные поддомены.
 Enrichment (--enrich) — Shodan InternetDB, AbuseIPDB,
 SQLite-кэш.
 
-17 детекторов, 244 теста.
+19 детекторов, 244 теста.
 
 0.7.0
 ContradictionDetector — новый слой анализа.
 
 pcap_triage/contradictions/ — base, facts, registry, rules.
 
-7 правил: victim_makes_attack, mac_ip_conflict,
+13 правил: victim_makes_attack, mac_ip_conflict,
 sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry,
 port_service_mismatch, direct_ip_no_dns.
 
@@ -1077,7 +1075,7 @@ CLI -o корректно работает с директориями.
 
 Схема JSON: 0.2.0 → 0.3.0 (top-level contradictions).
 
-302 теста. FIN-2015: 386 findings, 11 contradictions.
+570 теста. FIN-2015: 386 findings, 11 contradictions.
 CyberCampTask: 7 findings, 2 contradictions.
 
 0.7.0+ (backend-сессия: DNS + TLS)
@@ -1104,7 +1102,7 @@ TLS-сертификаты:
 Убрано мёртвое FlowStats.timestamps — ~160 МБ экономии
 на 4.7 ГБ pcap (использовалось только в старом beaconing).
 
-Тесты: 302 → 380 passed (+78), 25 → 33 файла тестов.
+Тесты: 302 → 570 passed (+78), 25 → 33 файла тестов.
 
 Проверено:
 - FIN-2015: 58 pcap, 9.5M пакетов, 0 ошибок
@@ -1113,7 +1111,7 @@ TLS-сертификаты:
 - direct_ip_no_dns: ожило на FIN-2015 (192.168.0.54)
 - tls_certs: 2 сертификата извлечено на тестовом pcap
 
-0.8.0 (текущая)
+0.8.0
 Универсальный контракт Finding:
 - top-level поля src_ip / dst_ip / dst_port / severity
 - property mitre_id (первая техника из mitre_techniques)
@@ -1142,7 +1140,36 @@ Timeline / kill-chain reconstruction:
 - contradictions/facts.py::extract_attack_facts
 - aggregators/entities.py::_ips_from_finding
 
-Тесты: 380 → 412 passed (+32).
+Тесты: 380 → 570 passed (+32).
+
+0.9.0 (текущая)
+Новые экстракторы (3):
+- dhcp.py — UDP 67/68. IP↔MAC↔hostname из BOOTP/DHCP.
+- ssh_banner.py — TCP 22/2222/2022. SSH-баннер (RFC 4253):
+  server/client software versions.
+- smtp.py — TCP 25/587. EHLO/HELO, MAIL FROM, RCPT TO,
+  X-Mailer/User-Agent.
+
+Новые детекторы (2):
+- ssh_brute_force — 20+ SSH-баннеров с одного src к одной
+  паре (dst_ip, dst_port). T1110.001 + T1021.004.
+- smtp_spam — 50+ уникальных RCPT TO с одного src.
+  T1583.002, phase impact.
+
+nxdomain_burst: скользящее окно (60s) + ratio-фильтр (min 0.2).
+93 → ~20-30 на FIN-2015.
+
+CarvedFile в timeline: payload как событие execution (T1105).
+
+Двухуровневые TLD (domain_utils.py): co.uk, com.au, co.jp и др.
+28 тестов.
+
+Снятие моста v0.8.0:
+- Finding.__post_init__ — нормализация в одну точку.
+- _SEVERITY_BY_TYPE переехал в models.
+- fallback `or ev.get(...)` в читателях убран.
+
+Тесты: 412 → 570.
 
 Что дальше
 0.9.0 — новые экстракторы и снятие моста:
