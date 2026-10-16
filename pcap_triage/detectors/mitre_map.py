@@ -16,6 +16,7 @@ MITRE_MAP: dict[str, tuple[str, ...]] = {
     "ssh_brute_force": ("T1110.001", "T1021.004"),
     "script_download": ("T1189",),
     "typosquatting": ("T1583.001",),
+    "smtp_spam": ("T1583.002",),
 
     # Execution
     # command_injection: RCE через HTTP (URI / POST body) —

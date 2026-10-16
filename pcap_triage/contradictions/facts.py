@@ -67,6 +67,7 @@ _VICTIM_SIGNAL_TYPES: frozenset[str] = frozenset({
     "ip_check_service",
     "typosquatting",
     "suspicious_port",
+    "smtp_spam",
 })
 
 

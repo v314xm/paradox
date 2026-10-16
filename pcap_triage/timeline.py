@@ -74,6 +74,9 @@ _PHASE_BY_TYPE: dict[str, str] = {
 
     # Exfiltration
     "large_transfer": "exfiltration",
+
+    # Impact
+    "smtp_spam": "impact",
 }
 
 # Численный порядок фаз. Чем меньше — тем раньше в kill-chain.

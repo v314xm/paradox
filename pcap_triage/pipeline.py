@@ -50,6 +50,7 @@ from pcap_triage.detectors.command_injection import CommandInjectionDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
 from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
 from pcap_triage.detectors.ssh_brute_force import SSHBruteForceDetector
+from pcap_triage.detectors.smtp_spam import SMTP_SpamDetector
 
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
@@ -91,6 +92,7 @@ DETECTORS = [
     BeaconingDetector(),
     DNSTunnelingDetector(),
     SSHBruteForceDetector(),       # v0.9.0
+    SMTP_SpamDetector(),           # v0.9.0
     LateralMovementDetector(),
     LargeTransferDetector(),
     VulnerablePathDetector(),

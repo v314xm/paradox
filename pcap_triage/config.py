@@ -454,6 +454,12 @@ class Config:
     # 20 — как ftp_brute_force, для консистентности.
     ssh_brute_force_min_flows: int = 20
 
+    # --- SMTP spam ---
+    # Массовая рассылка: с одного src много уникальных RCPT TO.
+    # 50 — компромисс: меньше — легитимные рассылки на группу,
+    # больше — теряем медленных спам-ботов.
+    smtp_spam_min_recipients: int = 50
+
     # --- NXDOMAIN burst ---
     # v0.9.0: threshold — сколько NXDOMAIN в окне _window_sec.
     # Было: сколько за весь файл. Считаем максимум в скользящем
@@ -674,6 +680,8 @@ class Config:
             errors.append("ftp_brute_force_min_flows must be > 0")
         if self.ssh_brute_force_min_flows <= 0:
             errors.append("ssh_brute_force_min_flows must be > 0")
+        if self.smtp_spam_min_recipients <= 0:
+            errors.append("smtp_spam_min_recipients must be > 0")
         if self.ftp_brute_force_min_unique_src_ports <= 0:
             errors.append(
                 "ftp_brute_force_min_unique_src_ports must be > 0"
