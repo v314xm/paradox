@@ -3,7 +3,7 @@
 ; Собрать: ISCC.exe installer\pcap-triage.iss
 
 #define AppName "pcap-triage"
-#define AppVersion "0.9.1"
+#define AppVersion "1.0.0"
 #define AppPublisher "Andrey Grigoryev"
 #define AppCopyright "© 2026 Andrey Grigoryev (v314xm)"
 

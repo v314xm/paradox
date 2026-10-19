@@ -8,7 +8,7 @@ authors = [
     { name = "Andrey Grigoryev", email = "v314xm@users.noreply.github.com" },
 ]
 name = "pcap-triage"
-version = "0.9.1"
+version = "1.0.0"
 description = "PCAP triage pipeline for analysts"
 requires-python = ">=3.11"
 dependencies = [

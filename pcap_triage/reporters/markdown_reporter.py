@@ -571,6 +571,9 @@ def render_markdown(report: dict) -> str:
     # --- TL;DR ---
     lines.extend(_render_tldr(report))
 
+    # --- Absence ---
+    lines.extend(_render_absence(report))
+
     # --- Timeline ---
     if findings:
         lines.extend(_render_timeline(report))
@@ -612,6 +615,9 @@ def render_markdown(report: dict) -> str:
     if entities:
         lines.extend(_render_entities(entities, findings))
         lines.append("")
+
+    # --- NDP ---
+    lines.extend(_render_ndp(report))
 
     # --- findings ---
     lines.extend(_render_findings(findings))
@@ -694,6 +700,34 @@ def _render_findings(findings: list[dict]) -> list[str]:
         lines.append("_Ничего не найдено._")
         lines.append("")
         return lines
+
+    lines.append(f"## Findings ({len(findings)})")
+    lines.append("")
+    lines.append("| # | Тип | Значение | Conf | MITRE |")
+    lines.append("|---|---|---|---|---|")
+    for i, f in enumerate(findings):
+        ftype = f.get("type", "?")
+        value = _short(f.get("value", "?"), 80)
+        conf = f.get("confidence", 0.0)
+        mitre = _mitre_for_finding(f)
+        lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} | {mitre} |")
+    lines.append("")
+
+    # Детализация уверенности
+    has_reasons = any(f.get("confidence_reasons") for f in findings)
+    if has_reasons:
+        lines.append("### Детализация уверенности (Confidence Explainer)")
+        lines.append("")
+        for i, f in enumerate(findings):
+            reasons = f.get("confidence_reasons")
+            if reasons:
+                val = _short(str(f.get('value', '?')), 60)
+                lines.append(f"**{i}. `{f.get('type', '?')}`** — `{val}`")
+                for r in reasons:
+                    lines.append(f"- {r}")
+                lines.append("")
+
+    return lines
 
     lines.append(f"## Findings ({len(findings)})")
     lines.append("")
@@ -909,3 +943,63 @@ def _render_http(http: dict) -> list[str]:
         lines.append("")
 
     return lines
+
+# ---------------------------------------------------------------------
+# Новые секции (NDP и Absence)
+# ---------------------------------------------------------------------
+
+def _render_absence(report: dict) -> list[str]:
+    absence = report.get("absence", {})
+    dns = absence.get("dns_unanswered", [])
+    tcp = absence.get("tcp_unanswered", [])
+
+    if not dns and not tcp:
+        return []
+
+    lines = ["## Аномалии / Оборванные сессии", ""]
+
+    if dns:
+        lines.append("### DNS без ответа")
+        lines.append("| Домен (QNAME) | Запросов |")
+        lines.append("|---|---|")
+        for d in dns:
+            lines.append(f"| `{d.get('qname', '?')}` | {d.get('count', 0)} |")
+        lines.append("")
+
+    if tcp:
+        lines.append("### TCP без ответа (SYN)")
+        lines.append("| Src IP | Dst IP | Порт | Пакеты |")
+        lines.append("|---|---|---|---|")
+        for t in tcp:
+            lines.append(f"| `{t.get('src_ip', '?')}` | `{t.get('dst_ip', '?')}` | {t.get('dst_port', '?')} | {t.get('packets', 0)} |")
+        lines.append("")
+
+    return lines
+
+def _render_ndp(report: dict) -> list[str]:
+    ndp = report.get("ndp", {})
+    total = ndp.get("total", 0)
+    neighbors = ndp.get("neighbors", [])
+    routers = ndp.get("routers", [])
+
+    if total == 0:
+        return []
+
+    lines = [f"## IPv6 / NDP ({total} пакетов)", ""]
+
+    if routers:
+        lines.append("### Роутеры (RA)")
+        for r in routers:
+            lines.append(f"- `{r}`")
+        lines.append("")
+
+    if neighbors:
+        lines.append("### Соседи (NDP)")
+        lines.append("| IPv6 | MAC |")
+        lines.append("|---|---|")
+        for n in neighbors:
+            lines.append(f"| `{n.get('ip', '?')}` | `{n.get('mac', '?')}` |")
+        lines.append("")
+
+    return lines
+

@@ -5,6 +5,7 @@
 Threat Intel, Отчёты. Заглушка — только «Общие».
 """
 from pathlib import Path
+import re
 
 from pcap_triage_gui.settings_rehydrate import rehydrate
 from pcap_triage_gui.profiles import (
@@ -970,28 +971,22 @@ class SettingsView(QWidget):
 
         t, s = self._make_header(
             "Сеть",
-            "Списки портов и префиксов сетей. Элемент — число (порт) "
-            "или строка (префикс). Один элемент на строку, # — комментарий.",
+            "Списки портов и префиксов. Вводите через запятую или с новой строки. "
+            "Невалидные значения подсвечиваются и не сохраняются.",
         )
         outer.addWidget(t)
         outer.addWidget(s)
 
         scroll, form = self._make_scroll_form()
         self._network_inputs: dict[str, object] = {}
+        self._network_status: dict[str, QLabel] = {}
 
-        self._add_list_row(form, "suspicious_ports",
-                           "Подозрительные порты (детектор suspicious_port)")
-        self._add_list_row(form, "port_scan_excluded_ports",
-                           "Исключения port scan (порты)")
-        self._add_list_row(form, "dc_service_ports",
-                           "Порты, отличающие domain controller")
-        self._add_list_row(form, "lateral_movement_ports",
-                           "Порты lateral movement")
-        self._add_list_row(form, "beaconing_mail_polling_ports",
-                           "Порты mail-polling (POP3/IMAP — не beaconing)")
-        self._add_list_row(form, "private_networks",
-                           "Префиксы приватных сетей (стр., напр. 10.)",
-                           height=140)
+        self._add_smart_net_row(form, "suspicious_ports", "Подозрительные порты", is_net=False)
+        self._add_smart_net_row(form, "port_scan_excluded_ports", "Исключения port scan", is_net=False)
+        self._add_smart_net_row(form, "dc_service_ports", "Порты domain controller", is_net=False)
+        self._add_smart_net_row(form, "lateral_movement_ports", "Порты lateral movement", is_net=False)
+        self._add_smart_net_row(form, "beaconing_mail_polling_ports", "Порты mail-polling (POP3/IMAP)", is_net=False)
+        self._add_smart_net_row(form, "private_networks", "Префиксы приватных сетей", is_net=True)
 
         outer.addWidget(scroll, stretch=1)
         outer.addLayout(self._make_buttons(self._load_network, self._apply_network))
@@ -999,21 +994,78 @@ class SettingsView(QWidget):
         self._load_network()
         return w
 
-    def _add_list_row(self, form, key, label, height=90):
-        from pcap_triage_gui.field_help import get_field_help
-        w = EditableListWidget(
-            port_mode=(key in PORT_FIELDS),
-            help_text=get_field_help(key),
-        )
-        form.addRow(label, w)
-        self._network_inputs[key] = w
+    def _add_smart_net_row(self, form, key, label, is_net=False):
+        container = QWidget()
+        vbox = QVBoxLayout(container)
+        vbox.setContentsMargins(0, 0, 0, 0)
+        vbox.setSpacing(4)
+
+        te = QPlainTextEdit()
+        te.setFixedHeight(60)
+        te.setPlaceholderText("Например: 10.0.0.0/8" if is_net else "Например: 80, 443, 8080")
+
+        status_lbl = QLabel("")
+        status_lbl.setStyleSheet("color: #a0a0b0; font-size: 11px;")
+        status_lbl.setWordWrap(True)
+
+        vbox.addWidget(te)
+        vbox.addWidget(status_lbl)
+        form.addRow(label, container)
+
+        self._network_inputs[key] = te
+        self._network_status[key] = status_lbl
+
+        te.setProperty("is_net", is_net)
+        te.textChanged.connect(lambda w=te, k=key: self._validate_and_preview_net(w, k))
+
+    def _validate_and_preview_net(self, widget: QPlainTextEdit, key: str) -> None:
+        text = widget.toPlainText().strip()
+        is_net = widget.property("is_net")
+        status_lbl = self._network_status[key]
+
+        if not text:
+            widget.setStyleSheet("")
+            status_lbl.setText("")
+            return
+
+        tokens = [t for t in re.split(r'[\s,]+', text) if t]
+
+        if is_net:
+            valid, invalid = [], []
+            for t in tokens:
+                if re.match(r'^[0-9\./]+$', t):
+                    valid.append(t)
+                else:
+                    invalid.append(t)
+
+            if invalid:
+                widget.setStyleSheet("border: 1px solid #ff5555;")
+                status_lbl.setText(f"<span style='color:#ff5555;'>Ошибка в: {', '.join(set(invalid))}</span>")
+            else:
+                widget.setStyleSheet("")
+                status_lbl.setText(f"Будет сохранено: {', '.join(valid)}")
+        else:
+            valid, invalid = [], []
+            for t in tokens:
+                if t.isdigit() and 1 <= int(t) <= 65535:
+                    valid.append(str(int(t)))
+                else:
+                    invalid.append(t)
+
+            if invalid:
+                widget.setStyleSheet("border: 1px solid #ff5555;")
+                status_lbl.setText(f"<span style='color:#ff5555;'>Невалидные порты: {', '.join(set(invalid))}</span>")
+            else:
+                sorted_valid = sorted(list(set(int(p) for p in valid)))
+                widget.setStyleSheet("")
+                status_lbl.setText(f"Будет сохранено ({len(sorted_valid)}): {', '.join(map(str, sorted_valid))}")
 
     def _load_network(self) -> None:
         try:
             from pcap_triage.config import Config
+            cfg = Config()
         except ImportError:
             return
-        cfg = Config()
         for key, widget in self._network_inputs.items():
             value = getattr(cfg, key, None)
             if value is None:
@@ -1024,33 +1076,28 @@ class SettingsView(QWidget):
                 else:
                     widget.setPlainText(_format_lines(value))
             elif isinstance(value, tuple):
-                # private_networks — tuple[str, ...]
                 widget.setPlainText("\n".join(value))
 
     def _apply_network(self) -> None:
         values: dict = {}
-        skipped_total = 0
-        previews: list[str] = []
         for key, widget in self._network_inputs.items():
-            text = widget.toPlainText()
-            if key == "private_networks":
-                values[key] = tuple(
-                    line.strip() for line in text.splitlines()
-                    if line.strip() and not line.strip().startswith("#")
-                )
+            text = widget.toPlainText().strip()
+            is_net = widget.property("is_net")
+            tokens = [t for t in re.split(r'[\s,]+', text) if t]
+
+            if is_net:
+                valid = tuple(t for t in tokens if re.match(r'^[0-9\./]+$', t))
+                values[key] = valid
             else:
-                parsed, skipped = _parse_ports_with_report(text)
-                values[key] = parsed
-                skipped_total += len(skipped)
-                if skipped:
-                    previews.append(f"{key}: {', '.join(skipped[:3])}")
-        if skipped_total:
-            self._notify_status(
-                f"Пропущено невалидных токенов: {skipped_total} "
-                f"({'; '.join(previews[:2])})",
-                level="warn",
-            )
+                valid_ports = set()
+                for t in tokens:
+                    if t.isdigit() and 1 <= int(t) <= 65535:
+                        valid_ports.add(int(t))
+                values[key] = frozenset(valid_ports)
+
         self.config_applied.emit(values)
+
+
 
     # =========================================================================
     # СЕКЦИЯ: Производительность
@@ -1064,45 +1111,92 @@ class SettingsView(QWidget):
 
         t, s = self._make_header(
             "Производительность",
-            "Компромисс память/полнота. Отключение TCP-склейки и карвинга "
-            "ускоряет прогон на больших pcap, но теряет часть findings.",
+            "Компромисс между глубиной анализа и скоростью. "
+            "Технические лимиты (память, размеры) скрыты и работают "
+            "по умолчанию.",
         )
         outer.addWidget(t)
         outer.addWidget(s)
 
-        scroll, form = self._make_scroll_form()
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+
+        host = QWidget()
+        form = QFormLayout(host)
+        form.setContentsMargins(0, 8, 0, 8)
+        form.setSpacing(16)
+        form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        scroll.setWidget(host)
+
         self._perf_inputs: dict[str, object] = {}
 
-        self._add_bool_row(form, "tcp_reassembly_enabled",
-                           "TCP reassembly (склейка сегментов)")
-        self._add_int_row_pf(form, "tcp_reassembly_max_bytes_per_flow",
-                             "TCP reassembly: макс. байт на flow",
-                             lo=4096, hi=100 * 1024 * 1024)
-        self._add_int_row_pf(form, "tcp_reassembly_max_total_bytes",
-                             "TCP reassembly: макс. байт всего",
-                             lo=1024 * 1024, hi=2000 * 1024 * 1024)
-        self._add_bool_row(form, "file_carve_enabled",
-                           "File carve: извлекать метаданные payload'ов")
-        self._add_bool_row(form, "file_carve_write_body",
-                           "File carve: писать тела файлов на диск (осторожно)")
-        self._add_int_row_pf(form, "file_carve_min_size",
-                             "File carve: мин. размер (байт)",
-                             lo=1, hi=1024 * 1024)
-        self._add_int_row_pf(form, "file_carve_max_size",
-                             "File carve: макс. размер (байт)",
-                             lo=1024, hi=500 * 1024 * 1024)
-        self._add_int_row_pf(form, "entities_top_n",
-                             "Сущности: топ-N по активности",
-                             lo=1, hi=10000)
-        self._add_int_row_pf(form, "flow_report_top_n",
-                             "Flow report: топ-N по байтам",
-                             lo=1, hi=100000)
+        # --- TCP Reassembly ---
+        cb_reassembly = QCheckBox("Склеивать TCP-сегменты (TCP Reassembly)")
+        lbl_reassembly = QLabel(
+            "<span style='color:#a0a0b0; font-size:11px;'>"
+            "Собирает полные HTTP-запросы и TLS-хендшейки. "
+            "Выключите для максимальной скорости."
+            "</span>"
+        )
+        lbl_reassembly.setTextFormat(Qt.TextFormat.RichText)
+        form.addRow(cb_reassembly, lbl_reassembly)
+        self._perf_inputs["tcp_reassembly_enabled"] = cb_reassembly
+        if not hasattr(self, "_field_hints"): self._field_hints = {}
+        self._field_hints["tcp_reassembly_enabled"] = lbl_reassembly
+
+        # --- File Carve ---
+        cb_carve = QCheckBox("Извлекать метаданные файлов (File Carve)")
+        lbl_carve = QLabel(
+            "<span style='color:#a0a0b0; font-size:11px;'>"
+            "Находит скачанные скрипты и бинарники (SHA256, MIME). "
+            "Тело файла на диск не пишется."
+            "</span>"
+        )
+        lbl_carve.setTextFormat(Qt.TextFormat.RichText)
+        form.addRow(cb_carve, lbl_carve)
+        self._perf_inputs["file_carve_enabled"] = cb_carve
+        if not hasattr(self, "_field_hints"): self._field_hints = {}
+        self._field_hints["file_carve_enabled"] = lbl_carve
+
+        cb_write = QCheckBox("Сохранять тела файлов на диск (ОПАСНО)")
+        lbl_write = QLabel(
+            "<span style='color:#ff5555; font-size:11px;'>"
+            "Создает файлы в reports/carved/. Включайте только "
+            "если уверены в безопасности."
+            "</span>"
+        )
+        lbl_write.setTextFormat(Qt.TextFormat.RichText)
+        form.addRow(cb_write, lbl_write)
+        self._perf_inputs["file_carve_write_body"] = cb_write
+        if not hasattr(self, "_field_hints"): self._field_hints = {}
+        self._field_hints["file_carve_write_body"] = lbl_write
 
         outer.addWidget(scroll, stretch=1)
         outer.addLayout(self._make_buttons(self._load_performance, self._apply_performance))
 
         self._load_performance()
         return w
+
+    def _load_performance(self) -> None:
+        try:
+            from pcap_triage.config import Config
+            cfg = Config()
+            for key, widget in self._perf_inputs.items():
+                val = getattr(cfg, key, None)
+                if val is not None and isinstance(widget, QCheckBox):
+                    widget.setChecked(bool(val))
+        except ImportError:
+            pass
+
+    def _apply_performance(self) -> None:
+        values = {}
+        for key, widget in self._perf_inputs.items():
+            if isinstance(widget, QCheckBox):
+                values[key] = widget.isChecked()
+        self.config_applied.emit(values)
+
 
     def _add_bool_row(self, form, key, label):
         cb = QCheckBox()

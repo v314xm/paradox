@@ -7,6 +7,7 @@ import time
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
+    QDialog,
     QScrollArea,
     QHBoxLayout,
     QLabel,
@@ -19,9 +20,13 @@ from PySide6.QtWidgets import (
 
 from pcap_triage_gui.dialogs.contradiction_dialog import ContradictionDialog
 from pcap_triage_gui.dialogs.finding_dialog import FindingDialog
+from pcap_triage_gui.dialogs.what_if_dialog import WhatIfDialog
+from pcap_triage_gui.dialogs.graph_dialog import GraphDialog
+from pcap_triage.analyzers.counterfactual import evaluate_what_if
 from pcap_triage_gui.widgets.contradictions_section import ContradictionsSection
 from pcap_triage_gui.widgets.drop_zone import DropZone
 from pcap_triage_gui.widgets.findings_table import FindingsTable
+from pcap_triage_gui.widgets.absence_panel import AbsencePanel
 from pcap_triage_gui.widgets.summary_grid import SummaryGrid
 from pcap_triage_gui.widgets.toast import ToastManager
 from pcap_triage_gui.workers.analysis_worker import AnalysisWorker
@@ -116,6 +121,9 @@ class RunView(QWidget):
         layout.addWidget(self.summary)
         self.observations = ObservationsPanel()
         layout.addWidget(self.observations)
+
+        self.absence = AbsencePanel()
+        layout.addWidget(self.absence)
         self.highlights = HighlightsPanel()
         layout.addWidget(self.highlights)
 
@@ -126,8 +134,32 @@ class RunView(QWidget):
         layout.addWidget(self.contradictions)
 
         # --- Findings ---
+        findings_header = QHBoxLayout()
+        lbl_findings = QLabel("Находки (Findings)")
+        lbl_findings.setObjectName("h1")
+        findings_header.addWidget(lbl_findings)
+        findings_header.addStretch(1)
+
+        self.btn_graph = QPushButton("Граф связей")
+        self.btn_graph.setEnabled(False)
+        self.btn_graph.clicked.connect(self._on_graph_clicked)
+        findings_header.addWidget(self.btn_graph)
+
+        self.btn_what_if = QPushButton("What-If (Исключить)")
+        self.btn_what_if.setEnabled(False)
+        self.btn_what_if.clicked.connect(self._on_what_if_clicked)
+
+        self.btn_reset_filter = QPushButton("Сбросить фильтр")
+        self.btn_reset_filter.setVisible(False)
+        self.btn_reset_filter.clicked.connect(self._on_reset_what_if)
+
+        findings_header.addWidget(self.btn_what_if)
+        findings_header.addWidget(self.btn_reset_filter)
+        layout.addLayout(findings_header)
+
         self.findings = FindingsTable()
         self.findings.row_activated.connect(self._on_finding_details)
+        self.findings.host_story_requested.connect(self._on_host_story_requested)
         layout.addWidget(self.findings, stretch=1)
 
         # --- Статус-строка внизу ---
@@ -193,10 +225,16 @@ class RunView(QWidget):
         # AUTO-INSERTED-UPDATE-CALL
         if hasattr(self, 'observations'):
             self.observations.update_report(report)
+        if hasattr(self, 'absence'):
+            self.absence.update_report(report)
         if hasattr(self, 'highlights'):
             self.highlights.update_report(report)
         self.contradictions.set_contradictions(report.get("contradictions", []))
-        self.findings.set_findings(report.get("findings", []))
+        self._original_findings = report.get("findings", []).copy()
+        self.findings.set_findings(self._original_findings)
+        self.btn_what_if.setEnabled(True)
+        self.btn_graph.setEnabled(True)
+        self.btn_reset_filter.setVisible(False)
 
         self.status_label.setText(
             f"Готово · {s.get('findings', 0)} findings · "
@@ -228,12 +266,18 @@ class RunView(QWidget):
         self.summary.set_values(s)
         if hasattr(self, "observations"):
             self.observations.update_report(report)
+        if hasattr(self, "absence"):
+            self.absence.update_report(report)
         if hasattr(self, "highlights"):
             self.highlights.update_report(report)
         self.contradictions.set_contradictions(
             report.get("contradictions", [])
         )
-        self.findings.set_findings(report.get("findings", []))
+        self._original_findings = report.get("findings", []).copy()
+        self.findings.set_findings(self._original_findings)
+        self.btn_what_if.setEnabled(True)
+        self.btn_graph.setEnabled(True)
+        self.btn_reset_filter.setVisible(False)
         self.status_label.setText(
             f"Загружено · {s.get('findings', 0)} findings · "
             f"{s.get('contradictions', 0)} противоречий"
@@ -311,6 +355,62 @@ class RunView(QWidget):
     def _on_contra_details(self, contra: dict) -> None:
         ContradictionDialog(contra, parent=self).exec()
 
+    def _on_graph_clicked(self) -> None:
+        if not self._last_report:
+            return
+        GraphDialog(self._last_report, self).exec()
+
+    def _on_what_if_clicked(self) -> None:
+        if not self._last_report:
+            return
+
+        dialog = WhatIfDialog(self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        exclude_ips, exclude_domains = dialog.get_exclusions()
+        if not exclude_ips and not exclude_domains:
+            return
+
+        from pcap_triage.analyzers.counterfactual import evaluate_what_if
+        res = evaluate_what_if(
+            self._last_report,
+            exclude_ips=exclude_ips,
+            exclude_domains=exclude_domains
+        )
+
+        remaining = res["remaining_findings"]
+        removed_count = res["removed_count"]
+
+        self.findings.set_findings(remaining)
+        self.btn_reset_filter.setVisible(True)
+
+        self.toasts.show(
+            f"What-If: удалено {removed_count} находок", 
+            "info"
+        )
+        self.status_label.setText(
+            f"What-If активно · осталось {len(remaining)} findings"
+        )
+
+    def _on_reset_what_if(self) -> None:
+        self.findings.set_findings(self._original_findings)
+        self.btn_reset_filter.setVisible(False)
+        self.status_label.setText(
+            f"Фильтр сброшен · {len(self._original_findings)} findings"
+        )
+
+    def _on_host_story_requested(self, ip: str) -> None:
+        if not self._last_report:
+            return
+
+        from pcap_triage.analyzers.story import build_host_story
+        from pcap_triage_gui.dialogs.host_story_dialog import HostStoryDialog
+
+        story = build_host_story(self._last_report, ip)
+        dialog = HostStoryDialog(ip, story, self)
+        dialog.exec()
+
     def _on_finding_details(self, finding: dict) -> None:
         FindingDialog(finding, parent=self).exec()
 
@@ -354,6 +454,11 @@ class RunView(QWidget):
         self.contradictions.clear()
         self.findings.clear()
         self._last_report = None
+        self._original_findings = []
+        if hasattr(self, "btn_what_if"):
+            self.btn_what_if.setEnabled(False)
+            self.btn_graph.setEnabled(False)
+            self.btn_reset_filter.setVisible(False)
 
     # =========================================================================
     # ОСТАНОВКА

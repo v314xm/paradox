@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
+    QMenu,
 )
 
 
@@ -37,6 +38,7 @@ _ROW_DATA_ROLE = Qt.ItemDataRole.UserRole + 1
 class FindingsTable(QFrame):
     # object, а не dict — стабильнее в PySide6.
     row_activated = Signal(object)
+    host_story_requested = Signal(str)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -89,6 +91,8 @@ class FindingsTable(QFrame):
                 self._table.setColumnWidth(i, width)
 
         self._table.cellDoubleClicked.connect(self._on_double_click)
+        self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._table.customContextMenuRequested.connect(self._on_context_menu)
         layout.addWidget(self._table)
 
     # ---------- публичный API ----------
@@ -152,6 +156,34 @@ class FindingsTable(QFrame):
             (type_item, value_item, conf_item, mitre_item, ts_item)
         ):
             self._table.setItem(row, col, item)
+
+    def _on_context_menu(self, pos) -> None:
+        item = self._table.itemAt(pos)
+        if item is None:
+            return
+
+        row = item.row()
+        type_item = self._table.item(row, 0)
+        if type_item is None:
+            return
+
+        f = type_item.data(_ROW_DATA_ROLE)
+        if not isinstance(f, dict):
+            return
+
+        menu = QMenu(self)
+        src = f.get("src_ip")
+        dst = f.get("dst_ip")
+
+        if src:
+            act_src = menu.addAction(f"История хоста (src): {src}")
+            act_src.triggered.connect(lambda: self.host_story_requested.emit(src))
+        if dst:
+            act_dst = menu.addAction(f"История хоста (dst): {dst}")
+            act_dst.triggered.connect(lambda: self.host_story_requested.emit(dst))
+
+        if src or dst:
+            menu.exec_(self._table.viewport().mapToGlobal(pos))
 
     def _on_double_click(self, row: int, _col: int) -> None:
         # Двойной клик, а не одиночный — чтобы выделение не открывало

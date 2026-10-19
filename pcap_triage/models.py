@@ -140,6 +140,9 @@ class Finding:
             )
         if self.severity == "medium" and self.type in _SEVERITY_BY_TYPE:
             self.severity = _SEVERITY_BY_TYPE[self.type]
+        if not self.confidence_reasons and self.evidence:
+            from pcap_triage.detectors.explainer import build_reasons
+            self.confidence_reasons = build_reasons(self.evidence)
 
     @property
     def mitre_id(self) -> str | None:

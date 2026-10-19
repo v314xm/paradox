@@ -36,6 +36,8 @@ class FindingDialog(QDialog):
         outer.addWidget(self._build_value())
         outer.addWidget(self._section_label("MITRE"))
         outer.addWidget(self._build_mitre())
+        outer.addWidget(self._section_label("Почему такая уверенность"))
+        outer.addWidget(self._build_confidence_reasons())
         outer.addWidget(self._section_label("Evidence"))
         outer.addWidget(self._build_evidence(), stretch=1)
         outer.addLayout(self._build_footer())
@@ -83,6 +85,27 @@ class FindingDialog(QDialog):
         lbl.setObjectName("mono")
         lbl.setWordWrap(True)
         return lbl
+
+    def _build_confidence_reasons(self) -> QWidget:
+        reasons = self._finding.get("confidence_reasons") or []
+
+        w = QWidget()
+        v = QVBoxLayout(w)
+        v.setContentsMargins(0, 0, 0, 0)
+        v.setSpacing(4)
+
+        if not reasons:
+            empty = QLabel("Нет детального разбора (старый детектор или нет причин).")
+            empty.setObjectName("muted")
+            v.addWidget(empty)
+        else:
+            for reason in reasons:
+                lbl = QLabel(f"• {reason}")
+                lbl.setObjectName("mono")
+                lbl.setWordWrap(True)
+                v.addWidget(lbl)
+
+        return w
 
     def _build_evidence(self) -> QScrollArea:
         ev = self._finding.get("evidence") or {}

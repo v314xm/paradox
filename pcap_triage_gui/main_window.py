@@ -62,7 +62,7 @@ from pcap_triage_gui.views.ipv6_view import IPv6View
 
 
 TAB_TITLES = ("Прогон", "История", "Обогащение", "Настройки", "IPv6")
-APP_VERSION = "0.9.1"
+APP_VERSION = "1.0.0"
 
 
 # Соответствие латиница → кириллица в ЙЦУКЕН-раскладке.
@@ -491,15 +491,18 @@ class MainWindow(QMainWindow):
             "Извлекает факты о сети из pcap и ищет противоречия "
             "между слоями данных: DNS vs SNI, JA3 vs UA, MAC vs IP, "
             "роли vs поведение.<br><br>"
-            "<b>Экстракторы (8):</b><br>"
+            "<b>Экстракторы (9):</b><br>"
             "flow, dns, host_identity, arp_history, nbns, "
-            "kerberos, tls, http.<br><br>"
-            "<b>Детекторы (17):</b><br>"
+            "kerberos, tls, http, <b>ndp (IPv6)</b>.<br><br>"
+            "<b>Детекторы (18):</b><br>"
             "dga, cloud_tunnel, ip_check_service, typosquatting, "
             "sni_mismatch, suspicious_port, port_scan, web_scanner, "
             "brute_force, ftp_brute_force, beaconing, dns_tunneling, "
             "lateral_movement, large_transfer, vulnerable_path, "
-            "command_injection, ja3_malware, nxdomain_burst.<br><br>"
+            "command_injection, ja3_malware, nxdomain_burst, <b>yara</b>.<br><br>"
+            "<b>Анализаторы:</b><br>"
+            "Confidence Explainer, What-If (Counterfactual), "
+            "Absence (Оборванные сессии), Host Story.<br><br>"
             "<b>Правила противоречий (12):</b><br>"
             "victim_makes_attack, mac_ip_conflict, "
             "sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry, "
@@ -517,7 +520,7 @@ class MainWindow(QMainWindow):
             "О программе",
             f"<b>pcap-triage v{APP_VERSION}</b><br><br>"
             "Оффлайн-триаж pcap.<br>"
-            "17 детекторов · 8 экстракторов · 12 правил ContradictionDetector.",
+            "18 детекторов · 9 экстракторов · 12 правил · 4 анализатора",
             f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
             f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
         )
