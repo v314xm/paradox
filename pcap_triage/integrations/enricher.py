@@ -8,6 +8,7 @@
 Приватные IP (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16,
 224/4, 239/4) не собираются — Shodan про них ничего не знает.
 """
+import ipaddress
 import time
 
 from pcap_triage.config import Config
@@ -50,7 +51,16 @@ class EnricherOrchestrator:
             "cache_misses": 0,
             "rate_limited": 0,
             "provider_calls": 0,
+            # errors разбит по категориям — сетевые / авторизация /
+            # сервер 5xx. Сумма = общее число ошибок.
             "errors": 0,
+            "errors_network": 0,
+            "errors_auth": 0,
+            "errors_server": 0,
+            # Провайдер не вызван: выключен в настройках, не поддерживает
+            # тип, или у него нет ключа (enabled=False).
+            "skipped_disabled": 0,
+            "skipped_unsupported": 0,
         }
 
     def enrich(
@@ -77,8 +87,15 @@ class EnricherOrchestrator:
 
             for provider in self.providers:
                 if provider.name not in enabled:
+                    self.stats["skipped_disabled"] += 1
                     continue
                 if ioc_type not in provider.supports:
+                    self.stats["skipped_unsupported"] += 1
+                    continue
+                # Провайдер без ключа/без конфигурации. Не дёргаем —
+                # это не ошибка, просто нечего запрашивать.
+                if not getattr(provider, "enabled", True):
+                    self.stats["skipped_disabled"] += 1
                     continue
 
                 cached = self.cache.get(provider.name, ioc)
@@ -101,6 +118,7 @@ class EnricherOrchestrator:
                     self.cache.put(result)
                 else:
                     self.stats["errors"] += 1
+                    self._classify_error(result.error or "")
 
                 results.append(result)
 
@@ -109,38 +127,48 @@ class EnricherOrchestrator:
 
         return out
 
+    def _classify_error(self, error: str) -> None:
+        """Разложить ошибку по категориям для статистики."""
+        e = error.lower()
+        if ("401" in e or "403" in e or "unauthorized" in e
+                or "forbidden" in e or "key" in e and "not set" in e):
+            self.stats["errors_auth"] += 1
+        elif "429" in e or "rate limited" in e:
+            # Уже посчитано в rate_limited; не дублируем.
+            pass
+        elif ("500" in e or "502" in e or "503" in e or "504" in e
+              or "server error" in e):
+            self.stats["errors_server"] += 1
+        else:
+            self.stats["errors_network"] += 1
+
     def close(self) -> None:
         self.cache.close()
 
 
+_CGNAT_V4 = ipaddress.ip_network("100.64.0.0/10")
+
+
 def _is_private_ip(ip: str) -> bool:
     """
-    Приватный / loopback / link-local / multicast.
-    Shodan InternetDB по таким ничего не вернёт — не тратим запросы.
+    Приватный / loopback / link-local / multicast / CGNAT / IPv6.
+
+    Python 3.13: is_private для 100.64/10 = False, поэтому CGNAT
+    проверяем явно.
     """
-    if not isinstance(ip, str):
+    if not isinstance(ip, str) or not ip:
         return False
-    if ip.startswith("10."):
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    if addr.is_private or addr.is_loopback or addr.is_link_local:
         return True
-    if ip.startswith("192.168."):
+    if addr.is_multicast or addr.is_reserved or addr.is_unspecified:
         return True
-    if ip.startswith("127."):
+    if isinstance(addr, ipaddress.IPv4Address) and addr in _CGNAT_V4:
         return True
-    if ip.startswith("169.254."):
-        return True
-    if ip.startswith("224.") or ip.startswith("239."):
-        return True
-    if ip == "255.255.255.255":
-        return True
-    if ip.startswith("172."):
-        try:
-            second = int(ip.split(".")[1])
-        except (ValueError, IndexError):
-            return False
-        return 16 <= second <= 31
     return False
-
-
 def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
     """
     Вытащить IP и домены из findings для обогащения.

@@ -57,11 +57,12 @@ from pcap_triage_gui.views.run_view import RunView
 from pcap_triage_gui.views.settings_view import SettingsView
 from pcap_triage_gui.views.enrich_view import EnrichView
 from pcap_triage_gui.views.history_view import HistoryView
+from pcap_triage_gui.views.ipv6_view import IPv6View
 # >>> /ИМПОРТЫ VIEWS <<<
 
 
-TAB_TITLES = ("Прогон", "История", "Обогащение", "Настройки")
-APP_VERSION = "0.9.0"
+TAB_TITLES = ("Прогон", "История", "Обогащение", "Настройки", "IPv6")
+APP_VERSION = "0.9.1"
 
 
 # Соответствие латиница → кириллица в ЙЦУКЕН-раскладке.
@@ -135,6 +136,7 @@ class MainWindow(QMainWindow):
         # но не занимают место — их содержимое и так доступно
         # вкладками и стандартными сочетаниями.
         self._menu_file(mb)
+        self._menu_tools(mb)
         self._menu_help(mb)
         # Только регистрация QAction'ов, без addMenu().
         self._menu_run(mb)
@@ -234,6 +236,62 @@ class MainWindow(QMainWindow):
         )
         self.addAction(self._act_fullscreen)
 
+    def _menu_tools(self, mb) -> None:
+        m = mb.addMenu("Инструменты")
+        m.addAction(self._act(
+            "Быстрая проверка IOC…", "Ctrl+Shift+I",
+            self._on_quick_check,
+        ))
+
+    def _on_quick_check(self) -> None:
+        """Открыть/показать окно быстрой проверки.
+
+        Окно создаётся лениво и живёт как дочерний top-level виджет.
+        Config собирается из текущих overrides (актуальные настройки
+        пользователя), report — из последнего прогона.
+        """
+        try:
+            from pcap_triage_gui.config_builder import (
+                build_config_with_overrides,
+            )
+            from pcap_triage_gui.views.quick_check_window import (
+                QuickCheckWindow,
+            )
+        except ImportError as e:
+            QMessageBox.critical(
+                self, "Ошибка", f"Не удалось загрузить окно: {e}",
+            )
+            return
+
+        if getattr(self, "_quick_check", None) is None:
+            overrides = {}
+            if getattr(self, "_settings_store", None) is not None:
+                try:
+                    overrides = (
+                        self._settings_store.load().get("overrides", {}) or {}
+                    )
+                except Exception:
+                    overrides = {}
+            try:
+                config = build_config_with_overrides(overrides)
+            except (ValueError, OSError) as e:
+                QMessageBox.critical(
+                    self, "Некорректные настройки", str(e),
+                )
+                return
+            self._quick_check = QuickCheckWindow(config=config, parent=self)
+
+        # Прокинуть актуальный report — комбо IOC обновится.
+        if hasattr(self, "run_view"):
+            try:
+                self._quick_check.set_report(self.run_view.last_report())
+            except Exception:
+                pass
+
+        self._quick_check.show()
+        self._quick_check.raise_()
+        self._quick_check.activateWindow()
+
     def _menu_help(self, mb) -> None:
         m = mb.addMenu("Помощь")
         m.addAction(self._act(
@@ -255,10 +313,16 @@ class MainWindow(QMainWindow):
         # порядком вкладок: settings_view нужен раньше, чем мы будем
         # подключать его сигналы к enrich_view, а вкладку при этом
         # показываем после Обогащения.
-        self.run_view = RunView()
-        self.settings_view = SettingsView()
+        # Единый SettingsStore: один и тот же settings.json читают и
+        # пишут оба view. Два разных экземпляра = расходящееся состояние.
+        from pcap_triage_gui.settings_store import SettingsStore
+        self._settings_store = SettingsStore()
+
+        self.run_view = RunView(store=self._settings_store)
+        self.settings_view = SettingsView(store=self._settings_store)
         self.enrich_view = EnrichView()
         self.history_view = HistoryView()
+        self.ipv6_view = IPv6View()
 
         # --- Прогон → главное окно ---
         self.run_view.analysis_started.connect(self._on_analysis_started)
@@ -305,6 +369,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.history_view, TAB_TITLES[1])
         self.tabs.addTab(self.enrich_view, TAB_TITLES[2])
         self.tabs.addTab(self.settings_view, TAB_TITLES[3])
+        self.tabs.addTab(self.ipv6_view, TAB_TITLES[4])
 
         # Меню — отдельный QMenuBar НАД табами. QMainWindow с одним
         # setCentralWidget не покажет self._topmenu, если он не внутри
@@ -435,10 +500,13 @@ class MainWindow(QMainWindow):
             "brute_force, ftp_brute_force, beaconing, dns_tunneling, "
             "lateral_movement, large_transfer, vulnerable_path, "
             "command_injection, ja3_malware, nxdomain_burst.<br><br>"
-            "<b>Правила противоречий (7):</b><br>"
+            "<b>Правила противоречий (12):</b><br>"
             "victim_makes_attack, mac_ip_conflict, "
             "sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry, "
-            "port_service_mismatch, direct_ip_no_dns.<br><br>"
+            "port_service_mismatch, direct_ip_no_dns, "
+            "sni_without_dns, dns_answer_mismatch, "
+            "sni_cert_mismatch, self_signed_cert, "
+            "expired_cert.<br><br>"
             "<i>Подробное описание каждого модуля — в отдельном "
             "релизе.</i>",
         )
@@ -449,7 +517,9 @@ class MainWindow(QMainWindow):
             "О программе",
             f"<b>pcap-triage v{APP_VERSION}</b><br><br>"
             "Оффлайн-триаж pcap.<br>"
-            "17 детекторов · 8 экстракторов · 7 правил ContradictionDetector.",
+            "17 детекторов · 8 экстракторов · 12 правил ContradictionDetector.",
+            f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
+            f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
         )
 
     def _on_hotkeys(self) -> None:
@@ -494,6 +564,10 @@ class MainWindow(QMainWindow):
         # кнопка «Обогатить» снова активна, таблица очищена.
         if isinstance(report, dict) and hasattr(self, "enrich_view"):
             self.enrich_view.set_report(report)
+
+        # >>> IPv6 <<<
+        if isinstance(report, dict) and hasattr(self, "ipv6_view"):
+            self.ipv6_view.update_data(report)
 
         # >>> ОСТАНОВКА <<<
         self._act_stop.setEnabled(False)

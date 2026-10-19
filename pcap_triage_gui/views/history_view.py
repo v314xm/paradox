@@ -225,7 +225,7 @@ class HistoryView(QWidget):
         # «✓ enriched», потому что _label_for пересчитывает его от
         # текущего report. Выделение сохраняется: setText не сбрасывает
         # currentRow, только содержимое одного item.
-        ts, _ = self._runs[row]
+        ts, _, _ = self._runs[row]
         item = self._list.item(row)
         if item is not None:
             item.setText(self._label_for(ts, report))

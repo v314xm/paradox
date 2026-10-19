@@ -25,12 +25,23 @@ Free tier: 1000 запросов/день. Rate limit в оркестратор�
 """
 import json
 import os
+import ssl
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
+import certifi
+
+import certifi
+import urllib.request
+
 from pcap_triage.integrations.base import EnrichmentResult
+
+# SSL-контекст с CA-бандлом certifi. Python на Windows не читает
+# Windows Certificate Store, без этого HTTPS падает с
+# CERTIFICATE_VERIFY_FAILED.
+_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 
 class AbuseIPDBEnricher:
@@ -96,7 +107,9 @@ class AbuseIPDBEnricher:
         })
 
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(
+                req, timeout=self.timeout, context=_SSL_CONTEXT,
+            ) as resp:
                 raw = resp.read()
                 payload = json.loads(raw.decode("utf-8"))
                 return payload.get("data") or {}, None

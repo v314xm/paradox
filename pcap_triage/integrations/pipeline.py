@@ -13,18 +13,18 @@ from pcap_triage.integrations.enricher import (
     EnricherOrchestrator,
     collect_iocs_from_findings,
 )
-from pcap_triage.integrations.shodan_internetdb import (
-    ShodanInternetDBEnricher,
-)
 
 
 def build_default_orchestrator(config: Config) -> EnricherOrchestrator:
-    """Собрать оркестратор с провайдерами по умолчанию."""
-    from pcap_triage.integrations.abuseipdb import AbuseIPDBEnricher
+    """Собрать оркестратор из REGISTRY, отфильтровав по Config.
 
+    Порядок провайдеров — по имени в REGISTRY, для стабильности.
+    """
+    from pcap_triage.integrations.registry import REGISTRY
+
+    enabled = set(config.enrichment_enabled_providers)
     providers = [
-        ShodanInternetDBEnricher(),
-        AbuseIPDBEnricher(),
+        cls() for name, cls in REGISTRY.items() if name in enabled
     ]
     cache = EnrichmentCache(config.enrichment_cache_path)
     return EnricherOrchestrator(providers, cache, config)

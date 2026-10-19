@@ -40,8 +40,9 @@ class RunView(QWidget):
     analysis_cancelled = Signal()
     # >>> /ОСТАНОВКА <<<
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent=None, store=None) -> None:
         super().__init__(parent)
+        self._store = store
         # >>> СОСТОЯНИЕ <<<
         self._worker: AnalysisWorker | None = None
         self._current_path: str | None = None
@@ -58,6 +59,7 @@ class RunView(QWidget):
         # >>> /СОСТОЯНИЕ <<<
         self._build_ui()
         self.toasts = ToastManager(self)
+        self._load_from_store()
 
     # =========================================================================
     # UI
@@ -148,16 +150,15 @@ class RunView(QWidget):
         if not self._current_path:
             return
         try:
-            from pcap_triage.config import Config
-            config = Config()
-            # Переопределения из вкладки «Настройки». Config — frozen
-            # dataclass, обычный setattr упадёт. object.__setattr__
-            # обходит frozen-защиту точечно.
-            for k, v in self._config_overrides.items():
-                if hasattr(config, k):
-                    object.__setattr__(config, k, v)
+            from pcap_triage_gui.config_builder import (
+                build_config_with_overrides,
+            )
+            config = build_config_with_overrides(self._config_overrides)
         except ImportError as e:
             self._on_error(f"Не удалось импортировать Config: {e}")
+            return
+        except (ValueError, OSError) as e:
+            self._on_error(f"Некорректные настройки: {e}")
             return
 
         self._set_busy(True)
@@ -383,6 +384,31 @@ class RunView(QWidget):
         в overrides должно оказаться {a: 1, b: 2}.
         """
         self._config_overrides.update(overrides)
+
+    def _load_from_store(self) -> None:
+        """Прочитать сохранённые настройки при старте GUI."""
+        if self._store is None:
+            return
+        data = self._store.load()
+        ov = data.get("overrides", {})
+        if isinstance(ov, dict) and ov:
+            try:
+                from pcap_triage.config import Config
+                from pcap_triage_gui.settings_rehydrate import (
+                    rehydrate_overrides,
+                )
+                ov = rehydrate_overrides(ov, Config())
+            except ImportError:
+                pass
+            self._config_overrides.update(ov)
+
+        dd = data.get("disabled_detectors", [])
+        if isinstance(dd, (list, tuple, set, frozenset)):
+            self._disabled_detectors = set(dd)
+
+        dc = data.get("disabled_contradictions", [])
+        if isinstance(dc, (list, tuple, set, frozenset)):
+            self._disabled_contradictions = set(dc)
 
     def set_disabled_detectors(self, names: set[str]) -> None:
         """Отключённые детекторы из вкладки «Настройки»."""

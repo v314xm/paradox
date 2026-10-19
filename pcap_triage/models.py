@@ -113,6 +113,7 @@ class Finding:
     # Специфика детектора. Никаких гарантий по ключам — каждый
     # детектор пишет что хочет.
     evidence: dict[str, Any] = field(default_factory=dict)
+    confidence_reasons: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """

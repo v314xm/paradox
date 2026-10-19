@@ -5,15 +5,17 @@
 
 ## [Unreleased]
 
+## [Unreleased]
+
 #### Запланировано
 - ObfuscationDetector (base64/eval в HTTP body).
 - WebShellDetector (?cmd=, ?exec= в URI + POST body).
-- IOC -> STIX 2.1 экспорт.
+- IOC → STIX 2.1 экспорт.
 - Windowing в CaptureState (fix nxdomain_burst долга,
   медленные beaconing).
 - FlowAggregator + более сложные эвристики beaconing.
 - VirusTotal enricher (третий провайдер, домены).
-- DNS-ответы (A/AAAA/CNAME) для sni_host_mismatch v2
+- DNS-ответы (A/AAAA/CNAME) — для sni_host_mismatch v2
   и direct_ip_no_dns v2.
 - TLS certificate parser (CN, SAN).
 - SMB2/DHCP/SSH/SMTP экстракторы.
@@ -21,19 +23,19 @@
 - REST API + Web UI.
 
 ### Известные проблемы
-- nxdomain_burst считает за весь файл, не по окну - 93 findings
+- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
   на FIN-2015, часть могут быть FP.
-- sni_without_dns - 73 findings на FIN-2015, CDN без DNS в этом
+- `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
   же файле захвата. Не FP, но шумно.
-- beaconing чувствителен к jitter: реальные C2 с jitter > 0.1
+- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.1
   не ловятся. Может давать FP на CDN-трафик. Требует windowing.
-- victim_makes_attack использует beaconing/nxdomain_burst
-  как источник victim-факта. Если beaconing FP - правило сработает
+- `victim_makes_attack` использует `beaconing`/`nxdomain_burst`
+  как источник victim-факта. Если beaconing FP — правило сработает
   ложно. Решается через тюнинг beaconing allowlist.
-- TCP reassembly обрезает потоки больше 1 МБ (per-flow limit).
+- TCP reassembly обрезает потоки > 1 МБ (per-flow limit).
 - Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD.
-- http_parse.py без прямых тестов.
-- Внутренний C2 (internal -> internal зашифрованный) не
+- `http_parse.py` без прямых тестов.
+- Внутренний C2 (internal → internal зашифрованный) не
   детектируется без HTTP/2 framing.
 - Timeline / kill-chain отсутствуют как структура.
 - Универсальный контракт Finding не зафиксирован.

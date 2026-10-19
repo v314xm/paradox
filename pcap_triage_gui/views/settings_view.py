@@ -6,6 +6,26 @@ Threat Intel, Отчёты. Заглушка — только «Общие».
 """
 from pathlib import Path
 
+from pcap_triage_gui.settings_rehydrate import rehydrate
+from pcap_triage_gui.profiles import (
+    ALL_PROFILES,
+    DEFAULT_PROFILE_KEY,
+    get_profile,
+)
+from pcap_triage_gui.field_help import (
+    SECTION_BY_TITLE,
+    get_field_help,
+    get_section_help,
+)
+from pcap_triage_gui.widgets.editable_list import (
+    PORT_FIELDS,
+    EditableListWidget,
+)
+from pcap_triage_gui.detector_help import get_detector_help
+from pcap_triage_gui.contradiction_help import get_contradiction_help
+from pcap_triage_gui.settings_store import SettingsStore
+from pcap_triage_gui.secrets_store import SecretsStore
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -36,6 +56,7 @@ _SECTIONS = (
     ("brute",         "Brute force"),
     ("network",       "Сеть"),
     ("reports",       "Отчёты"),
+    ("yara", "YARA"),
     ("threatintel",   "Threat Intel"),
     ("perf",          "Производительность"),
 )
@@ -60,6 +81,8 @@ _DETECTORS = (
     ("command_injection",  "Command injection"),
 )
 
+# 12 правил из pcap_triage/contradictions/rules/.
+# Ключ — имя класса; analysis_worker фильтрует по type(r).__name__.
 _CONTRADICTIONS = (
     ("VictimMakesAttackRule",   "victim_makes_attack (PIVOT) — critical"),
     ("MacIpConflictRule",       "mac_ip_conflict (ARP-spoof) — critical"),
@@ -68,6 +91,12 @@ _CONTRADICTIONS = (
     ("ReverseAsymmetryRule",    "reverse_asymmetry (exfil) — medium"),
     ("PortServiceMismatchRule", "port_service_mismatch (tunnel) — high"),
     ("DirectIpNoDnsRule",       "direct_ip_no_dns (hardcoded) — medium"),
+    # v0.9.0: добавлены недостающие 5 правил
+    ("SniWithoutDnsRule",       "sni_without_dns (SNI без DNS) — high"),
+    ("DnsAnswerMismatchRule",   "dns_answer_mismatch (подмена ответа) — critical"),
+    ("SniCertMismatchRule",     "sni_cert_mismatch (CN/SAN ≠ SNI) — high"),
+    ("SelfSignedCertRule",      "self_signed_cert — medium"),
+    ("ExpiredCertRule",         "expired_cert — medium"),
 )
 
 
@@ -111,6 +140,28 @@ def _parse_ports(text: str) -> frozenset[int]:
     return frozenset(out)
 
 
+def _parse_ports_with_report(text: str) -> tuple[frozenset[int], list[str]]:
+    """Как _parse_ports, но возвращает список пропущенных токенов.
+
+    Используется в _apply_* для счётчика «N пропущено».
+    """
+    out: set[int] = set()
+    skipped: list[str] = []
+    for chunk in text.replace(",", " ").split():
+        if chunk.startswith("#"):
+            break
+        try:
+            p = int(chunk)
+        except ValueError:
+            skipped.append(chunk)
+            continue
+        if 1 <= p <= 65535:
+            out.add(p)
+        else:
+            skipped.append(chunk)
+    return frozenset(out), skipped
+
+
 def _format_ports(ports) -> str:
     """{443, 80} → '80, 443'. Сортировка — стабильный порядок в UI."""
     return ", ".join(str(p) for p in sorted(ports))
@@ -130,6 +181,10 @@ def _format_lines(items) -> str:
 
 
 class SettingsView(QWidget):
+    # Дефолты до того, как __init__ успеет их поставить.
+    _active_profile_key: str = DEFAULT_PROFILE_KEY
+    _search_text: str = ""
+    _defaults = None
     thresholds_applied = Signal(object)
     detectors_applied = Signal(object)
     contradictions_applied = Signal(object)
@@ -138,12 +193,69 @@ class SettingsView(QWidget):
     # run_view мерджит в общий overrides.
     config_applied = Signal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent=None, store: SettingsStore | None = None) -> None:
         super().__init__(parent)
+        self._store = store
+        self._secrets = SecretsStore()
         self._build_ui()
+        self._apply_help_tooltips()
+        self.load_from_store()
+        self._active_profile_key = self._read_active_profile()
+        self._wire_modified_signals()
+        self._check_modified()
+        self._wire_modified_signals()
+        self._check_modified()
+        # Автосохранение при каждом Apply. Подписка на свои же сигналы:
+        # не надо трогать _apply_* методы.
+        self.thresholds_applied.connect(self._save_overrides)
+        self.config_applied.connect(self._save_overrides)
+        self.detectors_applied.connect(self._save_disabled_detectors)
+        self.contradictions_applied.connect(self._save_disabled_contradictions)
 
     def _build_ui(self) -> None:
-        layout = QHBoxLayout(self)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        search_row = QHBoxLayout()
+        search_row.setContentsMargins(8, 8, 8, 4)
+        search_row.setSpacing(6)
+
+        self._search_line = QLineEdit()
+        self._search_line.setPlaceholderText(
+            "Поиск по настройкам (Ctrl+F)…"
+        )
+        self._search_line.setClearButtonEnabled(True)
+        self._search_line.setToolTip(
+            "Ищет по имени поля и по описанию (tooltip).\n"
+            "Примеры:\n"
+            "  beaconing  →  все поля детектора beaconing\n"
+            "  энтроп     →  DGA: порог энтропии (совпадение в описании)\n"
+            "  nxdomain   →  три поля NXDOMAIN burst\n"
+            "\n"
+            "Ctrl+F — фокус в поле. Esc — очистить."
+        )
+        self._search_line.textChanged.connect(self._apply_search)
+        self._search_line.installEventFilter(self)
+        search_row.addWidget(self._search_line, stretch=1)
+
+        self._search_hint = QLabel("")
+        self._search_hint.setObjectName("muted")
+        search_row.addWidget(self._search_hint)
+
+        outer.addLayout(search_row)
+
+        # Ctrl+F — фокус в поиск. Стандартный жест, ожидаемый
+        # пользователем. Работает, когда фокус внутри SettingsView.
+        from PySide6.QtCore import Qt as _Qt
+        from PySide6.QtGui import QKeySequence, QShortcut
+        sc = QShortcut(QKeySequence("Ctrl+F"), self)
+        sc.setContext(_Qt.ShortcutContext.WidgetWithChildrenShortcut)
+        sc.activated.connect(self._focus_search)
+        # Держим ссылку, чтобы шорткат не собрался GC.
+        self._search_shortcut = sc
+
+        layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
@@ -153,6 +265,13 @@ class SettingsView(QWidget):
         self._stack = QStackedWidget()
         self._build_pages()
         layout.addWidget(self._stack, stretch=1)
+        outer.addLayout(layout, stretch=1)
+
+        # Статус-полоса: счётчик пропущенных токенов, короткие подсказки.
+        self._status_label = QLabel("")
+        self._status_label.setObjectName("muted")
+        self._status_label.setContentsMargins(12, 4, 12, 4)
+        outer.addWidget(self._status_label)
 
         self._sidebar.currentRowChanged.connect(self._stack.setCurrentIndex)
         self._sidebar.setCurrentRow(0)
@@ -185,8 +304,14 @@ class SettingsView(QWidget):
                 self._stack.addWidget(self._build_allowlist_page())
             elif key == "dga":
                 self._stack.addWidget(self._build_dga_page())
+            elif key == "yara":
+                self._stack.addWidget(self._build_yara_page())
             elif key == "reports":
                 self._stack.addWidget(self._build_reports_page())
+            elif key == "yara":
+                self._stack.addWidget(self._build_yara_page())
+            elif key == "yara":
+                self._stack.addWidget(self._build_yara_page())
             elif key == "threatintel":
                 self._stack.addWidget(self._build_threatintel_page())
             else:
@@ -216,6 +341,190 @@ class SettingsView(QWidget):
         v.addStretch(1)
         return w
 
+    def _apply_help_tooltips(self) -> None:
+        """Поставить tooltip'ы на поля и заголовки секций.
+
+        Заголовки: tooltip вешается на QLabel из _make_header по
+        карте SECTION_BY_TITLE. Поля: обход всех *_inputs-групп,
+        tooltip из get_field_help.
+        """
+        for group_name in (
+            "_threshold_inputs", "_brute_inputs", "_network_inputs",
+            "_perf_inputs", "_allowlist_inputs", "_dga_inputs",
+            "_reports_inputs", "_ti_inputs",
+        ):
+            group = getattr(self, group_name, None)
+            if not isinstance(group, dict):
+                continue
+            for key, widget in group.items():
+                if widget is None:
+                    continue
+                try:
+                    widget.setToolTip(get_field_help(key))
+                except Exception:
+                    pass
+
+    # =========================================================================
+    # БЕЙДЖ «ИЗМЕНЕНО» И СТАТУС-ПОЛОСА
+    # =========================================================================
+
+    _MARK_STYLE = "color: #d0a060;"
+
+    _INPUT_GROUPS = (
+        "_threshold_inputs", "_brute_inputs", "_network_inputs",
+        "_perf_inputs", "_allowlist_inputs", "_dga_inputs",
+        "_reports_inputs", "_ti_inputs",
+    )
+
+    def _notify_status(self, msg: str, level: str = "info",
+                       timeout_ms: int = 4000) -> None:
+        label = getattr(self, "_status_label", None)
+        if label is None:
+            return
+        color = {"warn": "#d0a060", "error": "#e06060"}.get(level, "")
+        label.setStyleSheet(f"color: {color};" if color else "")
+        label.setText(msg)
+
+        from PySide6.QtCore import QTimer
+
+        def _clear():
+            try:
+                label.setText("")
+            except RuntimeError:
+                pass
+
+        QTimer.singleShot(timeout_ms, _clear)
+
+    def _wire_modified_signals(self) -> None:
+        for group_name in self._INPUT_GROUPS:
+            group = getattr(self, group_name, None)
+            if not isinstance(group, dict):
+                continue
+            for widget in group.values():
+                if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                    widget.valueChanged.connect(self._check_modified)
+                elif isinstance(widget, QCheckBox):
+                    widget.stateChanged.connect(self._check_modified)
+                elif isinstance(widget, QLineEdit):
+                    widget.textChanged.connect(self._check_modified)
+                elif isinstance(widget, (QPlainTextEdit, EditableListWidget)):
+                    widget.textChanged.connect(self._check_modified)
+
+    def _check_modified(self, *args) -> None:
+        try:
+            from pcap_triage.config import Config
+            self._defaults = Config()
+        except ImportError:
+            self._defaults = None
+        for group_name in self._INPUT_GROUPS:
+            group = getattr(self, group_name, None)
+            if not isinstance(group, dict):
+                continue
+            for key, widget in group.items():
+                self._refresh_widget_style(widget, key)
+
+    def _refresh_widget_style(self, widget, key: str) -> None:
+        """Совместить modified (цвет текста) и search (фон)."""
+        parts: list[str] = []
+        if self._defaults is not None:
+            default = getattr(self._defaults, key, None)
+            if default is not None:
+                try:
+                    if self._widget_differs(widget, default):
+                        parts.append(self._MARK_STYLE)
+                except Exception:
+                    pass
+        if self._search_text and self._is_search_match(widget, key):
+            parts.append("background-color: #4a4a10;")
+        widget.setStyleSheet(" ".join(parts))
+
+    def _is_search_match(self, widget, key: str) -> bool:
+        if not self._search_text:
+            return False
+        hay = (key + " " + (widget.toolTip() or "")).lower()
+        return self._search_text in hay
+
+    def _focus_search(self) -> None:
+        self._search_line.setFocus()
+        self._search_line.selectAll()
+
+    def eventFilter(self, obj, event):
+        """Esc в поле поиска: если текст есть — очистить, иначе blur."""
+        from PySide6.QtCore import QEvent
+        from PySide6.QtCore import Qt as _Qt
+        if obj is getattr(self, "_search_line", None):
+            if event.type() == QEvent.Type.KeyPress:
+                if event.key() == _Qt.Key.Key_Escape:
+                    if self._search_line.text():
+                        self._search_line.clear()
+                    else:
+                        self._search_line.clearFocus()
+                    return True
+        return super().eventFilter(obj, event)
+
+    def _apply_search(self, text: str) -> None:
+        self._search_text = (text or "").strip().lower()
+        self._check_modified()
+        hint = getattr(self, "_search_hint", None)
+        if not self._search_text:
+            self._notify_status("")
+            if hint is not None:
+                hint.setText("")
+            return
+        count = sum(
+            1
+            for g in self._INPUT_GROUPS
+            for k, w in getattr(self, g, {}).items()
+            if self._is_search_match(w, k)
+        )
+        msg = f"Найдено полей: {count}"
+        if hint is not None:
+            hint.setText(msg)
+        self._notify_status(msg)
+
+    @staticmethod
+    def _widget_differs(widget, default) -> bool:
+        from PySide6.QtWidgets import (
+            QCheckBox, QDoubleSpinBox, QLineEdit,
+            QPlainTextEdit, QSpinBox,
+        )
+        if isinstance(widget, QSpinBox):
+            return int(widget.value()) != int(default)
+        if isinstance(widget, QDoubleSpinBox):
+            return abs(float(widget.value()) - float(default)) > 1e-9
+        if isinstance(widget, QCheckBox):
+            return bool(widget.isChecked()) != bool(default)
+        if isinstance(widget, QLineEdit):
+            return widget.text().strip() != str(default)
+        if isinstance(widget, EditableListWidget):
+            current_list = widget.items()
+            if isinstance(default, tuple):
+                return tuple(current_list) != default
+            if isinstance(default, frozenset):
+                if default and isinstance(next(iter(default)), int):
+                    try:
+                        current_set = frozenset(int(x) for x in current_list)
+                    except ValueError:
+                        return True
+                    return current_set != default
+                return frozenset(current_list) != default
+            return False
+        if isinstance(widget, QPlainTextEdit):
+            text = widget.toPlainText()
+            if isinstance(default, tuple):
+                current = tuple(
+                    line.strip() for line in text.splitlines()
+                    if line.strip() and not line.strip().startswith("#")
+                )
+                return current != default
+            if isinstance(default, frozenset):
+                if default and isinstance(next(iter(default)), int):
+                    current = _parse_ports(text)
+                else:
+                    current = _parse_lines(text)
+                return current != default
+        return False
+
     def goto(self, key: str) -> None:
         for i in range(self._sidebar.count()):
             item = self._sidebar.item(i)
@@ -240,8 +549,22 @@ class SettingsView(QWidget):
         host = QWidget()
         form = QFormLayout(host)
         form.setContentsMargins(0, 8, 0, 8)
-        form.setSpacing(10)
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setSpacing(14)
+        # Label слева, верхнее выравнивание — чтобы название поля было
+        # на одном уровне со спиннером, а описание уходило под ним.
+        form.setLabelAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
+        form.setFormAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
+        # FieldsStayAtSizeHint — спиннеры фикс. ширины. Label-колонке
+        # это не мешает растягиваться: у label-виджета Expanding, а
+        # форма при нехватке места отдаёт свободное место ему.
+        form.setFieldGrowthPolicy(
+            QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint
+        )
+        form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.DontWrapRows)
         scroll.setWidget(host)
         return scroll, form
 
@@ -251,6 +574,12 @@ class SettingsView(QWidget):
         s = QLabel(subtitle)
         s.setObjectName("muted")
         s.setWordWrap(True)
+        section_key = SECTION_BY_TITLE.get(title)
+        if section_key:
+            help_text = get_section_help(section_key)
+            if help_text:
+                t.setToolTip(help_text)
+                s.setToolTip(help_text)
         return t, s
 
     def _make_buttons(self, reset_slot, apply_slot) -> QHBoxLayout:
@@ -266,6 +595,122 @@ class SettingsView(QWidget):
         return h
 
     # =========================================================================
+    # ПРОФИЛИ
+    # =========================================================================
+
+    def _build_profile_row(self):
+        from PySide6.QtWidgets import QComboBox, QLabel, QHBoxLayout, QPushButton
+
+        row = QHBoxLayout()
+        row.setSpacing(8)
+
+        row.addWidget(QLabel("Профиль:"))
+        self._profile_combo = QComboBox()
+        self._profile_combo.setFixedWidth(240)
+        for p in ALL_PROFILES:
+            self._profile_combo.addItem(p.title, p.key)
+        # Установить текущий
+        idx = self._profile_combo.findData(self._active_profile_key)
+        if idx >= 0:
+            self._profile_combo.setCurrentIndex(idx)
+        self._profile_combo.currentIndexChanged.connect(
+            self._on_profile_combo_changed
+        )
+        row.addWidget(self._profile_combo)
+
+        apply_btn = QPushButton("Применить профиль")
+        apply_btn.clicked.connect(self._apply_active_profile)
+        row.addWidget(apply_btn)
+
+        row.addStretch(1)
+
+        self._profile_hint = QLabel("")
+        self._profile_hint.setObjectName("muted")
+        self._profile_hint.setWordWrap(True)
+        row.addWidget(self._profile_hint, stretch=2)
+
+        self._update_profile_hint()
+        return row
+
+    def _on_profile_combo_changed(self, index: int) -> None:
+        key = self._profile_combo.itemData(index) or DEFAULT_PROFILE_KEY
+        self._active_profile_key = key
+        self._update_profile_hint()
+
+    def _update_profile_hint(self) -> None:
+        p = get_profile(self._active_profile_key)
+        if p is None:
+            self._profile_hint.setText("")
+            return
+        n_ov = len(p.overrides)
+        n_dd = len(p.disabled_detectors)
+        n_dc = len(p.disabled_contradictions)
+        parts = [p.description]
+        if n_ov or n_dd or n_dc:
+            parts.append(
+                f"(параметров: {n_ov}, "
+                f"отключённых детекторов: {n_dd}, "
+                f"правил: {n_dc})"
+            )
+        self._profile_hint.setText(" ".join(parts))
+
+    def _apply_active_profile(self) -> None:
+        """Применить выбранный профиль: заполнить виджеты и эмитить сигналы."""
+        p = get_profile(self._active_profile_key)
+        if p is None:
+            return
+
+        # 1) Заполнить виджеты Порогов значениями из профиля,
+        #    остальные — дефолтами из Config.
+        try:
+            from pcap_triage.config import Config
+            cfg = Config()
+        except ImportError:
+            cfg = None
+
+        for key, widget in self._threshold_inputs.items():
+            if key in p.overrides:
+                value = p.overrides[key]
+            elif cfg is not None:
+                value = getattr(cfg, key, None)
+            else:
+                continue
+            self._set_widget_value(widget, value, key)
+
+        # 2) Обновить чекбоксы детекторов и противоречий.
+        for name, cb in self._detector_boxes.items():
+            cb.setChecked(name not in p.disabled_detectors)
+        for name, cb in self._contradiction_boxes.items():
+            cb.setChecked(name not in p.disabled_contradictions)
+
+        # 3) Сохранить активный профиль и эмитить сигналы.
+        self._save_active_profile(p.key)
+
+        thresholds_values = {}
+        for key, widget in self._threshold_inputs.items():
+            if hasattr(widget, "value"):
+                thresholds_values[key] = widget.value()
+        if thresholds_values:
+            self.thresholds_applied.emit(thresholds_values)
+
+        self.detectors_applied.emit(set(p.disabled_detectors))
+        self.contradictions_applied.emit(set(p.disabled_contradictions))
+
+    def _read_active_profile(self) -> str:
+        if self._store is None:
+            return DEFAULT_PROFILE_KEY
+        data = self._store.load()
+        key = data.get("active_profile", DEFAULT_PROFILE_KEY)
+        return key if get_profile(key) is not None else DEFAULT_PROFILE_KEY
+
+    def _save_active_profile(self, key: str) -> None:
+        if self._store is None:
+            return
+        current = self._store.load()
+        current["active_profile"] = key
+        self._store.save(current)
+
+    # =========================================================================
     # СЕКЦИЯ: Пороги
     # =========================================================================
 
@@ -278,17 +723,24 @@ class SettingsView(QWidget):
         t, s = self._make_header(
             "Пороги",
             "Пороги детекторов из Config ядра. Изменения применяются "
-            "к следующему прогону.",
+            "к следующему прогону. Профиль — готовый набор значений.",
         )
         outer.addWidget(t)
         outer.addWidget(s)
+
+        outer.addLayout(self._build_profile_row())
 
         scroll, form = self._make_scroll_form()
         self._threshold_inputs: dict[str, object] = {}
 
         self._add_int_row(form, "dga_min_label_length", "DGA: минимальная длина label")
         self._add_float_row(form, "dga_entropy_threshold", "DGA: порог энтропии", step=0.1)
-        self._add_int_row(form, "nxdomain_burst_threshold", "NXDOMAIN burst")
+        self._add_int_row(form, "nxdomain_burst_threshold", "NXDOMAIN burst: порог")
+        self._add_int_row(form, "nxdomain_burst_window_sec",
+                          "NXDOMAIN burst: окно (сек)", lo=1, hi=86400)
+        self._add_float_row(form, "nxdomain_burst_min_ratio",
+                            "NXDOMAIN burst: мин. доля NXDOMAIN",
+                            step=0.05, lo=0.0, hi=1.0)
         self._add_int_row(form, "dns_tunneling_min_qname_length", "DNS tunneling: мин. длина qname")
         self._add_int_row(form, "dns_tunneling_min_queries", "DNS tunneling: мин. запросов")
         self._add_int_row(form, "brute_force_min_flows", "Brute force: мин. flows")
@@ -309,12 +761,53 @@ class SettingsView(QWidget):
         self._load_thresholds()
         return w
 
+    def _label_with_hint(self, label_text: str, key: str):
+        """QWidget: [label сверху] [hint под ним серым].
+
+        Хост растягивается по горизонтали (Expanding), чтобы QFormLayout
+        отдал описанию всю доступную ширину. Спиннер справа остаётся
+        фиксированной ширины (160px) — он не участвует в stretch.
+        """
+        from PySide6.QtWidgets import QSizePolicy
+        from pcap_triage_gui.field_help import get_field_help
+
+        host = QWidget()
+        host.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred,
+        )
+        # QFormLayout при FieldsStayAtSizeHint отдаёт label-колонке
+        # ровно sizeHint. Без явного минимума Expanding игнорируется.
+        host.setMinimumWidth(620)
+        v = QVBoxLayout(host)
+        v.setContentsMargins(0, 0, 12, 6)
+        v.setSpacing(2)
+
+        lbl = QLabel(label_text)
+        v.addWidget(lbl)
+
+        text = get_field_help(key)
+        hint = QLabel(text)
+        hint.setWordWrap(True)
+        hint.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred,
+        )
+        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setToolTip(text)
+        v.addWidget(hint)
+
+        if not hasattr(self, "_field_hints"):
+            self._field_hints: dict[str, QLabel] = {}
+        self._field_hints[key] = hint
+        return host
+
+
+
     def _add_int_row(self, form, key: str, label: str,
                      lo: int = 0, hi: int = 1_000_000_000) -> None:
         sp = QSpinBox()
         sp.setRange(lo, hi)
         sp.setFixedWidth(160)
-        form.addRow(label, sp)
+        form.addRow(self._label_with_hint(label, key), sp)
         self._threshold_inputs[key] = sp
 
     def _add_float_row(self, form, key: str, label: str,
@@ -325,7 +818,7 @@ class SettingsView(QWidget):
         sp.setSingleStep(step)
         sp.setDecimals(3)
         sp.setFixedWidth(160)
-        form.addRow(label, sp)
+        form.addRow(self._label_with_hint(label, key), sp)
         self._threshold_inputs[key] = sp
 
     def _load_thresholds(self) -> None:
@@ -387,13 +880,11 @@ class SettingsView(QWidget):
         self._add_int_row_bf(form, "ftp_brute_force_min_unique_src_ports",
                              "FTP: мин. уникальных src-портов", lo=1, hi=10000)
 
-        self._bf_skip_tls = QPlainTextEdit()
-        self._bf_skip_tls.setFixedHeight(72)
+        self._bf_skip_tls = EditableListWidget(port_mode=True)
         form.addRow("HTTP: порты, где brute force не ищем (TLS)", self._bf_skip_tls)
         self._brute_inputs["brute_force_skip_tls_ports"] = self._bf_skip_tls
 
-        self._bf_login_hints = QPlainTextEdit()
-        self._bf_login_hints.setFixedHeight(120)
+        self._bf_login_hints = EditableListWidget(port_mode=False)
         form.addRow("HTTP: подсказки login-endpoint", self._bf_login_hints)
         self._brute_inputs["login_endpoint_hints"] = self._bf_login_hints
 
@@ -407,7 +898,7 @@ class SettingsView(QWidget):
         sp = QSpinBox()
         sp.setRange(lo, hi)
         sp.setFixedWidth(160)
-        form.addRow(label, sp)
+        form.addRow(self._label_with_hint(label, key), sp)
         self._brute_inputs[key] = sp
 
     def _add_float_row_bf(self, form, key, label, lo, hi, step, decimals):
@@ -416,7 +907,7 @@ class SettingsView(QWidget):
         sp.setSingleStep(step)
         sp.setDecimals(decimals)
         sp.setFixedWidth(160)
-        form.addRow(label, sp)
+        form.addRow(self._label_with_hint(label, key), sp)
         self._brute_inputs[key] = sp
 
     def _load_brute_force(self) -> None:
@@ -433,7 +924,7 @@ class SettingsView(QWidget):
                 widget.setValue(int(value))
             elif isinstance(widget, QDoubleSpinBox):
                 widget.setValue(float(value))
-            elif isinstance(widget, QPlainTextEdit):
+            elif isinstance(widget, (QPlainTextEdit, EditableListWidget)):
                 if isinstance(value, frozenset):
                     if value and isinstance(next(iter(value)), int):
                         widget.setPlainText(_format_ports(value))
@@ -442,6 +933,8 @@ class SettingsView(QWidget):
 
     def _apply_brute_force(self) -> None:
         values: dict = {}
+        skipped_total = 0
+        previews: list[str] = []
         for key, widget in self._brute_inputs.items():
             if isinstance(widget, QSpinBox):
                 values[key] = widget.value()
@@ -450,9 +943,19 @@ class SettingsView(QWidget):
             elif isinstance(widget, QPlainTextEdit):
                 text = widget.toPlainText()
                 if "ports" in key or "skip_tls" in key:
-                    values[key] = _parse_ports(text)
+                    parsed, skipped = _parse_ports_with_report(text)
+                    values[key] = parsed
+                    skipped_total += len(skipped)
+                    if skipped:
+                        previews.append(f"{key}: {', '.join(skipped[:3])}")
                 else:
                     values[key] = _parse_lines(text)
+        if skipped_total:
+            self._notify_status(
+                f"Пропущено невалидных токенов: {skipped_total} "
+                f"({'; '.join(previews[:2])})",
+                level="warn",
+            )
         self.config_applied.emit(values)
 
     # =========================================================================
@@ -497,10 +1000,13 @@ class SettingsView(QWidget):
         return w
 
     def _add_list_row(self, form, key, label, height=90):
-        te = QPlainTextEdit()
-        te.setFixedHeight(height)
-        form.addRow(label, te)
-        self._network_inputs[key] = te
+        from pcap_triage_gui.field_help import get_field_help
+        w = EditableListWidget(
+            port_mode=(key in PORT_FIELDS),
+            help_text=get_field_help(key),
+        )
+        form.addRow(label, w)
+        self._network_inputs[key] = w
 
     def _load_network(self) -> None:
         try:
@@ -523,6 +1029,8 @@ class SettingsView(QWidget):
 
     def _apply_network(self) -> None:
         values: dict = {}
+        skipped_total = 0
+        previews: list[str] = []
         for key, widget in self._network_inputs.items():
             text = widget.toPlainText()
             if key == "private_networks":
@@ -531,7 +1039,17 @@ class SettingsView(QWidget):
                     if line.strip() and not line.strip().startswith("#")
                 )
             else:
-                values[key] = _parse_ports(text)
+                parsed, skipped = _parse_ports_with_report(text)
+                values[key] = parsed
+                skipped_total += len(skipped)
+                if skipped:
+                    previews.append(f"{key}: {', '.join(skipped[:3])}")
+        if skipped_total:
+            self._notify_status(
+                f"Пропущено невалидных токенов: {skipped_total} "
+                f"({'; '.join(previews[:2])})",
+                level="warn",
+            )
         self.config_applied.emit(values)
 
     # =========================================================================
@@ -588,14 +1106,14 @@ class SettingsView(QWidget):
 
     def _add_bool_row(self, form, key, label):
         cb = QCheckBox()
-        form.addRow(label, cb)
+        form.addRow(self._label_with_hint(label, key), cb)
         self._perf_inputs[key] = cb
 
     def _add_int_row_pf(self, form, key, label, lo, hi):
         sp = QSpinBox()
         sp.setRange(lo, hi)
         sp.setFixedWidth(180)
-        form.addRow(label, sp)
+        form.addRow(self._label_with_hint(label, key), sp)
         self._perf_inputs[key] = sp
 
     def _load_performance(self) -> None:
@@ -669,10 +1187,13 @@ class SettingsView(QWidget):
         return w
 
     def _add_list_row_al(self, form, key, label, height=90):
-        te = QPlainTextEdit()
-        te.setFixedHeight(height)
-        form.addRow(label, te)
-        self._allowlist_inputs[key] = te
+        from pcap_triage_gui.field_help import get_field_help
+        w = EditableListWidget(
+            port_mode=(key in PORT_FIELDS),
+            help_text=get_field_help(key),
+        )
+        form.addRow(label, w)
+        self._allowlist_inputs[key] = w
 
     def _load_allowlist(self) -> None:
         try:
@@ -715,8 +1236,7 @@ class SettingsView(QWidget):
         scroll, form = self._make_scroll_form()
         self._dga_inputs: dict[str, object] = {}
 
-        self._dga_allowlist = QPlainTextEdit()
-        self._dga_allowlist.setMinimumHeight(300)
+        self._dga_allowlist = EditableListWidget(port_mode=False)
         form.addRow("DGA allowlist (домены)", self._dga_allowlist)
         self._dga_inputs["dga_allowlist"] = self._dga_allowlist
 
@@ -740,6 +1260,77 @@ class SettingsView(QWidget):
         values = {
             "dga_allowlist": _parse_lines(self._dga_allowlist.toPlainText()),
         }
+        self.config_applied.emit(values)
+
+    # =========================================================================
+    # СЕКЦИЯ: YARA
+    # =========================================================================
+
+    def _build_yara_page(self) -> QWidget:
+        w = QWidget()
+        outer = QVBoxLayout(w)
+        outer.setContentsMargins(24, 24, 24, 24)
+        outer.setSpacing(12)
+
+        t, s = self._make_header(
+            "YARA",
+            "Пользовательские YARA-правила для поиска сигнатур в payload. "
+            "Если файл не выбран, используются стандартные правила из ядра.",
+        )
+        outer.addWidget(t)
+        outer.addWidget(s)
+
+        scroll, form = self._make_scroll_form()
+        self._yara_inputs = {}
+
+        # Поле пути
+        self._yara_path = QLineEdit()
+        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
+        self._yara_path.setFixedWidth(420)
+
+        # Кнопка выбора файла
+        btn_browse = QPushButton("Обзор…")
+        btn_browse.clicked.connect(self._browse_yara_file)
+
+        row = QHBoxLayout()
+        row.addWidget(self._yara_path)
+        row.addWidget(btn_browse)
+        row.addStretch(1)
+
+        form.addRow("Путь к файлу правил (.yar):", row)
+        self._yara_inputs["yara_rules_path"] = self._yara_path
+
+        outer.addWidget(scroll, stretch=1)
+        outer.addLayout(self._make_buttons(self._load_yara, self._apply_yara))
+
+        self._load_yara()
+        return w
+
+    def _browse_yara_file(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Выбрать YARA-файл", "", 
+            "YARA Rules (*.yar *.yara);;Все файлы (*)"
+        )
+        if path:
+            self._yara_path.setText(path)
+
+    def _load_yara(self) -> None:
+        try:
+            from pcap_triage.config import Config
+            cfg = Config()
+            val = getattr(cfg, "yara_rules_path", None)
+            if val:
+                self._yara_path.setText(str(val))
+            else:
+                self._yara_path.clear()
+        except ImportError:
+            pass
+
+    def _apply_yara(self) -> None:
+        text = self._yara_path.text().strip()
+        # None, если поле пустое
+        values = {"yara_rules_path": text if text else None}
         self.config_applied.emit(values)
 
     # =========================================================================
@@ -804,6 +1395,146 @@ class SettingsView(QWidget):
     # СЕКЦИЯ: Threat Intel
     # =========================================================================
 
+    # =========================================================================
+    # СЕКЦИЯ: YARA
+    # =========================================================================
+
+    def _build_yara_page(self) -> QWidget:
+        w = QWidget()
+        outer = QVBoxLayout(w)
+        outer.setContentsMargins(24, 24, 24, 24)
+        outer.setSpacing(12)
+
+        t, s = self._make_header(
+            "YARA",
+            "Пользовательские YARA-правила для поиска сигнатур в payload. "
+            "Если файл не выбран, используются стандартные правила из ядра.",
+        )
+        outer.addWidget(t)
+        outer.addWidget(s)
+
+        scroll, form = self._make_scroll_form()
+        self._yara_inputs = {}
+
+        self._yara_path = QLineEdit()
+        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
+        self._yara_path.setFixedWidth(420)
+
+        btn_browse = QPushButton("Обзор…")
+        btn_browse.clicked.connect(self._browse_yara_file)
+
+        row = QHBoxLayout()
+        row.addWidget(self._yara_path)
+        row.addWidget(btn_browse)
+        row.addStretch(1)
+
+        form.addRow("Путь к файлу правил (.yar):", row)
+        self._yara_inputs["yara_rules_path"] = self._yara_path
+
+        outer.addWidget(scroll, stretch=1)
+        outer.addLayout(self._make_buttons(self._load_yara, self._apply_yara))
+
+        self._load_yara()
+        return w
+
+    def _browse_yara_file(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Выбрать YARA-файл", "", 
+            "YARA Rules (*.yar *.yara);;Все файлы (*)"
+        )
+        if path:
+            self._yara_path.setText(path)
+
+    def _load_yara(self) -> None:
+        try:
+            from pcap_triage.config import Config
+            cfg = Config()
+            val = getattr(cfg, "yara_rules_path", None)
+            if val:
+                self._yara_path.setText(str(val))
+            else:
+                self._yara_path.clear()
+        except ImportError:
+            pass
+
+    def _apply_yara(self) -> None:
+        text = self._yara_path.text().strip()
+        values = {"yara_rules_path": text if text else None}
+        self.config_applied.emit(values)
+
+    # =========================================================================
+    # СЕКЦИЯ: Threat Intel
+    # =========================================================================
+
+    # =========================================================================
+    # СЕКЦИЯ: YARA
+    # =========================================================================
+
+    def _build_yara_page(self) -> QWidget:
+        w = QWidget()
+        outer = QVBoxLayout(w)
+        outer.setContentsMargins(24, 24, 24, 24)
+        outer.setSpacing(12)
+
+        t, s = self._make_header(
+            "YARA",
+            "Пользовательские YARA-правила для поиска сигнатур в payload. "
+            "Если файл не выбран, используются стандартные правила из ядра.",
+        )
+        outer.addWidget(t)
+        outer.addWidget(s)
+
+        scroll, form = self._make_scroll_form()
+        self._yara_inputs = {}
+
+        self._yara_path = QLineEdit()
+        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
+        self._yara_path.setFixedWidth(420)
+
+        btn_browse = QPushButton("Обзор…")
+        btn_browse.clicked.connect(self._browse_yara_file)
+
+        row = QHBoxLayout()
+        row.addWidget(self._yara_path)
+        row.addWidget(btn_browse)
+        row.addStretch(1)
+
+        form.addRow("Путь к файлу правил (.yar):", row)
+        self._yara_inputs["yara_rules_path"] = self._yara_path
+
+        outer.addWidget(scroll, stretch=1)
+        outer.addLayout(self._make_buttons(self._load_yara, self._apply_yara))
+
+        self._load_yara()
+        return w
+
+    def _browse_yara_file(self) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Выбрать YARA-файл", "",
+            "YARA Rules (*.yar *.yara);;Все файлы (*)"
+        )
+        if path:
+            self._yara_path.setText(path)
+
+    def _load_yara(self) -> None:
+        try:
+            from pcap_triage.config import Config
+            cfg = Config()
+            val = getattr(cfg, "yara_rules_path", None)
+            if val:
+                self._yara_path.setText(str(val))
+            else:
+                self._yara_path.clear()
+        except ImportError:
+            pass
+
+    def _apply_yara(self) -> None:
+        text = self._yara_path.text().strip()
+        values = {"yara_rules_path": text if text else None}
+        self.config_applied.emit(values)
+
     def _build_threatintel_page(self) -> QWidget:
         w = QWidget()
         outer = QVBoxLayout(w)
@@ -824,9 +1555,7 @@ class SettingsView(QWidget):
         scroll.setFrameShape(QScrollArea.Shape.NoFrame)
 
         host = QWidget()
-        # Ограничиваем ширину формы: иначе в полноэкранном окне метки
-        # уезжают к центру, а поля теряются справа.
-        host.setMaximumWidth(720)
+        host.setMaximumWidth(760)
         form = QFormLayout(host)
         form.setContentsMargins(0, 8, 0, 8)
         form.setSpacing(10)
@@ -836,21 +1565,14 @@ class SettingsView(QWidget):
 
         self._ti_inputs: dict[str, object] = {}
 
-        # --- Провайдеры (какие вообще используются) ---
+        # --- Провайдеры ---
         te_prov = QPlainTextEdit()
-        te_prov.setFixedHeight(100)
+        te_prov.setFixedHeight(80)
         te_prov.setMaximumWidth(500)
-        form.addRow(
-            "Провайдеры (shodan_internetdb, abuseipdb, virustotal)",
-            te_prov,
-        )
+        form.addRow("Активные провайдеры", te_prov)
         self._ti_inputs["enrichment_enabled_providers"] = te_prov
 
         # --- API-ключи ---
-        # Отдельная визуальная группа: ключи не из Config, а из
-        # переменных окружения. Секция явно их не сохраняет на диск —
-        # только выставляет в os.environ текущего процесса.
-        # >>> THREAT INTEL: ключи API <<<
         self._ti_abuse_key = QLineEdit()
         self._ti_abuse_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_abuse_key.setPlaceholderText("ABUSEIPDB_API_KEY")
@@ -863,6 +1585,30 @@ class SettingsView(QWidget):
         self._ti_vt_key.setMaximumWidth(420)
         form.addRow("VirusTotal API key", self._ti_vt_key)
 
+        self._ti_abusech_key = QLineEdit()
+        self._ti_abusech_key.setEchoMode(QLineEdit.EchoMode.Password)
+        self._ti_abusech_key.setPlaceholderText("ABUSECH_AUTH_KEY (MalwareBazaar, ThreatFox, URLhaus)")
+        self._ti_abusech_key.setMaximumWidth(420)
+        form.addRow("abuse.ch Auth-Key", self._ti_abusech_key)
+
+        self._ti_otx_key = QLineEdit()
+        self._ti_otx_key.setEchoMode(QLineEdit.EchoMode.Password)
+        self._ti_otx_key.setPlaceholderText("OTX_API_KEY")
+        self._ti_otx_key.setMaximumWidth(420)
+        form.addRow("AlienVault OTX API key", self._ti_otx_key)
+
+        self._ti_greynoise_key = QLineEdit()
+        self._ti_greynoise_key.setEchoMode(QLineEdit.EchoMode.Password)
+        self._ti_greynoise_key.setPlaceholderText("GREYNOISE_API_KEY")
+        self._ti_greynoise_key.setMaximumWidth(420)
+        form.addRow("GreyNoise API key", self._ti_greynoise_key)
+
+        self._ti_urlscan_key = QLineEdit()
+        self._ti_urlscan_key.setEchoMode(QLineEdit.EchoMode.Password)
+        self._ti_urlscan_key.setPlaceholderText("URLSCAN_API_KEY")
+        self._ti_urlscan_key.setMaximumWidth(420)
+        form.addRow("URLScan API key", self._ti_urlscan_key)
+
         show_cb = QCheckBox("Показать ключи")
         show_cb.toggled.connect(self._toggle_api_keys_visibility)
         form.addRow("", show_cb)
@@ -874,7 +1620,6 @@ class SettingsView(QWidget):
         )
         shodan_note.setTextFormat(Qt.TextFormat.RichText)
         form.addRow("", shodan_note)
-        # >>> /THREAT INTEL: ключи API <<<
 
         # --- Кэш ---
         sp_ttl = QSpinBox()
@@ -904,19 +1649,21 @@ class SettingsView(QWidget):
         return w
 
     def _toggle_api_keys_visibility(self, visible: bool) -> None:
-        """Показать/скрыть ключи в обоих полях. Полезно, когда копируешь
-        длинный ключ и хочешь убедиться, что вставилось без обрезки.
-        """
         mode = (
             QLineEdit.EchoMode.Normal if visible
             else QLineEdit.EchoMode.Password
         )
         self._ti_abuse_key.setEchoMode(mode)
         self._ti_vt_key.setEchoMode(mode)
+        self._ti_abusech_key.setEchoMode(mode)
+        self._ti_otx_key.setEchoMode(mode)
+        self._ti_greynoise_key.setEchoMode(mode)
+        self._ti_urlscan_key.setEchoMode(mode)
 
     def _load_threatintel(self) -> None:
         try:
             from pcap_triage.config import Config
+            import os
         except ImportError:
             return
         cfg = Config()
@@ -932,6 +1679,78 @@ class SettingsView(QWidget):
                 if isinstance(value, (frozenset, tuple, set, list)):
                     widget.setPlainText(_format_lines(value))
 
+        self._ti_abuse_key.setText(os.environ.get("ABUSEIPDB_API_KEY", ""))
+        self._ti_vt_key.setText(os.environ.get("VIRUSTOTAL_API_KEY", ""))
+        self._ti_abusech_key.setText(os.environ.get("ABUSECH_AUTH_KEY", ""))
+        self._ti_otx_key.setText(os.environ.get("OTX_API_KEY", ""))
+        self._ti_greynoise_key.setText(os.environ.get("GREYNOISE_API_KEY", ""))
+        self._ti_urlscan_key.setText(os.environ.get("URLSCAN_API_KEY", ""))
+
+    def _apply_threatintel(self) -> None:
+        import os
+        keys = {
+            "ABUSEIPDB_API_KEY": self._ti_abuse_key.text().strip(),
+            "VIRUSTOTAL_API_KEY": self._ti_vt_key.text().strip(),
+            "ABUSECH_AUTH_KEY": self._ti_abusech_key.text().strip(),
+            "OTX_API_KEY": self._ti_otx_key.text().strip(),
+            "GREYNOISE_API_KEY": self._ti_greynoise_key.text().strip(),
+            "URLSCAN_API_KEY": self._ti_urlscan_key.text().strip(),
+        }
+        for env_name, val in keys.items():
+            if val:
+                os.environ[env_name] = val
+            else:
+                os.environ.pop(env_name, None)
+
+        values: dict = {}
+        for key, widget in self._ti_inputs.items():
+            if isinstance(widget, QSpinBox):
+                values[key] = widget.value()
+            elif isinstance(widget, QLineEdit):
+                if key == "enrichment_cache_path":
+                    text = widget.text().strip()
+                    if text:
+                        try:
+                            Path(text).parent.mkdir(parents=True, exist_ok=True)
+                        except OSError:
+                            pass
+                        values[key] = Path(text)
+            elif isinstance(widget, QPlainTextEdit):
+                values[key] = _parse_lines(widget.toPlainText())
+        self.config_applied.emit(values)
+
+
+    def _toggle_api_keys_visibility(self, visible: bool) -> None:
+        """Показать/скрыть ключи в обоих полях. Полезно, когда копируешь
+        длинный ключ и хочешь убедиться, что вставилось без обрезки.
+        """
+        mode = (
+            QLineEdit.EchoMode.Normal if visible
+            else QLineEdit.EchoMode.Password
+        )
+        self._ti_abuse_key.setEchoMode(mode)
+        self._ti_vt_key.setEchoMode(mode)
+        if hasattr(self, "_ti_abusech_key"):
+            self._ti_abusech_key.setEchoMode(mode)
+
+    def _load_threatintel(self) -> None:
+        try:
+            from pcap_triage.config import Config
+        except ImportError:
+            return
+        cfg = Config()
+        for key, widget in self._ti_inputs.items():
+            value = getattr(cfg, key, None)
+            if value is None:
+                continue
+            if isinstance(widget, QSpinBox):
+                widget.setValue(int(value))
+            elif isinstance(widget, QLineEdit):
+                widget.setText(str(value))
+            elif isinstance(widget, (QPlainTextEdit, EditableListWidget)):
+                if isinstance(value, (frozenset, tuple, set, list)):
+                    widget.setPlainText(_format_lines(value))
+
         # Ключи — из окружения, не из Config. Если уже установлены
         # (например, в PowerShell перед запуском) — показываем, чтобы
         # пользователь видел, что работает.
@@ -939,6 +1758,8 @@ class SettingsView(QWidget):
         self._ti_abuse_key.setText(os.environ.get("ABUSEIPDB_API_KEY", ""))
         self._ti_vt_key.setText(os.environ.get("VIRUSTOTAL_API_KEY", ""))
 
+        if hasattr(self, "_ti_abusech_key"):
+            self._ti_abusech_key.setText(self._secrets.get("abusech_auth_key"))
     def _apply_threatintel(self) -> None:
         # >>> THREAT INTEL: ключи API <<<
         # Ключи не идут в config_applied — они не поля Config.
@@ -973,6 +1794,11 @@ class SettingsView(QWidget):
                         values[key] = Path(text)
             elif isinstance(widget, QPlainTextEdit):
                 values[key] = _parse_lines(widget.toPlainText())
+        if hasattr(self, "_ti_abusech_key"):
+            self._secrets.set(
+                "abusech_auth_key", self._ti_abusech_key.text(),
+            )
+
         self.config_applied.emit(values)
 
     # =========================================================================
@@ -1008,10 +1834,7 @@ class SettingsView(QWidget):
 
         self._detector_boxes: dict[str, object] = {}
         for name, label in _DETECTORS:
-            cb = QCheckBox(label)
-            cb.setChecked(True)
-            self._detector_boxes[name] = cb
-            box_layout.addWidget(cb)
+            box_layout.addWidget(self._make_detector_row(name, label))
         box_layout.addStretch(1)
 
         scroll.setWidget(box_host)
@@ -1032,6 +1855,28 @@ class SettingsView(QWidget):
         outer.addLayout(buttons)
 
         return w
+
+    def _make_detector_row(self, name: str, label: str) -> QWidget:
+        """Строка детектора: [чекбокс с названием] [описание справа]."""
+        row = QWidget()
+        h = QHBoxLayout(row)
+        h.setContentsMargins(0, 2, 0, 2)
+        h.setSpacing(12)
+
+        cb = QCheckBox(label)
+        cb.setChecked(True)
+        cb.setMinimumWidth(220)
+        h.addWidget(cb)
+
+        help_text = get_detector_help(name)
+        hint = QLabel(help_text)
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setToolTip(help_text)
+        h.addWidget(hint, stretch=1)
+
+        self._detector_boxes[name] = cb
+        return row
 
     def _set_all_detectors(self, checked: bool) -> None:
         for cb in self._detector_boxes.values():
@@ -1073,10 +1918,7 @@ class SettingsView(QWidget):
 
         self._contradiction_boxes: dict[str, object] = {}
         for name, label in _CONTRADICTIONS:
-            cb = QCheckBox(label)
-            cb.setChecked(True)
-            self._contradiction_boxes[name] = cb
-            box_layout.addWidget(cb)
+            box_layout.addWidget(self._make_contradiction_row(name, label))
         box_layout.addStretch(1)
 
         scroll.setWidget(box_host)
@@ -1098,6 +1940,28 @@ class SettingsView(QWidget):
 
         return w
 
+    def _make_contradiction_row(self, name: str, label: str) -> QWidget:
+        """Строка правила: [чекбокс] [описание справа]."""
+        row = QWidget()
+        h = QHBoxLayout(row)
+        h.setContentsMargins(0, 2, 0, 2)
+        h.setSpacing(12)
+
+        cb = QCheckBox(label)
+        cb.setChecked(True)
+        cb.setMinimumWidth(320)
+        h.addWidget(cb)
+
+        help_text = get_contradiction_help(name)
+        hint = QLabel(help_text)
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setToolTip(help_text)
+        h.addWidget(hint, stretch=1)
+
+        self._contradiction_boxes[name] = cb
+        return row
+
     def _set_all_contradictions(self, checked: bool) -> None:
         for cb in self._contradiction_boxes.values():
             cb.setChecked(checked)
@@ -1108,3 +1972,105 @@ class SettingsView(QWidget):
             if not cb.isChecked()
         }
         self.contradictions_applied.emit(disabled)
+
+    # =========================================================================
+    # PERSISTENCE (settings_store)
+    # =========================================================================
+
+    def load_from_store(self) -> None:
+        """Накатить сохранённые настройки поверх дефолтов при старте."""
+        if self._store is None:
+            return
+        data = self._store.load()
+        overrides = data.get("overrides", {})
+        if not isinstance(overrides, dict):
+            overrides = {}
+
+        try:
+            from pcap_triage.config import Config
+            defaults = Config()
+        except ImportError:
+            defaults = None
+
+        for group in (
+            self._threshold_inputs,
+            self._brute_inputs,
+            self._network_inputs,
+            self._perf_inputs,
+            self._allowlist_inputs,
+            self._dga_inputs,
+            self._reports_inputs,
+            self._ti_inputs,
+        ):
+            for key, widget in group.items():
+                if key not in overrides:
+                    continue
+                if defaults is not None:
+                    default = getattr(defaults, key, None)
+                    value = rehydrate(default, overrides[key]) if default is not None else overrides[key]
+                else:
+                    value = overrides[key]
+                self._set_widget_value(widget, value, key)
+
+        disabled_det = set(data.get("disabled_detectors", []) or [])
+        for name, cb in self._detector_boxes.items():
+            cb.setChecked(name not in disabled_det)
+
+        disabled_contra = set(data.get("disabled_contradictions", []) or [])
+        for name, cb in self._contradiction_boxes.items():
+            cb.setChecked(name not in disabled_contra)
+
+    def _save_overrides(self, values: dict) -> None:
+        """Дописать overrides в store. Мердж с тем, что уже сохранено."""
+        if self._store is None:
+            return
+        current = self._store.load()
+        merged = dict(current.get("overrides", {}))
+        merged.update(values)
+        self._store.save_partial(overrides=merged)
+
+    def _save_disabled_detectors(self, disabled) -> None:
+        if self._store is None:
+            return
+        self._store.save_partial(disabled_detectors=set(disabled))
+
+    def _save_disabled_contradictions(self, disabled) -> None:
+        if self._store is None:
+            return
+        self._store.save_partial(disabled_contradictions=set(disabled))
+
+    def _set_widget_value(self, widget, value, key: str) -> None:
+        """Записать значение в виджет с учётом его типа и семантики поля."""
+        if isinstance(widget, QSpinBox):
+            widget.setValue(int(value))
+        elif isinstance(widget, QDoubleSpinBox):
+            widget.setValue(float(value))
+        elif isinstance(widget, QCheckBox):
+            widget.setChecked(bool(value))
+        elif isinstance(widget, QLineEdit):
+            widget.setText(str(value))
+        elif isinstance(widget, QPlainTextEdit):
+            if key == "private_networks" and isinstance(value, (tuple, list)):
+                widget.setPlainText("\n".join(str(x) for x in value))
+            elif _is_port_key(key) and isinstance(value, (set, frozenset, list, tuple)):
+                widget.setPlainText(_format_ports(value))
+            elif isinstance(value, (set, frozenset, list, tuple)):
+                widget.setPlainText(_format_lines(value))
+            else:
+                widget.setPlainText(str(value))
+
+
+_PORT_TEXT_KEYS = {
+    "suspicious_ports",
+    "port_scan_excluded_ports",
+    "dc_service_ports",
+    "lateral_movement_ports",
+    "beaconing_mail_polling_ports",
+    "brute_force_skip_tls_ports",
+}
+
+
+def _is_port_key(key: str) -> bool:
+    if key in _PORT_TEXT_KEYS:
+        return True
+    return "ports" in key

@@ -133,8 +133,29 @@ def parse_packet(raw: bytes, ts: float) -> PacketRecord:
     elif ethertype == ETHERTYPE_ARP:
         _parse_arp(raw, rec, offset)
     elif ethertype == ETHERTYPE_IPV6:
-        # TODO: полноценный IPv6
-        rec.proto = "other"
+        from pcap_triage.parsers_ipv6 import parse_ipv6_packet
+        ipv6_rec = parse_ipv6_packet(
+            raw[offset:], ts,
+            eth_src=rec.eth_src, eth_dst=rec.eth_dst,
+            ethertype=ethertype, vlan_id=rec.vlan_id,
+            length=length, raw=raw,
+        )
+        rec.src_ip = ipv6_rec.src_ip
+        rec.dst_ip = ipv6_rec.dst_ip
+        rec.ip_proto = ipv6_rec.ip_proto
+        rec.src_port = ipv6_rec.src_port
+        rec.dst_port = ipv6_rec.dst_port
+        rec.payload = ipv6_rec.payload
+        if ipv6_rec.ip_proto == 6:
+            rec.proto = "tcp"
+        elif ipv6_rec.ip_proto == 17:
+            rec.proto = "udp"
+        elif ipv6_rec.ip_proto == 58:
+            rec.proto = "icmpv6"
+        else:
+            rec.proto = "other"
+        if hasattr(ipv6_rec, "ipv6_meta"):
+            object.__setattr__(rec, "ipv6_meta", ipv6_rec.ipv6_meta)
     else:
         rec.proto = "other"
 

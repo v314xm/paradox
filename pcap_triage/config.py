@@ -125,6 +125,7 @@ class Config:
     # --- file carve ---
     # Метаданные payload'ов — всегда (безопасно, без записи на диск).
     file_carve_enabled: bool = True
+    yara_rules_path: str | None = None
     # Содержимое body на диск — по умолчанию ВЫКЛЮЧЕНО.
     # При включении сохраняется как <sha256>.bin, НЕ как .exe/.ps1.
     file_carve_write_body: bool = False
@@ -592,11 +593,24 @@ class Config:
     enrichment_cache_path: Path = Path("reports/.cache/enrichment.db")
     # Провайдеры вкл/выкл. Shodan InternetDB — без ключа, остальные
     # требуют ключ (см. env vars).
+    # v0.9.0: расширено. Все безклчевые — включены. Требующие
+    # ABUSECH_AUTH_KEY (urlhaus, malwarebazaar, threatfox) —
+    # добавлены в REGISTRY, но не в дефолт: пользователь включит
+    # после указания ключа.
     enrichment_enabled_providers: frozenset[str] = field(
         default_factory=lambda: _frozen(
             "shodan_internetdb",
             "abuseipdb",
             "virustotal",
+            "greynoise",
+            "alienvault_otx",
+            "urlscan",
+            # Требуют ABUSECH_AUTH_KEY. Без ключа BaseEnricher.enabled
+            # возвращает False и провайдер не вызывается — но пусть
+            # будет виден в списке «Настройки → Threat Intel».
+            "urlhaus",
+            "malwarebazaar",
+            "threatfox",
         ),
     )
     # Сколько IOC обогащать за один прогон. Больше = дольше,

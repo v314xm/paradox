@@ -7,6 +7,7 @@ from scapy.utils import RawPcapReader
 
 from pcap_triage import __version__
 from pcap_triage.aggregators.entities import build_entities
+from pcap_triage.analyzers.absence import analyze_absence
 from pcap_triage.config import Config
 from pcap_triage.contradictions import run_all as run_contradictions
 from pcap_triage.detectors.cloud_tunnel import CloudTunnelDetector
@@ -23,6 +24,7 @@ from pcap_triage.extractors.flow import FlowExtractor
 from pcap_triage.extractors.tls import TLSExtractor
 from pcap_triage.extractors.arp_history import ARPMacHistoryExtractor
 from pcap_triage.extractors.dhcp import DHCPExtractor
+from pcap_triage.extractors.ndp import NDPExtractor
 from pcap_triage.extractors.ssh_banner import SSHBannerExtractor
 from pcap_triage.extractors.smtp import SMTPExtractor
 from pcap_triage.models import CaptureState
@@ -45,6 +47,7 @@ from pcap_triage.extractors.nbns import NBNSExtractor
 from pcap_triage.extractors.kerberos import KerberosExtractor
 from pcap_triage.detectors.lateral_movement import LateralMovementDetector
 from pcap_triage.detectors.large_transfer import LargeTransferDetector
+from pcap_triage.detectors.yara_detector import YARADetector
 from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
 from pcap_triage.detectors.command_injection import CommandInjectionDetector
 from pcap_triage.detectors.beaconing import BeaconingDetector
@@ -74,6 +77,7 @@ EXTRACTORS = [
     SMTPExtractor(),           # v0.9.0
     NBNSExtractor(),
     KerberosExtractor(),
+    NDPExtractor(),
 ]
 
 # Порядок детекторов не важен — они независимы.
@@ -97,6 +101,7 @@ DETECTORS = [
     LargeTransferDetector(),
     VulnerablePathDetector(),
     CommandInjectionDetector(),
+    YARADetector(),
 ]
 
 
@@ -345,6 +350,8 @@ def run_pipeline(
         "files": [c.to_dict() for c in state.carved_files],
         "mitre": _summarize_mitre(findings),
     }
+    absence_report = analyze_absence(state)
+
     entities = build_entities(
         state, findings, config, contradictions=contradictions,
     )
@@ -360,6 +367,7 @@ def run_pipeline(
             ioc_report = build_ioc_report({
                 "findings": [f.to_dict() for f in findings],
                 "carved_files": carved_report,
+        "absence": absence_report,
             })
             ioc_files = {
                 k: str(v) for k, v in
@@ -368,8 +376,11 @@ def run_pipeline(
         except Exception:
             ioc_files = {}
 
-    if on_phase is not None:
-        on_phase("report", 1, 1)
+    ndp_report = {
+        "total": getattr(state, "ndp_total", 0),
+        "neighbors": [{"ip": k, "mac": v} for k, v in getattr(state, "ndp_neighbors", {}).items()],
+        "routers": list(getattr(state, "ndp_routers", set())),
+    }
 
     return {
         # 0.3.0: добавлен top-level ключ "contradictions".
@@ -398,6 +409,7 @@ def run_pipeline(
             "external": [e.to_dict() for e in entities.external],
         },
         "dns": dns_report,
+        "ndp": ndp_report,
         "flows": flow_report,
         "http": http_report,
         "http_objects": http_objects_report,

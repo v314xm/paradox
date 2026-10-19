@@ -24,11 +24,17 @@ GET https://internetdb.shodan.io/<ip>
   не дёргать повторно, но обновлять часто).
 """
 import json
+import ssl
 import time
 import urllib.error
 import urllib.request
 
+import certifi
+
 from pcap_triage.integrations.base import EnrichmentResult
+
+
+_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 
 class ShodanInternetDBEnricher:
@@ -40,6 +46,11 @@ class ShodanInternetDBEnricher:
     base_url = "https://internetdb.shodan.io"
     timeout = 10.0
     user_agent = "pcap-triage/0.6.0"
+
+    @property
+    def enabled(self) -> bool:
+        """Shodan InternetDB — без ключа, всегда доступен."""
+        return True
 
     def lookup(self, ioc: str, ioc_type: str) -> EnrichmentResult:
         if ioc_type not in self.supports:
@@ -87,7 +98,9 @@ class ShodanInternetDBEnricher:
             "Accept": "application/json",
         })
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(
+                req, timeout=self.timeout, context=_SSL_CONTEXT,
+            ) as resp:
                 raw = resp.read()
                 return json.loads(raw.decode("utf-8")), None
         except urllib.error.HTTPError as e:

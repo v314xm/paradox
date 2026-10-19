@@ -43,3 +43,10 @@ tools/*
 !tools/README.md
 !tools/make_test_pcap.py
 !tools/batch_analyze.py
+
+reports_batch/
+reports/
+*.db
+batch_run_*.log
+*.log
+
