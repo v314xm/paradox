@@ -20,4 +20,5 @@ class AlienVaultOTXEnricher(BaseEnricher):
         if section is None:
             return None, f"unsupported ioc_type: {ioc_type}"
         url = f"{self.base_url}/{section}/{ioc}/general"
-        return self._http_get_json(url)
+        data, error = self._http_get_json(url)
+        return self._resolve_not_found(data, error)

@@ -57,4 +57,5 @@ class DGADetector:
         return findings
 
     def _is_allowlisted(self, name: str, config: Config) -> bool:
-        return any(name.endswith(suffix) for suffix in config.dga_allowlist)
+        from pcap_triage.domain_utils import matches_suffix
+        return matches_suffix(name, config.dga_allowlist)

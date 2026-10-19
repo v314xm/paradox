@@ -16,6 +16,9 @@ _KEY_ENV = {
     "abuseipdb_api_key": "ABUSEIPDB_API_KEY",
     "virustotal_api_key": "VIRUSTOTAL_API_KEY",
     "abusech_auth_key": "ABUSECH_AUTH_KEY",
+    "otx_api_key": "OTX_API_KEY",
+    "greynoise_api_key": "GREYNOISE_API_KEY",
+    "urlscan_api_key": "URLSCAN_API_KEY",
 }
 
 

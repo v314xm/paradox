@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Any
 
 
+_MISSING = object()
+
 def rehydrate(default: Any, raw: Any) -> Any:
     """Привести raw к типу default.
 
@@ -49,13 +51,14 @@ def rehydrate(default: Any, raw: Any) -> Any:
 def rehydrate_overrides(overrides: dict, defaults: Any) -> dict:
     """Пропустить overrides через rehydrate по образцу полей Config.
 
-    Ключи, которых нет в Config, молча выкидываются: тащить их в
-    object.__setattr__ бессмысленно.
+    Поля, которых нет в Config, отбрасываются. Поля с дефолтом None
+    (например, yara_rules_path) сохраняются как есть — их тип не
+    навязать, а терять ввод пользователя нельзя.
     """
     out: dict[str, Any] = {}
     for key, value in overrides.items():
-        default = getattr(defaults, key, None)
-        if default is None:
+        default = getattr(defaults, key, _MISSING)
+        if default is _MISSING:
             continue
         out[key] = rehydrate(default, value)
     return out

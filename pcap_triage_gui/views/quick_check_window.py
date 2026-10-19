@@ -203,7 +203,7 @@ class QuickCheckWindow(QWidget):
         data = self._ioc_combo.itemData(idx)
         if not data:
             return
-        ioc, ioc_type = data
+        ioc_type, ioc = data
         self._ioc_input.setText(ioc)
         for i in range(self._type_combo.count()):
             if self._type_combo.itemText(i) == ioc_type:

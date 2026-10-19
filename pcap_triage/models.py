@@ -35,6 +35,7 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "lateral_movement": "high",
     "ja3_malware": "high",
     "script_download": "high",
+    "yara_match": "high",
 
     "port_scan": "medium",
     "web_scanner": "medium",

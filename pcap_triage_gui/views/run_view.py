@@ -1,4 +1,4 @@
-﻿"""Вкладка «Прогон».
+"""Вкладка «Прогон».
 
 Цепочка: drop zone → QThread(worker) → run_pipeline → report →
 summary grid + секция противоречий + таблица findings.
@@ -22,6 +22,7 @@ from pcap_triage_gui.dialogs.contradiction_dialog import ContradictionDialog
 from pcap_triage_gui.dialogs.finding_dialog import FindingDialog
 from pcap_triage_gui.dialogs.what_if_dialog import WhatIfDialog
 from pcap_triage_gui.dialogs.graph_dialog import GraphDialog
+from pcap_triage_gui.dialogs.carved_files_dialog import CarvedFilesDialog
 from pcap_triage.analyzers.counterfactual import evaluate_what_if
 from pcap_triage_gui.widgets.contradictions_section import ContradictionsSection
 from pcap_triage_gui.widgets.drop_zone import DropZone
@@ -145,6 +146,11 @@ class RunView(QWidget):
         self.btn_graph.clicked.connect(self._on_graph_clicked)
         findings_header.addWidget(self.btn_graph)
 
+        self.btn_carved = QPushButton("Файлы")
+        self.btn_carved.setEnabled(False)
+        self.btn_carved.clicked.connect(self._on_carved_clicked)
+        findings_header.addWidget(self.btn_carved)
+
         self.btn_what_if = QPushButton("What-If (Исключить)")
         self.btn_what_if.setEnabled(False)
         self.btn_what_if.clicked.connect(self._on_what_if_clicked)
@@ -234,6 +240,7 @@ class RunView(QWidget):
         self.findings.set_findings(self._original_findings)
         self.btn_what_if.setEnabled(True)
         self.btn_graph.setEnabled(True)
+        self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
 
         self.status_label.setText(
@@ -277,6 +284,7 @@ class RunView(QWidget):
         self.findings.set_findings(self._original_findings)
         self.btn_what_if.setEnabled(True)
         self.btn_graph.setEnabled(True)
+        self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
         self.status_label.setText(
             f"Загружено · {s.get('findings', 0)} findings · "
@@ -354,6 +362,11 @@ class RunView(QWidget):
 
     def _on_contra_details(self, contra: dict) -> None:
         ContradictionDialog(contra, parent=self).exec()
+
+    def _on_carved_clicked(self) -> None:
+        if not self._last_report:
+            return
+        CarvedFilesDialog(self._last_report, self).exec()
 
     def _on_graph_clicked(self) -> None:
         if not self._last_report:
@@ -455,6 +468,9 @@ class RunView(QWidget):
         self.findings.clear()
         self._last_report = None
         self._original_findings = []
+        if hasattr(self, "btn_carved"):
+            self.btn_carved.setEnabled(False)
+            self.btn_carved.setText("Файлы")
         if hasattr(self, "btn_what_if"):
             self.btn_what_if.setEnabled(False)
             self.btn_graph.setEnabled(False)

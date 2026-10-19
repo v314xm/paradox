@@ -8,7 +8,12 @@ from pcap_triage.config import Config
 
 
 def is_internal_ip(ip: str, config: Config) -> bool:
-    """Приватный IP (RFC1918, loopback, multicast и т.п.)."""
+    """Приватный IP (RFC1918, IPv6 ULA/link-local, loopback, multicast)."""
+    # Для IPv6 проверяем по префиксам (fc, fd, fe80, ::1)
+    if ":" in ip:
+        return ip.startswith("fc") or ip.startswith("fd") \
+            or ip.startswith("fe80") or ip == "::1"
+    # Для IPv4 — старый добрый startswith
     return any(ip.startswith(prefix) for prefix in config.private_networks)
 
 

@@ -30,11 +30,13 @@ from pcap_triage_gui.secrets_store import SecretsStore
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QDoubleSpinBox,
     QFormLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QListWidget,
     QListWidgetItem,
     QPlainTextEdit,
@@ -80,6 +82,9 @@ _DETECTORS = (
     ("large_transfer",     "Large transfer"),
     ("vulnerable_path",    "Vulnerable path"),
     ("command_injection",  "Command injection"),
+    ("ssh_brute_force", "SSH brute force"),
+    ("smtp_spam", "SMTP spam"),
+    ("yara", "YARA"),
 )
 
 # 12 правил из pcap_triage/contradictions/rules/.
@@ -198,10 +203,10 @@ class SettingsView(QWidget):
         super().__init__(parent)
         self._store = store
         self._secrets = SecretsStore()
+        self._active_profile_key = self._read_active_profile()
         self._build_ui()
         self._apply_help_tooltips()
         self.load_from_store()
-        self._active_profile_key = self._read_active_profile()
         self._wire_modified_signals()
         self._check_modified()
         self._wire_modified_signals()
@@ -309,12 +314,10 @@ class SettingsView(QWidget):
                 self._stack.addWidget(self._build_yara_page())
             elif key == "reports":
                 self._stack.addWidget(self._build_reports_page())
-            elif key == "yara":
-                self._stack.addWidget(self._build_yara_page())
-            elif key == "yara":
-                self._stack.addWidget(self._build_yara_page())
             elif key == "threatintel":
                 self._stack.addWidget(self._build_threatintel_page())
+            elif key == "general":
+                self._stack.addWidget(self._build_general_page())
             else:
                 self._stack.addWidget(self._placeholder_page(key, label))
 
@@ -714,6 +717,48 @@ class SettingsView(QWidget):
     # =========================================================================
     # СЕКЦИЯ: Пороги
     # =========================================================================
+
+    def _build_general_page(self) -> QWidget:
+        w = QWidget()
+        outer = QVBoxLayout(w)
+        outer.setContentsMargins(24, 24, 24, 24)
+        outer.setSpacing(12)
+
+        t, s = self._make_header(
+            "Общие настройки",
+            "Базовые параметры интерфейса.",
+        )
+        outer.addWidget(t)
+        outer.addWidget(s)
+
+        form = QFormLayout()
+        form.setSpacing(14)
+
+        self._lang_combo = QComboBox()
+        self._lang_combo.addItem("Русский", "ru")
+        self._lang_combo.addItem("English", "en")
+
+        # Загружаем текущий язык
+        if self._store:
+            current_lang = self._store.load().get("language", "ru")
+            idx = self._lang_combo.findData(current_lang)
+            if idx >= 0:
+                self._lang_combo.setCurrentIndex(idx)
+
+        self._lang_combo.currentIndexChanged.connect(self._on_lang_changed)
+        form.addRow("Язык интерфейса:", self._lang_combo)
+        outer.addLayout(form)
+        outer.addStretch(1)
+        return w
+
+    def _on_lang_changed(self, index: int) -> None:
+        lang = self._lang_combo.itemData(index)
+        if self._store and lang:
+            self._store.save_partial(language=lang)
+            QMessageBox.information(
+                self, "Язык",
+                "Язык изменён. Для полного применения перезапустите программу.",
+            )
 
     def _build_thresholds_page(self) -> QWidget:
         w = QWidget()
@@ -1360,72 +1405,28 @@ class SettingsView(QWidget):
     # СЕКЦИЯ: YARA
     # =========================================================================
 
-    def _build_yara_page(self) -> QWidget:
-        w = QWidget()
-        outer = QVBoxLayout(w)
-        outer.setContentsMargins(24, 24, 24, 24)
-        outer.setSpacing(12)
 
-        t, s = self._make_header(
-            "YARA",
-            "Пользовательские YARA-правила для поиска сигнатур в payload. "
-            "Если файл не выбран, используются стандартные правила из ядра.",
-        )
-        outer.addWidget(t)
-        outer.addWidget(s)
 
-        scroll, form = self._make_scroll_form()
-        self._yara_inputs = {}
 
-        # Поле пути
-        self._yara_path = QLineEdit()
-        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
-        self._yara_path.setFixedWidth(420)
-
-        # Кнопка выбора файла
-        btn_browse = QPushButton("Обзор…")
-        btn_browse.clicked.connect(self._browse_yara_file)
-
-        row = QHBoxLayout()
-        row.addWidget(self._yara_path)
-        row.addWidget(btn_browse)
-        row.addStretch(1)
-
-        form.addRow("Путь к файлу правил (.yar):", row)
-        self._yara_inputs["yara_rules_path"] = self._yara_path
-
-        outer.addWidget(scroll, stretch=1)
-        outer.addLayout(self._make_buttons(self._load_yara, self._apply_yara))
-
-        self._load_yara()
-        return w
-
-    def _browse_yara_file(self) -> None:
-        from PySide6.QtWidgets import QFileDialog
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Выбрать YARA-файл", "", 
-            "YARA Rules (*.yar *.yara);;Все файлы (*)"
-        )
-        if path:
-            self._yara_path.setText(path)
-
-    def _load_yara(self) -> None:
+    def _validate_yara_rules(self) -> None:
         try:
-            from pcap_triage.config import Config
-            cfg = Config()
-            val = getattr(cfg, "yara_rules_path", None)
-            if val:
-                self._yara_path.setText(str(val))
-            else:
-                self._yara_path.clear()
+            import yara
         except ImportError:
-            pass
+            QMessageBox.warning(self, "YARA", "Модуль yara-python не установлен.\nЗапустите: pip install yara-python")
+            return
 
-    def _apply_yara(self) -> None:
-        text = self._yara_path.text().strip()
-        # None, если поле пустое
-        values = {"yara_rules_path": text if text else None}
-        self.config_applied.emit(values)
+        path = self._yara_path.text().strip()
+        if not path:
+            QMessageBox.warning(self, "YARA", "Укажите путь к файлу правил (.yar)")
+            return
+
+        try:
+            rules = yara.compile(filepath=path)
+            QMessageBox.information(self, "YARA", f"Успешно! Загружено правил: {sum(1 for _ in rules)}")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка в правилах", f"{type(e).__name__}:\n{e}")
+
+
 
     # =========================================================================
     # СЕКЦИЯ: Отчёты
@@ -1493,69 +1494,9 @@ class SettingsView(QWidget):
     # СЕКЦИЯ: YARA
     # =========================================================================
 
-    def _build_yara_page(self) -> QWidget:
-        w = QWidget()
-        outer = QVBoxLayout(w)
-        outer.setContentsMargins(24, 24, 24, 24)
-        outer.setSpacing(12)
 
-        t, s = self._make_header(
-            "YARA",
-            "Пользовательские YARA-правила для поиска сигнатур в payload. "
-            "Если файл не выбран, используются стандартные правила из ядра.",
-        )
-        outer.addWidget(t)
-        outer.addWidget(s)
 
-        scroll, form = self._make_scroll_form()
-        self._yara_inputs = {}
 
-        self._yara_path = QLineEdit()
-        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
-        self._yara_path.setFixedWidth(420)
-
-        btn_browse = QPushButton("Обзор…")
-        btn_browse.clicked.connect(self._browse_yara_file)
-
-        row = QHBoxLayout()
-        row.addWidget(self._yara_path)
-        row.addWidget(btn_browse)
-        row.addStretch(1)
-
-        form.addRow("Путь к файлу правил (.yar):", row)
-        self._yara_inputs["yara_rules_path"] = self._yara_path
-
-        outer.addWidget(scroll, stretch=1)
-        outer.addLayout(self._make_buttons(self._load_yara, self._apply_yara))
-
-        self._load_yara()
-        return w
-
-    def _browse_yara_file(self) -> None:
-        from PySide6.QtWidgets import QFileDialog
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Выбрать YARA-файл", "", 
-            "YARA Rules (*.yar *.yara);;Все файлы (*)"
-        )
-        if path:
-            self._yara_path.setText(path)
-
-    def _load_yara(self) -> None:
-        try:
-            from pcap_triage.config import Config
-            cfg = Config()
-            val = getattr(cfg, "yara_rules_path", None)
-            if val:
-                self._yara_path.setText(str(val))
-            else:
-                self._yara_path.clear()
-        except ImportError:
-            pass
-
-    def _apply_yara(self) -> None:
-        text = self._yara_path.text().strip()
-        values = {"yara_rules_path": text if text else None}
-        self.config_applied.emit(values)
 
     # =========================================================================
     # СЕКЦИЯ: Threat Intel
@@ -1589,9 +1530,13 @@ class SettingsView(QWidget):
         btn_browse = QPushButton("Обзор…")
         btn_browse.clicked.connect(self._browse_yara_file)
 
+        btn_validate = QPushButton("Проверить правила")
+        btn_validate.clicked.connect(self._validate_yara_rules)
+
         row = QHBoxLayout()
         row.addWidget(self._yara_path)
         row.addWidget(btn_browse)
+        row.addWidget(btn_validate)
         row.addStretch(1)
 
         form.addRow("Путь к файлу правил (.yar):", row)
@@ -1742,76 +1687,8 @@ class SettingsView(QWidget):
         self._load_threatintel()
         return w
 
-    def _toggle_api_keys_visibility(self, visible: bool) -> None:
-        mode = (
-            QLineEdit.EchoMode.Normal if visible
-            else QLineEdit.EchoMode.Password
-        )
-        self._ti_abuse_key.setEchoMode(mode)
-        self._ti_vt_key.setEchoMode(mode)
-        self._ti_abusech_key.setEchoMode(mode)
-        self._ti_otx_key.setEchoMode(mode)
-        self._ti_greynoise_key.setEchoMode(mode)
-        self._ti_urlscan_key.setEchoMode(mode)
 
-    def _load_threatintel(self) -> None:
-        try:
-            from pcap_triage.config import Config
-            import os
-        except ImportError:
-            return
-        cfg = Config()
-        for key, widget in self._ti_inputs.items():
-            value = getattr(cfg, key, None)
-            if value is None:
-                continue
-            if isinstance(widget, QSpinBox):
-                widget.setValue(int(value))
-            elif isinstance(widget, QLineEdit):
-                widget.setText(str(value))
-            elif isinstance(widget, QPlainTextEdit):
-                if isinstance(value, (frozenset, tuple, set, list)):
-                    widget.setPlainText(_format_lines(value))
 
-        self._ti_abuse_key.setText(os.environ.get("ABUSEIPDB_API_KEY", ""))
-        self._ti_vt_key.setText(os.environ.get("VIRUSTOTAL_API_KEY", ""))
-        self._ti_abusech_key.setText(os.environ.get("ABUSECH_AUTH_KEY", ""))
-        self._ti_otx_key.setText(os.environ.get("OTX_API_KEY", ""))
-        self._ti_greynoise_key.setText(os.environ.get("GREYNOISE_API_KEY", ""))
-        self._ti_urlscan_key.setText(os.environ.get("URLSCAN_API_KEY", ""))
-
-    def _apply_threatintel(self) -> None:
-        import os
-        keys = {
-            "ABUSEIPDB_API_KEY": self._ti_abuse_key.text().strip(),
-            "VIRUSTOTAL_API_KEY": self._ti_vt_key.text().strip(),
-            "ABUSECH_AUTH_KEY": self._ti_abusech_key.text().strip(),
-            "OTX_API_KEY": self._ti_otx_key.text().strip(),
-            "GREYNOISE_API_KEY": self._ti_greynoise_key.text().strip(),
-            "URLSCAN_API_KEY": self._ti_urlscan_key.text().strip(),
-        }
-        for env_name, val in keys.items():
-            if val:
-                os.environ[env_name] = val
-            else:
-                os.environ.pop(env_name, None)
-
-        values: dict = {}
-        for key, widget in self._ti_inputs.items():
-            if isinstance(widget, QSpinBox):
-                values[key] = widget.value()
-            elif isinstance(widget, QLineEdit):
-                if key == "enrichment_cache_path":
-                    text = widget.text().strip()
-                    if text:
-                        try:
-                            Path(text).parent.mkdir(parents=True, exist_ok=True)
-                        except OSError:
-                            pass
-                        values[key] = Path(text)
-            elif isinstance(widget, QPlainTextEdit):
-                values[key] = _parse_lines(widget.toPlainText())
-        self.config_applied.emit(values)
 
 
     def _toggle_api_keys_visibility(self, visible: bool) -> None:
@@ -1824,10 +1701,17 @@ class SettingsView(QWidget):
         )
         self._ti_abuse_key.setEchoMode(mode)
         self._ti_vt_key.setEchoMode(mode)
-        if hasattr(self, "_ti_abusech_key"):
-            self._ti_abusech_key.setEchoMode(mode)
+        for _w in (
+            getattr(self, "_ti_abusech_key", None),
+            getattr(self, "_ti_otx_key", None),
+            getattr(self, "_ti_greynoise_key", None),
+            getattr(self, "_ti_urlscan_key", None),
+        ):
+            if _w is not None:
+                _w.setEchoMode(mode)
 
     def _load_threatintel(self) -> None:
+        """Заполнить поля из Config и SecretsStore (keyring/env)."""
         try:
             from pcap_triage.config import Config
         except ImportError:
@@ -1844,35 +1728,27 @@ class SettingsView(QWidget):
             elif isinstance(widget, (QPlainTextEdit, EditableListWidget)):
                 if isinstance(value, (frozenset, tuple, set, list)):
                     widget.setPlainText(_format_lines(value))
-
-        # Ключи — из окружения, не из Config. Если уже установлены
-        # (например, в PowerShell перед запуском) — показываем, чтобы
-        # пользователь видел, что работает.
-        import os
-        self._ti_abuse_key.setText(os.environ.get("ABUSEIPDB_API_KEY", ""))
-        self._ti_vt_key.setText(os.environ.get("VIRUSTOTAL_API_KEY", ""))
-
-        if hasattr(self, "_ti_abusech_key"):
-            self._ti_abusech_key.setText(self._secrets.get("abusech_auth_key"))
+        # Все ключи — через SecretsStore: keyring -> session -> env.
+        self._ti_abuse_key.setText(self._secrets.get("abuseipdb_api_key"))
+        self._ti_vt_key.setText(self._secrets.get("virustotal_api_key"))
+        self._ti_abusech_key.setText(self._secrets.get("abusech_auth_key"))
+        self._ti_otx_key.setText(self._secrets.get("otx_api_key"))
+        self._ti_greynoise_key.setText(self._secrets.get("greynoise_api_key"))
+        self._ti_urlscan_key.setText(self._secrets.get("urlscan_api_key"))
     def _apply_threatintel(self) -> None:
-        # >>> THREAT INTEL: ключи API <<<
-        # Ключи не идут в config_applied — они не поля Config.
-        # Выставляем в os.environ текущего процесса: ядро читает их
-        # через os.environ.get() при первом обращении к провайдеру.
-        import os
-        abuse = self._ti_abuse_key.text().strip()
-        vt = self._ti_vt_key.text().strip()
-        if abuse:
-            os.environ["ABUSEIPDB_API_KEY"] = abuse
-        else:
-            os.environ.pop("ABUSEIPDB_API_KEY", None)
-        if vt:
-            os.environ["VIRUSTOTAL_API_KEY"] = vt
-        else:
-            os.environ.pop("VIRUSTOTAL_API_KEY", None)
-        # >>> /THREAT INTEL: ключи API <<<
+        """Сохранить ключи в keyring+env, поля Config — в config_applied."""
+        key_widgets = {
+            "abuseipdb_api_key": self._ti_abuse_key,
+            "virustotal_api_key": self._ti_vt_key,
+            "abusech_auth_key": self._ti_abusech_key,
+            "otx_api_key": self._ti_otx_key,
+            "greynoise_api_key": self._ti_greynoise_key,
+            "urlscan_api_key": self._ti_urlscan_key,
+        }
+        for name, widget in key_widgets.items():
+            # SecretsStore.set обновляет и keyring, и os.environ.
+            self._secrets.set(name, widget.text())
 
-        # Остальные поля — обычные, идут в config_applied.
         values: dict = {}
         for key, widget in self._ti_inputs.items():
             if isinstance(widget, QSpinBox):
@@ -1882,17 +1758,14 @@ class SettingsView(QWidget):
                     text = widget.text().strip()
                     if text:
                         try:
-                            Path(text).parent.mkdir(parents=True, exist_ok=True)
+                            Path(text).parent.mkdir(
+                                parents=True, exist_ok=True,
+                            )
                         except OSError:
                             pass
                         values[key] = Path(text)
             elif isinstance(widget, QPlainTextEdit):
                 values[key] = _parse_lines(widget.toPlainText())
-        if hasattr(self, "_ti_abusech_key"):
-            self._secrets.set(
-                "abusech_auth_key", self._ti_abusech_key.text(),
-            )
-
         self.config_applied.emit(values)
 
     # =========================================================================

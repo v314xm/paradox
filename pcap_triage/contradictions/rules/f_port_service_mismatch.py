@@ -61,11 +61,12 @@ class PortServiceMismatchRule:
     severity_base = "high"
 
     def extract_facts(
-        self,
-        state: CaptureState,
-        findings: list[Finding],
-        config: Config,
+            self,
+            state: CaptureState,
+            findings: list[Finding],
+            config: Config,
     ) -> list[Fact]:
+        self._allowed = config.port_service_allowed
         from pcap_triage.contradictions.facts import (
             extract_protocol_on_port_facts,
         )
@@ -77,7 +78,10 @@ class PortServiceMismatchRule:
         # find_contradictions не получает config по контракту Protocol —
         # читаем на месте.
         from pcap_triage.config import Config as _Cfg
-        allow = _Cfg().port_service_allowed
+        allow = getattr(self, "_allowed", None)
+        if allow is None:
+            from pcap_triage.config import Config
+            allow = Config().port_service_allowed
 
         # Группировка: (src_ip, dst_ip, dst_port) → список фактов.
         groups: dict[

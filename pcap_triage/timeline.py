@@ -193,35 +193,6 @@ def _event_from_carved_file(cf, idx: int):
     )
 
 
-def _describe_carved_file(cf) -> str:
-    """Краткое описание payload'а для timeline."""
-    uri = getattr(cf, "uri", None) or "?"
-    size = getattr(cf, "size", 0)
-    ext = getattr(cf, "ext", "") or ""
-    sha = (getattr(cf, "sha256", "") or "")[:12]
-    return f"{uri} ({ext}, {size} B, sha256 {sha}…)"
-
-
-def _event_from_carved_file(cf, idx: int) -> TimelineEvent | None:
-    """None если нет first_ts или нулевой."""
-    ts = getattr(cf, "first_ts", None)
-    if ts is None or ts <= 0:
-        return None
-    return TimelineEvent(
-        ts=ts,
-        kind="carved_file",
-        type="carved_file",
-        subject=getattr(cf, "dst_ip", "") or "",
-        severity="medium",
-        confidence=0.9,
-        phase="execution",
-        chain_order=_PHASE_ORDER["execution"],
-        description=_describe_carved_file(cf),
-        mitre_id="T1105",
-        ref_id=idx,
-    )
-
-
 def _event_from_finding(f: Finding, idx: int) -> TimelineEvent | None:
     """None если нет first_seen — сортировать нечем."""
     if f.first_seen is None:

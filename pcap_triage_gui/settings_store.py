@@ -32,6 +32,7 @@ def _empty() -> dict[str, Any]:
         "overrides": {},
         "disabled_detectors": [],
         "disabled_contradictions": [],
+        "language": "ru",
     }
 
 
@@ -59,12 +60,17 @@ def _normalize(raw: Any) -> dict[str, Any]:
     overrides = raw.get("overrides", {})
     if not isinstance(overrides, dict):
         overrides = {}
-    return {
+    result = {
         "schema_version": SCHEMA_VERSION,
         "overrides": _jsonable(overrides),
         "disabled_detectors": _str_list(raw.get("disabled_detectors", [])),
         "disabled_contradictions": _str_list(raw.get("disabled_contradictions", [])),
     }
+    if isinstance(raw.get("active_profile"), str):
+        result["active_profile"] = raw["active_profile"]
+    if isinstance(raw.get("language"), str):
+        result["language"] = raw["language"]
+    return result
 
 
 class SettingsStore:
@@ -96,6 +102,7 @@ class SettingsStore:
         overrides: dict | None = None,
         disabled_detectors=None,
         disabled_contradictions=None,
+        language: str | None = None,
     ) -> dict[str, Any]:
         """Мердж: незаданные секции сохраняют текущее значение."""
         current = self.load()
@@ -105,6 +112,8 @@ class SettingsStore:
             current["disabled_detectors"] = list(disabled_detectors)
         if disabled_contradictions is not None:
             current["disabled_contradictions"] = list(disabled_contradictions)
+        if language is not None:
+            current["language"] = language
         self.save(current)
         return current
 

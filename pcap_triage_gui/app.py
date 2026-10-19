@@ -13,6 +13,12 @@ from pcap_triage_gui.theme import apply_theme
 
 def main() -> int:
     app = QApplication(sys.argv)
+    # Ключи Threat Intel из keyring -> os.environ до первого lookup.
+    try:
+        from pcap_triage_gui.secrets_store import SecretsStore
+        SecretsStore().apply_all_to_env()
+    except Exception:
+        pass
     apply_theme(app)
     w = MainWindow()
     w.showMaximized()      # вместо w.show()

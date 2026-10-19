@@ -42,7 +42,7 @@ class HostStoryDialog(QDialog):
                     d = ev["data"]
                     src = f"{d.get('src_ip')}:{d.get('src_port', '')}"
                     dst = f"{d.get('dst_ip')}:{d.get('dst_port', '')}"
-                    byt = d.get('bytes_sent', 0)
+                    byt = d.get('bytes', 0)
                     html += f"<li><b>[{time_str}]</b> Поток: {src} &rarr; {dst} ({byt} байт)</li>"
                 elif ev["type"] == "finding":
                     d = ev["data"]

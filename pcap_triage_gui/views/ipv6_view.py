@@ -101,4 +101,4 @@ class IPv6View(QWidget):
         for row, f in enumerate(ipv6_flows):
             self.table_flows.setItem(row, 0, QTableWidgetItem(str(f.get("src_ip", ""))))
             self.table_flows.setItem(row, 1, QTableWidgetItem(str(f.get("dst_ip", ""))))
-            self.table_flows.setItem(row, 2, QTableWidgetItem(str(f.get("bytes_sent", 0))))
+            self.table_flows.setItem(row, 2, QTableWidgetItem(str(f.get("bytes", 0))))

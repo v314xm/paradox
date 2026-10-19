@@ -29,6 +29,7 @@ class URLScanEnricher(BaseEnricher):
         q = urllib.parse.quote(query)
         url = f"{self.base_url}/?q={q}&size=10"
         data, error = self._http_get_json(url)
+        data, error = self._resolve_not_found(data, error)
         if error is None and isinstance(data, dict):
             if not data.get("results"):
                 return None, None

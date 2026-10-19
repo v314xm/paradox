@@ -27,15 +27,9 @@ from pcap_triage.models import CaptureState, Finding
 
 
 def _extract_base_domain(qname: str) -> str:
-    """
-    Взять последние два уровня домена. abc.def.attacker.com -> attacker.com.
-    Для двухуровневых TLD (co.uk, com.au) работает некорректно,
-    но таких немного. В 0.7.0 — public suffix list.
-    """
-    parts = qname.lower().strip(".").split(".")
-    if len(parts) < 2:
-        return qname
-    return ".".join(parts[-2:])
+    """v0.9.0: учитывает двухуровневые TLD (co.uk, com.au)."""
+    from pcap_triage.domain_utils import base_domain
+    return base_domain(qname)
 
 
 class DNSTunnelingDetector:

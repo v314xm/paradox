@@ -55,21 +55,28 @@ class ReverseAsymmetryRule:
     _BULK_THRESHOLD = 5
 
     def extract_facts(
-        self,
-        state: CaptureState,
-        findings: list[Finding],
-        config: Config,
+            self,
+            state: CaptureState,
+            findings: list[Finding],
+            config: Config,
     ) -> list[Fact]:
+        self._min_ratio = config.reverse_asymmetry_min_ratio
+        self._high_ratio = config.reverse_asymmetry_high_ratio
         from pcap_triage.contradictions.facts import extract_asymmetry_facts
         return extract_asymmetry_facts(state, config)
 
     def find_contradictions(
         self, facts: list[Fact],
     ) -> list[Contradiction]:
-        from pcap_triage.config import Config as _Cfg
-        _cfg = _Cfg()
-        _min_ratio = _cfg.reverse_asymmetry_min_ratio
-        _high_ratio = _cfg.reverse_asymmetry_high_ratio
+        _min_ratio = getattr(self, "_min_ratio", None)
+        _high_ratio = getattr(self, "_high_ratio", None)
+        if _min_ratio is None or _high_ratio is None:
+            from pcap_triage.config import Config
+            _cfg = Config()
+            if _min_ratio is None:
+                _min_ratio = _cfg.reverse_asymmetry_min_ratio
+            if _high_ratio is None:
+                _high_ratio = _cfg.reverse_asymmetry_high_ratio
 
         # 1. Фильтр по ratio + группировка по subject.
         by_subject: dict[str, list[Fact]] = {}

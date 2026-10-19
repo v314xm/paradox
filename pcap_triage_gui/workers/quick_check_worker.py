@@ -59,7 +59,7 @@ class QuickCheckWorker(QThread):
 
         result = provider.lookup(self._ioc, self._ioc_type)
 
-        if self._cache is not None:
+        if self._cache is not None and result.ok:
             try:
                 self._cache.put(result)
             except Exception:

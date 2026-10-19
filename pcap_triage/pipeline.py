@@ -420,5 +420,6 @@ def run_pipeline(
         # Плоский список TimelineEvent, отсортированный по ts.
         "timeline": [e.to_dict() for e in timeline_events],
         # v0.9.0: пути записанных IOC-файлов (пустой dict если отключено).
+        "absence": absence_report,
         "ioc_files": ioc_files,
     }

@@ -183,7 +183,7 @@ class FindingsTable(QFrame):
             act_dst.triggered.connect(lambda: self.host_story_requested.emit(dst))
 
         if src or dst:
-            menu.exec_(self._table.viewport().mapToGlobal(pos))
+            menu.exec(self._table.viewport().mapToGlobal(pos))
 
     def _on_double_click(self, row: int, _col: int) -> None:
         # Двойной клик, а не одиночный — чтобы выделение не открывало

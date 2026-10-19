@@ -58,10 +58,21 @@ from pcap_triage_gui.views.settings_view import SettingsView
 from pcap_triage_gui.views.enrich_view import EnrichView
 from pcap_triage_gui.views.history_view import HistoryView
 from pcap_triage_gui.views.ipv6_view import IPv6View
+from pcap_triage_gui.views.timeline_view import TimelineView
+from pcap_triage_gui.views.export_view import ExportView
+from pcap_triage_gui.i18n import tr, set_language
 # >>> /ИМПОРТЫ VIEWS <<<
 
 
-TAB_TITLES = ("Прогон", "История", "Обогащение", "Настройки", "IPv6")
+TAB_TITLES = (
+    "Прогон",
+    "История",
+    "Обогащение",
+    "Настройки",
+    "IPv6",
+    "Таймлайн",
+    "Экспорт",
+)
 APP_VERSION = "1.0.0"
 
 
@@ -318,11 +329,17 @@ class MainWindow(QMainWindow):
         from pcap_triage_gui.settings_store import SettingsStore
         self._settings_store = SettingsStore()
 
+        # Применяем сохранённый язык
+        _saved_lang = self._settings_store.load().get("language", "ru")
+        set_language(_saved_lang)
+
         self.run_view = RunView(store=self._settings_store)
         self.settings_view = SettingsView(store=self._settings_store)
         self.enrich_view = EnrichView()
         self.history_view = HistoryView()
         self.ipv6_view = IPv6View()
+        self.timeline_view = TimelineView()
+        self.export_view = ExportView()
 
         # --- Прогон → главное окно ---
         self.run_view.analysis_started.connect(self._on_analysis_started)
@@ -365,11 +382,13 @@ class MainWindow(QMainWindow):
         # addTab последовательно = порядок кода = порядок вкладок.
         # История сразу после Прогона: смотреть прошлые результаты
         # приходится чаще, чем менять настройки или обогащать.
-        self.tabs.addTab(self.run_view, TAB_TITLES[0])
-        self.tabs.addTab(self.history_view, TAB_TITLES[1])
-        self.tabs.addTab(self.enrich_view, TAB_TITLES[2])
-        self.tabs.addTab(self.settings_view, TAB_TITLES[3])
-        self.tabs.addTab(self.ipv6_view, TAB_TITLES[4])
+        self.tabs.addTab(self.run_view, tr("tab_run"))
+        self.tabs.addTab(self.history_view, tr("tab_history"))
+        self.tabs.addTab(self.enrich_view, tr("tab_enrich"))
+        self.tabs.addTab(self.settings_view, tr("tab_settings"))
+        self.tabs.addTab(self.ipv6_view, tr("tab_ipv6"))
+        self.tabs.addTab(self.timeline_view, tr("tab_timeline"))
+        self.tabs.addTab(self.export_view, tr("tab_export"))
 
         # Меню — отдельный QMenuBar НАД табами. QMainWindow с одним
         # setCentralWidget не покажет self._topmenu, если он не внутри
@@ -522,7 +541,6 @@ class MainWindow(QMainWindow):
             "Оффлайн-триаж pcap.<br>"
             "18 детекторов · 9 экстракторов · 12 правил · 4 анализатора",
             f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
-            f"<br><br>© 2026 Andrey Grigoryev (v314xm)",
         )
 
     def _on_hotkeys(self) -> None:
@@ -571,6 +589,12 @@ class MainWindow(QMainWindow):
         # >>> IPv6 <<<
         if isinstance(report, dict) and hasattr(self, "ipv6_view"):
             self.ipv6_view.update_data(report)
+
+        if isinstance(report, dict) and hasattr(self, "timeline_view"):
+            self.timeline_view.update_data(report)
+
+        if isinstance(report, dict) and hasattr(self, "export_view"):
+            self.export_view.update_data(report)
 
         # >>> ОСТАНОВКА <<<
         self._act_stop.setEnabled(False)

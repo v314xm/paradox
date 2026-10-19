@@ -23,5 +23,24 @@ def test_get_detector_help_fallback():
     assert get_detector_help("nonexistent_key") == ""
 
 
-def test_count_is_seventeen():
-    assert len(DETECTOR_HELP) == 17
+def test_help_and_settings_are_in_sync():
+    """_DETECTORS (settings_view) и DETECTOR_HELP (help) должны быть синхронны.
+
+    Ловит две ошибки:
+      - добавили детектор в GUI — забыли описание;
+      - добавили описание — забыли детектор.
+    """
+    settings_keys = {k for k, _ in _DETECTORS}
+    help_keys = set(DETECTOR_HELP)
+
+    missing_in_help = settings_keys - help_keys
+    missing_in_settings = help_keys - settings_keys
+
+    assert not missing_in_help, (
+        f"нет описаний для: {sorted(missing_in_help)}"
+    )
+    assert not missing_in_settings, (
+        f"описания без детектора: {sorted(missing_in_settings)}"
+    )
+
+

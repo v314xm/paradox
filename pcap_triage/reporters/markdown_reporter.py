@@ -701,52 +701,6 @@ def _render_findings(findings: list[dict]) -> list[str]:
         lines.append("")
         return lines
 
-    lines.append(f"## Findings ({len(findings)})")
-    lines.append("")
-    lines.append("| # | Тип | Значение | Conf | MITRE |")
-    lines.append("|---|---|---|---|---|")
-    for i, f in enumerate(findings):
-        ftype = f.get("type", "?")
-        value = _short(f.get("value", "?"), 80)
-        conf = f.get("confidence", 0.0)
-        mitre = _mitre_for_finding(f)
-        lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} | {mitre} |")
-    lines.append("")
-
-    # Детализация уверенности
-    has_reasons = any(f.get("confidence_reasons") for f in findings)
-    if has_reasons:
-        lines.append("### Детализация уверенности (Confidence Explainer)")
-        lines.append("")
-        for i, f in enumerate(findings):
-            reasons = f.get("confidence_reasons")
-            if reasons:
-                val = _short(str(f.get('value', '?')), 60)
-                lines.append(f"**{i}. `{f.get('type', '?')}`** — `{val}`")
-                for r in reasons:
-                    lines.append(f"- {r}")
-                lines.append("")
-
-    return lines
-
-    lines.append(f"## Findings ({len(findings)})")
-    lines.append("")
-    lines.append("| # | Тип | Значение | Conf | MITRE |")
-    lines.append("|---|---|---|---|---|")
-    for i, f in enumerate(findings):
-        ftype = f.get("type", "?")
-        value = _short(f.get("value", "?"), 80)
-        conf = f.get("confidence", 0.0)
-        mitre = _mitre_for_finding(f)
-        lines.append(f"| {i} | `{ftype}` | `{value}` | {conf:.2f} | {mitre} |")
-    lines.append("")
-    return lines
-
-
-# ---------------------------------------------------------------------
-# Entities
-# ---------------------------------------------------------------------
-
 def _finding_types_for(entity: dict, findings: list[dict]) -> list[str]:
     """Преобразовать findings_indices → список типов."""
     idxs = entity.get("findings_indices", []) or []
