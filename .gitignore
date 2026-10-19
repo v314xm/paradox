@@ -50,3 +50,9 @@ reports/
 batch_run_*.log
 *.log
 
+
+.autofix-backup/
+tools/autofix_report.txt
+gui_dump.txt
+core_dump.txt
+pcap-triage-error.log
