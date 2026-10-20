@@ -7,14 +7,14 @@ import time
 
 import pytest
 
-from pcap_triage.config import Config
-from pcap_triage.integrations.base import EnrichmentResult
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.enricher import (
+from paradox.config import Config
+from paradox.integrations.base import EnrichmentResult
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.enricher import (
     EnricherOrchestrator,
     collect_iocs_from_findings,
 )
-from pcap_triage.integrations.shodan_internetdb import (
+from paradox.integrations.shodan_internetdb import (
     ShodanInternetDBEnricher,
 )
 
@@ -184,7 +184,7 @@ def test_orchestrator_max_iocs(tmp_path):
 
 def test_collect_iocs_from_findings_basic():
     """Из findings достаём IP и домены."""
-    from pcap_triage.models import Finding
+    from paradox.models import Finding
 
     findings = [
         Finding(
@@ -210,7 +210,7 @@ def test_collect_iocs_from_findings_basic():
 
 def test_collect_iocs_dedup():
     """Один IP в двух findings — один IOC."""
-    from pcap_triage.models import Finding
+    from paradox.models import Finding
 
     findings = [
         Finding(type="a", value="x", confidence=0.5,

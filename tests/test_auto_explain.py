@@ -1,6 +1,6 @@
 """Тесты автогенерации confidence_reasons."""
-from pcap_triage.models import Finding
-from pcap_triage.detectors.explainer import build_reasons
+from paradox.models import Finding
+from paradox.detectors.explainer import build_reasons
 
 
 def test_build_reasons_empty():

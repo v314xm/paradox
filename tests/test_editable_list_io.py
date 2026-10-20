@@ -15,13 +15,13 @@ def qapp():
 
 @pytest.fixture
 def widget(qapp):
-    from pcap_triage_gui.widgets.editable_list import EditableListWidget
+    from paradox_gui.widgets.editable_list import EditableListWidget
     return EditableListWidget(port_mode=False)
 
 
 @pytest.fixture
 def port_widget(qapp):
-    from pcap_triage_gui.widgets.editable_list import EditableListWidget
+    from paradox_gui.widgets.editable_list import EditableListWidget
     return EditableListWidget(port_mode=True)
 
 

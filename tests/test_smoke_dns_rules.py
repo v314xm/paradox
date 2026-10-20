@@ -2,16 +2,16 @@
 где DNS-ответов заведомо нет. Проверяет всю цепочку:
    CaptureState → extract_*_facts → правило → Contradiction.
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
-from pcap_triage.contradictions.facts import (
+from paradox.config import Config
+from paradox.models import CaptureState, FlowKey, FlowStats
+from paradox.contradictions.facts import (
     extract_direct_ip_facts,
     extract_tls_host_facts,
 )
-from pcap_triage.contradictions.rules.g_direct_ip_no_dns import (
+from paradox.contradictions.rules.g_direct_ip_no_dns import (
     DirectIpNoDnsRule,
 )
-from pcap_triage.contradictions.rules.a_sni_without_dns import (
+from paradox.contradictions.rules.a_sni_without_dns import (
     SniWithoutDnsRule,
 )
 

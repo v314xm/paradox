@@ -1,6 +1,6 @@
 """Тесты Absence analysis."""
-from pcap_triage.analyzers.absence import analyze_absence
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from paradox.analyzers.absence import analyze_absence
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 def test_absence_empty():

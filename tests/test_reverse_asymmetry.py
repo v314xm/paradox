@@ -1,6 +1,6 @@
 """Тесты правила reverse_asymmetry (эксфильтрация / пропорция)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.e_reverse_asymmetry import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.e_reverse_asymmetry import (
     ReverseAsymmetryRule,
 )
 

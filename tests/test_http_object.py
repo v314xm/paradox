@@ -3,7 +3,7 @@
 
 Body читается из потока по Content-Length / chunked.
 """
-from pcap_triage.http_object import (
+from paradox.http_object import (
     parse_http_request,
     parse_http_response,
 )

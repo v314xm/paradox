@@ -15,9 +15,9 @@
 
 Плюс регрессии на будущее — если что-то поедет в алгоритме.
 """
-from pcap_triage.config import Config
-from pcap_triage.detectors.beaconing import BeaconingDetector
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from paradox.config import Config
+from paradox.detectors.beaconing import BeaconingDetector
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 def _beacon_state(

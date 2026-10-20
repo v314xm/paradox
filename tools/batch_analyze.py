@@ -17,8 +17,8 @@ from pathlib import Path
 import json
 import time
 
-from pcap_triage.config import Config
-from pcap_triage.pipeline import run_pipeline
+from paradox.config import Config
+from paradox.pipeline import run_pipeline
 
 
 ROOT = Path(r"C:\Users\a.grigoryev\Downloads\FIRST-2015_Hands-on_Network_Forensics_PCAP")

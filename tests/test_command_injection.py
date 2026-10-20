@@ -4,10 +4,10 @@
 Не требует ни pipeline, ни reassembly — создаём state.http_objects
 напрямую через объекты HttpObject.
 """
-from pcap_triage.config import Config
-from pcap_triage.detectors.command_injection import CommandInjectionDetector
-from pcap_triage.http_object import HttpObject
-from pcap_triage.models import CaptureState, FlowKey
+from paradox.config import Config
+from paradox.detectors.command_injection import CommandInjectionDetector
+from paradox.http_object import HttpObject
+from paradox.models import CaptureState, FlowKey
 
 
 def _state(*requests):
@@ -94,7 +94,7 @@ def test_command_injection_empty_body():
 
 def test_command_injection_response_ignored():
     """Response не проверяется — только request."""
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     state = CaptureState()
     key = FlowKey(
         proto="tcp", src_ip="10.0.0.1", dst_ip="10.0.1.50",

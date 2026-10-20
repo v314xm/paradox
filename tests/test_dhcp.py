@@ -1,8 +1,8 @@
 """Тесты DHCP-экстрактора и парсера."""
 import struct
 
-from pcap_triage.extractors.dhcp import DHCPExtractor, parse_dhcp
-from pcap_triage.models import CaptureState
+from paradox.extractors.dhcp import DHCPExtractor, parse_dhcp
+from paradox.models import CaptureState
 
 
 _MAGIC = b"\x63\x82\x53\x63"
@@ -161,7 +161,7 @@ def test_extractor_ignores_both_zero():
 
 def test_extractor_merges_with_existing_identity():
     """Если IP уже в host_identities (например, из ARP) — дополняем."""
-    from pcap_triage.models import HostIdentity
+    from paradox.models import HostIdentity
     state = CaptureState()
     state.host_identities["192.168.1.50"] = HostIdentity(
         ip="192.168.1.50", mac="11:11:11:11:11:11",

@@ -1,5 +1,5 @@
 """Тесты domain_utils: split_domain / base_domain / registered_label / matches_suffix."""
-from pcap_triage.domain_utils import (
+from paradox.domain_utils import (
     base_domain,
     matches_suffix,
     registered_label,

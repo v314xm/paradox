@@ -16,11 +16,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.registry import REGISTRY
-from pcap_triage_gui.ioc_utils import detect_ioc_type, provider_link
-from pcap_triage_gui.widgets.provider_card import ProviderCard
-from pcap_triage_gui.workers.quick_check_worker import QuickCheckWorker
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.registry import REGISTRY
+from paradox_gui.ioc_utils import detect_ioc_type, provider_link
+from paradox_gui.widgets.provider_card import ProviderCard
+from paradox_gui.workers.quick_check_worker import QuickCheckWorker
 
 
 _AUTO = "Авто"
@@ -36,7 +36,7 @@ class QuickCheckWindow(QWidget):
 
     def __init__(self, config, parent=None) -> None:
         super().__init__(parent, Qt.WindowType.Window)
-        self.setWindowTitle("Быстрая проверка IOC — pcap-triage")
+        self.setWindowTitle("Быстрая проверка IOC — Paradox")
         self.resize(900, 760)
 
         self._config = config
@@ -172,7 +172,7 @@ class QuickCheckWindow(QWidget):
             return
 
         try:
-            from pcap_triage.integrations.enricher import (
+            from paradox.integrations.enricher import (
                 collect_iocs_from_findings,
             )
             findings = self._report.get("findings", []) or []
@@ -297,7 +297,7 @@ class QuickCheckWindow(QWidget):
 
         # Сортировка: сначала «плохие», потом warn, info, clean, empty, error.
         order = {"bad": 0, "warn": 1, "info": 2, "clean": 3, "empty": 4, "error": 5}
-        from pcap_triage_gui.widgets.provider_card import _verdict as _v
+        from paradox_gui.widgets.provider_card import _verdict as _v
 
         def sort_key(item):
             name, res = item

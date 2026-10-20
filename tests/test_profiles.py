@@ -1,6 +1,6 @@
 """Тесты профилей."""
-from pcap_triage.config import Config
-from pcap_triage_gui.profiles import (
+from paradox.config import Config
+from paradox_gui.profiles import (
     ALL_PROFILES,
     DEFAULT_PROFILE_KEY,
     get_profile,

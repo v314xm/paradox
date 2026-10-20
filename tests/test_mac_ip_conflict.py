@@ -1,6 +1,6 @@
 """Тесты правила mac_ip_conflict (ARP spoof)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.b_mac_ip_conflict import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.b_mac_ip_conflict import (
     MacIpConflictRule,
 )
 

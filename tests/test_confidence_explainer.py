@@ -1,6 +1,6 @@
 """Тесты Confidence explainer (P0.4)."""
 import pytest
-from pcap_triage.models import Finding
+from paradox.models import Finding
 
 def test_confidence_reasons_default():
     """По умолчанию список причин пуст."""

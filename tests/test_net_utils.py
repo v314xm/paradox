@@ -3,8 +3,8 @@ Unit-тесты net_utils.
 
 Проверяем классификацию direction для всех четырёх комбинаций.
 """
-from pcap_triage.config import Config
-from pcap_triage.net_utils import classify_direction, is_internal_ip
+from paradox.config import Config
+from paradox.net_utils import classify_direction, is_internal_ip
 
 
 def test_is_internal_private():

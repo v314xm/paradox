@@ -1,6 +1,6 @@
 """Тесты правила sni_host_mismatch (domain fronting)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.c_sni_host_mismatch import (
     SniHostMismatchRule,
 )
 

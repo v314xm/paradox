@@ -51,7 +51,7 @@ ContradictionDetector — новый слой анализа. Не детект�
 ### Добавлено
 
 **ContradictionDetector (каркас):**
-- `pcap_triage/contradictions/` — новый пакет:
+- `paradox/contradictions/` — новый пакет:
   - `base.py` — `Fact`, `Contradiction`, `ContradictionRule` Protocol,
     `SEVERITY_WEIGHT`, `priority = severity × confidence`.
   - `facts.py` — извлечение фактов из state + findings:

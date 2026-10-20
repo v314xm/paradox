@@ -20,8 +20,8 @@ def qapp():
 
 
 def test_settings_view_instantiates(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
 
     store = SettingsStore(tmp_path / "settings.json")
     view = SettingsView(store=store)
@@ -34,8 +34,8 @@ def test_settings_view_instantiates(qapp, tmp_path):
 
 
 def test_run_view_instantiates(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.run_view import RunView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.run_view import RunView
 
     store = SettingsStore(tmp_path / "settings.json")
     view = RunView(store=store)
@@ -43,8 +43,8 @@ def test_run_view_instantiates(qapp, tmp_path):
 
 
 def test_settings_view_tooltips_present(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
 
     store = SettingsStore(tmp_path / "settings.json")
     view = SettingsView(store=store)

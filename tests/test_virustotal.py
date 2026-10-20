@@ -1,5 +1,5 @@
 """Тесты VirusTotalEnricher. HTTP замокан."""
-from pcap_triage.integrations.virustotal import VirusTotalEnricher
+from paradox.integrations.virustotal import VirusTotalEnricher
 
 
 def test_vt_disabled_without_key(monkeypatch):

@@ -1,5 +1,5 @@
 """Тесты ThreatFoxEnricher."""
-from pcap_triage.integrations.threatfox import ThreatFoxEnricher
+from paradox.integrations.threatfox import ThreatFoxEnricher
 
 
 def test_disabled_without_key(monkeypatch):

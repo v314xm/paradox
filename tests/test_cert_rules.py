@@ -1,13 +1,13 @@
 """Тесты правил sni_cert_mismatch / self_signed_cert / expired_cert."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.i_sni_cert_mismatch import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.i_sni_cert_mismatch import (
     SniCertMismatchRule,
     _match_one,
 )
-from pcap_triage.contradictions.rules.j_self_signed_cert import (
+from paradox.contradictions.rules.j_self_signed_cert import (
     SelfSignedCertRule,
 )
-from pcap_triage.contradictions.rules.k_expired_cert import (
+from paradox.contradictions.rules.k_expired_cert import (
     ExpiredCertRule,
 )
 

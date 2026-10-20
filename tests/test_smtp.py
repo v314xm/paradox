@@ -1,10 +1,10 @@
 """Тесты SMTP экстрактора."""
-from pcap_triage.extractors.smtp import (
+from paradox.extractors.smtp import (
     SMTPExtractor,
     _clean_address,
     parse_smtp_line,
 )
-from pcap_triage.models import CaptureState
+from paradox.models import CaptureState
 
 
 class _Rec:

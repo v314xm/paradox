@@ -3,10 +3,10 @@
 
 Вариант A: только метаданные. Никаких файлов на диск.
 """
-from pcap_triage.config import Config
-from pcap_triage.file_carve import carve_files
-from pcap_triage.http_object import HttpObject
-from pcap_triage.models import CaptureState, FlowKey
+from paradox.config import Config
+from paradox.file_carve import carve_files
+from paradox.http_object import HttpObject
+from paradox.models import CaptureState, FlowKey
 
 
 def _state(response_bodies):

@@ -6,7 +6,7 @@ output_dir создан, пользовательский dga_allowlist не з�
 """
 import pytest
 
-from pcap_triage_gui.config_builder import build_config_with_overrides
+from paradox_gui.config_builder import build_config_with_overrides
 
 
 def test_default_config_when_no_overrides():

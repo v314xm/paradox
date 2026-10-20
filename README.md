@@ -1,4 +1,4 @@
-pcap-triage
+Paradox
 Инструмент, который ищет противоречия между слоями данных
 в сетевом захвате: DNS vs SNI, JA3 vs User-Agent, MAC vs IP,
 роли vs поведение. Показывает не только находки, но и что
@@ -19,7 +19,7 @@ Zeek, Arkime, tshark, Rita — сотни инструментов парсят 
 и находят то же самое: DNS-запросы, TLS-хендшейки, HTTP.
 Никто из них не проверяет согласованность между слоями данных.
 
-pcap-triage строит из pcap атомарные факты о мире:
+Paradox строит из pcap атомарные факты о мире:
 
 text
 (192.168.1.12, victim_of, 10.0.1.50, ts, "finding", 0.85)
@@ -74,7 +74,7 @@ Timeline / kill-chain. Хронология findings и противоречий
 execution → lateral_movement → c2 → exfiltration).
 
 GUI. PySide6, 5 вкладок. Отдельный пакет
-pcap_triage_gui/, собран в .exe через PyInstaller.
+paradox_gui/, собран в .exe через PyInstaller.
 
 Противоречия (ContradictionDetector)
 Новый слой анализа поверх findings. Не детекторы атак, а поиск
@@ -118,17 +118,17 @@ powershell
 pip install -e .
 
 # Запуск CLI
-python -m pcap_triage capture.pcap
+python -m paradox capture.pcap
 
 # Запуск GUI
-python -m pcap_triage_gui
+python -m paradox_gui
 Отчёт появится в reports/capture_pcap.report.json и
 reports/capture_pcap.report.md.
 
 Без аргументов — спросит путь интерактивно:
 
 text
-python -m pcap_triage
+python -m paradox
 text
 packets:            627694
 unique DNS queries: 117
@@ -325,9 +325,9 @@ TLS-сертификаты (CN, SAN, self_signed, validity), 6 новых
 (top-level src_ip / dst_ip / dst_port / severity, property
 mitre_id), нормализация агрегированных evidence-ключей,
 MITRE_MAP 100% покрытие, timeline / kill-chain
-(pcap_triage/timeline.py, интеграция в pipeline и markdown),
+(paradox/timeline.py, интеграция в pipeline и markdown),
 570 тестов.
-pcap_triage/            # ядро
+paradox/            # ядро
 ├── extractors/         # 11 экстракторов + post-extract
 │                       # (http_object, tls_cert, file_carve)
 ├── detectors/          # 19 детекторов + mitre_map
@@ -337,7 +337,7 @@ pcap_triage/            # ядро
 ├── integrations/       # Threat Intel (опционально)
 └── reporters/          # JSON, Markdown, flow report
 
-pcap_triage_gui/        # GUI (PySide6)
+paradox_gui/        # GUI (PySide6)
 ├── views/              # 5 вкладок
 ├── widgets/            # переиспользуемые компоненты
 ├── dialogs/            # модалы

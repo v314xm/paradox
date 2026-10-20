@@ -9,16 +9,16 @@ Unit-тесты детекторов.
     pytest tests/ -v
 """
 
-from pcap_triage.config import Config
-from pcap_triage.detectors.cloud_tunnel import CloudTunnelDetector
-from pcap_triage.detectors.dga import DGADetector
-from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
-from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
-from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
-from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
-from pcap_triage.detectors.typosquatting import TyposquattingDetector
-from pcap_triage.detectors.typosquatting import levenshtein
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from paradox.config import Config
+from paradox.detectors.cloud_tunnel import CloudTunnelDetector
+from paradox.detectors.dga import DGADetector
+from paradox.detectors.ip_check_service import IPCheckServiceDetector
+from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
+from paradox.detectors.sni_mismatch import SNIMismatchDetector
+from paradox.detectors.suspicious_port import SuspiciousPortDetector
+from paradox.detectors.typosquatting import TyposquattingDetector
+from paradox.detectors.typosquatting import levenshtein
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 # ---------- DGADetector ----------
@@ -468,7 +468,7 @@ def test_sni_mismatch_separate_sni():
 
 
 def test_vulnerable_path_wp_plugin():
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
 
     state = CaptureState()
     key = FlowKey(
@@ -491,7 +491,7 @@ def test_vulnerable_path_wp_plugin():
 
 
 def test_vulnerable_path_script_download_ps1():
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
 
     state = CaptureState()
     key = FlowKey(
@@ -513,7 +513,7 @@ def test_vulnerable_path_script_download_ps1():
 
 
 def test_vulnerable_path_script_download_sh():
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
 
     state = CaptureState()
     key = FlowKey(
@@ -534,7 +534,7 @@ def test_vulnerable_path_script_download_sh():
 
 
 def test_vulnerable_path_ignores_normal_uri():
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
 
     state = CaptureState()
     key = FlowKey(
@@ -553,7 +553,7 @@ def test_vulnerable_path_ignores_normal_uri():
 
 
 def test_vulnerable_path_ignores_no_uri():
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
 
     state = CaptureState()
     key = FlowKey(
@@ -571,7 +571,7 @@ def test_vulnerable_path_ignores_no_uri():
 
 def test_vulnerable_path_queries_in_uri():
     """Расширение с ?query — тоже должно ловиться."""
-    from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
     def test_typosquatting_sld_only():
         # googleads — поддомен doubleclick, не бренд
         detector = TyposquattingDetector()

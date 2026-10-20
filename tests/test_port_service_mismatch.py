@@ -1,6 +1,6 @@
 """Тесты правила port_service_mismatch (протокольный туннель)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.f_port_service_mismatch import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.f_port_service_mismatch import (
     PortServiceMismatchRule,
 )
 

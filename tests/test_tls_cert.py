@@ -1,5 +1,5 @@
 """Тесты парсера TLS Certificate handshake."""
-from pcap_triage.tls_cert import parse_certificate_from_stream
+from paradox.tls_cert import parse_certificate_from_stream
 from tests.test_x509_cert import (
     _cert,
     _ctx,

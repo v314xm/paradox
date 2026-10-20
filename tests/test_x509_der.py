@@ -1,7 +1,7 @@
 """Тесты минимального DER-парсера."""
 import pytest
 
-from pcap_triage.x509_der import (
+from paradox.x509_der import (
     DerError,
     TAG_INTEGER,
     TAG_OID,

@@ -10,9 +10,9 @@
 
 v0.8.0: timeline tests
 """
-from pcap_triage.contradictions.base import Contradiction, Fact
-from pcap_triage.models import Finding
-from pcap_triage.timeline import (
+from paradox.contradictions.base import Contradiction, Fact
+from paradox.models import Finding
+from paradox.timeline import (
     TimelineEvent,
     build_timeline,
     summarize_by_phase,

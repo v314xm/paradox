@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import ipaddress
 import struct
 
-from pcap_triage.analyzers.ndp import analyze_ndp
+from paradox.analyzers.ndp import analyze_ndp
 
 
 @dataclass

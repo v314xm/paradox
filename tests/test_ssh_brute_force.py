@@ -1,8 +1,8 @@
 """Тесты SSH brute force детектора."""
-from pcap_triage.config import Config
-from pcap_triage.detectors.ssh_brute_force import SSHBruteForceDetector
-from pcap_triage.extractors.ssh_banner import SSHBannerExtractor
-from pcap_triage.models import CaptureState
+from paradox.config import Config
+from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
+from paradox.extractors.ssh_banner import SSHBannerExtractor
+from paradox.models import CaptureState
 
 
 class _Rec:
@@ -143,17 +143,17 @@ def test_config_default():
 # ---------- интеграция с MITRE, timeline, entities ----------
 
 def test_mitre_map_has_ssh_brute_force():
-    from pcap_triage.detectors.mitre_map import get_techniques
+    from paradox.detectors.mitre_map import get_techniques
     techs = get_techniques("ssh_brute_force")
     assert "T1110.001" in techs
     assert "T1021.004" in techs
 
 
 def test_facts_attacker_polarity():
-    from pcap_triage.contradictions.facts import (
+    from paradox.contradictions.facts import (
         extract_attack_facts,
     )
-    from pcap_triage.models import Finding as F
+    from paradox.models import Finding as F
 
     f = F(
         type="ssh_brute_force", value="10.0.0.5 -> 1.2.3.4:22",
@@ -167,5 +167,5 @@ def test_facts_attacker_polarity():
 
 
 def test_timeline_phase_initial_access():
-    from pcap_triage.timeline import _PHASE_BY_TYPE
+    from paradox.timeline import _PHASE_BY_TYPE
     assert _PHASE_BY_TYPE["ssh_brute_force"] == "initial_access"

@@ -1,10 +1,10 @@
 """Тесты nxdomain_burst с окном (v0.9.0)."""
-from pcap_triage.config import Config
-from pcap_triage.detectors.nxdomain_burst import (
+from paradox.config import Config
+from paradox.detectors.nxdomain_burst import (
     NXDOMAINBurstDetector,
     _max_in_window,
 )
-from pcap_triage.models import CaptureState
+from paradox.models import CaptureState
 
 
 # ---------- _max_in_window ----------

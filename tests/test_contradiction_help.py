@@ -1,9 +1,9 @@
 """Тесты описаний противоречий."""
-from pcap_triage_gui.contradiction_help import (
+from paradox_gui.contradiction_help import (
     CONTRADICTION_HELP,
     get_contradiction_help,
 )
-from pcap_triage_gui.views.settings_view import _CONTRADICTIONS
+from paradox_gui.views.settings_view import _CONTRADICTIONS
 
 
 def test_all_contradictions_have_help():

@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec для pcap-triage GUI.
+"""PyInstaller spec для Paradox GUI.
 
 Собираем onedir (папка с .exe + _internal/), не onefile.
 Причины:
@@ -18,14 +18,14 @@
 закончим разбираться с падениями при массовых прогонах.
 
 runtime_hooks:
-  pcap_triage_gui/_runtime_hook.py — при старте .exe подписывается
+  paradox_gui/_runtime_hook.py — при старте .exe подписывается
   на sys.excepthook и faulthandler. Ловит всё, что не поймал никто
-  другой, и пишет в pcap-triage-error.log рядом с .exe. Это работает
+  другой, и пишет в Paradox-error.log рядом с .exe. Это работает
   даже при console=False и ловит C-уровневые краши (segfault,
   abort из QThread).
 
 hiddenimports:
-  Ядро pcap_triage импортируется динамически (import внутри функций,
+  Ядро paradox импортируется динамически (import внутри функций,
   monkey-patch модульных переменных), статический анализ PyInstaller
   его не всегда видит. Перечисляем явно — дешевле, чем ловить
   ImportError в .exe.
@@ -35,10 +35,10 @@ from PyInstaller.utils.hooks import collect_submodules
 # Все подмодули ядра — детекторы, экстракторы, правила, репортеры.
 # collect_submodules рекурсивно обходит пакет и добавляет всё найденное.
 # Так мы не забудем ни один детектор, даже если их добавят позже.
-hidden = collect_submodules("pcap_triage")
+hidden = collect_submodules("paradox")
 
 # GUI-подмодули тоже динамические (views/widgets/dialogs/workers).
-hidden += collect_submodules("pcap_triage_gui")
+hidden += collect_submodules("paradox_gui")
 
 # sqlite3 для enrichment-кэша. Обычно PyInstaller его видит сам, но
 # _sqlite3.dll иногда теряется в зависимости от окружения.
@@ -46,7 +46,7 @@ hidden += ["sqlite3", "_sqlite3"]
 
 
 a = Analysis(
-    ["pcap_triage_gui/__main__.py"],   # точка входа = то же, что python -m
+    ["paradox_gui/__main__.py"],   # точка входа = то же, что python -m
     pathex=["."],
     binaries=[],
     datas=[],
@@ -54,8 +54,8 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     # Runtime hook — подписывается на excepthook и faulthandler ДО
-    # запуска app.py. Пишет всё в pcap-triage-error.log рядом с .exe.
-    runtime_hooks=["pcap_triage_gui/_runtime_hook.py"],
+    # запуска app.py. Пишет всё в Paradox-error.log рядом с .exe.
+    runtime_hooks=["paradox_gui/_runtime_hook.py"],
     excludes=[
         # Не тащим тяжёлое, если оно случайно подтянется.
         "tkinter", "matplotlib", "numpy.testing", "pytest",
@@ -71,7 +71,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="pcap-triage",
+    name="Paradox",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -96,5 +96,5 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name="pcap-triage",       # папка dist/pcap-triage/
+    name="Paradox",       # папка dist/Paradox/
 )

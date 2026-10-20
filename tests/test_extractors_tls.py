@@ -5,10 +5,10 @@ Unit-тесты TLSExtractor.
 """
 import pytest
 
-from pcap_triage.extractors.flow import FlowExtractor
-from pcap_triage.extractors.tls import TLSExtractor
-from pcap_triage.models import CaptureState, FlowKey
-from pcap_triage.parsers import PacketRecord
+from paradox.extractors.flow import FlowExtractor
+from paradox.extractors.tls import TLSExtractor
+from paradox.models import CaptureState, FlowKey
+from paradox.parsers import PacketRecord
 
 
 # минимальный валидный ClientHello с example.com

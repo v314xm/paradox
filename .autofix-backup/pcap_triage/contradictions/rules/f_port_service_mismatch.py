@@ -33,9 +33,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import (
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import (
     Contradiction,
     Fact,
     SEVERITY_ORDER,
@@ -67,7 +67,7 @@ class PortServiceMismatchRule:
             config: Config,
     ) -> list[Fact]:
         self._allowed = config.port_service_allowed
-        from pcap_triage.contradictions.facts import (
+        from paradox.contradictions.facts import (
             extract_protocol_on_port_facts,
         )
         return extract_protocol_on_port_facts(state, config)
@@ -77,7 +77,7 @@ class PortServiceMismatchRule:
     ) -> list[Contradiction]:
         # find_contradictions не получает config по контракту Protocol —
         # читаем на месте.
-        from pcap_triage.config import Config as _Cfg
+        from paradox.config import Config as _Cfg
         allow = getattr(self, "_allowed", {})
 
         # Группировка: (src_ip, dst_ip, dst_port) → список фактов.

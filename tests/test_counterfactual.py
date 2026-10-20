@@ -1,5 +1,5 @@
 """Тесты Counterfactual (what-if) анализа."""
-from pcap_triage.analyzers.counterfactual import evaluate_what_if
+from paradox.analyzers.counterfactual import evaluate_what_if
 
 
 def test_what_if_empty():

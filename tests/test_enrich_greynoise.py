@@ -1,5 +1,5 @@
 """Тесты GreyNoiseEnricher."""
-from pcap_triage.integrations.greynoise import GreyNoiseEnricher
+from paradox.integrations.greynoise import GreyNoiseEnricher
 
 
 def test_supports_only_ip():

@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from pcap_triage.integrations.base import EnrichmentResult
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.rate_limit import TokenBucket
+from paradox.integrations.base import EnrichmentResult
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.rate_limit import TokenBucket
 
 
 def test_cache_put_get(tmp_path):

@@ -1,6 +1,6 @@
 """Тесты правила sni_without_dns."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.a_sni_without_dns import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.a_sni_without_dns import (
     SniWithoutDnsRule,
 )
 

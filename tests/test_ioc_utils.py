@@ -1,5 +1,5 @@
 """Тесты определения типа IOC и ссылок."""
-from pcap_triage_gui.ioc_utils import detect_ioc_type, provider_link
+from paradox_gui.ioc_utils import detect_ioc_type, provider_link
 
 
 def test_detect_ipv4():

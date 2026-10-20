@@ -5,9 +5,9 @@ Unit-тесты build_entities.
 """
 from collections import Counter
 
-from pcap_triage.aggregators.entities import build_entities
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding, FlowKey, FlowStats
+from paradox.aggregators.entities import build_entities
+from paradox.config import Config
+from paradox.models import CaptureState, Finding, FlowKey, FlowStats
 
 
 def _add_flow(state, src_ip, dst_ip, sport, dport, bytes_sent=100,

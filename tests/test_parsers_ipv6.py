@@ -4,7 +4,7 @@ import struct
 
 import pytest
 
-from pcap_triage.parsers_ipv6 import parse_ipv6_packet
+from paradox.parsers_ipv6 import parse_ipv6_packet
 
 
 def _ipv6_header(src, dst, next_header=6, payload_len=20, hop_limit=64,

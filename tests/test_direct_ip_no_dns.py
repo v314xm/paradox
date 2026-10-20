@@ -1,6 +1,6 @@
 """Тесты правила direct_ip_no_dns (hardcoded IP / прямой C2)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.g_direct_ip_no_dns import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.g_direct_ip_no_dns import (
     DirectIpNoDnsRule,
 )
 

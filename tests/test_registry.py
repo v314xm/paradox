@@ -1,5 +1,5 @@
 """Тесты реестра провайдеров."""
-from pcap_triage.integrations.registry import (
+from paradox.integrations.registry import (
     REGISTRY,
     get_provider,
     list_providers,

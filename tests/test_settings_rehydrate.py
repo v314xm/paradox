@@ -1,8 +1,8 @@
 """Тесты восстановления типов из JSON-store."""
 from pathlib import Path
 
-from pcap_triage.config import Config
-from pcap_triage_gui.settings_rehydrate import rehydrate, rehydrate_overrides
+from paradox.config import Config
+from paradox_gui.settings_rehydrate import rehydrate, rehydrate_overrides
 
 
 def test_rehydrate_int():

@@ -1,5 +1,5 @@
 """Реестр содержит все 9 провайдеров."""
-from pcap_triage.integrations.registry import REGISTRY, list_providers
+from paradox.integrations.registry import REGISTRY, list_providers
 
 
 def test_all_nine_present():

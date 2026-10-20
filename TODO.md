@@ -176,7 +176,7 @@
 
 ## Что можно удалить
 
-- `pcap_triage/extractors/extractors.py` — дубликат
+- `paradox/extractors/extractors.py` — дубликат
   `extractors/http.py`. Не используется.
 - `diag_nbns.py`, `diag_kerberos.py` — одноразовые диагностические
   скрипты. Можно удалить или вынести в `tools/`.
@@ -276,8 +276,8 @@
 
 ### 9. Утилиты (по одной в день)
 
-- [ ] **`pcap-triage follow`** — выгрузить TCP-поток в отдельный
+- [ ] **`Paradox follow`** — выгрузить TCP-поток в отдельный
       pcap. То, что аналитик делает в Wireshark после триажа.
-- [ ] **`pcap-triage filter`** — фильтр по IP/порту/протоколу.
-- [ ] **`pcap-triage diff`** — сравнить два pcap.
+- [ ] **`Paradox filter`** — фильтр по IP/порту/протоколу.
+- [ ] **`Paradox diff`** — сравнить два pcap.
 - [ ] **CSV IOC export** — для firewall/SIEM.

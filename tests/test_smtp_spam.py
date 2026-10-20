@@ -1,7 +1,7 @@
 """Тесты SMTP spam детектора."""
-from pcap_triage.config import Config
-from pcap_triage.detectors.smtp_spam import SMTP_SpamDetector
-from pcap_triage.models import CaptureState
+from paradox.config import Config
+from paradox.detectors.smtp_spam import SMTP_SpamDetector
+from paradox.models import CaptureState
 
 
 def _state_with_rcpt(src, count):
@@ -116,15 +116,15 @@ def test_config_default():
 # ---------- интеграции ----------
 
 def test_mitre_map():
-    from pcap_triage.detectors.mitre_map import get_techniques
+    from paradox.detectors.mitre_map import get_techniques
     techs = get_techniques("smtp_spam")
     assert "T1583.002" in techs
 
 
 def test_facts_victim_polarity():
     """smtp_spam -> src=victim, dst=attacker (в _VICTIM_SIGNAL_TYPES)."""
-    from pcap_triage.contradictions.facts import extract_attack_facts
-    from pcap_triage.models import Finding as F
+    from paradox.contradictions.facts import extract_attack_facts
+    from paradox.models import Finding as F
 
     f = F(
         type="smtp_spam", value="10.0.0.5 -> 100 recipients",
@@ -138,12 +138,12 @@ def test_facts_victim_polarity():
 
 
 def test_timeline_phase_impact():
-    from pcap_triage.timeline import _PHASE_BY_TYPE, _PHASE_ORDER
+    from paradox.timeline import _PHASE_BY_TYPE, _PHASE_ORDER
     assert _PHASE_BY_TYPE["smtp_spam"] == "impact"
     assert _PHASE_ORDER["impact"] == 80
 
 
 def test_registered_in_detectors():
-    from pcap_triage.pipeline import DETECTORS
+    from paradox.pipeline import DETECTORS
     names = [getattr(d, "name", "") for d in DETECTORS]
     assert "smtp_spam" in names

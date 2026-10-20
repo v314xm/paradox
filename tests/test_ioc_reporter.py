@@ -1,7 +1,7 @@
 """Тесты IOC reporter."""
 from pathlib import Path
 
-from pcap_triage.reporters.ioc_reporter import (
+from paradox.reporters.ioc_reporter import (
     build_ioc_report,
     render_iocs_csv,
     render_iocs_json,
@@ -171,6 +171,6 @@ def test_write_files_empty(tmp_path):
 
 
 def test_config_flag_default():
-    from pcap_triage.config import Config
+    from paradox.config import Config
     cfg = Config()
     assert cfg.ioc_export_enabled is True

@@ -1,5 +1,5 @@
 """Тесты AlienVaultOTXEnricher."""
-from pcap_triage.integrations.alienvault_otx import AlienVaultOTXEnricher
+from paradox.integrations.alienvault_otx import AlienVaultOTXEnricher
 
 
 def test_supports_ip_domain_hash():

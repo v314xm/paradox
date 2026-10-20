@@ -4,7 +4,7 @@ Unit-тесты парсера NBNS.
 Эталон — реальный пакет из MTA 2025-06-13 (frame 24):
 NBNS-запрос от 10.6.13.133 к broadcast с именем DESKTOP-5AVE44C<20>.
 """
-from pcap_triage.nbns_parse import decode_nbns_name, parse_nbns
+from paradox.nbns_parse import decode_nbns_name, parse_nbns
 
 
 # --- эталонный NBNS-payload из frame 24 ---

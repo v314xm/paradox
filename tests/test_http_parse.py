@@ -1,5 +1,5 @@
 """Тесты парсера HTTP-запросов (http_parse.parse_request)."""
-from pcap_triage.http_parse import (
+from paradox.http_parse import (
     HTTP_METHODS,
     MAX_HEADER_BYTES,
     MAX_HEADERS,

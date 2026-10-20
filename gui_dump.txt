@@ -1,7 +1,7 @@
 ﻿
 
 # ==========================================
-# FILE: \pcap_triage_gui\app.py
+# FILE: \paradox_gui\app.py
 # ==========================================
 """QApplication + РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ.
 
@@ -12,15 +12,15 @@
 import sys
 from PySide6.QtWidgets import QApplication
 
-from pcap_triage_gui.main_window import MainWindow
-from pcap_triage_gui.theme import apply_theme
+from paradox_gui.main_window import MainWindow
+from paradox_gui.theme import apply_theme
 
 
 def main() -> int:
     app = QApplication(sys.argv)
     # РљР»СЋС‡Рё Threat Intel РёР· keyring -> os.environ РґРѕ РїРµСЂРІРѕРіРѕ lookup.
     try:
-        from pcap_triage_gui.secrets_store import SecretsStore
+        from paradox_gui.secrets_store import SecretsStore
         SecretsStore().apply_all_to_env()
     except Exception:
         pass
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\config_builder.py
+# FILE: \paradox_gui\config_builder.py
 # ==========================================
 """РЎР±РѕСЂРєР° Config СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРјРё overrides.
 
@@ -70,7 +70,7 @@ def build_config_with_overrides(overrides: dict[str, Any] | None = None):
         ValueError: РЅРµРІР°Р»РёРґРЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ (Config._validate).
         OSError: РЅРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ output_dir.
     """
-    from pcap_triage.config import Config
+    from paradox.config import Config
 
     config = Config()
     overrides = overrides or {}
@@ -90,7 +90,7 @@ def build_config_with_overrides(overrides: dict[str, Any] | None = None):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\contradiction_help.py
+# FILE: \paradox_gui\contradiction_help.py
 # ==========================================
 """РћРїРёСЃР°РЅРёСЏ РїСЂР°РІРёР» ContradictionDetector.
 
@@ -145,7 +145,7 @@ def get_contradiction_help(key: str) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\detector_help.py
+# FILE: \paradox_gui\detector_help.py
 # ==========================================
 """Р§РµР»РѕРІРµС‡РµСЃРєРёРµ РѕРїРёСЃР°РЅРёСЏ РґРµС‚РµРєС‚РѕСЂРѕРІ РґР»СЏ РІРєР»Р°РґРєРё В«Р”РµС‚РµРєС‚РѕСЂС‹В».
 
@@ -226,7 +226,7 @@ def get_detector_help(key: str) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\field_help.py
+# FILE: \paradox_gui\field_help.py
 # ==========================================
 """Р§РµР»РѕРІРµС‡РµСЃРєРёРµ РѕРїРёСЃР°РЅРёСЏ РїРѕР»РµР№ Config РґР»СЏ tooltip'РѕРІ РІ GUI.
 
@@ -445,7 +445,7 @@ def get_field_help(key: str) -> str:
     text = FIELD_HELP.get(key)
     if text:
         return text
-    return f"РџР°СЂР°РјРµС‚СЂ В«{key}В» РёР· Config СЏРґСЂР°. РЎРј. pcap_triage/config.py."
+    return f"РџР°СЂР°РјРµС‚СЂ В«{key}В» РёР· Config СЏРґСЂР°. РЎРј. paradox/config.py."
 
 
 def get_section_help(key: str) -> str:
@@ -454,7 +454,7 @@ def get_section_help(key: str) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\i18n.py
+# FILE: \paradox_gui\i18n.py
 # ==========================================
 """РџСЂРѕСЃС‚Р°СЏ СЃРёСЃС‚РµРјР° Р»РѕРєР°Р»РёР·Р°С†РёРё (РєР°СЂРєР°СЃ)."""
 from __future__ import annotations
@@ -506,7 +506,7 @@ def tr(key: str) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\ioc_utils.py
+# FILE: \paradox_gui\ioc_utils.py
 # ==========================================
 """РћРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїР° IOC Рё СЃСЃС‹Р»РєРё РЅР° РїСѓР±Р»РёС‡РЅС‹Рµ СЃС‚СЂР°РЅРёС†С‹ РїСЂРѕРІР°Р№РґРµСЂРѕРІ."""
 from __future__ import annotations
@@ -593,7 +593,7 @@ def provider_link(provider_name: str, ioc: str, ioc_type: str) -> str | None:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\main_window.py
+# FILE: \paradox_gui\main_window.py
 # ==========================================
 """Р“Р»Р°РІРЅРѕРµ РѕРєРЅРѕ: menu bar + РІРєР»Р°РґРєРё + СЃС‚Р°С‚СѓСЃ-Р±Р°СЂ.
 
@@ -605,7 +605,7 @@ Dead menu items С…СѓР¶Рµ, С‡РµРј РёС… РѕС‚СЃСѓС�
  РљРђР РўРђ Р’РЎРўРђР’РћРљ вЂ” РіРґРµ С‡С‚Рѕ РґРѕРїРёСЃС‹РІР°С‚СЊ
 =============================================================================
 
- РРјРїРѕСЂС‚С‹ СЃРІРµСЂС…Сѓ:          PySide6 в†’ pcap_triage_gui в†’ stdlib.
+ РРјРїРѕСЂС‚С‹ СЃРІРµСЂС…Сѓ:          PySide6 в†’ paradox_gui в†’ stdlib.
                           РџРѕСЂСЏРґРѕРє РІРЅСѓС‚СЂРё Р±Р»РѕРєР° РЅРµ РІР°Р¶РµРЅ, РіР»Р°РІРЅРѕРµ вЂ” С‚СЂРё РіСЂСѓРїРїС‹.
 
  _build_menubar:          С†РµРЅС‚СЂР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ. РљР°Р¶РґРѕРµ РјРµРЅСЋ вЂ” РѕС‚РґРµР»СЊРЅС‹Р№
@@ -650,14 +650,14 @@ from PySide6.QtWidgets import (
 )
 
 # >>> РРњРџРћР РўР« VIEWS <<<
-from pcap_triage_gui.views.run_view import RunView
-from pcap_triage_gui.views.settings_view import SettingsView
-from pcap_triage_gui.views.enrich_view import EnrichView
-from pcap_triage_gui.views.history_view import HistoryView
-from pcap_triage_gui.views.ipv6_view import IPv6View
-from pcap_triage_gui.views.timeline_view import TimelineView
-from pcap_triage_gui.views.export_view import ExportView
-from pcap_triage_gui.i18n import tr, set_language
+from paradox_gui.views.run_view import RunView
+from paradox_gui.views.settings_view import SettingsView
+from paradox_gui.views.enrich_view import EnrichView
+from paradox_gui.views.history_view import HistoryView
+from paradox_gui.views.ipv6_view import IPv6View
+from paradox_gui.views.timeline_view import TimelineView
+from paradox_gui.views.export_view import ExportView
+from paradox_gui.i18n import tr, set_language
 # >>> /РРњРџРћР РўР« VIEWS <<<
 
 
@@ -701,7 +701,7 @@ def _cyr_variant(seq: str) -> str | None:
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle(f"pcap-triage v{APP_VERSION}")
+        self.setWindowTitle(f"Paradox v{APP_VERSION}")
         self.resize(1440, 900)
         self._apply_dark_titlebar()
 
@@ -859,10 +859,10 @@ class MainWindow(QMainWindow):
         РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ), report вЂ” РёР· РїРѕСЃР»РµРґРЅРµРіРѕ РїСЂРѕРіРѕРЅР°.
         """
         try:
-            from pcap_triage_gui.config_builder import (
+            from paradox_gui.config_builder import (
                 build_config_with_overrides,
             )
-            from pcap_triage_gui.views.quick_check_window import (
+            from paradox_gui.views.quick_check_window import (
                 QuickCheckWindow,
             )
         except ImportError as e:
@@ -923,7 +923,7 @@ class MainWindow(QMainWindow):
         # РїРѕРєР°Р·С‹РІР°РµРј РїРѕСЃР»Рµ РћР±РѕРіР°С‰РµРЅРёСЏ.
         # Р•РґРёРЅС‹Р№ SettingsStore: РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ settings.json С‡РёС‚Р°СЋС‚ Рё
         # РїРёС€СѓС‚ РѕР±Р° view. Р”РІР° СЂР°Р·РЅС‹С… СЌРєР·РµРјРїР»СЏСЂР° = СЂР°СЃС…РѕРґСЏС‰РµРµСЃСЏ СЃРѕСЃС‚РѕСЏРЅРёРµ.
-        from pcap_triage_gui.settings_store import SettingsStore
+        from paradox_gui.settings_store import SettingsStore
         self._settings_store = SettingsStore()
 
         # РџСЂРёРјРµРЅСЏРµРј СЃРѕС…СЂР°РЅС‘РЅРЅС‹Р№ СЏР·С‹Рє
@@ -1065,7 +1065,7 @@ class MainWindow(QMainWindow):
         if not isinstance(data, dict) or "findings" not in data:
             QMessageBox.critical(
                 self, "РќРµ С‚РѕС‚ С„Р°Р№Р»",
-                "Р­С‚Рѕ РЅРµ JSON-РѕС‚С‡С‘С‚ pcap-triage: РЅРµС‚ РєР»СЋС‡Р° 'findings'.",
+                "Р­С‚Рѕ РЅРµ JSON-РѕС‚С‡С‘С‚ Paradox: РЅРµС‚ РєР»СЋС‡Р° 'findings'.",
             )
             return
         self.tabs.setCurrentIndex(0)
@@ -1103,7 +1103,7 @@ class MainWindow(QMainWindow):
         QMessageBox.information(
             self,
             "РЎРїСЂР°РІРєР° РїРѕ РёРЅСЃС‚СЂСѓРјРµРЅС‚Сѓ",
-            "<b>Р§С‚Рѕ РґРµР»Р°РµС‚ pcap-triage</b><br>"
+            "<b>Р§С‚Рѕ РґРµР»Р°РµС‚ Paradox</b><br>"
             "РР·РІР»РµРєР°РµС‚ С„Р°РєС‚С‹ Рѕ СЃРµС‚Рё РёР· pcap Рё РёС‰РµС‚ РїСЂРѕС‚РёРІРѕСЂРµС‡РёСЏ "
             "РјРµР¶РґСѓ СЃР»РѕСЏРјРё РґР°РЅРЅС‹С…: DNS vs SNI, JA3 vs UA, MAC vs IP, "
             "СЂРѕР»Рё vs РїРѕРІРµРґРµРЅРёРµ.<br><br>"
@@ -1134,7 +1134,7 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self,
             "Рћ РїСЂРѕРіСЂР°РјРјРµ",
-            f"<b>pcap-triage v{APP_VERSION}</b><br><br>"
+            f"<b>Paradox v{APP_VERSION}</b><br><br>"
             "РћС„С„Р»Р°Р№РЅ-С‚СЂРёР°Р¶ pcap.<br>"
             "18 РґРµС‚РµРєС‚РѕСЂРѕРІ В· 9 СЌРєСЃС‚СЂР°РєС‚РѕСЂРѕРІ В· 12 РїСЂР°РІРёР» В· 4 Р°РЅР°Р»РёР·Р°С‚РѕСЂР°",
             f"<br><br>В© 2026 Andrey Grigoryev (v314xm)",
@@ -1265,7 +1265,7 @@ class MainWindow(QMainWindow):
             return
         try:
             # render_markdown вЂ” РёР· РїСЂРёСЃР»Р°РЅРЅРѕРіРѕ markdown_reporter.py.
-            from pcap_triage.reporters.markdown_reporter import render_markdown
+            from paradox.reporters.markdown_reporter import render_markdown
             Path(path).write_text(render_markdown(report), encoding="utf-8")
             self._status_text.setText(f"РЎРѕС…СЂР°РЅРµРЅРѕ: {path}")
         except Exception as e:
@@ -1335,7 +1335,7 @@ class MainWindow(QMainWindow):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\profiles.py
+# FILE: \paradox_gui\profiles.py
 # ==========================================
 """РџСЂРѕС„РёР»Рё РЅР°СЃС‚СЂРѕРµРє: РїСЂРµСЃРµС‚С‹ overrides.
 
@@ -1437,7 +1437,7 @@ def profile_keys() -> tuple[str, ...]:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\secrets_store.py
+# FILE: \paradox_gui\secrets_store.py
 # ==========================================
 """РҐСЂР°РЅРёР»РёС‰Рµ СЃРµРєСЂРµС‚РѕРІ.
 
@@ -1450,7 +1450,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-SERVICE_NAME = "pcap-triage"
+SERVICE_NAME = "Paradox"
 
 # name в†’ os.environ
 _KEY_ENV = {
@@ -1596,7 +1596,7 @@ class SecretsStore:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\settings_rehydrate.py
+# FILE: \paradox_gui\settings_rehydrate.py
 # ==========================================
 """Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ С‚РёРїРѕРІ Р·РЅР°С‡РµРЅРёР№ РёР· JSON-store.
 
@@ -1666,9 +1666,9 @@ def rehydrate_overrides(overrides: dict, defaults: Any) -> dict:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\settings_store.py
+# FILE: \paradox_gui\settings_store.py
 # ==========================================
-"""Persistent settings storage for the pcap-triage GUI.
+"""Persistent settings storage for the Paradox GUI.
 
 Stores user overrides and disabled detectors / contradictions as JSON
 in the per-user config directory. The store is intentionally dumb: it
@@ -1693,7 +1693,7 @@ def default_settings_path() -> Path:
         base = Path.home() / "Library" / "Application Support"
     else:
         base = Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config"))
-    return base / "pcap-triage" / "settings.json"
+    return base / "Paradox" / "settings.json"
 
 
 def _empty() -> dict[str, Any]:
@@ -1796,12 +1796,12 @@ class SettingsStore:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\storage.py
+# FILE: \paradox_gui\storage.py
 # ==========================================
 """SQLite-С…СЂР°РЅРёР»РёС‰Рµ РёСЃС‚РѕСЂРёРё РїСЂРѕРіРѕРЅРѕРІ.
 
-Р¤Р°Р№Р»: %APPDATA%\\pcap-triage\\history.db (Windows),
-      ~/.local/share/pcap-triage/history.db (POSIX fallback).
+Р¤Р°Р№Р»: %APPDATA%\\Paradox\\history.db (Windows),
+      ~/.local/share/Paradox/history.db (POSIX fallback).
 
 РЎС…РµРјР° v1:
     runs(id, ts, pcap_path, pcap_sha256,
@@ -1826,7 +1826,7 @@ def _db_dir() -> Path:
     base = os.getenv("APPDATA")
     if not base:
         base = os.getenv("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
-    return Path(base) / "pcap-triage"
+    return Path(base) / "Paradox"
 
 
 class HistoryDB:
@@ -1936,7 +1936,7 @@ class HistoryDB:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\theme.py
+# FILE: \paradox_gui\theme.py
 # ==========================================
 """РўРµРјР° РѕС„РѕСЂРјР»РµРЅРёСЏ GUI: РїР°Р»РёС‚СЂР° + QSS.
 
@@ -2506,7 +2506,7 @@ def apply_theme(app: QApplication) -> None:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\_runtime_hook.py
+# FILE: \paradox_gui\_runtime_hook.py
 # ==========================================
 """Runtime hook: Р»РѕРІРёС‚ РїР°РґРµРЅРёСЏ Рё РїРёС€РµС‚ РёС… РІ С„Р°Р№Р».
 
@@ -2520,7 +2520,7 @@ def apply_theme(app: QApplication) -> None:
     sys.excepthook РёС… РЅРµ РІРёРґРёС‚ РІРѕРѕР±С‰Рµ вЂ” РЅСѓР¶РµРЅ faulthandler.
 
 Р§С‚Рѕ РґРµР»Р°РµС‚:
-    1. РћС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р» pcap-triage-error.log СЂСЏРґРѕРј СЃ .exe.
+    1. РћС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р» Paradox-error.log СЂСЏРґРѕРј СЃ .exe.
     2. faulthandler.enable() вЂ” РїРёС€РµС‚ С‚СѓРґР° C-СѓСЂРѕРІРЅРµРІС‹Рµ РєСЂР°С€Рё
        (СЃ РїРѕР»РЅС‹Рј СЃС‚РµРєРѕРј РІСЃРµС… РїРѕС‚РѕРєРѕРІ).
     3. sys.excepthook вЂ” РїРёС€РµС‚ С‚СѓРґР° Python-РёСЃРєР»СЋС‡РµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ
@@ -2542,7 +2542,7 @@ if getattr(sys, "frozen", False):
 else:
     _log_dir = pathlib.Path.cwd()
 
-_log_path = _log_dir / "pcap-triage-error.log"
+_log_path = _log_dir / "Paradox-error.log"
 
 # --- Р РѕС‚Р°С†РёСЏ: РЅРµ РґР°С‘Рј С„Р°Р№Р»Сѓ СЂР°СЃС‚Рё Р±РµСЃРєРѕРЅРµС‡РЅРѕ ---
 # РџСЂРё СЂР°Р·РјРµСЂРµ >5 РњР‘ РѕР±СЂРµР·Р°РµРј РґРѕ РїРѕСЃР»РµРґРЅРёС… 2.5 РњР‘. Р—Р°
@@ -2601,29 +2601,29 @@ except Exception:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\__init__.py
+# FILE: \paradox_gui\__init__.py
 # ==========================================
 __version__ = "0.9.1"
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\__main__.py
+# FILE: \paradox_gui\__main__.py
 # ==========================================
-"""РўРѕС‡РєР° РІС…РѕРґР°: python -m pcap_triage_gui.
+"""РўРѕС‡РєР° РІС…РѕРґР°: python -m paradox_gui.
 
 РљР»СЋС‡РµРІРѕР№ РјРѕРјРµРЅС‚: PyInstaller РІ СЂРµР¶РёРјРµ --windowed (console=False)
 Р·Р°РЅСѓР»СЏРµС‚ sys.stdout Рё sys.stderr. Scapy (Рё С‡Р°СЃС‚СЊ СЏРґСЂР°) РїСЂРё РёРјРїРѕСЂС‚Рµ
 РІС‹Р·С‹РІР°РµС‚ sys.stdout.isatty() вЂ” РїРѕР»СѓС‡Р°РµС‚ AttributeError Рё РІР°Р»РёС‚ РїСЂРѕРіРѕРЅ.
 Р РµС€РµРЅРёРµ вЂ” РїРѕРґРјРµРЅРёС‚СЊ None РЅР° os.devnull Р”Рћ Р»СЋР±С‹С… РёРјРїРѕСЂС‚РѕРІ СЏРґСЂР°.
 
-РџСЂРё РѕР±С‹С‡РЅРѕРј `python -m pcap_triage_gui` СЌС‚Рѕ no-op: stdout СѓР¶Рµ РµСЃС‚СЊ,
+РџСЂРё РѕР±С‹С‡РЅРѕРј `python -m paradox_gui` СЌС‚Рѕ no-op: stdout СѓР¶Рµ РµСЃС‚СЊ,
 РїСЂРѕРІРµСЂРєРё РЅР° None РЅРµ СЃСЂР°Р±Р°С‚С‹РІР°СЋС‚.
 """
 import os
 import sys
 
 # >>> Р—РђР©РРўРђ РћРў --windowed <<<
-# Р”РѕР»Р¶РЅРѕ СЃС‚РѕСЏС‚СЊ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ, РґРѕ `from pcap_triage_gui.app import main`.
+# Р”РѕР»Р¶РЅРѕ СЃС‚РѕСЏС‚СЊ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ, РґРѕ `from paradox_gui.app import main`.
 # РРЅР°С‡Рµ scapy РёРјРїРѕСЂС‚РёСЂСѓРµС‚СЃСЏ СЂР°РЅСЊС€Рµ Рё РїР°РґР°РµС‚ РЅР° isatty().
 if sys.stdout is None:
     sys.stdout = open(os.devnull, "w", encoding="utf-8")
@@ -2631,7 +2631,7 @@ if sys.stderr is None:
     sys.stderr = open(os.devnull, "w", encoding="utf-8")
 # >>> /Р—РђР©РРўРђ РћРў --windowed <<<
 
-from pcap_triage_gui.app import main  # noqa: E402
+from paradox_gui.app import main  # noqa: E402
 
 
 if __name__ == "__main__":
@@ -2639,7 +2639,7 @@ if __name__ == "__main__":
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\carved_files_dialog.py
+# FILE: \paradox_gui\dialogs\carved_files_dialog.py
 # ==========================================
 """РћРєРЅРѕ РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР° РёР·РІР»РµС‡С‘РЅРЅС‹С… С„Р°Р№Р»РѕРІ (Carved Files)."""
 from __future__ import annotations
@@ -2796,7 +2796,7 @@ class CarvedFilesDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\contradiction_dialog.py
+# FILE: \paradox_gui\dialogs\contradiction_dialog.py
 # ==========================================
 """РњРѕРґР°Р»РєР° РґРµС‚Р°Р»РµР№ РїСЂРѕС‚РёРІРѕСЂРµС‡РёСЏ.
 
@@ -2989,7 +2989,7 @@ class ContradictionDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\finding_dialog.py
+# FILE: \paradox_gui\dialogs\finding_dialog.py
 # ==========================================
 """РњРѕРґР°Р»РєР° РґРµС‚Р°Р»РµР№ РѕРґРЅРѕРіРѕ finding'Р°.
 
@@ -3177,7 +3177,7 @@ class FindingDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\graph_dialog.py
+# FILE: \paradox_gui\dialogs\graph_dialog.py
 # ==========================================
 """РћРєРЅРѕ РІРёР·СѓР°Р»РёР·Р°С†РёРё РіСЂР°С„Р° СЃРІСЏР·РµР№ (РњРµРіР°-РІРµСЂСЃРёСЏ)."""
 import math
@@ -3194,8 +3194,8 @@ from PySide6.QtGui import QPen, QColor, QBrush, QFont, QPainter, QPainterPath
 
 # РџРѕРїС‹С‚РєР° РёРјРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ РґРёР°Р»РѕРі РёСЃС‚РѕСЂРёРё С…РѕСЃС‚Р°
 try:
-    from pcap_triage_gui.dialogs.host_story_dialog import HostStoryDialog
-    from pcap_triage.analyzers.story import build_host_story
+    from paradox_gui.dialogs.host_story_dialog import HostStoryDialog
+    from paradox.analyzers.story import build_host_story
     HAS_STORY = True
 except ImportError:
     HAS_STORY = False
@@ -3630,7 +3630,7 @@ class GraphDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\host_story_dialog.py
+# FILE: \paradox_gui\dialogs\host_story_dialog.py
 # ==========================================
 """Р”РёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ РёСЃС‚РѕСЂРёРё С…РѕСЃС‚Р° (С‚Р°Р№РјР»Р°Р№РЅ)."""
 from datetime import datetime
@@ -3699,7 +3699,7 @@ class HostStoryDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\what_if_dialog.py
+# FILE: \paradox_gui\dialogs\what_if_dialog.py
 # ==========================================
 """Р”РёР°Р»РѕРі РґР»СЏ What-If Р°РЅР°Р»РёР·Р°."""
 from PySide6.QtWidgets import (
@@ -3751,13 +3751,13 @@ class WhatIfDialog(QDialog):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\dialogs\__init__.py
+# FILE: \paradox_gui\dialogs\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\enrich_view.py
+# FILE: \paradox_gui\views\enrich_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° В«РћР±РѕРіР°С‰РµРЅРёРµВ» вЂ” РІС‹Р±РѕСЂ IOC Рё Threat Intel РїРѕ РЅРёРј.
 
@@ -3793,7 +3793,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pcap_triage_gui.workers.enrichment_worker import EnrichmentWorker
+from paradox_gui.workers.enrichment_worker import EnrichmentWorker
 
 
 # РРЅРґРµРєСЃС‹ РєРѕР»РѕРЅРѕРє РІРµСЂС…РЅРµР№ (РєР°РЅРґРёРґР°С‚С‹) Рё РЅРёР¶РЅРµР№ (СЂРµР·СѓР»СЊС‚Р°С‚С‹) С‚Р°Р±Р»РёС†.
@@ -3965,7 +3965,7 @@ class EnrichView(QWidget):
             return
 
         try:
-            from pcap_triage.integrations.enricher import (
+            from paradox.integrations.enricher import (
                 collect_iocs_from_findings,
             )
         except ImportError as e:
@@ -4014,7 +4014,7 @@ class EnrichView(QWidget):
             return
 
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             config = Config()
             for k, v in self._config_overrides.items():
                 if hasattr(config, k):
@@ -4312,7 +4312,7 @@ def _summarize(source: str, data) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\export_view.py
+# FILE: \paradox_gui\views\export_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° Р­РєСЃРїРѕСЂС‚Р° (CSV Рё STIX) СЃ РєРѕРїРёСЂРѕРІР°РЅРёРµРј РІ Р±СѓС„РµСЂ."""
 import csv
@@ -4499,7 +4499,7 @@ class ExportView(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\history_view.py
+# FILE: \paradox_gui\views\history_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° В«РСЃС‚РѕСЂРёСЏВ» вЂ” СЃРїРёСЃРѕРє РїСЂРѕРіРѕРЅРѕРІ РІ РїР°РјСЏС‚Рё.
 
@@ -4532,7 +4532,7 @@ class ExportView(QWidget):
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from pcap_triage_gui.storage import HistoryDB
+from paradox_gui.storage import HistoryDB
 
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -5055,7 +5055,7 @@ def _summarize(source: str, data) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\ipv6_view.py
+# FILE: \paradox_gui\views\ipv6_view.py
 # ==========================================
 """UI-РІРёРґР¶РµС‚ РґР»СЏ IPv6 (NDP + РїРѕС‚РѕРєРё) СЃ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рј QSplitter."""
 try:
@@ -5165,7 +5165,7 @@ class IPv6View(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\quick_check_window.py
+# FILE: \paradox_gui\views\quick_check_window.py
 # ==========================================
 """QuickCheckWindow вЂ” РЅРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ Р±С‹СЃС‚СЂРѕР№ РїСЂРѕРІРµСЂРєРё IOC."""
 from __future__ import annotations
@@ -5185,11 +5185,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.registry import REGISTRY
-from pcap_triage_gui.ioc_utils import detect_ioc_type, provider_link
-from pcap_triage_gui.widgets.provider_card import ProviderCard
-from pcap_triage_gui.workers.quick_check_worker import QuickCheckWorker
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.registry import REGISTRY
+from paradox_gui.ioc_utils import detect_ioc_type, provider_link
+from paradox_gui.widgets.provider_card import ProviderCard
+from paradox_gui.workers.quick_check_worker import QuickCheckWorker
 
 
 _AUTO = "РђРІС‚Рѕ"
@@ -5205,7 +5205,7 @@ class QuickCheckWindow(QWidget):
 
     def __init__(self, config, parent=None) -> None:
         super().__init__(parent, Qt.WindowType.Window)
-        self.setWindowTitle("Р‘С‹СЃС‚СЂР°СЏ РїСЂРѕРІРµСЂРєР° IOC вЂ” pcap-triage")
+        self.setWindowTitle("Р‘С‹СЃС‚СЂР°СЏ РїСЂРѕРІРµСЂРєР° IOC вЂ” Paradox")
         self.resize(900, 760)
 
         self._config = config
@@ -5341,7 +5341,7 @@ class QuickCheckWindow(QWidget):
             return
 
         try:
-            from pcap_triage.integrations.enricher import (
+            from paradox.integrations.enricher import (
                 collect_iocs_from_findings,
             )
             findings = self._report.get("findings", []) or []
@@ -5466,7 +5466,7 @@ class QuickCheckWindow(QWidget):
 
         # РЎРѕСЂС‚РёСЂРѕРІРєР°: СЃРЅР°С‡Р°Р»Р° В«РїР»РѕС…РёРµВ», РїРѕС‚РѕРј warn, info, clean, empty, error.
         order = {"bad": 0, "warn": 1, "info": 2, "clean": 3, "empty": 4, "error": 5}
-        from pcap_triage_gui.widgets.provider_card import _verdict as _v
+        from paradox_gui.widgets.provider_card import _verdict as _v
 
         def sort_key(item):
             name, res = item
@@ -5511,7 +5511,7 @@ class QuickCheckWindow(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\roadmap_view.py
+# FILE: \paradox_gui\views\roadmap_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° В«Р Р°Р·РІРёС‚РёРµВ» вЂ” СЃС‚Р°С‚РёС‡РµСЃРєРёР№ СЂРѕР°РґРјР°Рї РїСЂРѕРµРєС‚Р°.
 
@@ -5548,9 +5548,9 @@ _ROADMAP_HTML = r"""
     code  { color: #8be9fd; }
 </style>
 
-<h2>Р Р°Р·РІРёС‚РёРµ pcap-triage GUI</h2>
+<h2>Р Р°Р·РІРёС‚РёРµ Paradox GUI</h2>
 <p class="note">
-    РЇРґСЂРѕ <code>pcap_triage/</code> РЅРµ С‚СЂРѕРіР°РµРј Р±РµР· РЅСѓР¶РґС‹. GUI вЂ” РѕС‚РґРµР»СЊРЅС‹Р№
+    РЇРґСЂРѕ <code>paradox/</code> РЅРµ С‚СЂРѕРіР°РµРј Р±РµР· РЅСѓР¶РґС‹. GUI вЂ” РѕС‚РґРµР»СЊРЅС‹Р№
     РїР°РєРµС‚, СЂР°Р±РѕС‚Р°РµС‚ С‡РµСЂРµР· РєРѕРЅС‚СЂР°РєС‚
     <code>run_pipeline(pcap_path, config, should_stop=, on_progress=, on_phase=) -&gt; dict</code>.
     Р Р°СЃС€РёСЂРµРЅРёСЏ РєРѕРЅС‚СЂР°РєС‚Р° вЂ” РѕРїС†РёРѕРЅР°Р»СЊРЅС‹Рµ, CLI РЅРµ Р·Р°РґРµС‚.
@@ -5563,7 +5563,7 @@ _ROADMAP_HTML = r"""
     <li class="done">РљРѕРѕРїРµСЂР°С‚РёРІРЅР°СЏ РѕСЃС‚Р°РЅРѕРІРєР°: Esc РёР»Рё В«РћСЃС‚Р°РЅРѕРІРёС‚СЊВ» в†’ <code>requestInterruption</code> в†’ <code>PipelineCancelled</code> РІ СЏРґСЂРµ. <code>terminate()</code> Р±РѕР»СЊС€Рµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ</li>
     <li class="done">Р¤РёР»СЊС‚СЂС‹ findings: РїРѕРёСЃРє РїРѕ value/С‚РёРїСѓ/MITRE, combo С‚РёРїР°, РїРѕСЂРѕРі confidence, СЃС‡С‘С‚С‡РёРє <code>N РёР· M</code>, СЃР±СЂРѕСЃ</li>
     <li class="done">РћС‚РєСЂС‹С‚РёРµ JSON-РѕС‚С‡С‘С‚Р° (<code>Ctrl+Shift+O</code>) Р±РµР· РїРѕРІС‚РѕСЂРЅРѕРіРѕ РїСЂРѕРіРѕРЅР°: Р·Р°РїРѕР»РЅСЏРµС‚ RunView, РєР»Р°РґС‘С‚ Р·Р°РїРёСЃСЊ РІ РСЃС‚РѕСЂРёСЋ, РѕС‚РґР°С‘С‚ РІ РћР±РѕРіР°С‰РµРЅРёРµ</li>
-    <li class="done">Persistent history: SQLite РІ <code>%APPDATA%\pcap-triage\history.db</code>, РїРµСЂРµР¶РёРІР°РµС‚ РїРµСЂРµР·Р°РїСѓСЃРє, РѕР±РѕРіР°С‰РµРЅРёРµ СЃРёРЅРєР°РµС‚СЃСЏ РѕР±СЂР°С‚РЅРѕ РІ Р‘Р”</li>
+    <li class="done">Persistent history: SQLite РІ <code>%APPDATA%\Paradox\history.db</code>, РїРµСЂРµР¶РёРІР°РµС‚ РїРµСЂРµР·Р°РїСѓСЃРє, РѕР±РѕРіР°С‰РµРЅРёРµ СЃРёРЅРєР°РµС‚СЃСЏ РѕР±СЂР°С‚РЅРѕ РІ Р‘Р”</li>
     <li class="done">Toast-С„РёРєСЃ: instance QTimer + РїРѕРґРїРёСЃРєР° РЅР° <code>destroyed</code>; Р·Р°РєСЂС‹С‚РёРµ РѕРєРЅР° РІРѕ РІСЂРµРјСЏ РїРѕРєР°Р·Р° СѓРІРµРґРѕРјР»РµРЅРёСЏ Р±РѕР»СЊС€Рµ РЅРµ СЂРѕРЅСЏРµС‚ РїСЂРѕС†РµСЃСЃ</li>
     <li class="done">Р’РєР»Р°РґРєР° В«РќР°СЃС‚СЂРѕР№РєРёВ» вЂ” 11 СЃРµРєС†РёР№: РџРѕСЂРѕРіРё, Р”РµС‚РµРєС‚РѕСЂС‹, РџСЂРѕС‚РёРІРѕСЂРµС‡РёСЏ, Allowlist, DGA, Brute force, РЎРµС‚СЊ, РћС‚С‡С‘С‚С‹, Threat Intel, РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚СЊ. В«РћР±С‰РёРµВ» вЂ” Р·Р°РіР»СѓС€РєР° СЃ РѕРїРёСЃР°РЅРёРµРј</li>
     <li class="done">Р’РєР»Р°РґРєР° В«РћР±РѕРіР°С‰РµРЅРёРµВ»: Threat Intel РїРѕ РІС‹Р±СЂР°РЅРЅС‹Рј IOC (Shodan InternetDB, AbuseIPDB)</li>
@@ -5617,7 +5617,7 @@ class RoadmapView(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\run_view.py
+# FILE: \paradox_gui\views\run_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° В«РџСЂРѕРіРѕРЅВ».
 
@@ -5639,19 +5639,19 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pcap_triage_gui.dialogs.contradiction_dialog import ContradictionDialog
-from pcap_triage_gui.dialogs.finding_dialog import FindingDialog
-from pcap_triage_gui.dialogs.what_if_dialog import WhatIfDialog
-from pcap_triage_gui.dialogs.graph_dialog import GraphDialog
-from pcap_triage_gui.dialogs.carved_files_dialog import CarvedFilesDialog
-from pcap_triage.analyzers.counterfactual import evaluate_what_if
-from pcap_triage_gui.widgets.contradictions_section import ContradictionsSection
-from pcap_triage_gui.widgets.drop_zone import DropZone
-from pcap_triage_gui.widgets.findings_table import FindingsTable
-from pcap_triage_gui.widgets.absence_panel import AbsencePanel
-from pcap_triage_gui.widgets.summary_grid import SummaryGrid
-from pcap_triage_gui.widgets.toast import ToastManager
-from pcap_triage_gui.workers.analysis_worker import AnalysisWorker
+from paradox_gui.dialogs.contradiction_dialog import ContradictionDialog
+from paradox_gui.dialogs.finding_dialog import FindingDialog
+from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
+from paradox_gui.dialogs.graph_dialog import GraphDialog
+from paradox_gui.dialogs.carved_files_dialog import CarvedFilesDialog
+from paradox.analyzers.counterfactual import evaluate_what_if
+from paradox_gui.widgets.contradictions_section import ContradictionsSection
+from paradox_gui.widgets.drop_zone import DropZone
+from paradox_gui.widgets.findings_table import FindingsTable
+from paradox_gui.widgets.absence_panel import AbsencePanel
+from paradox_gui.widgets.summary_grid import SummaryGrid
+from paradox_gui.widgets.toast import ToastManager
+from paradox_gui.workers.analysis_worker import AnalysisWorker
 from ..widgets.observations_panel import ObservationsPanel
 from ..widgets.highlights_panel import HighlightsPanel
 
@@ -5809,7 +5809,7 @@ class RunView(QWidget):
         if not self._current_path:
             return
         try:
-            from pcap_triage_gui.config_builder import (
+            from paradox_gui.config_builder import (
                 build_config_with_overrides,
             )
             config = build_config_with_overrides(self._config_overrides)
@@ -6006,7 +6006,7 @@ class RunView(QWidget):
         if not exclude_ips and not exclude_domains:
             return
 
-        from pcap_triage.analyzers.counterfactual import evaluate_what_if
+        from paradox.analyzers.counterfactual import evaluate_what_if
         res = evaluate_what_if(
             self._last_report,
             exclude_ips=exclude_ips,
@@ -6038,8 +6038,8 @@ class RunView(QWidget):
         if not self._last_report:
             return
 
-        from pcap_triage.analyzers.story import build_host_story
-        from pcap_triage_gui.dialogs.host_story_dialog import HostStoryDialog
+        from paradox.analyzers.story import build_host_story
+        from paradox_gui.dialogs.host_story_dialog import HostStoryDialog
 
         story = build_host_story(self._last_report, ip)
         dialog = HostStoryDialog(ip, story, self)
@@ -6135,8 +6135,8 @@ class RunView(QWidget):
         ov = data.get("overrides", {})
         if isinstance(ov, dict) and ov:
             try:
-                from pcap_triage.config import Config
-                from pcap_triage_gui.settings_rehydrate import (
+                from paradox.config import Config
+                from paradox_gui.settings_rehydrate import (
                     rehydrate_overrides,
                 )
                 ov = rehydrate_overrides(ov, Config())
@@ -6183,7 +6183,7 @@ class RunView(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\settings_view.py
+# FILE: \paradox_gui\views\settings_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° В«РќР°СЃС‚СЂРѕР№РєРёВ» вЂ” 11 СЃРµРєС†РёР№ СЃ СЃР°Р№РґР±Р°СЂРѕРј.
 
@@ -6194,25 +6194,25 @@ Threat Intel, РћС‚С‡С‘С‚С‹. Р—Р°РіР»СѓС€РєР° 
 from pathlib import Path
 import re
 
-from pcap_triage_gui.settings_rehydrate import rehydrate
-from pcap_triage_gui.profiles import (
+from paradox_gui.settings_rehydrate import rehydrate
+from paradox_gui.profiles import (
     ALL_PROFILES,
     DEFAULT_PROFILE_KEY,
     get_profile,
 )
-from pcap_triage_gui.field_help import (
+from paradox_gui.field_help import (
     SECTION_BY_TITLE,
     get_field_help,
     get_section_help,
 )
-from pcap_triage_gui.widgets.editable_list import (
+from paradox_gui.widgets.editable_list import (
     PORT_FIELDS,
     EditableListWidget,
 )
-from pcap_triage_gui.detector_help import get_detector_help
-from pcap_triage_gui.contradiction_help import get_contradiction_help
-from pcap_triage_gui.settings_store import SettingsStore
-from pcap_triage_gui.secrets_store import SecretsStore
+from paradox_gui.detector_help import get_detector_help
+from paradox_gui.contradiction_help import get_contradiction_help
+from paradox_gui.settings_store import SettingsStore
+from paradox_gui.secrets_store import SecretsStore
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -6274,7 +6274,7 @@ _DETECTORS = (
     ("yara", "YARA"),
 )
 
-# 12 РїСЂР°РІРёР» РёР· pcap_triage/contradictions/rules/.
+# 12 РїСЂР°РІРёР» РёР· paradox/contradictions/rules/.
 # РљР»СЋС‡ вЂ” РёРјСЏ РєР»Р°СЃСЃР°; analysis_worker С„РёР»СЊС‚СЂСѓРµС‚ РїРѕ type(r).__name__.
 _CONTRADICTIONS = (
     ("VictimMakesAttackRule",   "victim_makes_attack (PIVOT) вЂ” critical"),
@@ -6607,7 +6607,7 @@ class SettingsView(QWidget):
 
     def _check_modified(self, *args) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             self._defaults = Config()
         except ImportError:
             self._defaults = None
@@ -6858,7 +6858,7 @@ class SettingsView(QWidget):
         # 1) Р—Р°РїРѕР»РЅРёС‚СЊ РІРёРґР¶РµС‚С‹ РџРѕСЂРѕРіРѕРІ Р·РЅР°С‡РµРЅРёСЏРјРё РёР· РїСЂРѕС„РёР»СЏ,
         #    РѕСЃС‚Р°Р»СЊРЅС‹Рµ вЂ” РґРµС„РѕР»С‚Р°РјРё РёР· Config.
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
         except ImportError:
             cfg = None
@@ -7006,7 +7006,7 @@ class SettingsView(QWidget):
         С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕР№ С€РёСЂРёРЅС‹ (160px) вЂ” РѕРЅ РЅРµ СѓС‡Р°СЃС‚РІСѓРµС‚ РІ stretch.
         """
         from PySide6.QtWidgets import QSizePolicy
-        from pcap_triage_gui.field_help import get_field_help
+        from paradox_gui.field_help import get_field_help
 
         host = QWidget()
         host.setSizePolicy(
@@ -7060,7 +7060,7 @@ class SettingsView(QWidget):
 
     def _load_thresholds(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7149,7 +7149,7 @@ class SettingsView(QWidget):
 
     def _load_brute_force(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7298,7 +7298,7 @@ class SettingsView(QWidget):
 
     def _load_network(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
         except ImportError:
             return
@@ -7417,7 +7417,7 @@ class SettingsView(QWidget):
 
     def _load_performance(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
             for key, widget in self._perf_inputs.items():
                 val = getattr(cfg, key, None)
@@ -7448,7 +7448,7 @@ class SettingsView(QWidget):
 
     def _load_performance(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7517,7 +7517,7 @@ class SettingsView(QWidget):
         return w
 
     def _add_list_row_al(self, form, key, label, height=90):
-        from pcap_triage_gui.field_help import get_field_help
+        from paradox_gui.field_help import get_field_help
         w = EditableListWidget(
             port_mode=(key in PORT_FIELDS),
             help_text=get_field_help(key),
@@ -7527,7 +7527,7 @@ class SettingsView(QWidget):
 
     def _load_allowlist(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7578,7 +7578,7 @@ class SettingsView(QWidget):
 
     def _load_dga(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7654,7 +7654,7 @@ class SettingsView(QWidget):
 
     def _load_reports(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -7750,7 +7750,7 @@ class SettingsView(QWidget):
 
     def _load_yara(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
             val = getattr(cfg, "yara_rules_path", None)
             if val:
@@ -7898,7 +7898,7 @@ class SettingsView(QWidget):
     def _load_threatintel(self) -> None:
         """Р—Р°РїРѕР»РЅРёС‚СЊ РїРѕР»СЏ РёР· Config Рё SecretsStore (keyring/env)."""
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -8139,7 +8139,7 @@ class SettingsView(QWidget):
             overrides = {}
 
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             defaults = Config()
         except ImportError:
             defaults = None
@@ -8230,7 +8230,7 @@ def _is_port_key(key: str) -> bool:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\timeline_view.py
+# FILE: \paradox_gui\views\timeline_view.py
 # ==========================================
 """Р’РєР»Р°РґРєР° Kill-Chain РўР°Р№РјР»Р°Р№РЅ (РЈРјРЅС‹Р№ РїР°СЂСЃРёРЅРі v4)."""
 import re
@@ -8478,13 +8478,13 @@ class TimelineView(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\views\__init__.py
+# FILE: \paradox_gui\views\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\absence_panel.py
+# FILE: \paradox_gui\widgets\absence_panel.py
 # ==========================================
 """РџР°РЅРµР»СЊ Р°РЅРѕРјР°Р»РёР№ (РѕР±РѕСЂРІР°РЅРЅС‹Рµ СЃРµСЃСЃРёРё)."""
 from PySide6.QtWidgets import (
@@ -8568,7 +8568,7 @@ class AbsencePanel(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\contradictions_section.py
+# FILE: \paradox_gui\widgets\contradictions_section.py
 # ==========================================
 """РЎРµРєС†РёСЏ В«РџСЂРѕС‚РёРІРѕСЂРµС‡РёСЏВ» вЂ” Р·Р°РіРѕР»РѕРІРѕРє + СЃРїРёСЃРѕРє РєР°СЂС‚РѕС‡РµРє + СЃРєСЂРѕР»Р».
 
@@ -8589,7 +8589,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from pcap_triage_gui.widgets.contradiction_card import ContradictionCard
+from paradox_gui.widgets.contradiction_card import ContradictionCard
 
 
 class ContradictionsSection(QFrame):
@@ -8662,7 +8662,7 @@ class ContradictionsSection(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\contradiction_card.py
+# FILE: \paradox_gui\widgets\contradiction_card.py
 # ==========================================
 """РљР°СЂС‚РѕС‡РєР° РѕРґРЅРѕРіРѕ РїСЂРѕС‚РёРІРѕСЂРµС‡РёСЏ РёР· report["contradictions"].
 
@@ -8847,7 +8847,7 @@ class ContradictionCard(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\drop_zone.py
+# FILE: \paradox_gui\widgets\drop_zone.py
 # ==========================================
 """Р—РѕРЅР° drag&drop РїРѕРґ pcap-С„Р°Р№Р».
 
@@ -8978,7 +8978,7 @@ class DropZone(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\editable_list.py
+# FILE: \paradox_gui\widgets\editable_list.py
 # ==========================================
 """РЎРїРёСЃРѕРє СЃ inline-СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµРј.
 
@@ -9353,7 +9353,7 @@ class EditableListWidget(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\empty_states.py
+# FILE: \paradox_gui\widgets\empty_states.py
 # ==========================================
 """
 EmptyState helpers РґР»СЏ findings Рё contradictions.
@@ -9392,7 +9392,7 @@ def contradictions_empty_label() -> QLabel:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\findings_table.py
+# FILE: \paradox_gui\widgets\findings_table.py
 # ==========================================
 """РўР°Р±Р»РёС†Р° findings РёР· report["findings"].
 
@@ -9717,7 +9717,7 @@ class FindingsTable(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\highlights_panel.py
+# FILE: \paradox_gui\widgets\highlights_panel.py
 # ==========================================
 """
 HighlightsPanel вЂ” С‚РѕРї-3 РёРЅС‚РµСЂРµСЃРЅРѕРіРѕ РёР· РѕС‚С‡С‘С‚Р°.
@@ -9806,7 +9806,7 @@ class HighlightsPanel(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\observations_panel.py
+# FILE: \paradox_gui\widgets\observations_panel.py
 # ==========================================
 """
 ObservationsPanel вЂ” С‡С‚Рѕ РІРёРґРµР» РёРЅСЃС‚СЂСѓРјРµРЅС‚.
@@ -9920,7 +9920,7 @@ class ObservationsPanel(QFrame):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\provider_card.py
+# FILE: \paradox_gui\widgets\provider_card.py
 # ==========================================
 """РљР°СЂС‚РѕС‡РєР° РѕРґРЅРѕРіРѕ РїСЂРѕРІР°Р№РґРµСЂР° РІ QuickCheckWindow."""
 from __future__ import annotations
@@ -10146,7 +10146,7 @@ def _qurl(url: str):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\summary_grid.py
+# FILE: \paradox_gui\widgets\summary_grid.py
 # ==========================================
 """РЎРµС‚РєР° РёР· 6 РїР»РёС‚РѕРє: РџР°РєРµС‚С‹ В· Flows В· Findings В· РџСЂРѕС‚РёРІРѕСЂРµС‡РёСЏ В· Р Р°Р·РјРµСЂ В· Р’СЂРµРјСЏ.
 
@@ -10288,7 +10288,7 @@ class SummaryGrid(QWidget):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\toast.py
+# FILE: \paradox_gui\widgets\toast.py
 # ==========================================
 """Р’СЃРїР»С‹РІР°СЋС‰РёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ РІ РїСЂР°РІРѕРј РЅРёР¶РЅРµРј СѓРіР»Сѓ.
 
@@ -10413,13 +10413,13 @@ class ToastManager:
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\widgets\__init__.py
+# FILE: \paradox_gui\widgets\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\workers\analysis_worker.py
+# FILE: \paradox_gui\workers\analysis_worker.py
 # ==========================================
 """QThread-РѕР±С‘СЂС‚РєР° РЅР°Рґ run_pipeline.
 
@@ -10487,12 +10487,12 @@ class AnalysisWorker(QThread):
 
     def run(self) -> None:
         try:
-            import pcap_triage.pipeline as core
-            from pcap_triage.pipeline import (
+            import paradox.pipeline as core
+            from paradox.pipeline import (
                 PipelineCancelled,
                 run_pipeline,
             )
-            from pcap_triage.contradictions import registry as contra_registry
+            from paradox.contradictions import registry as contra_registry
         except ImportError as e:
             self.error.emit(f"РќРµ СѓРґР°Р»РѕСЃСЊ РёРјРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ СЏРґСЂРѕ: {e}")
             return
@@ -10543,7 +10543,7 @@ class AnalysisWorker(QThread):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\workers\enrichment_worker.py
+# FILE: \paradox_gui\workers\enrichment_worker.py
 # ==========================================
 """QThread-РѕР±С‘СЂС‚РєР° РЅР°Рґ РѕР±РѕРіР°С‰РµРЅРёРµРј.
 
@@ -10575,7 +10575,7 @@ class EnrichmentWorker(QThread):
 
     def run(self) -> None:
         try:
-            from pcap_triage.integrations.pipeline import (
+            from paradox.integrations.pipeline import (
                 build_default_orchestrator,
                 attach_enrichment_to_findings,
             )
@@ -10622,7 +10622,7 @@ class EnrichmentWorker(QThread):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\workers\quick_check_worker.py
+# FILE: \paradox_gui\workers\quick_check_worker.py
 # ==========================================
 """QThread: РїР°СЂР°Р»Р»РµР»СЊРЅС‹Р№ РѕРїСЂРѕСЃ РІСЃРµС… РїСЂРѕРІР°Р№РґРµСЂРѕРІ."""
 from __future__ import annotations
@@ -10695,7 +10695,7 @@ class QuickCheckWorker(QThread):
 
 def _error_result(source: str, ioc: str, ioc_type: str, msg: str):
     import time
-    from pcap_triage.integrations.base import EnrichmentResult
+    from paradox.integrations.base import EnrichmentResult
     return EnrichmentResult(
         source=source, ioc=ioc, ioc_type=ioc_type,
         error=msg, fetched_at=time.time(), ttl_days=0,
@@ -10704,6 +10704,6 @@ def _error_result(source: str, ioc: str, ioc_type: str, msg: str):
 
 
 # ==========================================
-# FILE: \pcap_triage_gui\workers\__init__.py
+# FILE: \paradox_gui\workers\__init__.py
 # ==========================================
 

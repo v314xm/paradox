@@ -8,10 +8,10 @@
 Не путать с test_detectors.py — там базовое поведение детекторов.
 Здесь только «вот этот домен не должен ловиться».
 """
-from pcap_triage.config import Config
-from pcap_triage.detectors.dga import DGADetector
-from pcap_triage.detectors.typosquatting import TyposquattingDetector
-from pcap_triage.models import CaptureState
+from paradox.config import Config
+from paradox.detectors.dga import DGADetector
+from paradox.detectors.typosquatting import TyposquattingDetector
+from paradox.models import CaptureState
 
 
 def _state_with_dns(*domains):
@@ -172,8 +172,8 @@ def test_dga_pwned_se_still_flagged():
 
 def test_port_scan_detects_one_src_many_dsts():
     """Один src, много dst на один порт → один port_scan finding."""
-    from pcap_triage.detectors.port_scan import PortScanDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.port_scan import PortScanDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(15):
@@ -194,8 +194,8 @@ def test_port_scan_detects_one_src_many_dsts():
 
 def test_port_scan_below_threshold():
     """9 dst — меньше порога 10, не скан."""
-    from pcap_triage.detectors.port_scan import PortScanDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.port_scan import PortScanDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(9):
@@ -212,8 +212,8 @@ def test_port_scan_below_threshold():
 
 def test_port_scan_ignores_browser_like_traffic():
     """Много flow'ов к каждому dst — не скан, а браузер."""
-    from pcap_triage.detectors.port_scan import PortScanDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.port_scan import PortScanDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(15):
@@ -233,7 +233,7 @@ def test_port_scan_ignores_browser_like_traffic():
 
 def _lm_state(flows):
     """flows: list of (src, dst, dport, ua, uri)."""
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.models import FlowKey, FlowStats
     state = CaptureState()
     for i, (src, dst, dport, ua, uri) in enumerate(flows):
         key = FlowKey(
@@ -249,7 +249,7 @@ def _lm_state(flows):
 
 def test_lateral_movement_winrm_ruby_ua():
     """Ruby WinRM Client на 5985 — точно lateral movement, score 0.8."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     state = _lm_state([
         ("192.168.1.12", "192.168.1.1", 5985,
          "Ruby WinRM Client (2.8.3, ruby 3.3.7)", "/wsman"),
@@ -263,7 +263,7 @@ def test_lateral_movement_winrm_ruby_ua():
 
 def test_lateral_movement_smb_internal_many_flows():
     """5+ flows на 445 internal → internal, score 0.6."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     state = _lm_state([
         ("10.0.1.50", "192.168.1.12", 445, None, None),
         ("10.0.1.50", "192.168.1.12", 445, None, None),
@@ -279,7 +279,7 @@ def test_lateral_movement_smb_internal_many_flows():
 
 def test_lateral_movement_single_rdp_not_flagged():
     """Один RDP-сеанс к jump-host — норма, не finding."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     state = _lm_state([
         ("192.168.0.1", "192.168.0.51", 3389, None, None),
     ])
@@ -289,7 +289,7 @@ def test_lateral_movement_single_rdp_not_flagged():
 
 def test_lateral_movement_external_src_not_flagged():
     """Внешний src на 445 — это не lateral movement (другой детектор)."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     state = _lm_state([
         ("203.0.113.5", "192.168.1.12", 445, None, None),
     ])
@@ -299,7 +299,7 @@ def test_lateral_movement_external_src_not_flagged():
 
 def test_lateral_movement_admin_allowlist():
     """Allowlist: jump-host не флагуется."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     from dataclasses import replace
     config = replace(
         Config(),
@@ -314,7 +314,7 @@ def test_lateral_movement_admin_allowlist():
 
 def test_lateral_movement_aggregates_flows():
     """3 flow к одному (src, dst, dport) → один finding."""
-    from pcap_triage.detectors.lateral_movement import LateralMovementDetector
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     state = _lm_state([
         ("10.0.1.50", "192.168.1.12", 5985,
          "Ruby WinRM Client", "/wsman"),
@@ -332,8 +332,8 @@ def test_lateral_movement_aggregates_flows():
 
 def test_large_transfer_detects_single_huge_flow():
     """123 MB в одном flow — finding."""
-    from pcap_triage.detectors.large_transfer import LargeTransferDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.large_transfer import LargeTransferDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -353,8 +353,8 @@ def test_large_transfer_detects_single_huge_flow():
 
 def test_large_transfer_below_threshold():
     """10 MB — не finding."""
-    from pcap_triage.detectors.large_transfer import LargeTransferDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.large_transfer import LargeTransferDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -370,8 +370,8 @@ def test_large_transfer_below_threshold():
 
 def test_large_transfer_pair_sums_both_directions():
     """Прямой 60 MB + обратный 50 MB = 110 MB > 100 MB."""
-    from pcap_triage.detectors.large_transfer import LargeTransferDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.large_transfer import LargeTransferDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     fwd = FlowKey(
@@ -395,8 +395,8 @@ def test_large_transfer_pair_sums_both_directions():
 
 def test_large_transfer_ignores_windows_update():
     """Windows Update через BITS — не finding."""
-    from pcap_triage.detectors.large_transfer import LargeTransferDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.large_transfer import LargeTransferDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -415,8 +415,8 @@ def test_large_transfer_ignores_windows_update():
 
 def test_large_transfer_still_catches_suspicious():
     """126 MB от rtbcdn.ru — finding (не апдейт)."""
-    from pcap_triage.detectors.large_transfer import LargeTransferDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.large_transfer import LargeTransferDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -437,8 +437,8 @@ def test_large_transfer_still_catches_suspicious():
 def test_ip_check_service_direct_ip():
     """Запрос к 208.95.112.1 без DNS — тоже ip_check_service.
     value — каноническое имя сервиса, а не IP."""
-    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ip_check_service import IPCheckServiceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -456,8 +456,8 @@ def test_ip_check_service_direct_ip():
 
 def test_ip_check_service_sni_and_ip_merge():
     """SNI и direct_ip к тому же сервису → один finding с двумя sources."""
-    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ip_check_service import IPCheckServiceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     key = FlowKey(
@@ -477,7 +477,7 @@ def test_ip_check_service_sni_and_ip_merge():
 
 def test_ip_check_service_dns_still_works():
     """Регрессия: DNS-источник всё ещё работает."""
-    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+    from paradox.detectors.ip_check_service import IPCheckServiceDetector
 
     state = CaptureState()
     state.dns_queries["ip-api.com"] = 1
@@ -490,7 +490,7 @@ def test_ip_check_service_dns_still_works():
 
 def test_ip_check_service_no_false_positive():
     """google.com не срабатывает."""
-    from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
+    from paradox.detectors.ip_check_service import IPCheckServiceDetector
 
     state = CaptureState()
     state.dns_queries["google.com"] = 10
@@ -503,8 +503,8 @@ def test_ip_check_service_no_false_positive():
 
 def test_ftp_brute_force_detects():
     """150 flows с уникальными src_ports к одному (dst, 21) — finding."""
-    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(150):
@@ -525,8 +525,8 @@ def test_ftp_brute_force_detects():
 
 def test_ftp_brute_force_below_flow_threshold():
     """10 flows — меньше порога 20, не finding."""
-    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(10):
@@ -543,8 +543,8 @@ def test_ftp_brute_force_below_flow_threshold():
 
 def test_ftp_brute_force_ignores_few_unique_ports():
     """50 flows, но только 5 уникальных src_ports — это переиспользование."""
-    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(50):
@@ -561,8 +561,8 @@ def test_ftp_brute_force_ignores_few_unique_ports():
 
 def test_ftp_brute_force_ignores_port_80():
     """HTTP не считается FTP-брутфорсом."""
-    from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
-    from pcap_triage.models import FlowKey, FlowStats
+    from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+    from paradox.models import FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(150):
@@ -577,7 +577,7 @@ def test_ftp_brute_force_ignores_port_80():
     assert findings == []# ---------- MITRE mapping ----------
 
 def test_mitre_map_covers_all_detectors():
-    from pcap_triage.detectors.mitre_map import MITRE_MAP
+    from paradox.detectors.mitre_map import MITRE_MAP
     for key, techniques in MITRE_MAP.items():
         assert techniques
         for t in techniques:
@@ -585,9 +585,9 @@ def test_mitre_map_covers_all_detectors():
 
 
 def test_mitre_enrichment_in_pipeline():
-    from pcap_triage.pipeline import _detect
-    from pcap_triage.config import Config
-    from pcap_triage.models import CaptureState, FlowKey, FlowStats
+    from paradox.pipeline import _detect
+    from paradox.config import Config
+    from paradox.models import CaptureState, FlowKey, FlowStats
 
     state = CaptureState()
     for i in range(15):

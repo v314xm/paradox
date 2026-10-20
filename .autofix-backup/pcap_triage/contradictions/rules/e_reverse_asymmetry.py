@@ -39,9 +39,9 @@ from __future__ import annotations
 
 import math
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class ReverseAsymmetryRule:
@@ -62,7 +62,7 @@ class ReverseAsymmetryRule:
     ) -> list[Fact]:
         self._min_ratio = config.reverse_asymmetry_min_ratio
         self._high_ratio = config.reverse_asymmetry_high_ratio
-        from pcap_triage.contradictions.facts import extract_asymmetry_facts
+        from paradox.contradictions.facts import extract_asymmetry_facts
         return extract_asymmetry_facts(state, config)
 
     def find_contradictions(

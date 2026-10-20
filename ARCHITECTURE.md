@@ -1,4 +1,4 @@
-Архитектура pcap-triage
+Архитектура Paradox
 Модель
 Конвейер преобразований. Каждый слой решает одну задачу и передаёт
 результат следующему. Слои не знают друг о друге, общаются через
@@ -406,7 +406,7 @@ class Contradiction:
         return SEVERITY_WEIGHT[self.severity] * self.confidence
 Архитектура модуля
 text
-pcap_triage/contradictions/
+paradox/contradictions/
 ├── __init__.py            # экспорт run_all
 ├── base.py                # Fact, Contradiction, ContradictionRule, SEVERITY_WEIGHT
 ├── facts.py               # extract_*_facts для каждого типа источника
@@ -1045,7 +1045,7 @@ SQLite-кэш.
 0.7.0
 ContradictionDetector — новый слой анализа.
 
-pcap_triage/contradictions/ — base, facts, registry, rules.
+paradox/contradictions/ — base, facts, registry, rules.
 
 13 правил: victim_makes_attack, mac_ip_conflict,
 sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry,
@@ -1091,10 +1091,10 @@ DNS-ответы:
 - allowlist CDN + twitter — FP на FIN-2015 срезаны
 
 TLS-сертификаты:
-- pcap_triage/x509_der.py — минимальный DER TLV-парсер (~250 LOC)
-- pcap_triage/x509_cert.py — извлечение CN/issuer/validity/SAN
-- pcap_triage/tls_cert.py — парсер Certificate handshake из TCP-потока
-- pcap_triage/extractors/tls_cert.py — post-extract экстрактор
+- paradox/x509_der.py — минимальный DER TLV-парсер (~250 LOC)
+- paradox/x509_cert.py — извлечение CN/issuer/validity/SAN
+- paradox/tls_cert.py — парсер Certificate handshake из TCP-потока
+- paradox/extractors/tls_cert.py — post-extract экстрактор
 - state.tls_certs: list[tuple[FlowKey, Certificate]]
 - 3 новых правила: sni_cert_mismatch (medium),
   self_signed_cert (medium), expired_cert (low)
@@ -1128,7 +1128,7 @@ dns_tunneling (T1071.004), ja3_malware (T1071.001),
 sni_mismatch (T1071.001), cloud_tunnel (T1572).
 
 Timeline / kill-chain reconstruction:
-- pcap_triage/timeline.py — новый модуль
+- paradox/timeline.py — новый модуль
 - TimelineEvent, build_timeline, summarize_by_phase
 - фазы recon / initial_access / execution / persistence /
   lateral_movement / c2 / exfiltration / impact / other

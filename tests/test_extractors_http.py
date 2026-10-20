@@ -3,10 +3,10 @@ Unit-тесты HTTPExtractor.
 """
 import pytest
 
-from pcap_triage.extractors.flow import FlowExtractor
-from pcap_triage.extractors.http import HTTPExtractor
-from pcap_triage.models import CaptureState, FlowKey
-from pcap_triage.parsers import PacketRecord
+from paradox.extractors.flow import FlowExtractor
+from paradox.extractors.http import HTTPExtractor
+from paradox.models import CaptureState, FlowKey
+from paradox.parsers import PacketRecord
 
 
 def _make_tcp_record(src_ip, dst_ip, sport, dport, payload):

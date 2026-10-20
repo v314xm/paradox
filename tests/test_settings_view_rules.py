@@ -6,14 +6,14 @@
 import re
 from pathlib import Path
 
-from pcap_triage_gui.views.settings_view import _CONTRADICTIONS
+from paradox_gui.views.settings_view import _CONTRADICTIONS
 
 
-CORE_RULES_DIR = Path(__file__).resolve().parent.parent / "pcap_triage" / "contradictions" / "rules"
+CORE_RULES_DIR = Path(__file__).resolve().parent.parent / "paradox" / "contradictions" / "rules"
 
 
 def _core_rule_names() -> set[str]:
-    """Все классы *Rule (кроме базового) в pcap_triage/contradictions/rules/."""
+    """Все классы *Rule (кроме базового) в paradox/contradictions/rules/."""
     names: set[str] = set()
     pat = re.compile(r"^\s*class\s+(\w+Rule)\s*[\(:]", re.MULTILINE)
     for p in CORE_RULES_DIR.rglob("*.py"):
@@ -67,7 +67,7 @@ def test_nxdomain_window_in_thresholds_widget():
     Тянем исходник и ищем ключ в вызове _add_int_row / _add_float_row.
     Без инстанцирования Qt-виджета.
     """
-    src = Path(__file__).resolve().parent.parent / "pcap_triage_gui" / "views" / "settings_view.py"
+    src = Path(__file__).resolve().parent.parent / "paradox_gui" / "views" / "settings_view.py"
     text = src.read_text(encoding="utf-8")
     assert '"nxdomain_burst_window_sec"' in text, (
         "nxdomain_burst_window_sec не выведен в Пороги"

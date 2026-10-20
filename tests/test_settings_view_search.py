@@ -15,8 +15,8 @@ def qapp():
 
 @pytest.fixture
 def view(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
     return SettingsView(store=SettingsStore(tmp_path / "s.json"))
 
 

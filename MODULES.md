@@ -4,17 +4,17 @@
 
 Версия ядра: 0.7.0. GUI: v0.1.
 
-Корень пакета pcap_triage/
+Корень пакета paradox/
 __init__.py
 Версия пакета.
 
 python
 __version__ = "0.7.0"
 __main__.py
-Точка входа для python -m pcap_triage.
+Точка входа для python -m paradox.
 
 python
-from pcap_triage.cli import main
+from paradox.cli import main
 if __name__ == "__main__":
     main()
 cli.py
@@ -391,7 +391,7 @@ URI-fallback.
 
 Связи: pipeline.py, detectors/vulnerable_path.py.
 
-Слой экстракторов pcap_triage/extractors/
+Слой экстракторов paradox/extractors/
 base.py
 Protocol-контракт экстрактора.
 
@@ -493,7 +493,7 @@ state.host_identities[client_ip].realm — crealm/realm
 и ответы KDC (src_port=88).
 
 http_object.py (v0.6.0)
-Экстрактор-обёртка над pcap_triage/http_object.py.
+Экстрактор-обёртка над paradox/http_object.py.
 
 Класс: HTTPObjectExtractor.
 
@@ -502,7 +502,7 @@ http_object.py (v0.6.0)
 
 Не process(record, state) — работает не на пакетах, а на
 готовых tcp_streams.
-Слой детекторов pcap_triage/detectors/
+Слой детекторов paradox/detectors/
 base.py
 Protocol-контракт детектора.
 
@@ -833,7 +833,7 @@ ja3_malware.py (v0.6.0)
 классифицируются как normal, ja3_ua_mismatch работает только
 на tool/malware.
 
-Слой contradictions pcap_triage/contradictions/ (v0.7.0)
+Слой contradictions paradox/contradictions/ (v0.7.0)
 Новый слой анализа. Не детекторы атак, а поиск несогласованностей
 между источниками: одно утверждение о мире подтверждается одним
 источником и опровергается другим.
@@ -956,7 +956,7 @@ DirectIpNoDnsRule: фильтр ≥ 3 уникальных dst или ≥ 10 п�
 влияют на роли (pivot — не «жертва или атакующий», а «жертва +
 атакующий»).
 
-Слой integrations pcap_triage/integrations/ (v0.6.0)
+Слой integrations paradox/integrations/ (v0.6.0)
 Threat Intel. Не запускается в основном pipeline — только по
 флагу --enrich. Требует сети.
 
@@ -993,7 +993,7 @@ attach_enrichment_to_findings() — прикрепляет результаты
 
 Конфиг: enrichment_enabled_providers (shodan_internetdb,
 abuseipdb, virustotal), enrichment_max_iocs: 100.
-Слой агрегаторов pcap_triage/aggregators/
+Слой агрегаторов paradox/aggregators/
 entities.py
 Строит сущности из flow'ов, findings и contradictions.
 
@@ -1047,7 +1047,7 @@ large_transfer	—	—
 large_transfer не помечает роли: статистический сигнал — не
 роль. Шлюз, качающий 2 ГБ обновлений, не victim.
 
-Слой reporters pcap_triage/reporters/
+Слой reporters paradox/reporters/
 json_reporter.py
 JSON-отчёт. Сортированный json.dump — детерминизм: один pcap +
 config → побитово одинаковый JSON.
@@ -1145,18 +1145,18 @@ build_http_report(state, top_n) -> dict
 
 build_http_object_report(state, top_n) -> dict (v0.6.0)
 
-GUI pcap_triage_gui/ (v0.1)
-Отдельный пакет. Ядро pcap_triage/ не трогает — работает
+GUI paradox_gui/ (v0.1)
+Отдельный пакет. Ядро paradox/ не трогает — работает
 через run_pipeline() в QThread.
 
 Корень
 Файл	Назначение
 __init__.py	Версия GUI
-__main__.py	python -m pcap_triage_gui
+__main__.py	python -m paradox_gui
 app.py	QApplication + showMaximized
 main_window.py	QMainWindow, 5 вкладок, меню, Ctrl+O
 theme.py	QSS-тема (тёмная) — в коде, не в .qss
-_runtime_hook.py	PyInstaller hook для логов крашей (обрезка pcap-triage-error.log при размере)
+_runtime_hook.py	PyInstaller hook для логов крашей (обрезка Paradox-error.log при размере)
 QSS-файлов нет — вся тема генерируется theme.py.
 
 views/ — 5 вкладок

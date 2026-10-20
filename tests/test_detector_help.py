@@ -1,6 +1,6 @@
 """Тесты описаний детекторов."""
-from pcap_triage_gui.detector_help import DETECTOR_HELP, get_detector_help
-from pcap_triage_gui.views.settings_view import _DETECTORS
+from paradox_gui.detector_help import DETECTOR_HELP, get_detector_help
+from paradox_gui.views.settings_view import _DETECTORS
 
 
 def test_all_detectors_have_help():

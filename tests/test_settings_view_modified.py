@@ -14,9 +14,9 @@ def qapp():
 
 
 def test_modified_badge_appears_on_change(qapp, tmp_path):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox.config import Config
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
 
     store = SettingsStore(tmp_path / "s.json")
     view = SettingsView(store=store)
@@ -35,7 +35,7 @@ def test_modified_badge_appears_on_change(qapp, tmp_path):
 
 
 def test_parse_ports_with_report_counts_invalid():
-    from pcap_triage_gui.views.settings_view import _parse_ports_with_report
+    from paradox_gui.views.settings_view import _parse_ports_with_report
 
     parsed, skipped = _parse_ports_with_report("80, 443, abc, 99999, 8080")
     assert parsed == frozenset({80, 443, 8080})
@@ -44,8 +44,8 @@ def test_parse_ports_with_report_counts_invalid():
 
 
 def test_notify_status_sets_text(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
 
     store = SettingsStore(tmp_path / "s.json")
     view = SettingsView(store=store)
@@ -54,8 +54,8 @@ def test_notify_status_sets_text(qapp, tmp_path):
 
 
 def test_status_label_exists_after_init(qapp, tmp_path):
-    from pcap_triage_gui.settings_store import SettingsStore
-    from pcap_triage_gui.views.settings_view import SettingsView
+    from paradox_gui.settings_store import SettingsStore
+    from paradox_gui.views.settings_view import SettingsView
 
     store = SettingsStore(tmp_path / "s.json")
     view = SettingsView(store=store)

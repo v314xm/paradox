@@ -1,5 +1,5 @@
 """Тесты URLScanEnricher."""
-from pcap_triage.integrations.urlscan import URLScanEnricher
+from paradox.integrations.urlscan import URLScanEnricher
 
 
 def test_supports_domain_url():

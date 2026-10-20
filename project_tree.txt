@@ -11,7 +11,7 @@ C:.
 |   fix_round3.py
 |   LICENSE
 |   MODULES.md
-|   pcap-triage.spec
+|   Paradox.spec
 |   profile.out
 |   project_tree.txt
 |   pyproject.toml
@@ -49,8 +49,8 @@ C:.
 |   |       |   py.py
 |   |       |   _virtualenv.pth
 |   |       |   _virtualenv.py
-|   |       |   __editable__.pcap_triage-0.1.0.pth
-|   |       |   __editable___pcap_triage_0_1_0_finder.py
+|   |       |   __editable__.paradox-0.1.0.pth
+|   |       |   __editable___paradox_0_1_0_finder.py
 |   |       |   
 |   |       +---altgraph
 |   |       |       Dot.py
@@ -551,7 +551,7 @@ C:.
 |   |       |           LICENSE.APACHE
 |   |       |           LICENSE.BSD
 |   |       |           
-|   |       +---pcap_triage-0.1.0.dist-info
+|   |       +---paradox-0.1.0.dist-info
 |   |       |       direct_url.json
 |   |       |       entry_points.txt
 |   |       |       INSTALLER
@@ -8835,7 +8835,7 @@ C:.
 |   |       |       __init__.py
 |   |       |       
 |   |               _virtualenv.cpython-313.pyc
-|   |               __editable___pcap_triage_0_1_0_finder.cpython-313.pyc
+|   |               __editable___paradox_0_1_0_finder.cpython-313.pyc
 |   |               
 |   +---Scripts
 |   |       activate
@@ -8852,7 +8852,7 @@ C:.
 |   |       libssl-3.dll
 |   |       markdown-it.exe
 |   |       normalizer.exe
-|   |       pcap-triage.exe
+|   |       Paradox.exe
 |   |       pip-3.13.exe
 |   |       pip.exe
 |   |       pip3.13.exe
@@ -8941,20 +8941,20 @@ C:.
 |                   scapy.1
 |                   
 +---build
-|   |   pcap-triage.spec
+|   |   Paradox.spec
 |   |   
-|   +---pcap-triage
+|   +---Paradox
 |   |   |   Analysis-00.toc
 |   |   |   base_library.zip
 |   |   |   COLLECT-00.toc
 |   |   |   EXE-00.toc
-|   |   |   pcap-triage.exe
-|   |   |   pcap-triage.pkg
+|   |   |   Paradox.exe
+|   |   |   Paradox.pkg
 |   |   |   PKG-00.toc
 |   |   |   PYZ-00.pyz
 |   |   |   PYZ-00.toc
-|   |   |   warn-pcap-triage.txt
-|   |   |   xref-pcap-triage.html
+|   |   |   warn-Paradox.txt
+|   |   |   xref-Paradox.html
 |   |   |   
 |   |   \---localpycs
 |   |           pyimod01_archive.pyc
@@ -8964,18 +8964,18 @@ C:.
 |   |           struct.pyc
 |   |           
 |   \---pyinstaller
-|       \---pcap-triage
+|       \---Paradox
 |           |   Analysis-00.toc
 |           |   base_library.zip
 |           |   COLLECT-00.toc
 |           |   EXE-00.toc
-|           |   pcap-triage.exe
-|           |   pcap-triage.pkg
+|           |   Paradox.exe
+|           |   Paradox.pkg
 |           |   PKG-00.toc
 |           |   PYZ-00.pyz
 |           |   PYZ-00.toc
-|           |   warn-pcap-triage.txt
-|           |   xref-pcap-triage.html
+|           |   warn-Paradox.txt
+|           |   xref-Paradox.html
 |           |   
 |           \---localpycs
 |                   pyimod01_archive.pyc
@@ -8985,10 +8985,10 @@ C:.
 |                   struct.pyc
 |                   
 +---dist
-|   |   pcap-triage-0.9.1-setup.exe
+|   |   Paradox-0.9.1-setup.exe
 |   |   
-|   \---pcap-triage
-|       |   pcap-triage.exe
+|   \---Paradox
+|       |   Paradox.exe
 |       |   
 |       \---_internal
 |           |   base_library.zip
@@ -9196,10 +9196,10 @@ C:.
 |                   VCRUNTIME140_1.dll
 |                   
 +---installer
-|       pcap-triage.iss
+|       Paradox.iss
 |       version_info.txt
 |       
-+---pcap_triage
++---paradox
 |   |   cli.py
 |   |   config.py
 |   |   domain_utils.py
@@ -9336,7 +9336,7 @@ C:.
 |   \---widgets
 |           drop_zone.py
 |           
-+---pcap_triage_gui
++---paradox_gui
 |   |   app.py
 |   |   config_builder.py
 |   |   contradiction_help.py

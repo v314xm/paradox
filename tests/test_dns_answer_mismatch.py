@@ -1,6 +1,6 @@
 """Тесты правила dns_answer_mismatch."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.h_dns_answer_mismatch import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.h_dns_answer_mismatch import (
     DnsAnswerMismatchRule,
 )
 

@@ -1,8 +1,8 @@
 """Тесты того, что pipeline уважает Config.enrichment_enabled_providers."""
 from dataclasses import replace
 
-from pcap_triage.config import Config
-from pcap_triage.integrations.pipeline import build_default_orchestrator
+from paradox.config import Config
+from paradox.integrations.pipeline import build_default_orchestrator
 
 
 def test_orchestrator_contains_enabled_providers():

@@ -1,5 +1,5 @@
 """Тесты URLhausEnricher."""
-from pcap_triage.integrations.urlhaus import URLhausEnricher
+from paradox.integrations.urlhaus import URLhausEnricher
 
 
 def test_disabled_without_key(monkeypatch):

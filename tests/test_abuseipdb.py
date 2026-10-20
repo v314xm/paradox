@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from pcap_triage.integrations.abuseipdb import AbuseIPDBEnricher
+from paradox.integrations.abuseipdb import AbuseIPDBEnricher
 
 
 def test_abuseipdb_disabled_without_key(monkeypatch):

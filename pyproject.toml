@@ -7,7 +7,7 @@ license = "MIT"
 authors = [
     { name = "Andrey Grigoryev", email = "v314xm@users.noreply.github.com" },
 ]
-name = "pcap-triage"
+name = "Paradox"
 version = "1.0.0"
 description = "PCAP triage pipeline for analysts"
 requires-python = ">=3.11"
@@ -17,10 +17,13 @@ dependencies = [
 ]
 
 [project.scripts]
-pcap-triage = "pcap_triage.cli:main"
+Paradox = "paradox.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["pcap_triage*"]
+include = ["paradox*"]
 
 [tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:scapy.*",
+]
 norecursedirs = ["tools", ".venv", "build", "dist", "__pycache__"]

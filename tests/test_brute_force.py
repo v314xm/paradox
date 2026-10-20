@@ -9,9 +9,9 @@ Unit-тесты BruteForceDetector.
 - кастомные пороги через Config,
 - агрегацию (несколько dst_port — разные findings).
 """
-from pcap_triage.config import Config
-from pcap_triage.detectors.brute_force import BruteForceDetector
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from paradox.config import Config
+from paradox.detectors.brute_force import BruteForceDetector
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 def _add_flow(state, src_ip, dst_ip, sport, dport,

@@ -7,25 +7,25 @@ Threat Intel, Отчёты. Заглушка — только «Общие».
 from pathlib import Path
 import re
 
-from pcap_triage_gui.settings_rehydrate import rehydrate
-from pcap_triage_gui.profiles import (
+from paradox_gui.settings_rehydrate import rehydrate
+from paradox_gui.profiles import (
     ALL_PROFILES,
     DEFAULT_PROFILE_KEY,
     get_profile,
 )
-from pcap_triage_gui.field_help import (
+from paradox_gui.field_help import (
     SECTION_BY_TITLE,
     get_field_help,
     get_section_help,
 )
-from pcap_triage_gui.widgets.editable_list import (
+from paradox_gui.widgets.editable_list import (
     PORT_FIELDS,
     EditableListWidget,
 )
-from pcap_triage_gui.detector_help import get_detector_help
-from pcap_triage_gui.contradiction_help import get_contradiction_help
-from pcap_triage_gui.settings_store import SettingsStore
-from pcap_triage_gui.secrets_store import SecretsStore
+from paradox_gui.detector_help import get_detector_help
+from paradox_gui.contradiction_help import get_contradiction_help
+from paradox_gui.settings_store import SettingsStore
+from paradox_gui.secrets_store import SecretsStore
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -87,7 +87,7 @@ _DETECTORS = (
     ("yara", "YARA"),
 )
 
-# 12 правил из pcap_triage/contradictions/rules/.
+# 12 правил из paradox/contradictions/rules/.
 # Ключ — имя класса; analysis_worker фильтрует по type(r).__name__.
 _CONTRADICTIONS = (
     ("VictimMakesAttackRule",   "victim_makes_attack (PIVOT) — critical"),
@@ -420,7 +420,7 @@ class SettingsView(QWidget):
 
     def _check_modified(self, *args) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             self._defaults = Config()
         except ImportError:
             self._defaults = None
@@ -671,7 +671,7 @@ class SettingsView(QWidget):
         # 1) Заполнить виджеты Порогов значениями из профиля,
         #    остальные — дефолтами из Config.
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
         except ImportError:
             cfg = None
@@ -819,7 +819,7 @@ class SettingsView(QWidget):
         фиксированной ширины (160px) — он не участвует в stretch.
         """
         from PySide6.QtWidgets import QSizePolicy
-        from pcap_triage_gui.field_help import get_field_help
+        from paradox_gui.field_help import get_field_help
 
         host = QWidget()
         host.setSizePolicy(
@@ -873,7 +873,7 @@ class SettingsView(QWidget):
 
     def _load_thresholds(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -962,7 +962,7 @@ class SettingsView(QWidget):
 
     def _load_brute_force(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1111,7 +1111,7 @@ class SettingsView(QWidget):
 
     def _load_network(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
         except ImportError:
             return
@@ -1230,7 +1230,7 @@ class SettingsView(QWidget):
 
     def _load_performance(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
             for key, widget in self._perf_inputs.items():
                 val = getattr(cfg, key, None)
@@ -1261,7 +1261,7 @@ class SettingsView(QWidget):
 
     def _load_performance(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1330,7 +1330,7 @@ class SettingsView(QWidget):
         return w
 
     def _add_list_row_al(self, form, key, label, height=90):
-        from pcap_triage_gui.field_help import get_field_help
+        from paradox_gui.field_help import get_field_help
         w = EditableListWidget(
             port_mode=(key in PORT_FIELDS),
             help_text=get_field_help(key),
@@ -1340,7 +1340,7 @@ class SettingsView(QWidget):
 
     def _load_allowlist(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1391,7 +1391,7 @@ class SettingsView(QWidget):
 
     def _load_dga(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1467,7 +1467,7 @@ class SettingsView(QWidget):
 
     def _load_reports(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1563,7 +1563,7 @@ class SettingsView(QWidget):
 
     def _load_yara(self) -> None:
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             cfg = Config()
             val = getattr(cfg, "yara_rules_path", None)
             if val:
@@ -1717,7 +1717,7 @@ class SettingsView(QWidget):
     def _load_threatintel(self) -> None:
         """Заполнить поля из Config и SecretsStore (keyring/env)."""
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
         except ImportError:
             return
         cfg = Config()
@@ -1958,7 +1958,7 @@ class SettingsView(QWidget):
             overrides = {}
 
         try:
-            from pcap_triage.config import Config
+            from paradox.config import Config
             defaults = Config()
         except ImportError:
             defaults = None

@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from pcap_triage.config import Config
-from pcap_triage.integrations.base import EnrichmentResult
-from pcap_triage.integrations.enricher import (
+from paradox.config import Config
+from paradox.integrations.base import EnrichmentResult
+from paradox.integrations.enricher import (
     EnricherOrchestrator,
     _is_private_ip,
 )

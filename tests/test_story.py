@@ -1,5 +1,5 @@
 """Тесты анализа истории хоста."""
-from pcap_triage.analyzers.story import build_host_story
+from paradox.analyzers.story import build_host_story
 
 
 def test_story_empty():

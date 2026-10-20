@@ -4,7 +4,7 @@ Unit-тесты парсера TLS ClientHello.
 Эталонные ClientHello собраны вручную из реальных hex-дампов.
 Проверяем извлечение SNI и edge cases.
 """
-from pcap_triage.tls_parse import extract_sni
+from paradox.tls_parse import extract_sni
 
 
 def _build_client_hello(sni: str | None) -> bytes:

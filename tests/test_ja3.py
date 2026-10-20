@@ -7,10 +7,10 @@ import struct
 import types
 from dataclasses import replace
 
-from pcap_triage.config import Config
-from pcap_triage.detectors.ja3_malware import JA3MalwareDetector
-from pcap_triage.ja3 import parse_client_hello, parse_server_hello
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
+from paradox.config import Config
+from paradox.detectors.ja3_malware import JA3MalwareDetector
+from paradox.ja3 import parse_client_hello, parse_server_hello
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 # ---------- helpers ----------

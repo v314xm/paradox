@@ -3,7 +3,7 @@ import ipaddress
 import struct
 from dataclasses import dataclass
 
-from pcap_triage.extractors.ndp import NDPExtractor
+from paradox.extractors.ndp import NDPExtractor
 
 
 @dataclass

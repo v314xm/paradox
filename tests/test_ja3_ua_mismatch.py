@@ -1,6 +1,6 @@
 """Тесты правила ja3_ua_mismatch (спуфинг TLS-стека / UA)."""
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.rules.d_ja3_ua_mismatch import (
+from paradox.contradictions.base import Fact
+from paradox.contradictions.rules.d_ja3_ua_mismatch import (
     Ja3UaMismatchRule,
 )
 

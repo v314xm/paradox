@@ -7,7 +7,7 @@ Search API без ключа (rate limit жёсткий). GET:
 """
 import urllib.parse
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class URLScanEnricher(BaseEnricher):

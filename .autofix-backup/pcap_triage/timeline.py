@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pcap_triage.models import Finding
+from paradox.models import Finding
 
 
 # Маппинг тип finding → kill-chain фаза.

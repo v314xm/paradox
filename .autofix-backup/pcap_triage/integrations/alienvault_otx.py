@@ -4,7 +4,7 @@ https://otx.alienvault.com/api/v1/indicators/{section}/{value}/general
 
 Секции: IPv4, domain, file (для хэшей).
 """
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class AlienVaultOTXEnricher(BaseEnricher):

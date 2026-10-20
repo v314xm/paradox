@@ -13,9 +13,9 @@
 - total_queries = sum(counts), порог dns_tunneling_min_queries (50).
   В тестах ставим count=2 на qname, чтобы 30 unique давали 60 total.
 """
-from pcap_triage.config import Config
-from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
-from pcap_triage.models import CaptureState
+from paradox.config import Config
+from paradox.detectors.dns_tunneling import DNSTunnelingDetector
+from paradox.models import CaptureState
 
 
 # 35-символьный префикс. С "000000.dns.attacker.com" даёт ~58 символов —

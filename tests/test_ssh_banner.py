@@ -1,9 +1,9 @@
 """Тесты SSH banner экстрактора."""
-from pcap_triage.extractors.ssh_banner import (
+from paradox.extractors.ssh_banner import (
     SSHBannerExtractor,
     parse_ssh_banner,
 )
-from pcap_triage.models import CaptureState
+from paradox.models import CaptureState
 
 
 class _Rec:

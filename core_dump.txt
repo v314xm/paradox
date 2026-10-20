@@ -1,15 +1,15 @@
 ﻿
 
 # ==========================================
-# FILE: \pcap_triage\cli.py
+# FILE: \paradox\cli.py
 # ==========================================
 import argparse
 import sys
 from pathlib import Path
 
-from pcap_triage.config import Config
-from pcap_triage.pipeline import run_pipeline
-from pcap_triage.reporters.json_reporter import write_json, write_markdown
+from paradox.config import Config
+from paradox.pipeline import run_pipeline
+from paradox.reporters.json_reporter import write_json, write_markdown
 
 
 def _ask_pcap_path() -> Path:
@@ -80,7 +80,7 @@ def _resolve_output(
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(prog="pcap_triage")
+    parser = argparse.ArgumentParser(prog="paradox")
     parser.add_argument(
         "--enrich",
         action="store_true",
@@ -113,7 +113,7 @@ def main(argv: list[str] | None = None) -> None:
 
     # РћР±РѕРіР°С‰РµРЅРёРµ findings (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ, --enrich)
     if args.enrich:
-        from pcap_triage.integrations.pipeline import enrich_findings
+        from paradox.integrations.pipeline import enrich_findings
 
         print("  РћР±РѕРіР°С‰РµРЅРёРµ С‡РµСЂРµР· Threat Intel...")
         try:
@@ -152,7 +152,7 @@ def main(argv: list[str] | None = None) -> None:
 
 
 # ==========================================
-# FILE: \pcap_triage\config.py
+# FILE: \paradox\config.py
 # ==========================================
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -945,7 +945,7 @@ class Config:
 
 
 # ==========================================
-# FILE: \pcap_triage\domain_utils.py
+# FILE: \paradox\domain_utils.py
 # ==========================================
 """
 Domain parsing helpers: РµРґРёРЅС‹Р№ РёСЃС‚РѕС‡РЅРёРє РїСЂР°РІРґС‹ РґР»СЏ SLD/TLD.
@@ -1102,7 +1102,7 @@ def matches_suffix(host: str, suffixes) -> bool:
 
 
 # ==========================================
-# FILE: \pcap_triage\file_carve.py
+# FILE: \paradox\file_carve.py
 # ==========================================
 """
 FileCarve вЂ” РёР·РІР»РµС‡РµРЅРёРµ РјРµС‚Р°РґР°РЅРЅС‹С… Рѕ payload'Р°С… РёР· HTTP-РѕС‚РІРµС‚РѕРІ.
@@ -1131,9 +1131,9 @@ import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
-from pcap_triage.config import Config
-from pcap_triage.http_object import HttpObject
-from pcap_triage.models import CaptureState
+from paradox.config import Config
+from paradox.http_object import HttpObject
+from paradox.models import CaptureState
 
 
 _MIME_TO_EXT = {
@@ -1307,7 +1307,7 @@ def carve_files(
 
 
 # ==========================================
-# FILE: \pcap_triage\http_object.py
+# FILE: \paradox\http_object.py
 # ==========================================
 """
 РџР°СЂСЃРµСЂ HTTP-РѕР±СЉРµРєС‚РѕРІ (Р·Р°РїСЂРѕСЃС‹ Рё РѕС‚РІРµС‚С‹) РёР· РїРѕС‚РѕРєР° Р±Р°Р№С‚.
@@ -1340,7 +1340,7 @@ def carve_files(
 """
 from dataclasses import dataclass, field
 
-from pcap_triage.http_parse import HTTP_METHODS
+from paradox.http_parse import HTTP_METHODS
 
 
 # РњР°РєСЃРёРјСѓРј, СЃРєРѕР»СЊРєРѕ body С‡РёС‚Р°С‚СЊ (Р·Р°С‰РёС‚Р° РѕС‚ РіРёРіР°Р±Р°Р№С‚РЅС‹С… РѕС‚РІРµС‚РѕРІ)
@@ -1567,7 +1567,7 @@ def _read_chunked(
 
 
 # ==========================================
-# FILE: \pcap_triage\http_parse.py
+# FILE: \paradox\http_parse.py
 # ==========================================
 """
 РџР°СЂСЃРµСЂ HTTP-Р·Р°РїСЂРѕСЃР°.
@@ -1679,7 +1679,7 @@ def parse_request(payload: bytes) -> HTTPRequest | None:
 
 
 # ==========================================
-# FILE: \pcap_triage\ja3.py
+# FILE: \paradox\ja3.py
 # ==========================================
 """
 JA3 / JA3S fingerprinting (Salesforce).
@@ -1905,7 +1905,7 @@ def _parse_server_hello(payload: bytes) -> dict | None:
 
 
 # ==========================================
-# FILE: \pcap_triage\kerberos_parse.py
+# FILE: \paradox\kerberos_parse.py
 # ==========================================
 """
 РњРёРЅРёРјР°Р»СЊРЅС‹Р№ ASN.1 DER РїР°СЂСЃРµСЂ РґР»СЏ Kerberos.
@@ -2245,7 +2245,7 @@ def _read_tlv(
 
 
 # ==========================================
-# FILE: \pcap_triage\models.py
+# FILE: \paradox\models.py
 # ==========================================
 from collections import Counter
 from dataclasses import dataclass, field, asdict
@@ -2390,7 +2390,7 @@ class Finding:
         if self.severity == "medium" and self.type in _SEVERITY_BY_TYPE:
             self.severity = _SEVERITY_BY_TYPE[self.type]
         if not self.confidence_reasons and self.evidence:
-            from pcap_triage.detectors.explainer import build_reasons
+            from paradox.detectors.explainer import build_reasons
             self.confidence_reasons = build_reasons(self.evidence)
 
     @property
@@ -2594,7 +2594,7 @@ def get_session_sni(
 
 
 # ==========================================
-# FILE: \pcap_triage\nbns_parse.py
+# FILE: \paradox\nbns_parse.py
 # ==========================================
 """
 РњРёРЅРёРјР°Р»СЊРЅС‹Р№ РїР°СЂСЃРµСЂ NBNS (NetBIOS Name Service).
@@ -2778,7 +2778,7 @@ def _read_answer(
 
 
 # ==========================================
-# FILE: \pcap_triage\net_utils.py
+# FILE: \paradox\net_utils.py
 # ==========================================
 """
 РћР±С‰РёРµ СЃРµС‚РµРІС‹Рµ СѓС‚РёР»РёС‚С‹.
@@ -2786,7 +2786,7 @@ def _read_answer(
 РСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РІ reporters Рё aggregators РґР»СЏ РєР»Р°СЃСЃРёС„РёРєР°С†РёРё IP
 Рё РЅР°РїСЂР°РІР»РµРЅРёСЏ С‚СЂР°С„РёРєР°.
 """
-from pcap_triage.config import Config
+from paradox.config import Config
 
 
 def is_internal_ip(ip: str, config: Config) -> bool:
@@ -2822,7 +2822,7 @@ def classify_direction(src_ip: str, dst_ip: str, config: Config) -> str:
 
 
 # ==========================================
-# FILE: \pcap_triage\parsers.py
+# FILE: \paradox\parsers.py
 # ==========================================
 """
 Р‘С‹СЃС‚СЂС‹Р№ РїР°СЂСЃРµСЂ СЃС‹СЂС‹С… РїР°РєРµС‚РѕРІ.
@@ -2959,7 +2959,7 @@ def parse_packet(raw: bytes, ts: float) -> PacketRecord:
     elif ethertype == ETHERTYPE_ARP:
         _parse_arp(raw, rec, offset)
     elif ethertype == ETHERTYPE_IPV6:
-        from pcap_triage.parsers_ipv6 import parse_ipv6_packet
+        from paradox.parsers_ipv6 import parse_ipv6_packet
         ipv6_rec = parse_ipv6_packet(
             raw[offset:], ts,
             eth_src=rec.eth_src, eth_dst=rec.eth_dst,
@@ -3103,7 +3103,7 @@ def _parse_arp(raw: bytes, rec: PacketRecord, offset: int) -> None:
 
 
 # ==========================================
-# FILE: \pcap_triage\parsers_ipv6.py
+# FILE: \paradox\parsers_ipv6.py
 # ==========================================
 """IPv6-РїР°СЂСЃРµСЂ РїР°РєРµС‚РѕРІ.
 
@@ -3172,7 +3172,7 @@ def parse_ipv6_packet(
     length/raw вЂ” РїРѕР»РЅС‹Рµ РґР»РёРЅР° Рё СЃС‹СЂС‹Рµ Р±Р°Р№С‚С‹ РєР°РґСЂР° (РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё
     СЃ PacketRecord). Р•СЃР»Рё РЅРµ РїРµСЂРµРґР°РЅС‹ вЂ” РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ len(payload)/payload.
     """
-    from pcap_triage.parsers import PacketRecord
+    from paradox.parsers import PacketRecord
 
     total_length = length if length is not None else len(payload)
     total_raw = raw if raw is not None else payload
@@ -3319,7 +3319,7 @@ def _make_record(cls, ts, eth_src, eth_dst, ethertype, vlan_id,
 
 
 # ==========================================
-# FILE: \pcap_triage\pipeline.py
+# FILE: \paradox\pipeline.py
 # ==========================================
 import hashlib
 import logging
@@ -3328,55 +3328,55 @@ from typing import Callable
 
 from scapy.utils import RawPcapReader
 
-from pcap_triage import __version__
-from pcap_triage.aggregators.entities import build_entities
-from pcap_triage.analyzers.absence import analyze_absence
-from pcap_triage.config import Config
-from pcap_triage.contradictions import run_all as run_contradictions
-from pcap_triage.detectors.cloud_tunnel import CloudTunnelDetector
-from pcap_triage.detectors.dga import DGADetector
-from pcap_triage.detectors.ip_check_service import IPCheckServiceDetector
-from pcap_triage.detectors.nxdomain_burst import NXDOMAINBurstDetector
-from pcap_triage.detectors.sni_mismatch import SNIMismatchDetector
-from pcap_triage.detectors.ja3_malware import JA3MalwareDetector
-from pcap_triage.detectors.port_scan import PortScanDetector
-from pcap_triage.detectors.suspicious_port import SuspiciousPortDetector
-from pcap_triage.detectors.typosquatting import TyposquattingDetector
-from pcap_triage.extractors.dns import DNSExtractor
-from pcap_triage.extractors.flow import FlowExtractor
-from pcap_triage.extractors.tls import TLSExtractor
-from pcap_triage.extractors.arp_history import ARPMacHistoryExtractor
-from pcap_triage.extractors.dhcp import DHCPExtractor
-from pcap_triage.extractors.ndp import NDPExtractor
-from pcap_triage.extractors.ssh_banner import SSHBannerExtractor
-from pcap_triage.extractors.smtp import SMTPExtractor
-from pcap_triage.models import CaptureState
-from pcap_triage.parsers import parse_packet
-from pcap_triage.reassembler import TCPReassembler
-from pcap_triage.timeline import build_timeline
-from pcap_triage.file_carve import carve_files
-from pcap_triage.reporters.flow_report import (
+from paradox import __version__
+from paradox.aggregators.entities import build_entities
+from paradox.analyzers.absence import analyze_absence
+from paradox.config import Config
+from paradox.contradictions import run_all as run_contradictions
+from paradox.detectors.cloud_tunnel import CloudTunnelDetector
+from paradox.detectors.dga import DGADetector
+from paradox.detectors.ip_check_service import IPCheckServiceDetector
+from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
+from paradox.detectors.sni_mismatch import SNIMismatchDetector
+from paradox.detectors.ja3_malware import JA3MalwareDetector
+from paradox.detectors.port_scan import PortScanDetector
+from paradox.detectors.suspicious_port import SuspiciousPortDetector
+from paradox.detectors.typosquatting import TyposquattingDetector
+from paradox.extractors.dns import DNSExtractor
+from paradox.extractors.flow import FlowExtractor
+from paradox.extractors.tls import TLSExtractor
+from paradox.extractors.arp_history import ARPMacHistoryExtractor
+from paradox.extractors.dhcp import DHCPExtractor
+from paradox.extractors.ndp import NDPExtractor
+from paradox.extractors.ssh_banner import SSHBannerExtractor
+from paradox.extractors.smtp import SMTPExtractor
+from paradox.models import CaptureState
+from paradox.parsers import parse_packet
+from paradox.reassembler import TCPReassembler
+from paradox.timeline import build_timeline
+from paradox.file_carve import carve_files
+from paradox.reporters.flow_report import (
     build_dns_report,
     build_flow_report,
     build_http_object_report,
     build_http_report,
 )
-from pcap_triage.detectors.brute_force import BruteForceDetector
-from pcap_triage.extractors.http import HTTPExtractor
-from pcap_triage.extractors.http_object import HTTPObjectExtractor
-from pcap_triage.detectors.vulnerable_path import VulnerablePathDetector
-from pcap_triage.extractors.host_identity import HostIdentityExtractor
-from pcap_triage.extractors.nbns import NBNSExtractor
-from pcap_triage.extractors.kerberos import KerberosExtractor
-from pcap_triage.detectors.lateral_movement import LateralMovementDetector
-from pcap_triage.detectors.large_transfer import LargeTransferDetector
-from pcap_triage.detectors.yara_detector import YARADetector
-from pcap_triage.detectors.ftp_brute_force import FTPBruteForceDetector
-from pcap_triage.detectors.command_injection import CommandInjectionDetector
-from pcap_triage.detectors.beaconing import BeaconingDetector
-from pcap_triage.detectors.dns_tunneling import DNSTunnelingDetector
-from pcap_triage.detectors.ssh_brute_force import SSHBruteForceDetector
-from pcap_triage.detectors.smtp_spam import SMTP_SpamDetector
+from paradox.detectors.brute_force import BruteForceDetector
+from paradox.extractors.http import HTTPExtractor
+from paradox.extractors.http_object import HTTPObjectExtractor
+from paradox.detectors.vulnerable_path import VulnerablePathDetector
+from paradox.extractors.host_identity import HostIdentityExtractor
+from paradox.extractors.nbns import NBNSExtractor
+from paradox.extractors.kerberos import KerberosExtractor
+from paradox.detectors.lateral_movement import LateralMovementDetector
+from paradox.detectors.large_transfer import LargeTransferDetector
+from paradox.detectors.yara_detector import YARADetector
+from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+from paradox.detectors.command_injection import CommandInjectionDetector
+from paradox.detectors.beaconing import BeaconingDetector
+from paradox.detectors.dns_tunneling import DNSTunnelingDetector
+from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
+from paradox.detectors.smtp_spam import SMTP_SpamDetector
 
 
 # РџРѕСЂСЏРґРѕРє СЌРєСЃС‚СЂР°РєС‚РѕСЂРѕРІ РІР°Р¶РµРЅ: FlowExtractor Р”РћР›Р–Р•Рќ РёРґС‚Рё РїРµСЂРІС‹Рј,
@@ -3532,7 +3532,7 @@ def _extract(
         # X.509 СЃРµСЂС‚РёС„РёРєР°С‚С‹ РёР· TLS-С…РµРЅРґС€РµР№РєРѕРІ. РўСЂРµР±СѓСЋС‚ reassembly,
         # РїРѕС‚РѕРјСѓ С‡С‚Рѕ СЃРµСЂС‚РёС„РёРєР°С‚ С‡Р°СЃС‚Рѕ Р±РѕР»СЊС€Рµ РѕРґРЅРѕРіРѕ TCP-СЃРµРіРјРµРЅС‚Р°.
         try:
-            from pcap_triage.extractors.tls_cert import (
+            from paradox.extractors.tls_cert import (
                 TlsCertificateExtractor,
             )
             TlsCertificateExtractor().run_post_extract(state, config)
@@ -3576,7 +3576,7 @@ def _detect(
 
     # РћР±РѕРіР°С‰РµРЅРёРµ MITRE-С‚РµС…РЅРёРєР°РјРё. Instance-level (detector Р·Р°РїРѕР»РЅРёР» СЃР°Рј вЂ”
     # РЅР°РїСЂРёРјРµСЂ large_transfer СЃ direction) РїСЂРёРѕСЂРёС‚РµС‚РЅРµРµ type-map.
-    from pcap_triage.detectors.mitre_map import get_techniques
+    from paradox.detectors.mitre_map import get_techniques
     for f in findings:
         if not f.mitre_techniques:
             f.mitre_techniques = get_techniques(f.type)
@@ -3585,7 +3585,7 @@ def _detect(
 
 def _summarize_direction(state: CaptureState, config: Config) -> dict:
     """РЎСѓРјРјС‹ Р±Р°Р№С‚ РїРѕ РЅР°РїСЂР°РІР»РµРЅРёСЏРј: uploaded / downloaded / internal."""
-    from pcap_triage.net_utils import classify_direction
+    from paradox.net_utils import classify_direction
 
     uploaded = 0     # internal в†’ external
     downloaded = 0   # external в†’ internal
@@ -3684,7 +3684,7 @@ def run_pipeline(
     ioc_files: dict = {}
     if getattr(config, "ioc_export_enabled", True):
         try:
-            from pcap_triage.reporters.ioc_reporter import (
+            from paradox.reporters.ioc_reporter import (
                 build_ioc_report, write_ioc_files,
             )
             ioc_report = build_ioc_report({
@@ -3749,7 +3749,7 @@ def run_pipeline(
 
 
 # ==========================================
-# FILE: \pcap_triage\reassembler.py
+# FILE: \paradox\reassembler.py
 # ==========================================
 """
 TCP reassembler.
@@ -3776,8 +3776,8 @@ TCP reassembler.
 - РџР°РјСЏС‚СЊ: per-flow 1 РњР‘, total 200 РњР‘ (РїР°СЂР°РјРµС‚СЂС‹ РІ Config).
   РџСЂРё РїСЂРµРІС‹С€РµРЅРёРё РїРѕС‚РѕРє РїРѕРјРµС‡Р°РµС‚СЃСЏ truncated Рё РµРіРѕ РґР°РЅРЅС‹Рµ С‚РµСЂСЏСЋС‚СЃСЏ.
 """
-from pcap_triage.models import FlowKey
-from pcap_triage.parsers import PacketRecord
+from paradox.models import FlowKey
+from paradox.parsers import PacketRecord
 
 
 _TCP_FIN = 0x01
@@ -3906,7 +3906,7 @@ class TCPReassembler:
 
 
 # ==========================================
-# FILE: \pcap_triage\timeline.py
+# FILE: \paradox\timeline.py
 # ==========================================
 """
 Timeline / kill-chain reconstruction.
@@ -3944,7 +3944,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pcap_triage.models import Finding
+from paradox.models import Finding
 
 
 # РњР°РїРїРёРЅРі С‚РёРї finding в†’ kill-chain С„Р°Р·Р°.
@@ -4247,7 +4247,7 @@ def summarize_by_phase(events: list[TimelineEvent]) -> list[dict]:
 
 
 # ==========================================
-# FILE: \pcap_triage\tls_cert.py
+# FILE: \paradox\tls_cert.py
 # ==========================================
 """
 РџР°СЂСЃРµСЂ TLS Certificate handshake message РёР· TCP-РїРѕС‚РѕРєР° СЃРµСЂРІРµСЂР°.
@@ -4276,8 +4276,8 @@ body[0] С‚РѕР¶Рµ 0 (СЃС‚Р°СЂС€РёР№ Р±Р°Р№С‚ 
 """
 from __future__ import annotations
 
-from pcap_triage.x509_cert import Certificate, parse_certificate
-from pcap_triage.x509_der import DerError
+from paradox.x509_cert import Certificate, parse_certificate
+from paradox.x509_der import DerError
 
 
 TLS_RECORD_HANDSHAKE = 0x16
@@ -4376,7 +4376,7 @@ def _try_extract_tls13(body: bytes) -> bytes | None:
 
 
 # ==========================================
-# FILE: \pcap_triage\tls_parse.py
+# FILE: \paradox\tls_parse.py
 # ==========================================
 """
 РџР°СЂСЃРµСЂ TLS ClientHello.
@@ -4563,7 +4563,7 @@ def _parse_server_name(
 
 
 # ==========================================
-# FILE: \pcap_triage\x509_cert.py
+# FILE: \paradox\x509_cert.py
 # ==========================================
 """
 РР·РІР»РµС‡РµРЅРёРµ РїРѕР»РµР№ РёР· X.509 Certificate РїРѕРІРµСЂС… x509_der.
@@ -4585,7 +4585,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from pcap_triage.x509_der import (
+from paradox.x509_der import (
     DerError,
     DerNode,
     TAG_CTX_0,
@@ -4764,7 +4764,7 @@ def _parse_san(der_bytes: bytes) -> tuple[list[str], list[str]]:
 
 
 # ==========================================
-# FILE: \pcap_triage\x509_der.py
+# FILE: \paradox\x509_der.py
 # ==========================================
 """
 РњРёРЅРёРјР°Р»СЊРЅС‹Р№ DER-РїР°СЂСЃРµСЂ РґР»СЏ X.509. РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ, Р±РµР· РІР°Р»РёРґР°С†РёРё.
@@ -5018,22 +5018,22 @@ def as_time(node: DerNode) -> tuple[str, str] | None:
 
 
 # ==========================================
-# FILE: \pcap_triage\__init__.py
+# FILE: \paradox\__init__.py
 # ==========================================
 __version__ = "1.0.0"
 
 
 # ==========================================
-# FILE: \pcap_triage\__main__.py
+# FILE: \paradox\__main__.py
 # ==========================================
-from pcap_triage.cli import main
+from paradox.cli import main
 
 if __name__ == "__main__":
     main()
 
 
 # ==========================================
-# FILE: \pcap_triage\aggregators\entities.py
+# FILE: \paradox\aggregators\entities.py
 # ==========================================
 """
 РђРіСЂРµРіР°С†РёСЏ flows Рё findings РІ СЃСѓС‰РЅРѕСЃС‚Рё (С…РѕСЃС‚С‹).
@@ -5061,9 +5061,9 @@ from dataclasses import dataclass, field
 from ipaddress import ip_address
 from typing import Any
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.net_utils import is_internal_ip
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.net_utils import is_internal_ip
 
 
 @dataclass
@@ -5286,7 +5286,7 @@ def build_entities(
         dst.service_unique_srcs.add(key.src_ip)
 
     # --- SNI: РїРёС€РµРј РѕР±РѕРёРј РєРѕРЅС†Р°Рј ---
-    from pcap_triage.models import get_session_sni
+    from paradox.models import get_session_sni
 
     for key, flow in state.flows.items():
         sni = get_session_sni(key, flow, state)
@@ -5492,7 +5492,7 @@ def build_entities(
 
 
 # ==========================================
-# FILE: \pcap_triage\analyzers\absence.py
+# FILE: \paradox\analyzers\absence.py
 # ==========================================
 """Absence analysis (Р°РЅР°Р»РёР· РѕС‚СЃСѓС‚СЃС‚РІРёСЏ).
 
@@ -5503,7 +5503,7 @@ def build_entities(
 """
 from __future__ import annotations
 
-from pcap_triage.models import CaptureState, FlowKey
+from paradox.models import CaptureState, FlowKey
 
 
 def analyze_absence(state: CaptureState) -> dict:
@@ -5551,7 +5551,7 @@ def analyze_absence(state: CaptureState) -> dict:
 
 
 # ==========================================
-# FILE: \pcap_triage\analyzers\counterfactual.py
+# FILE: \paradox\analyzers\counterfactual.py
 # ==========================================
 """Counterfactual (what-if) Р°РЅР°Р»РёР·.
 
@@ -5634,7 +5634,7 @@ def evaluate_what_if(
 
 
 # ==========================================
-# FILE: \pcap_triage\analyzers\ndp.py
+# FILE: \paradox\analyzers\ndp.py
 # ==========================================
 """РђРіСЂРµРіР°С‚РѕСЂ NDP РґР»СЏ РѕС‚С‡С‘С‚Р°.
 
@@ -5643,7 +5643,7 @@ def evaluate_what_if(
 """
 from __future__ import annotations
 
-from pcap_triage.extractors.ndp import extract_ndp
+from paradox.extractors.ndp import extract_ndp
 
 
 def analyze_ndp(packets) -> dict:
@@ -5686,7 +5686,7 @@ def analyze_ndp(packets) -> dict:
 
 
 # ==========================================
-# FILE: \pcap_triage\analyzers\story.py
+# FILE: \paradox\analyzers\story.py
 # ==========================================
 """РђРЅР°Р»РёР· РёСЃС‚РѕСЂРёРё РѕРґРЅРѕРіРѕ С…РѕСЃС‚Р°.
 
@@ -5757,13 +5757,13 @@ def build_host_story(report: dict, target_ip: str) -> dict:
 
 
 # ==========================================
-# FILE: \pcap_triage\analyzers\__init__.py
+# FILE: \paradox\analyzers\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\base.py
+# FILE: \paradox\contradictions\base.py
 # ==========================================
 """
 Р‘Р°Р·РѕРІС‹Рµ С‚РёРїС‹ contradictions.
@@ -5777,8 +5777,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 SEVERITY_ORDER: dict[str, int] = {
@@ -5890,7 +5890,7 @@ class ContradictionRule(Protocol):
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\facts.py
+# FILE: \paradox\contradictions\facts.py
 # ==========================================
 """
 РР·РІР»РµС‡РµРЅРёРµ С„Р°РєС‚РѕРІ РёР· CaptureState + Findings.
@@ -5919,10 +5919,10 @@ class ContradictionRule(Protocol):
 """
 from __future__ import annotations
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding, make_session_key
-from pcap_triage.net_utils import is_internal_ip
-from pcap_triage.contradictions.base import Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding, make_session_key
+from paradox.net_utils import is_internal_ip
+from paradox.contradictions.base import Fact
 from ipaddress import ip_address
 
 # =====================================================================
@@ -6118,7 +6118,7 @@ def extract_arp_facts(state: CaptureState) -> list[Fact]:
 
 def _suffix_match(value: str, suffixes: frozenset[str]) -> bool:
     """РћР±С‘СЂС‚РєР° РЅР°Рґ domain_utils.matches_suffix (v0.9.0)."""
-    from pcap_triage.domain_utils import matches_suffix
+    from paradox.domain_utils import matches_suffix
     return matches_suffix(value, suffixes)
 
 
@@ -6131,7 +6131,7 @@ def _base_domain(host: str) -> str:
     a.b.foo.co.uk   в†’ foo.co.uk
     attacker.com    в†’ attacker.com
     """
-    from pcap_triage.domain_utils import base_domain
+    from paradox.domain_utils import base_domain
     return base_domain(host)
 
 
@@ -6820,54 +6820,54 @@ def extract_facts(
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\registry.py
+# FILE: \paradox\contradictions\registry.py
 # ==========================================
 """
 Р РµРµСЃС‚СЂ РїСЂР°РІРёР» contradictions.
 """
 from __future__ import annotations
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.rules.g_direct_ip_no_dns import (
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.rules.g_direct_ip_no_dns import (
     DirectIpNoDnsRule,
 )
-from pcap_triage.contradictions.rules.e_reverse_asymmetry import (
+from paradox.contradictions.rules.e_reverse_asymmetry import (
     ReverseAsymmetryRule,
 )
-from pcap_triage.contradictions.rules.f_port_service_mismatch import (
+from paradox.contradictions.rules.f_port_service_mismatch import (
     PortServiceMismatchRule,
 )
-from pcap_triage.contradictions.rules.d_ja3_ua_mismatch import (
+from paradox.contradictions.rules.d_ja3_ua_mismatch import (
     Ja3UaMismatchRule,
 )
-from pcap_triage.contradictions.base import (
+from paradox.contradictions.base import (
     Contradiction,
     ContradictionRule,
     SEVERITY_ORDER,
 )
-from pcap_triage.contradictions.rules.a_sni_without_dns import (
+from paradox.contradictions.rules.a_sni_without_dns import (
     SniWithoutDnsRule,
 )
-from pcap_triage.contradictions.rules.i_sni_cert_mismatch import (
+from paradox.contradictions.rules.i_sni_cert_mismatch import (
     SniCertMismatchRule,
 )
-from pcap_triage.contradictions.rules.j_self_signed_cert import (
+from paradox.contradictions.rules.j_self_signed_cert import (
     SelfSignedCertRule,
 )
-from pcap_triage.contradictions.rules.k_expired_cert import (
+from paradox.contradictions.rules.k_expired_cert import (
     ExpiredCertRule,
 )
-from pcap_triage.contradictions.rules.h_dns_answer_mismatch import (
+from paradox.contradictions.rules.h_dns_answer_mismatch import (
     DnsAnswerMismatchRule,
 )
-from pcap_triage.contradictions.rules.e_victim_makes_attack import (
+from paradox.contradictions.rules.e_victim_makes_attack import (
     VictimMakesAttackRule,
 )
-from pcap_triage.contradictions.rules.b_mac_ip_conflict import (
+from paradox.contradictions.rules.b_mac_ip_conflict import (
     MacIpConflictRule,
 )
-from pcap_triage.contradictions.rules.c_sni_host_mismatch import (
+from paradox.contradictions.rules.c_sni_host_mismatch import (
     SniHostMismatchRule,
 )
 
@@ -6911,7 +6911,7 @@ def run_all(
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\__init__.py
+# FILE: \paradox\contradictions\__init__.py
 # ==========================================
 """
 ContradictionDetector вЂ” СЃР»РѕР№ Р°РЅР°Р»РёР·Р° РїРѕРІРµСЂС… findings.
@@ -6924,15 +6924,15 @@ ContradictionDetector вЂ” СЃР»РѕР№ Р°РЅР°Р»РёР·Р° Р�
 РћРґРЅР° РёР· РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёР№ РЅРµРІРµСЂРЅР°, Р»РёР±Рѕ X вЂ” pivot.
 
 РџСѓР±Р»РёС‡РЅС‹Р№ API:
-    from pcap_triage.contradictions import run_all
+    from paradox.contradictions import run_all
     contradictions = run_all(state, findings, config)
 """
-from pcap_triage.contradictions.base import (
+from paradox.contradictions.base import (
     Contradiction,
     ContradictionRule,
     Fact,
 )
-from pcap_triage.contradictions.registry import RULES, run_all
+from paradox.contradictions.registry import RULES, run_all
 
 __all__ = [
     "Contradiction",
@@ -6944,7 +6944,7 @@ __all__ = [
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\a_sni_without_dns.py
+# FILE: \paradox\contradictions\rules\a_sni_without_dns.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ sni_without_dns (SNI РЅР° РґРѕРјРµРЅ Р±РµР· DNS-РѕС‚РІРµС‚Р°).
@@ -6966,9 +6966,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class SniWithoutDnsRule:
@@ -6981,7 +6981,7 @@ class SniWithoutDnsRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import (
+        from paradox.contradictions.facts import (
             extract_tls_host_facts,
         )
         return extract_tls_host_facts(state, config)
@@ -7045,7 +7045,7 @@ class SniWithoutDnsRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\b_mac_ip_conflict.py
+# FILE: \paradox\contradictions\rules\b_mac_ip_conflict.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ mac_ip_conflict (ARP spoof).
@@ -7077,9 +7077,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class MacIpConflictRule:
@@ -7093,7 +7093,7 @@ class MacIpConflictRule:
         config: Config,
     ) -> list[Fact]:
         # Р›РѕРєР°Р»СЊРЅС‹Р№ РёРјРїРѕСЂС‚: РїСЂР°РІРёР»Рѕ РЅРµ С‚СЏРЅРµС‚ РІРµСЃСЊ facts-РјРѕРґСѓР»СЊ.
-        from pcap_triage.contradictions.facts import extract_arp_facts
+        from paradox.contradictions.facts import extract_arp_facts
         return extract_arp_facts(state)
 
     def find_contradictions(
@@ -7188,7 +7188,7 @@ class MacIpConflictRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\c_sni_host_mismatch.py
+# FILE: \paradox\contradictions\rules\c_sni_host_mismatch.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ sni_host_mismatch (domain fronting).
@@ -7221,9 +7221,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 _CONF_MULTIPLIER = 0.9
@@ -7239,7 +7239,7 @@ class SniHostMismatchRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_tls_host_facts
+        from paradox.contradictions.facts import extract_tls_host_facts
         return extract_tls_host_facts(state, config)
 
     def find_contradictions(
@@ -7284,7 +7284,7 @@ class SniHostMismatchRule:
 
             # РћРґРЅР° РѕСЂРіР°РЅРёР·Р°С†РёСЏ вЂ” РЅРѕСЂРј (РїРѕРґРґРѕРјРµРЅС‹, СЂРµРіРёРѕРЅ, api).
             # _base_domain РѕРїСЂРµРґРµР»С‘РЅ РІ facts.py вЂ” РёРјРїРѕСЂС‚ Р»РѕРєР°Р»СЊРЅС‹Р№.
-            from pcap_triage.contradictions.facts import _base_domain
+            from paradox.contradictions.facts import _base_domain
             if _base_domain(sni) == _base_domain(host):
                 continue
 
@@ -7324,7 +7324,7 @@ class SniHostMismatchRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\d_ja3_ua_mismatch.py
+# FILE: \paradox\contradictions\rules\d_ja3_ua_mismatch.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ ja3_ua_mismatch (СЃРїСѓС„РёРЅРі TLS-СЃС‚РµРєР° / UA).
@@ -7361,9 +7361,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 _BROWSER_FAMILIES = frozenset({"chrome", "firefox", "edge", "safari"})
@@ -7383,7 +7383,7 @@ class Ja3UaMismatchRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_ja3_ua_facts
+        from paradox.contradictions.facts import extract_ja3_ua_facts
         return extract_ja3_ua_facts(state, config)
 
     def find_contradictions(
@@ -7474,7 +7474,7 @@ class Ja3UaMismatchRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\e_reverse_asymmetry.py
+# FILE: \paradox\contradictions\rules\e_reverse_asymmetry.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ reverse_asymmetry (СЌРєСЃС„РёР»СЊС‚СЂР°С†РёСЏ / РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРёР№ РєР°РЅР°Р»).
@@ -7517,9 +7517,9 @@ from __future__ import annotations
 
 import math
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class ReverseAsymmetryRule:
@@ -7538,13 +7538,13 @@ class ReverseAsymmetryRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_asymmetry_facts
+        from paradox.contradictions.facts import extract_asymmetry_facts
         return extract_asymmetry_facts(state, config)
 
     def find_contradictions(
         self, facts: list[Fact],
     ) -> list[Contradiction]:
-        from pcap_triage.config import Config as _Cfg
+        from paradox.config import Config as _Cfg
         _cfg = _Cfg()
         _min_ratio = _cfg.reverse_asymmetry_min_ratio
         _high_ratio = _cfg.reverse_asymmetry_high_ratio
@@ -7657,7 +7657,7 @@ class ReverseAsymmetryRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\e_victim_makes_attack.py
+# FILE: \paradox\contradictions\rules\e_victim_makes_attack.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ victim_makes_attack (PIVOT).
@@ -7690,9 +7690,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 _PIVOT_CEILING = 0.90
@@ -7724,7 +7724,7 @@ class VictimMakesAttackRule:
     ) -> list[Fact]:
         # Р›РѕРєР°Р»СЊРЅС‹Р№ РёРјРїРѕСЂС‚: РїСЂР°РІРёР»Рѕ РЅРµ С‚СЏРЅРµС‚ РІРµСЃСЊ facts-РјРѕРґСѓР»СЊ РЅР° РІРµСЂС…РЅРµРј
         # СѓСЂРѕРІРЅРµ вЂ” РїСЂРѕС‰Рµ С‚РµСЃС‚РёСЂРѕРІР°С‚СЊ РёР·РѕР»РёСЂРѕРІР°РЅРЅРѕ.
-        from pcap_triage.contradictions.facts import extract_attack_facts
+        from paradox.contradictions.facts import extract_attack_facts
         return extract_attack_facts(findings)
 
     def find_contradictions(
@@ -7812,7 +7812,7 @@ class VictimMakesAttackRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\f_port_service_mismatch.py
+# FILE: \paradox\contradictions\rules\f_port_service_mismatch.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ port_service_mismatch (РїСЂРѕС‚РѕРєРѕР»СЊРЅС‹Р№ С‚СѓРЅРЅРµР»СЊ).
@@ -7849,9 +7849,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import (
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import (
     Contradiction,
     Fact,
     SEVERITY_ORDER,
@@ -7882,7 +7882,7 @@ class PortServiceMismatchRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import (
+        from paradox.contradictions.facts import (
             extract_protocol_on_port_facts,
         )
         return extract_protocol_on_port_facts(state, config)
@@ -7892,7 +7892,7 @@ class PortServiceMismatchRule:
     ) -> list[Contradiction]:
         # find_contradictions РЅРµ РїРѕР»СѓС‡Р°РµС‚ config РїРѕ РєРѕРЅС‚СЂР°РєС‚Сѓ Protocol вЂ”
         # С‡РёС‚Р°РµРј РЅР° РјРµСЃС‚Рµ.
-        from pcap_triage.config import Config as _Cfg
+        from paradox.config import Config as _Cfg
         allow = _Cfg().port_service_allowed
 
         # Р“СЂСѓРїРїРёСЂРѕРІРєР°: (src_ip, dst_ip, dst_port) в†’ СЃРїРёСЃРѕРє С„Р°РєС‚РѕРІ.
@@ -7981,7 +7981,7 @@ class PortServiceMismatchRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\g_direct_ip_no_dns.py
+# FILE: \paradox\contradictions\rules\g_direct_ip_no_dns.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ direct_ip_no_dns (hardcoded IP / РїСЂСЏРјРѕР№ C2).
@@ -8017,9 +8017,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 _MIN_UNIQUE_DSTS = 3
@@ -8036,7 +8036,7 @@ class DirectIpNoDnsRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_direct_ip_facts
+        from paradox.contradictions.facts import extract_direct_ip_facts
         return extract_direct_ip_facts(state, config)
 
     def find_contradictions(
@@ -8116,7 +8116,7 @@ class DirectIpNoDnsRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\h_dns_answer_mismatch.py
+# FILE: \paradox\contradictions\rules\h_dns_answer_mismatch.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ dns_answer_mismatch (SNI в‰  СЂРµР·РѕР»РІРЅСѓС‚С‹Р№ IP).
@@ -8144,9 +8144,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class DnsAnswerMismatchRule:
@@ -8159,7 +8159,7 @@ class DnsAnswerMismatchRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import (
+        from paradox.contradictions.facts import (
             extract_tls_host_facts,
         )
         return extract_tls_host_facts(state, config)
@@ -8236,7 +8236,7 @@ class DnsAnswerMismatchRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\i_sni_cert_mismatch.py
+# FILE: \paradox\contradictions\rules\i_sni_cert_mismatch.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ sni_cert_mismatch: SNI в‰  CN/SAN СЃРµСЂС‚РёС„РёРєР°С‚Р°.
@@ -8254,9 +8254,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 def _match_one(sni: str, pattern: str) -> bool:
@@ -8291,7 +8291,7 @@ class SniCertMismatchRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_tls_cert_facts
+        from paradox.contradictions.facts import extract_tls_cert_facts
         return extract_tls_cert_facts(state)
 
     def find_contradictions(
@@ -8337,7 +8337,7 @@ class SniCertMismatchRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\j_self_signed_cert.py
+# FILE: \paradox\contradictions\rules\j_self_signed_cert.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ self_signed_cert: СЃРµСЂС‚РёС„РёРєР°С‚ СЃР°РјРѕРїРѕРґРїРёСЃР°РЅРЅС‹Р№.
@@ -8354,9 +8354,9 @@ dev-СЃС‚РµРЅРґР°С… РЅР°СЂСѓР¶Сѓ.
 """
 from __future__ import annotations
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class SelfSignedCertRule:
@@ -8369,7 +8369,7 @@ class SelfSignedCertRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_tls_cert_facts
+        from paradox.contradictions.facts import extract_tls_cert_facts
         return extract_tls_cert_facts(state)
 
     def find_contradictions(
@@ -8407,7 +8407,7 @@ class SelfSignedCertRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\k_expired_cert.py
+# FILE: \paradox\contradictions\rules\k_expired_cert.py
 # ==========================================
 """
 РџСЂР°РІРёР»Рѕ expired_cert: СЃРµСЂС‚РёС„РёРєР°С‚ Р±С‹Р» РїСЂРѕСЃСЂРѕС‡РµРЅ РІРѕ РІСЂРµРјСЏ СЃРѕРµРґРёРЅРµРЅРёСЏ.
@@ -8422,9 +8422,9 @@ Severity: low. Confidence 0.9 вЂ” С„Р°РєС‚ С‚РѕС‡РЅС‹
 """
 from __future__ import annotations
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.contradictions.base import Contradiction, Fact
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.contradictions.base import Contradiction, Fact
 
 
 class ExpiredCertRule:
@@ -8437,7 +8437,7 @@ class ExpiredCertRule:
         findings: list[Finding],
         config: Config,
     ) -> list[Fact]:
-        from pcap_triage.contradictions.facts import extract_tls_cert_facts
+        from paradox.contradictions.facts import extract_tls_cert_facts
         return extract_tls_cert_facts(state)
 
     def find_contradictions(
@@ -8487,18 +8487,18 @@ class ExpiredCertRule:
 
 
 # ==========================================
-# FILE: \pcap_triage\contradictions\rules\__init__.py
+# FILE: \paradox\contradictions\rules\__init__.py
 # ==========================================
 """РџСЂР°РІРёР»Р° contradictions. РћРґРёРЅ С„Р°Р№Р» вЂ” РѕРґРЅРѕ РїСЂР°РІРёР»Рѕ."""
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\base.py
+# FILE: \paradox\detectors\base.py
 # ==========================================
 from typing import Protocol
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class LocalDetector(Protocol):
@@ -8508,7 +8508,7 @@ class LocalDetector(Protocol):
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\beaconing.py
+# FILE: \paradox\detectors\beaconing.py
 # ==========================================
 """
 BeaconingDetector вЂ” РїРµСЂРёРѕРґРёС‡РµСЃРєРёРµ РѕР±СЂР°С‰РµРЅРёСЏ Рє C2 (heartbeat).
@@ -8560,9 +8560,9 @@ import statistics
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
-from pcap_triage.net_utils import is_internal_ip
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
+from paradox.net_utils import is_internal_ip
 
 
 @dataclass
@@ -8767,7 +8767,7 @@ class BeaconingDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\brute_force.py
+# FILE: \paradox\detectors\brute_force.py
 # ==========================================
 """
 BruteForceDetector вЂ” РїРѕРёСЃРє РїРµСЂРµР±РѕСЂР° Рє РѕРґРЅРѕР№ РїР°СЂРµ dst_ip:dst_port.
@@ -8807,8 +8807,8 @@ SYN+ACK вЂ” СЌС‚РѕРіРѕ СЃРёРіРЅР°Р»Р° РІ FlowStat
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 @dataclass
@@ -8960,10 +8960,10 @@ class BruteForceDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\cloud_tunnel.py
+# FILE: \paradox\detectors\cloud_tunnel.py
 # ==========================================
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class CloudTunnelDetector:
@@ -9001,7 +9001,7 @@ class CloudTunnelDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\command_injection.py
+# FILE: \paradox\detectors\command_injection.py
 # ==========================================
 """
 CommandInjectionDetector вЂ” RCE С‡РµСЂРµР· HTTP URI РёР»Рё POST body.
@@ -9037,8 +9037,8 @@ from dataclasses import dataclass, field
 from urllib.parse import unquote
 
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 @dataclass
@@ -9187,13 +9187,13 @@ class CommandInjectionDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\dga.py
+# FILE: \paradox\detectors\dga.py
 # ==========================================
 import math
 from collections import Counter
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 def shannon_entropy(s: str) -> float:
@@ -9252,7 +9252,7 @@ class DGADetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\dns_tunneling.py
+# FILE: \paradox\detectors\dns_tunneling.py
 # ==========================================
 """
 DNSTunnelingDetector вЂ” DNS-С‚СѓРЅРЅРµР»РёСЂРѕРІР°РЅРёРµ (exfiltration С‡РµСЂРµР· DNS).
@@ -9278,13 +9278,13 @@ Confidence: 0.9 РїСЂРё РґР»РёРЅРЅС‹С… qname + РјРЅРѕ
 """
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 def _extract_base_domain(qname: str) -> str:
     """v0.9.0: СѓС‡РёС‚С‹РІР°РµС‚ РґРІСѓС…СѓСЂРѕРІРЅРµРІС‹Рµ TLD (co.uk, com.au)."""
-    from pcap_triage.domain_utils import base_domain
+    from paradox.domain_utils import base_domain
     return base_domain(qname)
 
 
@@ -9361,7 +9361,7 @@ class DNSTunnelingDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\explainer.py
+# FILE: \paradox\detectors\explainer.py
 # ==========================================
 """РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ РѕР±СЉСЏСЃРЅРµРЅРёРµ СѓРІРµСЂРµРЅРЅРѕСЃС‚Рё (confidence) РґРµС‚РµРєС‚РѕСЂРѕРІ.
 
@@ -9423,7 +9423,7 @@ def build_reasons(evidence: dict) -> list[str]:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\ftp_brute_force.py
+# FILE: \paradox\detectors\ftp_brute_force.py
 # ==========================================
 """
 FTPBruteForceDetector вЂ” РїРµСЂРµР±РѕСЂ РїР°СЂРѕР»РµР№ Рє FTP-СЃРµСЂРІРµСЂСѓ.
@@ -9445,8 +9445,8 @@ Confidence:
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 @dataclass
@@ -9527,7 +9527,7 @@ class FTPBruteForceDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\ip_check_service.py
+# FILE: \paradox\detectors\ip_check_service.py
 # ==========================================
 """
 IPCheckServiceDetector вЂ” РѕР±СЂР°С‰РµРЅРёСЏ Рє СЃРµСЂРІРёСЃР°Рј РїСЂРѕРІРµСЂРєРё РІРЅРµС€РЅРµРіРѕ IP
@@ -9545,8 +9545,8 @@ IPCheckServiceDetector вЂ” РѕР±СЂР°С‰РµРЅРёСЏ Рє СЃР
 СЃС‚СѓС‡РёС‚СЃСЏ РЅР° РёР·РІРµСЃС‚РЅС‹Р№ IP вЂ” РІСЃРµ С‚СЂРё РёСЃС‚РѕС‡РЅРёРєР° СЃРѕР»СЊСЋС‚СЃСЏ РІ РѕРґРёРЅ finding
 СЃ sources={dns, sni, direct_ip}. Р­С‚Рѕ РґРµР»Р°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚ СЃС‚Р°Р±РёР»СЊРЅС‹Рј.
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class IPCheckServiceDetector:
@@ -9609,7 +9609,7 @@ class IPCheckServiceDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\ja3_malware.py
+# FILE: \paradox\detectors\ja3_malware.py
 # ==========================================
 """
 JA3MalwareDetector вЂ” РёР·РІРµСЃС‚РЅС‹Рµ JA3-РѕС‚РїРµС‡Р°С‚РєРё malware/pentest.
@@ -9627,8 +9627,8 @@ Confidence 0.85 вЂ” РёР·РІРµСЃС‚РЅС‹Р№ РѕС‚РїР�
 """
 from collections import Counter, defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class JA3MalwareDetector:
@@ -9696,7 +9696,7 @@ class JA3MalwareDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\large_transfer.py
+# FILE: \paradox\detectors\large_transfer.py
 # ==========================================
 """
 LargeTransferDetector вЂ” Р°РЅРѕРјР°Р»СЊРЅРѕ Р±РѕР»СЊС€РѕР№ РѕР±СЉС‘Рј РІ РѕРґРЅРѕРј flow (РїР°СЂРµ).
@@ -9710,9 +9710,9 @@ LargeTransferDetector вЂ” Р°РЅРѕРјР°Р»СЊРЅРѕ Р±РѕР»�
 
 РђРіСЂРµРіР°С†РёСЏ: РїР°СЂР° (ip, port) + (ip, port), РѕР±Р° РЅР°РїСЂР°РІР»РµРЅРёСЏ РІ РѕРґРёРЅ bucket.
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding, FlowKey
-from pcap_triage.net_utils import is_internal_ip
+from paradox.config import Config
+from paradox.models import CaptureState, Finding, FlowKey
+from paradox.net_utils import is_internal_ip
 
 
 # Р•СЃР»Рё РѕРґРЅР° СЃС‚РѕСЂРѕРЅР° >NГ— РґСЂСѓРіРѕР№ вЂ” СЃС‡РёС‚Р°РµРј РѕР±РјРµРЅ РѕРґРЅРѕСЃС‚РѕСЂРѕРЅРЅРёРј.
@@ -9954,7 +9954,7 @@ class LargeTransferDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\lateral_movement.py
+# FILE: \paradox\detectors\lateral_movement.py
 # ==========================================
 """
 LateralMovementDetector вЂ” РїСЂРёР·РЅР°РєРё РїРµСЂРµРјРµС‰РµРЅРёСЏ РїРѕ РІРЅСѓС‚СЂРµРЅРЅРµР№ СЃРµС‚Рё.
@@ -9979,8 +9979,8 @@ allowlist: config.lateral_movement_admin_srcs вЂ” jump-С…РѕСЃС‚С�
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 @dataclass
@@ -10102,10 +10102,10 @@ class LateralMovementDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\mitre_map.py
+# FILE: \paradox\detectors\mitre_map.py
 # ==========================================
 """
-MITRE ATT&CK mapping РґР»СЏ РґРµС‚РµРєС‚РѕСЂРѕРІ pcap-triage.
+MITRE ATT&CK mapping РґР»СЏ РґРµС‚РµРєС‚РѕСЂРѕРІ Paradox.
 
 РљР»СЋС‡Рё СЃРѕРІРїР°РґР°СЋС‚ СЃ Finding.type.
 """
@@ -10164,10 +10164,10 @@ def get_techniques(finding_type: str) -> tuple[str, ...]:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\nxdomain_burst.py
+# FILE: \paradox\detectors\nxdomain_burst.py
 # ==========================================
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 # v0.9.0: nxdomain_burst windowing
 
@@ -10265,7 +10265,7 @@ class NXDOMAINBurstDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\port_scan.py
+# FILE: \paradox\detectors\port_scan.py
 # ==========================================
 """
 PortScanDetector вЂ” РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ СЃРєР°РЅРёСЂРѕРІР°РЅРёРµ: РѕРґРёРЅ src_ip, РјРЅРѕРіРѕ dst_ip,
@@ -10291,8 +10291,8 @@ PortScanDetector вЂ” РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР
 """
 from collections import Counter, defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class PortScanDetector:
@@ -10355,7 +10355,7 @@ class PortScanDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\smtp_spam.py
+# FILE: \paradox\detectors\smtp_spam.py
 # ==========================================
 """
 SMTP spam РґРµС‚РµРєС‚РѕСЂ.
@@ -10377,8 +10377,8 @@ Confidence РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ СѓРЅРёРє�
 РјР°СЂРєРµСЂС‹ вЂ” РїРёС€РµРј РІ evidence. РќР° confidence РЅРµ РІР»РёСЏРµС‚: РјР°СЂРєРµСЂС‹
 СЃР»РёС€РєРѕРј РѕР±С‰РёРµ (PHPMailer РµСЃС‚СЊ Сѓ РїРѕР»РѕРІРёРЅС‹ CMS).
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 # РџРѕРґСЃС‚СЂРѕРєРё РІ X-Mailer / User-Agent, С‡Р°СЃС‚С‹Рµ Сѓ РјР°СЃСЃ-РјРµР№Р»РµСЂРѕРІ.
@@ -10458,12 +10458,12 @@ class SMTP_SpamDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\sni_mismatch.py
+# FILE: \paradox\detectors\sni_mismatch.py
 # ==========================================
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class SNIMismatchDetector:
@@ -10581,7 +10581,7 @@ class SNIMismatchDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\ssh_brute_force.py
+# FILE: \paradox\detectors\ssh_brute_force.py
 # ==========================================
 """
 SSH brute force РґРµС‚РµРєС‚РѕСЂ.
@@ -10600,8 +10600,8 @@ Severity: high (РёР· _SEVERITY_BY_TYPE РІ models.py).
   - Р•РґРёРЅРёС‡РЅС‹Рµ РїРѕРїС‹С‚РєРё (РѕР±С‹С‡РЅС‹Рµ SSH-СЃРµСЃСЃРёРё).
   - Р Р°Р·РЅС‹Рµ dst вЂ” Р»РµРіРёС‚РёРјРЅС‹Рµ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅС‹Рµ РїРѕРґРєР»СЋС‡РµРЅРёСЏ.
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class SSHBruteForceDetector:
@@ -10645,7 +10645,7 @@ class SSHBruteForceDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\suspicious_port.py
+# FILE: \paradox\detectors\suspicious_port.py
 # ==========================================
 """
 SuspiciousPortDetector вЂ” СЃРѕРµРґРёРЅРµРЅРёСЏ Рє РІРЅРµС€РЅРёРј Р°РґСЂРµСЃР°Рј РЅР° РїРѕСЂС‚С‹ РёР·
@@ -10668,8 +10668,8 @@ suspicious_ports.
 """
 from collections import defaultdict
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 class SuspiciousPortDetector:
@@ -10756,7 +10756,7 @@ class SuspiciousPortDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\typosquatting.py
+# FILE: \paradox\detectors\typosquatting.py
 # ==========================================
 """
 TyposquattingDetector вЂ” РїРѕРґРґРµР»РєРё РїРѕРґ РёР·РІРµСЃС‚РЅС‹Рµ Р±СЂРµРЅРґС‹.
@@ -10780,8 +10780,8 @@ v0.9.0: РґРІСѓС…СѓСЂРѕРІРЅРµРІС‹Рµ TLD (co.uk, com.a
 С‡РµСЂРµР· domain_utils. bbc.co.uk в†’ SLD "bbc", РЅРµ "co". РџРѕР»РЅС‹Р№ Public
 Suffix List РЅРµ С‚СЏРЅРµРј вЂ” С‚РѕР»СЊРєРѕ СЂРµР°Р»СЊРЅС‹Рµ РєРµР№СЃС‹.
 """
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 def levenshtein(a: str, b: str) -> int:
@@ -10811,7 +10811,7 @@ def _registered_label(domain: str) -> str:
     googleads.g.doubleclick.net -> doubleclick
     a.b.foo.co.uk              -> foo
     """
-    from pcap_triage.domain_utils import registered_label
+    from paradox.domain_utils import registered_label
     return registered_label(domain)
 
 
@@ -10904,7 +10904,7 @@ class TyposquattingDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\vulnerable_path.py
+# FILE: \paradox\detectors\vulnerable_path.py
 # ==========================================
 """
 VulnerablePathDetector вЂ” РѕР±СЂР°С‰РµРЅРёСЏ Рє СѓСЏР·РІРёРјС‹Рј РїСѓС‚СЏРј РІ HTTP Рё СЃРєР°С‡РёРІР°РЅРёРµ
@@ -10940,8 +10940,8 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from urllib.parse import unquote, urlsplit
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 _EVIDENCE_SAMPLE_SIZE = 5
@@ -11221,7 +11221,7 @@ class VulnerablePathDetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\yara_detector.py
+# FILE: \paradox\detectors\yara_detector.py
 # ==========================================
 """YARA-РґРµС‚РµРєС‚РѕСЂ РґР»СЏ РІС‹СЂРµР·Р°РЅРЅС‹С… С„Р°Р№Р»РѕРІ.
 
@@ -11233,7 +11233,7 @@ from __future__ import annotations
 import os
 import logging
 
-from pcap_triage.models import Finding
+from paradox.models import Finding
 
 try:
     import yara
@@ -11308,13 +11308,13 @@ class YARADetector:
 
 
 # ==========================================
-# FILE: \pcap_triage\detectors\__init__.py
+# FILE: \paradox\detectors\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\arp_history.py
+# FILE: \paradox\extractors\arp_history.py
 # ==========================================
 """
 ARPMacHistoryExtractor вЂ” РёСЃС‚РѕСЂРёСЏ MAC-Р°РґСЂРµСЃРѕРІ РЅР° РѕРґРёРЅ IP.
@@ -11336,8 +11336,8 @@ last_ts, count]}. РќСѓР¶РЅР° РїСЂР°РІРёР»Сѓ mac_ip_confl
 Р»РѕРіРёСЂРѕРІР°С‚СЊ broadcast РґР»СЏ РїСЂР°РІРёР»Р° В«broadcast stormВ»), РїСЂРѕС‰Рµ РєРѕРіРґР°
 Сѓ РєР°Р¶РґРѕРіРѕ СЃРІРѕРё.
 """
-from pcap_triage.models import CaptureState
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState
+from paradox.parsers import PacketRecord
 
 
 class ARPMacHistoryExtractor:
@@ -11382,11 +11382,11 @@ class ARPMacHistoryExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\base.py
+# FILE: \paradox\extractors\base.py
 # ==========================================
 from typing import Protocol
 
-from pcap_triage.models import CaptureState
+from paradox.models import CaptureState
 
 
 class Extractor(Protocol):
@@ -11397,7 +11397,7 @@ class Extractor(Protocol):
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\dhcp.py
+# FILE: \paradox\extractors\dhcp.py
 # ==========================================
 """
 DHCP-СЌРєСЃС‚СЂР°РєС‚РѕСЂ (UDP 67/68).
@@ -11425,8 +11425,8 @@ from __future__ import annotations
 
 import struct
 
-from pcap_triage.models import CaptureState, HostIdentity
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState, HostIdentity
+from paradox.parsers import PacketRecord
 
 
 # РњР°РіРёС‡РµСЃРєРёР№ cookie BOOTP/DHCP. РћРїС†РёРё РЅР°С‡РёРЅР°СЋС‚СЃСЏ РїРѕСЃР»Рµ РЅРµРіРѕ.
@@ -11584,14 +11584,14 @@ class DHCPExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\dns.py
+# FILE: \paradox\extractors\dns.py
 # ==========================================
 from collections import Counter
 
 from scapy.layers.dns import DNS
 
-from pcap_triage.models import CaptureState
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState
+from paradox.parsers import PacketRecord
 
 
 class DNSExtractor:
@@ -11699,10 +11699,10 @@ class DNSExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\flow.py
+# FILE: \paradox\extractors\flow.py
 # ==========================================
-from pcap_triage.models import CaptureState, FlowKey, FlowStats
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState, FlowKey, FlowStats
+from paradox.parsers import PacketRecord
 
 
 # С„Р»Р°РіРё TCP
@@ -11756,7 +11756,7 @@ class FlowExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\host_identity.py
+# FILE: \paradox\extractors\host_identity.py
 # ==========================================
 """
 HostIdentityExtractor вЂ” IP в†” MAC.
@@ -11771,8 +11771,8 @@ Fallback РёР· Ethernet (eth_src в†” src_ip) РќР• РёСЃРїРѕ�
 Р•СЃР»Рё MAC РЅРµ РЅР°Р№РґРµРЅ РІ ARP вЂ” РѕСЃС‚Р°РІР»СЏРµРј None. Р­С‚Рѕ С‡РµСЃС‚РЅРµРµ, С‡РµРј
 РЅРµРІРµСЂРЅС‹Р№ MAC.
 """
-from pcap_triage.models import CaptureState, HostIdentity
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState, HostIdentity
+from paradox.parsers import PacketRecord
 
 
 class HostIdentityExtractor:
@@ -11811,7 +11811,7 @@ class HostIdentityExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\http.py
+# FILE: \paradox\extractors\http.py
 # ==========================================
 """
 HTTP-СЌРєСЃС‚СЂР°РєС‚РѕСЂ.
@@ -11830,9 +11830,9 @@ HTTP-СЌРєСЃС‚СЂР°РєС‚РѕСЂ.
 - HTTP-Р·Р°РїСЂРѕСЃ РґРѕР»Р¶РµРЅ СѓРјРµСЃС‚РёС‚СЊСЃСЏ РІ РѕРґРёРЅ TCP-СЃРµРіРјРµРЅС‚.
 - HTTP/2 (Р±РёРЅР°СЂРЅС‹Р№) РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ.
 """
-from pcap_triage.http_parse import HTTP_METHODS, parse_request
-from pcap_triage.models import CaptureState, FlowKey
-from pcap_triage.parsers import PacketRecord
+from paradox.http_parse import HTTP_METHODS, parse_request
+from paradox.models import CaptureState, FlowKey
+from paradox.parsers import PacketRecord
 
 
 class HTTPExtractor:
@@ -11893,7 +11893,7 @@ class HTTPExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\http_object.py
+# FILE: \paradox\extractors\http_object.py
 # ==========================================
 """
 HTTPObjectExtractor вЂ” РїРѕСЃС‚СЂРѕРµРЅРёРµ HTTP-РѕР±СЉРµРєС‚РѕРІ РёР· СЃРєР»РµРµРЅРЅС‹С… РїРѕС‚РѕРєРѕРІ.
@@ -11924,13 +11924,13 @@ server_ip:server_port), response РёРјРµРµС‚ РѕР±СЂР°С‚РЅ
 - Р Р°РЅСЊС€Рµ (extractors/http.py) РјС‹ РІРёРґРµР»Рё С‚РѕР»СЊРєРѕ РїРµСЂРІС‹Р№ СЃРµРіРјРµРЅС‚.
 - РўРµРїРµСЂСЊ РІРёРґРёРј РїРѕР»РЅРѕСЃС‚СЊСЋ.
 """
-from pcap_triage.config import Config
-from pcap_triage.http_object import (
+from paradox.config import Config
+from paradox.http_object import (
     DEFAULT_BODY_LIMIT,
     parse_http_request,
     parse_http_response,
 )
-from pcap_triage.models import CaptureState
+from paradox.models import CaptureState
 
 
 def _norm_pair(key) -> tuple:
@@ -12005,13 +12005,13 @@ class HTTPObjectExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\kerberos.py
+# FILE: \paradox\extractors\kerberos.py
 # ==========================================
 """
 KerberosExtractor вЂ” РёР·РІР»РµРєР°РµС‚ cname, realm, sname РёР· Kerberos-РїР°РєРµС‚РѕРІ.
 
 Р Р°Р±РѕС‚Р°РµС‚ РЅР° UDP/88 Рё TCP/88. РџР°СЂСЃРёС‚ AS-REQ/AS-REP/TGS-REQ/TGS-REP/AP-REQ
-С‡РµСЂРµР· pcap_triage.kerberos_parse (СЂСѓС‡РЅРѕР№ ASN.1 DER).
+С‡РµСЂРµР· paradox.kerberos_parse (СЂСѓС‡РЅРѕР№ ASN.1 DER).
 
 РџРёС€РµС‚ РІ state.host_identities[src_ip]:
   - cname Р±РµР· `$` Рё Р±РµР· `/` в†’ username
@@ -12022,9 +12022,9 @@ KerberosExtractor вЂ” РёР·РІР»РµРєР°РµС‚ cname, realm, sn
 РўРѕР»СЊРєРѕ Р·Р°РїСЂРѕСЃС‹ РєР»РёРµРЅС‚Р° (dst_port == 88). РћС‚РІРµС‚С‹ KDC РЅРµ РґР°СЋС‚
 РЅРѕРІС‹С… РґР°РЅРЅС‹С… вЂ” С‚Р°Рј С‚РѕС‚ Р¶Рµ principal.
 """
-from pcap_triage.kerberos_parse import parse_kerberos
-from pcap_triage.models import CaptureState, HostIdentity
-from pcap_triage.parsers import PacketRecord
+from paradox.kerberos_parse import parse_kerberos
+from paradox.models import CaptureState, HostIdentity
+from paradox.parsers import PacketRecord
 
 
 class KerberosExtractor:
@@ -12087,7 +12087,7 @@ class KerberosExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\nbns.py
+# FILE: \paradox\extractors\nbns.py
 # ==========================================
 """
 NBNSExtractor вЂ” РёРјРµРЅР° С…РѕСЃС‚РѕРІ РёР· NBNS-Р·Р°РїСЂРѕСЃРѕРІ.
@@ -12098,9 +12098,9 @@ NBNSExtractor вЂ” РёРјРµРЅР° С…РѕСЃС‚РѕРІ РёР· N
   0x00 вЂ” Workstation (РёРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°)
   0x20 вЂ” Server (С„Р°Р№Р»РѕРІС‹Р№ СЃРµСЂРІРёСЃ)
 """
-from pcap_triage.models import CaptureState, HostIdentity
-from pcap_triage.nbns_parse import parse_nbns
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState, HostIdentity
+from paradox.nbns_parse import parse_nbns
+from paradox.parsers import PacketRecord
 
 
 HOSTNAME_SUFFIXES = {0x00, 0x20}
@@ -12140,7 +12140,7 @@ class NBNSExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\ndp.py
+# FILE: \paradox\extractors\ndp.py
 # ==========================================
 """NDP (Neighbor Discovery Protocol) СЌРєСЃС‚СЂР°РєС‚РѕСЂ.
 
@@ -12278,7 +12278,7 @@ class NDPExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\smtp.py
+# FILE: \paradox\extractors\smtp.py
 # ==========================================
 """
 SMTP-СЌРєСЃС‚СЂР°РєС‚РѕСЂ (TCP 25 / 587).
@@ -12298,8 +12298,8 @@ SMTP-СЌРєСЃС‚СЂР°РєС‚РѕСЂ (TCP 25 / 587).
 """
 from __future__ import annotations
 
-from pcap_triage.models import CaptureState
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState
+from paradox.parsers import PacketRecord
 
 
 # РџРѕСЂС‚С‹ SMTP, РіРґРµ РѕР¶РёРґР°РµРј plaintext.
@@ -12415,7 +12415,7 @@ class SMTPExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\ssh_banner.py
+# FILE: \paradox\extractors\ssh_banner.py
 # ==========================================
 """
 SSH banner СЌРєСЃС‚СЂР°РєС‚РѕСЂ (RFC 4253).
@@ -12434,8 +12434,8 @@ SSH-СЃРµСЂРІРµСЂ Рё РєР»РёРµРЅС‚ РѕР±РјРµРЅ
 """
 from __future__ import annotations
 
-from pcap_triage.models import CaptureState
-from pcap_triage.parsers import PacketRecord
+from paradox.models import CaptureState
+from paradox.parsers import PacketRecord
 
 
 # РџРѕСЂС‚С‹, РЅР° РєРѕС‚РѕСЂС‹С… РѕР¶РёРґР°РµРј SSH-СЃРµСЂРІРµСЂ. РљР»РёРµРЅС‚ РѕР±С‹С‡РЅРѕ РЅР° СЌС„РµРјРµСЂРЅРѕРј.
@@ -12526,12 +12526,12 @@ class SSHBannerExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\tls.py
+# FILE: \paradox\extractors\tls.py
 # ==========================================
-from pcap_triage.models import CaptureState, FlowKey, make_session_key
-from pcap_triage.parsers import PacketRecord
-from pcap_triage.ja3 import parse_client_hello, parse_server_hello
-from pcap_triage.tls_parse import extract_sni
+from paradox.models import CaptureState, FlowKey, make_session_key
+from paradox.parsers import PacketRecord
+from paradox.ja3 import parse_client_hello, parse_server_hello
+from paradox.tls_parse import extract_sni
 
 
 class TLSExtractor:
@@ -12610,7 +12610,7 @@ class TLSExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\tls_cert.py
+# FILE: \paradox\extractors\tls_cert.py
 # ==========================================
 """
 TlsCertificateExtractor вЂ” РёР·РІР»РµРєР°РµС‚ X.509 СЃРµСЂС‚РёС„РёРєР°С‚С‹ РёР· TLS-С…РµРЅРґС€РµР№РєРѕРІ.
@@ -12625,9 +12625,9 @@ TlsCertificateExtractor вЂ” РёР·РІР»РµРєР°РµС‚ X.509 СЃ
 """
 from __future__ import annotations
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, FlowKey
-from pcap_triage.tls_cert import parse_certificate_from_stream
+from paradox.config import Config
+from paradox.models import CaptureState, FlowKey
+from paradox.tls_cert import parse_certificate_from_stream
 
 
 class TlsCertificateExtractor:
@@ -12668,13 +12668,13 @@ class TlsCertificateExtractor:
 
 
 # ==========================================
-# FILE: \pcap_triage\extractors\__init__.py
+# FILE: \paradox\extractors\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\abuseipdb.py
+# FILE: \paradox\integrations\abuseipdb.py
 # ==========================================
 """
 AbuseIPDB вЂ” СЂРµРїСѓС‚Р°С†РёСЏ IP-Р°РґСЂРµСЃРѕРІ.
@@ -12714,7 +12714,7 @@ import certifi
 import certifi
 import urllib.request
 
-from pcap_triage.integrations.base import EnrichmentResult
+from paradox.integrations.base import EnrichmentResult
 
 # SSL-РєРѕРЅС‚РµРєСЃС‚ СЃ CA-Р±Р°РЅРґР»РѕРј certifi. Python РЅР° Windows РЅРµ С‡РёС‚Р°РµС‚
 # Windows Certificate Store, Р±РµР· СЌС‚РѕРіРѕ HTTPS РїР°РґР°РµС‚ СЃ
@@ -12730,7 +12730,7 @@ class AbuseIPDBEnricher:
     base_url = "https://api.abuseipdb.com/api/v2/check"
     timeout = 10.0
     max_age_days = 90
-    user_agent = "pcap-triage/0.6.0"
+    user_agent = "Paradox/0.6.0"
 
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.environ.get("ABUSEIPDB_API_KEY")
@@ -12810,7 +12810,7 @@ class AbuseIPDBEnricher:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\alienvault_otx.py
+# FILE: \paradox\integrations\alienvault_otx.py
 # ==========================================
 """AlienVault OTX вЂ” РѕС‚РєСЂС‹С‚С‹Р№ threat intel, Р±РµР· РєР»СЋС‡Р°.
 
@@ -12818,7 +12818,7 @@ https://otx.alienvault.com/api/v1/indicators/{section}/{value}/general
 
 РЎРµРєС†РёРё: IPv4, domain, file (РґР»СЏ С…СЌС€РµР№).
 """
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class AlienVaultOTXEnricher(BaseEnricher):
@@ -12839,7 +12839,7 @@ class AlienVaultOTXEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\base.py
+# FILE: \paradox\integrations\base.py
 # ==========================================
 """
 Р‘Р°Р·РѕРІС‹Рµ РєРѕРЅС‚СЂР°РєС‚С‹ СЃР»РѕСЏ РѕР±РѕРіР°С‰РµРЅРёСЏ (Threat Intel).
@@ -12897,7 +12897,7 @@ class Enricher(Protocol):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\base_enricher.py
+# FILE: \paradox\integrations\base_enricher.py
 # ==========================================
 """Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РґР»СЏ enrichment-РїСЂРѕРІР°Р№РґРµСЂРѕРІ.
 
@@ -12919,7 +12919,7 @@ import urllib.request
 
 import certifi
 
-from pcap_triage.integrations.base import EnrichmentResult
+from paradox.integrations.base import EnrichmentResult
 
 
 # РћР±С‰РёР№ SSL-РєРѕРЅС‚РµРєСЃС‚ СЃ CA-Р±Р°РЅРґР»РѕРј certifi. Python РЅР° Windows РЅРµ
@@ -12945,7 +12945,7 @@ class BaseEnricher:
     #: TTL В«РїСѓСЃС‚Рѕ/404В» вЂ” negative caching
     ttl_days_negative: int = 1
     timeout: float = 10.0
-    user_agent: str = "pcap-triage/0.9.0"
+    user_agent: str = "Paradox/0.9.0"
 
     # -- API РґР»СЏ РѕСЂРєРµСЃС‚СЂР°С‚РѕСЂР° ---------------------------------------------
 
@@ -13113,7 +13113,7 @@ class BaseEnricher:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\cache.py
+# FILE: \paradox\integrations\cache.py
 # ==========================================
 """
 SQLite-РєСЌС€ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РѕР±РѕРіР°С‰РµРЅРёСЏ.
@@ -13142,7 +13142,7 @@ import sqlite3
 import time
 from pathlib import Path
 
-from pcap_triage.integrations.base import EnrichmentResult
+from paradox.integrations.base import EnrichmentResult
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS enrichment (
@@ -13273,7 +13273,7 @@ class EnrichmentCache:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\enricher.py
+# FILE: \paradox\integrations\enricher.py
 # ==========================================
 """
 РћСЂРєРµСЃС‚СЂР°С‚РѕСЂ РѕР±РѕРіР°С‰РµРЅРёСЏ.
@@ -13288,10 +13288,10 @@ class EnrichmentCache:
 import ipaddress
 import time
 
-from pcap_triage.config import Config
-from pcap_triage.integrations.base import Enricher, EnrichmentResult
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.rate_limit import TokenBucket
+from paradox.config import Config
+from paradox.integrations.base import Enricher, EnrichmentResult
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.rate_limit import TokenBucket
 
 
 DEFAULT_RATE_LIMIT_PER_SEC = 5.0
@@ -13492,14 +13492,14 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\greynoise.py
+# FILE: \paradox\integrations\greynoise.py
 # ==========================================
 """GreyNoise Community API вЂ” С€СѓРјРёС‚ Р»Рё IP.
 
 https://api.greynoise.io/v3/community/{ip}
 Р‘РµР· РєР»СЋС‡Р°: 50 Р·Р°РїСЂРѕСЃРѕРІ/РґРµРЅСЊ. РЎ РєР»СЋС‡РѕРј вЂ” Р±РѕР»СЊС€Рµ.
 """
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class GreyNoiseEnricher(BaseEnricher):
@@ -13518,7 +13518,7 @@ class GreyNoiseEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\malwarebazaar.py
+# FILE: \paradox\integrations\malwarebazaar.py
 # ==========================================
 """MalwareBazaar (abuse.ch) вЂ” РѕР±СЂР°Р·С†С‹ malware РїРѕ SHA256.
 
@@ -13526,7 +13526,7 @@ class GreyNoiseEnricher(BaseEnricher):
 """
 import os
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class MalwareBazaarEnricher(BaseEnricher):
@@ -13563,7 +13563,7 @@ class MalwareBazaarEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\pipeline.py
+# FILE: \paradox\integrations\pipeline.py
 # ==========================================
 """
 Р’С‹СЃРѕРєРѕСѓСЂРѕРІРЅРµРІР°СЏ С„СѓРЅРєС†РёСЏ РѕР±РѕРіР°С‰РµРЅРёСЏ.
@@ -13574,9 +13574,9 @@ class MalwareBazaarEnricher(BaseEnricher):
 
 РџСѓСЃС‚С‹Рµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ РїСЂРѕРІР°Р№РґРµСЂРѕРІ РЅРµ РїСЂРёРєСЂРµРїР»СЏСЋС‚СЃСЏ Рє findings.
 """
-from pcap_triage.config import Config
-from pcap_triage.integrations.cache import EnrichmentCache
-from pcap_triage.integrations.enricher import (
+from paradox.config import Config
+from paradox.integrations.cache import EnrichmentCache
+from paradox.integrations.enricher import (
     EnricherOrchestrator,
     collect_iocs_from_findings,
 )
@@ -13587,7 +13587,7 @@ def build_default_orchestrator(config: Config) -> EnricherOrchestrator:
 
     РџРѕСЂСЏРґРѕРє РїСЂРѕРІР°Р№РґРµСЂРѕРІ вЂ” РїРѕ РёРјРµРЅРё РІ REGISTRY, РґР»СЏ СЃС‚Р°Р±РёР»СЊРЅРѕСЃС‚Рё.
     """
-    from pcap_triage.integrations.registry import REGISTRY
+    from paradox.integrations.registry import REGISTRY
 
     enabled = set(config.enrichment_enabled_providers)
     providers = [
@@ -13699,7 +13699,7 @@ def _set_evidence(f, ev: dict) -> None:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\rate_limit.py
+# FILE: \paradox\integrations\rate_limit.py
 # ==========================================
 """
 Token bucket РґР»СЏ rate limit.
@@ -13765,7 +13765,7 @@ class TokenBucket:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\registry.py
+# FILE: \paradox\integrations\registry.py
 # ==========================================
 """Р РµРµСЃС‚СЂ enrichment-РїСЂРѕРІР°Р№РґРµСЂРѕРІ.
 
@@ -13775,15 +13775,15 @@ config.enrichment_enabled_providers.
 """
 from __future__ import annotations
 
-from pcap_triage.integrations.abuseipdb import AbuseIPDBEnricher
-from pcap_triage.integrations.alienvault_otx import AlienVaultOTXEnricher
-from pcap_triage.integrations.greynoise import GreyNoiseEnricher
-from pcap_triage.integrations.malwarebazaar import MalwareBazaarEnricher
-from pcap_triage.integrations.shodan_internetdb import ShodanInternetDBEnricher
-from pcap_triage.integrations.threatfox import ThreatFoxEnricher
-from pcap_triage.integrations.urlhaus import URLhausEnricher
-from pcap_triage.integrations.urlscan import URLScanEnricher
-from pcap_triage.integrations.virustotal import VirusTotalEnricher
+from paradox.integrations.abuseipdb import AbuseIPDBEnricher
+from paradox.integrations.alienvault_otx import AlienVaultOTXEnricher
+from paradox.integrations.greynoise import GreyNoiseEnricher
+from paradox.integrations.malwarebazaar import MalwareBazaarEnricher
+from paradox.integrations.shodan_internetdb import ShodanInternetDBEnricher
+from paradox.integrations.threatfox import ThreatFoxEnricher
+from paradox.integrations.urlhaus import URLhausEnricher
+from paradox.integrations.urlscan import URLScanEnricher
+from paradox.integrations.virustotal import VirusTotalEnricher
 
 #: name -> РєР»Р°СЃСЃ РїСЂРѕРІР°Р№РґРµСЂР°. РРјРµРЅР° СЃРѕРІРїР°РґР°СЋС‚ СЃ РєР»СЋС‡Р°РјРё
 #: Config.enrichment_enabled_providers.
@@ -13813,7 +13813,7 @@ def list_providers() -> list[str]:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\shodan_internetdb.py
+# FILE: \paradox\integrations\shodan_internetdb.py
 # ==========================================
 """
 Shodan InternetDB вЂ” Р±РµСЃРїР»Р°С‚РЅС‹Р№ РїСЂРѕРІР°Р№РґРµСЂ, Р±РµР· API-РєР»СЋС‡Р°.
@@ -13848,7 +13848,7 @@ import urllib.request
 
 import certifi
 
-from pcap_triage.integrations.base import EnrichmentResult
+from paradox.integrations.base import EnrichmentResult
 
 
 _SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
@@ -13862,7 +13862,7 @@ class ShodanInternetDBEnricher:
 
     base_url = "https://internetdb.shodan.io"
     timeout = 10.0
-    user_agent = "pcap-triage/0.6.0"
+    user_agent = "Paradox/0.6.0"
 
     @property
     def enabled(self) -> bool:
@@ -13935,7 +13935,7 @@ class ShodanInternetDBEnricher:
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\threatfox.py
+# FILE: \paradox\integrations\threatfox.py
 # ==========================================
 """ThreatFox (abuse.ch) вЂ” IOC РѕС‚ СЃРѕРѕР±С‰РµСЃС‚РІР°.
 
@@ -13943,7 +13943,7 @@ class ShodanInternetDBEnricher:
 """
 import os
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class ThreatFoxEnricher(BaseEnricher):
@@ -13981,7 +13981,7 @@ class ThreatFoxEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\urlhaus.py
+# FILE: \paradox\integrations\urlhaus.py
 # ==========================================
 """URLhaus (abuse.ch) вЂ” malware URLs.
 
@@ -13994,7 +13994,7 @@ POST form:
 """
 import os
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class URLhausEnricher(BaseEnricher):
@@ -14038,7 +14038,7 @@ class URLhausEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\urlscan.py
+# FILE: \paradox\integrations\urlscan.py
 # ==========================================
 """URLScan.io вЂ” СЃРєР°РЅС‹ РґРѕРјРµРЅРѕРІ Рё URL.
 
@@ -14049,7 +14049,7 @@ Search API Р±РµР· РєР»СЋС‡Р° (rate limit Р¶С‘СЃС‚Рє
 """
 import urllib.parse
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class URLScanEnricher(BaseEnricher):
@@ -14079,7 +14079,7 @@ class URLScanEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\virustotal.py
+# FILE: \paradox\integrations\virustotal.py
 # ==========================================
 """VirusTotal API v3 вЂ” СЂРµРїСѓС‚Р°С†РёСЏ IP, РґРѕРјРµРЅРѕРІ, С„Р°Р№Р»РѕРІ.
 
@@ -14092,7 +14092,7 @@ Free tier: 4 Р·Р°РїСЂРѕСЃР°/РјРёРЅ, 500/РґРµРЅСЊ. Р
 """
 import os
 
-from pcap_triage.integrations.base_enricher import BaseEnricher
+from paradox.integrations.base_enricher import BaseEnricher
 
 
 class VirusTotalEnricher(BaseEnricher):
@@ -14132,19 +14132,19 @@ class VirusTotalEnricher(BaseEnricher):
 
 
 # ==========================================
-# FILE: \pcap_triage\integrations\__init__.py
+# FILE: \paradox\integrations\__init__.py
 # ==========================================
 
 
 
 # ==========================================
-# FILE: \pcap_triage\reporters\flow_report.py
+# FILE: \paradox\reporters\flow_report.py
 # ==========================================
 from collections import Counter
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, FlowKey, FlowStats, get_session_sni
-from pcap_triage.net_utils import classify_direction
+from paradox.config import Config
+from paradox.models import CaptureState, FlowKey, FlowStats, get_session_sni
+from paradox.net_utils import classify_direction
 
 
 def _flow_to_dict(
@@ -14375,7 +14375,7 @@ def build_http_object_report(
 
 
 # ==========================================
-# FILE: \pcap_triage\reporters\ioc_reporter.py
+# FILE: \paradox\reporters\ioc_reporter.py
 # ==========================================
 """
 IOC reporter: СЌРєСЃРїРѕСЂС‚ РёРЅРґРёРєР°С‚РѕСЂРѕРІ РєРѕРјРїСЂРѕРјРёСЃСЃР° РґР»СЏ EDR/SIEM.
@@ -14612,7 +14612,7 @@ def render_suricata_rules(ioc: dict) -> str:
     SID СЃ Р±Р°Р·РѕР№ 9000000 вЂ” РЅРµ РїРµСЂРµСЃРµРєР°РµС‚СЃСЏ СЃ РїСѓР±Р»РёС‡РЅС‹РјРё РїСЂР°РІРёР»Р°РјРё.
     """
     lines: list[str] = [
-        "# pcap-triage generated rules",
+        "# Paradox generated rules",
         "# SID base 9000000 вЂ” local use",
         "",
     ]
@@ -14625,7 +14625,7 @@ def render_suricata_rules(ioc: dict) -> str:
         val = d["value"]
         lines.append(
             f'alert dns $HOME_NET any -> any any '
-            f'(msg:"pcap-triage: malicious domain {val}"; '
+            f'(msg:"Paradox: malicious domain {val}"; '
             f'dns_query; content:"{val}"; nocase; '
             f'sid:{sid}; rev:1;)'
         )
@@ -14637,7 +14637,7 @@ def render_suricata_rules(ioc: dict) -> str:
         val = i["value"]
         lines.append(
             f'alert ip $HOME_NET any -> {val} any '
-            f'(msg:"pcap-triage: suspicious IP {val}"; '
+            f'(msg:"Paradox: suspicious IP {val}"; '
             f'sid:{sid}; rev:1;)'
         )
 
@@ -14732,7 +14732,7 @@ def write_ioc_files(ioc: dict, output_dir: Path) -> dict[str, Path]:
 
 
 # ==========================================
-# FILE: \pcap_triage\reporters\json_reporter.py
+# FILE: \paradox\reporters\json_reporter.py
 # ==========================================
 import json
 from pathlib import Path
@@ -14746,7 +14746,7 @@ def write_json(report: dict, path: Path) -> None:
 
 def write_markdown(report: dict, path) -> None:
     """Р—Р°РїРёСЃР°С‚СЊ Markdown-РІРµСЂСЃРёСЋ РѕС‚С‡С‘С‚Р°."""
-    from pcap_triage.reporters.markdown_reporter import render_markdown
+    from paradox.reporters.markdown_reporter import render_markdown
     from pathlib import Path
 
     path = Path(path)
@@ -14756,7 +14756,7 @@ def write_markdown(report: dict, path) -> None:
 
 
 # ==========================================
-# FILE: \pcap_triage\reporters\markdown_reporter.py
+# FILE: \paradox\reporters\markdown_reporter.py
 # ==========================================
 """
 Markdown-СЂРµРЅРґРµСЂ РѕС‚С‡С‘С‚Р°.
@@ -15323,7 +15323,7 @@ def render_markdown(report: dict) -> str:
     lines.append(f"# PCAP Triage Report: `{pcap_name}`")
     lines.append("")
 
-    lines.append(f"**РРЅСЃС‚СЂСѓРјРµРЅС‚:** pcap-triage v{provenance.get('tool_version', '?')}  ")
+    lines.append(f"**РРЅСЃС‚СЂСѓРјРµРЅС‚:** Paradox v{provenance.get('tool_version', '?')}  ")
     lines.append(f"**Р¤Р°Р№Р»:** `{pcap_path}`  ")
     lines.append(f"**SHA256:** `{provenance.get('pcap_sha256', '?')}`  ")
     lines.append("")

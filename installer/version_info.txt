@@ -17,10 +17,10 @@ VSVersionInfo(
         [StringStruct(u'CompanyName', u'Andrey Grigoryev'),
          StringStruct(u'FileDescription', u'ффлайн-триаж pcap: findings + противоречия между слоями данных'),
          StringStruct(u'FileVersion', u'1.0.0.0'),
-         StringStruct(u'InternalName', u'pcap-triage'),
+         StringStruct(u'InternalName', u'Paradox'),
          StringStruct(u'LegalCopyright', u'© 2026 Andrey Grigoryev (v314xm)'),
-         StringStruct(u'OriginalFilename', u'pcap-triage.exe'),
-         StringStruct(u'ProductName', u'pcap-triage'),
+         StringStruct(u'OriginalFilename', u'Paradox.exe'),
+         StringStruct(u'ProductName', u'Paradox'),
          StringStruct(u'ProductVersion', u'1.0.0.0')])
     ]),
     VarFileInfo([VarStruct(u'Translation', [1033, 1200])])

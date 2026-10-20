@@ -13,7 +13,7 @@
 - empty payload не хранится
 - stats()
 """
-from pcap_triage.reassembler import TCPReassembler
+from paradox.reassembler import TCPReassembler
 
 
 def _pkt(
@@ -21,7 +21,7 @@ def _pkt(
     seq=0, flags=0, payload=b"", proto="tcp",
 ):
     """Минимальный PacketRecord-like объект."""
-    from pcap_triage.parsers import PacketRecord
+    from paradox.parsers import PacketRecord
     return PacketRecord(
         ts=0.0, length=0, raw=b"",
         eth_src=None, eth_dst=None, ethertype=0, vlan_id=None,
@@ -44,7 +44,7 @@ def test_basic_in_order():
     r.feed(_pkt(seq=1012, payload=b"!", flags=0x01))  # FIN
     r.finalize_all()
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert r.all_streams()[key] == b"hello world!"
@@ -59,7 +59,7 @@ def test_out_of_order():
     r.feed(_pkt(seq=1007, payload=b"world"))
     r.finalize_all()
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert r.all_streams()[key] == b"hello world!"
@@ -73,7 +73,7 @@ def test_retransmit_ignored():
     r.feed(_pkt(seq=1001, payload=b"BBBB"))  # retransmit с тем же offset
     r.finalize_all()
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert r.all_streams()[key] == b"AAAA"
@@ -86,7 +86,7 @@ def test_mid_stream_no_syn():
     r.feed(_pkt(seq=5003, payload=b"def"))
     r.finalize_all()
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert r.all_streams()[key] == b"abcdef"
@@ -100,7 +100,7 @@ def test_truncation_per_flow():
     r.feed(_pkt(seq=1007, payload=b"123456"))  # ещё 6, превысит 10
     r.finalize_all()
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert key in r.truncated_flows()
@@ -113,7 +113,7 @@ def test_rst_finalizes():
     r.feed(_pkt(seq=1001, payload=b"data"))
     r.feed(_pkt(flags=0x04))  # RST
 
-    from pcap_triage.models import FlowKey
+    from paradox.models import FlowKey
     key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
                   src_port=50000, dst_port=80)
     assert r.all_streams()[key] == b"data"

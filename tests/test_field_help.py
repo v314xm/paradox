@@ -1,6 +1,6 @@
 """Тесты описаний для tooltip'ов."""
-from pcap_triage.config import Config
-from pcap_triage_gui.field_help import (
+from paradox.config import Config
+from paradox_gui.field_help import (
     FIELD_HELP,
     SECTION_BY_TITLE,
     SECTION_HELP,

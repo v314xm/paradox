@@ -3,7 +3,7 @@
 6 безключевых + 3 abuse.ch (требуют ABUSECH_AUTH_KEY, но видны
 в списке «Настройки → Threat Intel»).
 """
-from pcap_triage.config import Config
+from paradox.config import Config
 
 
 def test_default_providers_count():
@@ -35,7 +35,7 @@ def test_abusеch_providers_in_default():
 def test_all_registry_names_present_in_default():
     """В Config должны быть все имена из REGISTRY — иначе провайдер
     никогда не вызовется."""
-    from pcap_triage.integrations.registry import REGISTRY
+    from paradox.integrations.registry import REGISTRY
     cfg = Config()
     missing = set(REGISTRY) - set(cfg.enrichment_enabled_providers)
     assert not missing, f"нет в Config: {sorted(missing)}"

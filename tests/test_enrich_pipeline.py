@@ -4,12 +4,12 @@
 import time
 from dataclasses import replace
 
-from pcap_triage.config import Config
-from pcap_triage.integrations.base import EnrichmentResult
-from pcap_triage.integrations.pipeline import (
+from paradox.config import Config
+from paradox.integrations.base import EnrichmentResult
+from paradox.integrations.pipeline import (
     attach_enrichment_to_findings,
 )
-from pcap_triage.models import Finding
+from paradox.models import Finding
 
 
 def test_attach_enrichment_to_ip_finding():

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from pcap_triage_gui.settings_store import (
+from paradox_gui.settings_store import (
     SettingsStore,
     default_settings_path,
 )

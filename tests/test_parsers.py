@@ -4,7 +4,7 @@ Unit-тесты быстрого парсера.
 Проверяем разбор сырых байтов в PacketRecord. Без scapy, без pcap.
 Эталонные пакеты собраны вручную из hex-дампов.
 """
-from pcap_triage.parsers import (
+from paradox.parsers import (
     parse_packet,
     ETHERTYPE_ARP,
     ETHERTYPE_IPV4,

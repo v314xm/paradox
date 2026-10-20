@@ -1,8 +1,8 @@
 import math
 from collections import Counter
 
-from pcap_triage.config import Config
-from pcap_triage.models import CaptureState, Finding
+from paradox.config import Config
+from paradox.models import CaptureState, Finding
 
 
 def shannon_entropy(s: str) -> float:

@@ -14,31 +14,31 @@ def qapp():
 
 
 def test_window_instantiates(qapp):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.views.quick_check_window import QuickCheckWindow
+    from paradox.config import Config
+    from paradox_gui.views.quick_check_window import QuickCheckWindow
     w = QuickCheckWindow(Config())
     assert w is not None
 
 
 def test_autodetect_hint_ip(qapp):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.views.quick_check_window import QuickCheckWindow
+    from paradox.config import Config
+    from paradox_gui.views.quick_check_window import QuickCheckWindow
     w = QuickCheckWindow(Config())
     w._ioc_input.setText("8.8.8.8")
     assert "ip" in w._type_hint.text()
 
 
 def test_autodetect_hint_empty(qapp):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.views.quick_check_window import QuickCheckWindow
+    from paradox.config import Config
+    from paradox_gui.views.quick_check_window import QuickCheckWindow
     w = QuickCheckWindow(Config())
     w._ioc_input.setText("")
     assert w._type_hint.text() == ""
 
 
 def test_resolve_type_from_combo(qapp):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.views.quick_check_window import QuickCheckWindow
+    from paradox.config import Config
+    from paradox_gui.views.quick_check_window import QuickCheckWindow
     w = QuickCheckWindow(Config())
     w._type_combo.setCurrentText("domain")
     w._ioc_input.setText("evil.com")
@@ -46,8 +46,8 @@ def test_resolve_type_from_combo(qapp):
 
 
 def test_clear_results_no_children(qapp):
-    from pcap_triage.config import Config
-    from pcap_triage_gui.views.quick_check_window import QuickCheckWindow
+    from paradox.config import Config
+    from paradox_gui.views.quick_check_window import QuickCheckWindow
     w = QuickCheckWindow(Config())
     w._clear_results()
     # Только stretch в layout

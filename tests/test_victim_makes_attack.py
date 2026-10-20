@@ -1,8 +1,8 @@
 """Тесты правила victim_makes_attack (PIVOT)."""
-from pcap_triage.models import Finding
-from pcap_triage.contradictions.base import Fact
-from pcap_triage.contradictions.facts import extract_attack_facts
-from pcap_triage.contradictions.rules.e_victim_makes_attack import (
+from paradox.models import Finding
+from paradox.contradictions.base import Fact
+from paradox.contradictions.facts import extract_attack_facts
+from paradox.contradictions.rules.e_victim_makes_attack import (
     VictimMakesAttackRule,
 )
 
