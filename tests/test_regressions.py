@@ -579,7 +579,7 @@ def test_ftp_brute_force_ignores_port_80():
 
 def test_mitre_map_covers_all_detectors():
     from paradox.detectors.mitre_map import MITRE_MAP
-    for key, techniques in MITRE_MAP.items():
+    for _key, techniques in MITRE_MAP.items():
         assert techniques
         for t in techniques:
             assert t.startswith("T")

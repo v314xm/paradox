@@ -1,28 +1,100 @@
+# =============================================================================
+# Paradox — PCAP triage pipeline
+# =============================================================================
+# Установка для разработки:
+#   pip install -e ".[dev,gui]"
+# Установка с YARA и обогащением:
+#   pip install -e ".[dev,gui,yara,enrich]"
+# =============================================================================
+
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
+# -----------------------------------------------------------------------------
+# Метаданные пакета
+# -----------------------------------------------------------------------------
+
 [project]
+name = "paradox"
+version = "1.0.0"
+description = "PCAP triage pipeline for analysts"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Andrey Grigoryev", email = "v314xm@users.noreply.github.com" },
 ]
-name = "Paradox"
-version = "1.0.0"
-description = "PCAP triage pipeline for analysts"
+keywords = ["pcap", "network", "forensics", "triage", "security", "dfir"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Monitoring",
+]
 requires-python = ">=3.11"
 dependencies = [
     "scapy>=2.5",
     "pyyaml>=6.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/v314xm/Paradox"
+Source   = "https://github.com/v314xm/Paradox"
+Issues   = "https://github.com/v314xm/Paradox/issues"
+
+
+# -----------------------------------------------------------------------------
+# Консольная команда
+# -----------------------------------------------------------------------------
+
 [project.scripts]
-Paradox = "paradox.cli:main"
+paradox = "paradox.cli:main"
+
+
+# -----------------------------------------------------------------------------
+# Extras
+# -----------------------------------------------------------------------------
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.6"]
+enrich = ["keyring>=24", "certifi>=2023.7"]
+yara = ["yara-python>=4.5"]
+dev = [
+    "pytest>=7.4",
+    "pytest-qt>=4.2",
+    "ruff>=0.6",
+    "pre-commit>=3.6",
+]
+
+
+# -----------------------------------------------------------------------------
+# Что паковать
+# -----------------------------------------------------------------------------
+# include  — paradox* и paradox_gui* (два отдельных пакета)
+# exclude  — tests/ и tools/ в дистрибутив не идут
+# ОДНА строка для exclude — никаких многострочных массивов, TOML тут капризен.
 
 [tool.setuptools.packages.find]
-include = ["paradox*"]
+include = ["paradox*", "paradox_gui*"]
+exclude = ["tests*", "tools*"]
+
+
+# -----------------------------------------------------------------------------
+# pytest
+# -----------------------------------------------------------------------------
+# -p no:cacheprovider — обход Windows-багов с .pytest_cache
+# -p no:cov          — обход segfault 0xC0000005 в atexit-хуке pytest-cov
+#                      на Python 3.13 + PySide6
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short -p no:cacheprovider -p no:cov"
 markers = [
     "slow: тяжёлые тесты, не для CI по умолчанию",
 ]
@@ -30,3 +102,55 @@ filterwarnings = [
     "ignore::DeprecationWarning:scapy.*",
 ]
 norecursedirs = ["tools", ".venv", "build", "dist", "__pycache__"]
+
+
+# -----------------------------------------------------------------------------
+# Ruff — линтер
+# -----------------------------------------------------------------------------
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+    ".venv",
+    ".autofix-backup",
+    ".fix-ruff-backup",
+    ".diff-backup",
+    ".setup-backup",
+    "build",
+    "dist",
+    "__pycache__",
+    ".git",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP"]
+ignore = [
+    "E501",
+    "E402",
+    "B008",
+    "BLE001",
+    "S110",
+    "SIM102",
+    "SIM103",
+    "SIM108",
+    "PERF102",
+    "ISC004",
+    "RUF012",
+    "B023",
+    "RUF059",
+    "FURB105",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E", "W", "F811"]
+"tools/*" = ["B", "E", "F"]
+"paradox_gui/dialogs/graph_dialog.py" = ["E701"]
+"paradox_gui/views/export_view.py" = ["E701"]
+"paradox_gui/views/settings_view.py" = ["E701"]
+"paradox_gui/__main__.py" = ["E402"]
+"paradox_gui/_runtime_hook.py" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["paradox", "paradox_gui"]
+known-third-party = ["PySide6", "scapy"]

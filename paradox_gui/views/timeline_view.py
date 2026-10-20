@@ -119,7 +119,7 @@ class TimelineView(QWidget):
             phases.setdefault(phase, []).append(e)
 
         sorted_phases = sorted(
-            phases.keys(), 
+            phases.keys(),
             key=lambda p: min(e.get("chain_order", 999) for e in phases[p])
         )
 

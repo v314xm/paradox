@@ -1,58 +1,120 @@
+# ============================================================
+#  Paradox — .gitignore
+#  Исключает: venv, кеши, pcap, отчёты, бэкапы, одноразовые скрипты
+#  Оставляет: исходный код, тесты, spec, tools/verify_all.py и др.
+# ============================================================
+
+# ---------- Python / venv ----------
 .venv/
+venv/
+env/
+ENV/
 __pycache__/
-*.pyc
-.idea/
-.pytest_cache/
+*.py[cod]
+*$py.class
+*.so
+.Python
 *.egg-info/
-reports/
-*.pcap
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 profile.out
+
+# ---------- IDE ----------
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# ---------- Pcap / данные ----------
 *.pcap
 *.pcapng
-# --- PyInstaller ---
+*.cap
+*.pcap.bak
+*_part1.pcap
+*_part2.pcap
+
+# ---------- PyInstaller ----------
 build/
 dist/
-*.spec
 
-# --- Scripts/temp (my tools) ---
-apply_patches.py
-diagnose_fix.py
-fix_*.py
-compact_ui.py
-polish_enrich.py
-add_observations_to_gui.py
-HANDOFF.md.py
-
-# --- Backups ---
-*.bak
-*.bak_*
-*.bak2
-
-# --- Reports/analysis output (not source) ---
+# ---------- Отчёты и артефакты ----------
+reports/
+reports_batch/
+*.report.json
 CyberCampTask.json
 CyberCampTask.md
 CyberCampTask.log
-pygount-report.json
 batch_results.json
-batch_run.log
-
-# Dev scripts � ���������, �� ����� ������
-
-# tools/ � ������� �������, �� ������ �����������
-tools/*
-!tools/README.md
-!tools/make_test_pcap.py
-!tools/batch_analyze.py
-
-reports_batch/
-reports/
+batch_run*.log
+pygount-report.json
 *.db
-batch_run_*.log
+*.sqlite
+*.sqlite3
+
+# ---------- Логи ----------
 *.log
-
-
-.autofix-backup/
-tools/autofix_report.txt
-gui_dump.txt
-core_dump.txt
+Paradox-error.log
 pcap-triage-error.log
+
+# ---------- Бэкапы ----------
+*.bak
+*.bak_*
+*.bak2
+*.orig
+*.rej
+.autofix-backup/
+.fix-ruff-backup/
+.diff-backup/
+.setup-backup/
+
+# ---------- Dumps / отладка ----------
+core_dump.txt
+gui_dump.txt
+dump_gui.txt
+dump_tests.txt
+dump_*.txt
+*_dump.txt
+diag_output.txt
+project_tree.txt
+diag_warns.py
+
+# ---------- Одноразовые скрипты в tools/ ----------
+# Полезные (verify_all, rollback, test_multi_pcap и др.) НЕ игнорируются.
+tools/fix_*.py
+tools/add_*.py
+tools/polish_*.py
+tools/improve_*.py
+tools/apply_*.py
+tools/clean_*.py
+tools/dedupe_*.py
+tools/rename_*.py
+tools/compact_*.py
+tools/autofix_report.txt
+tools/batch_results.json
+
+# ---------- Одноразовые скрипты в корне ----------
+apply_patches.py
+apply_review_fixes.py
+clean_fix.py
+dedupe_yara.py
+rename_project.py
+compact_ui.py
+polish_enrich.py
+add_observations_to_gui.py
+diagnose_fix.py
+HANDOFF.md.py
+
+# ---------- Прочие отчёты в корне ----------
+batch_run.log
+*.tmp
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+desktop.ini

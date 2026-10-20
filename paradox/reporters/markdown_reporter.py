@@ -681,6 +681,11 @@ def render_markdown(report: dict) -> str:
     lines.append("_Отчёт сгенерирован автоматически. Проверяй findings глазами: "
                  "эвристики дают кандидатов, не приговоры._")
     lines.append("")
+    lines.append("***")
+    lines.append("")
+    lines.append("**Paradox** v" + provenance.get("tool_version", "?") +
+                 " · © 2026 Andrey Grigoryev (v314xm)")
+    lines.append("")
 
     return "\n".join(lines)
 
@@ -969,4 +974,3 @@ def _render_ndp(report: dict) -> list[str]:
         lines.append("")
 
     return lines
-

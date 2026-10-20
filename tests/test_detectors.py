@@ -19,7 +19,19 @@ from paradox.detectors.suspicious_port import SuspiciousPortDetector
 from paradox.detectors.typosquatting import TyposquattingDetector, levenshtein
 from paradox.models import CaptureState, FlowKey, FlowStats
 
+
 # ---------- DGADetector ----------
+def _make_state_with_dns(domains: list[str]) -> CaptureState:
+    """Хелпер для regression-тестов: state с заданными DNS-запросами.
+
+    Зачем: несколько тестов (typosquatting, dga) проверяют, что детектор
+    не срабатывает на легитимные домены из allowlist. Им нужен минимальный
+    CaptureState с dns_queries — этот хелпер его создаёт.
+    """
+    state = CaptureState()
+    for d in domains:
+        state.dns_queries[d] = 1
+    return state
 
 def test_dga_detects_high_entropy_domain():
     state = CaptureState()

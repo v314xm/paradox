@@ -103,7 +103,7 @@ class IPv6View(QWidget):
         flows_data = report.get("flows", {}).get("top_by_bytes", [])
 
         ipv6_flows = [
-            f for f in flows_data 
+            f for f in flows_data
             if ":" in str(f.get("src_ip", "")) or ":" in str(f.get("dst_ip", ""))
         ]
 

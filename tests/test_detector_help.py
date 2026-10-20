@@ -42,5 +42,3 @@ def test_help_and_settings_are_in_sync():
     assert not missing_in_settings, (
         f"описания без детектора: {sorted(missing_in_settings)}"
     )
-
-

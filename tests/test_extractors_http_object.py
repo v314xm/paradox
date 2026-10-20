@@ -43,7 +43,7 @@ def test_http_object_request_and_response_paired():
     assert "response" in kinds
 
     # response получил URI из парного request
-    for k, obj in state.http_objects:
+    for _k, obj in state.http_objects:
         if obj.kind == "response":
             assert obj.uri == "/index.html"
             assert obj.body == b"HELLO"

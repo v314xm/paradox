@@ -222,7 +222,7 @@ class CaptureState:
     # чтобы не плодить импорт-цикл models ↔ x509_cert.
     tls_certs: list
 
-   
+
 
     # meta
     packet_count: int
@@ -424,7 +424,7 @@ paradox/contradictions/
     └── (tls_cert-правила)             # v0.7.0+: sni_cert_mismatch,
                                        # self_signed_cert, expired_cert
 Функции извлечения фактов (facts.py) Замени её содержимое — старые 7 остаются, добавь 6 новых:
-Правило	Severity base	
+Правило	Severity base
 Источник фактов
 victim_makes_attack	critical	findings (роли)
 mac_ip_conflict	critical	state.arp_macs

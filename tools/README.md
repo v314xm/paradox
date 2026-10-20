@@ -47,4 +47,3 @@ Dev-скрипты. Не часть пакета `paradox/`, не импорти
 python tools/diagnose.py path\to\capture.pcap
 python tools/batch_analyze.py D:\datasets\FIRST-2015
 python tools/make_test_pcap.py
-

@@ -33,9 +33,16 @@ class DropZone(QFrame):
         layout.setSpacing(6)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self._icon = QLabel("📁")
-        self._icon.setStyleSheet("font-size: 32px;")
-        self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # Логотип вместо эмодзи папки (v1.2)
+        try:
+            from paradox_gui.logo import render_logo
+            self._icon = QLabel()
+            self._icon.setPixmap(render_logo(64))
+            self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        except Exception:
+            self._icon = QLabel("📁")
+            self._icon.setStyleSheet("font-size: 32px;")
+            self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._title = QLabel("Перетащите pcap сюда")
         self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)

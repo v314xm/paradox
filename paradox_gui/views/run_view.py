@@ -8,6 +8,7 @@ import time
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QDialog,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -53,6 +54,8 @@ class RunView(QWidget):
         # >>> СОСТОЯНИЕ <<<
         self._worker: AnalysisWorker | None = None
         self._current_path: str | None = None
+        # v1.2: multi-pcap
+        self._current_paths: list[str] = []
         self._last_report: dict | None = None
         self._config_overrides: dict = {}
         self._disabled_detectors: set[str] = set()
@@ -93,6 +96,21 @@ class RunView(QWidget):
         self.drop_zone = DropZone()
         self.drop_zone.pcap_selected.connect(self._on_pcap_selected)
         layout.addWidget(self.drop_zone)
+
+        # Кнопка "Открыть несколько pcap" (v1.2 multi-pcap)
+        from PySide6.QtWidgets import QHBoxLayout as _QH
+        from PySide6.QtWidgets import QPushButton as _QBtn
+        multi_row = _QH()
+        multi_row.setContentsMargins(0, 0, 0, 0)
+        self.btn_multi_pcap = _QBtn("Открыть несколько pcap для слияния…")
+        self.btn_multi_pcap.setToolTip(
+            "Выбрать 2+ pcap файла — они будут склеены в один датасет.\n"
+            "Beaconing, DGA и slow-scan детекторы увидят длинный горизонт."
+        )
+        self.btn_multi_pcap.clicked.connect(self._on_multi_pcap_clicked)
+        multi_row.addWidget(self.btn_multi_pcap)
+        multi_row.addStretch(1)
+        layout.addLayout(multi_row)
 
         # --- Progress bar + кнопка «Остановить» ---
         # Indeterminate: точный процент требует правки ядра.
@@ -147,6 +165,11 @@ class RunView(QWidget):
         self.btn_graph.clicked.connect(self._on_graph_clicked)
         findings_header.addWidget(self.btn_graph)
 
+        self.btn_attack_graph = QPushButton("Граф атаки")
+        self.btn_attack_graph.setEnabled(False)
+        self.btn_attack_graph.clicked.connect(self._on_attack_graph_clicked)
+        findings_header.addWidget(self.btn_attack_graph)
+
         self.btn_carved = QPushButton("Файлы")
         self.btn_carved.setEnabled(False)
         self.btn_carved.clicked.connect(self._on_carved_clicked)
@@ -182,6 +205,30 @@ class RunView(QWidget):
         if self._worker and self._worker.isRunning():
             return
         self._current_path = path
+        self._current_paths = [path]
+        self._reset_results()
+        self._run_analysis()
+
+    def _on_multi_pcap_clicked(self) -> None:
+        if self._worker and self._worker.isRunning():
+            return
+        paths, _ = QFileDialog.getOpenFileNames(
+            self,
+            "Выбрать pcap-файлы для слияния (2+)",
+            "",
+            "Packet captures (*.pcap *.pcapng *.cap);;Все файлы (*)",
+        )
+        if not paths:
+            return
+        if len(paths) < 2:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self, "Нужно 2+ файла",
+                "Выбран 1 файл. Для одиночного анализа — перетащите его в зону выше.",
+            )
+            return
+        self._current_paths = list(paths)
+        self._current_path = paths[0]
         self._reset_results()
         self._run_analysis()
 
@@ -206,8 +253,13 @@ class RunView(QWidget):
         self._analysis_t0 = time.monotonic()
         self.status_label.setText("Извлечение · 0%")
 
+        # v1.2: если путей > 1 — multi-pcap режим
+        _paths_or_path = (
+            list(self._current_paths) if len(self._current_paths) > 1
+            else self._current_path
+        )
         self._worker = AnalysisWorker(
-            self._current_path, config,
+            _paths_or_path, config,
             disabled_detectors=self._disabled_detectors,
             disabled_contradictions=self._disabled_contradictions,
         )
@@ -241,6 +293,10 @@ class RunView(QWidget):
         self.findings.set_findings(self._original_findings)
         self.btn_what_if.setEnabled(True)
         self.btn_graph.setEnabled(True)
+        _ag = report.get('attack_graph') or {}
+        # v1.2.1: включаем если есть ЛЮБЫЕ данные графа (не только paths).
+        _has_attack_data = bool(_ag.get('nodes') or _ag.get('paths'))
+        self.btn_attack_graph.setEnabled(_has_attack_data)
         self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
 
@@ -257,7 +313,9 @@ class RunView(QWidget):
         self.analysis_finished.emit(report)
 
         # Компактный drop zone после успешного прогона.
-        if self._current_path:
+        if len(self._current_paths) > 1:
+            self.drop_zone.set_compact(f"[multi] {len(self._current_paths)} файлов")
+        elif self._current_path:
             self.drop_zone.set_compact(self._current_path)
 
     def load_report(self, report: dict) -> None:
@@ -285,6 +343,8 @@ class RunView(QWidget):
         self.findings.set_findings(self._original_findings)
         self.btn_what_if.setEnabled(True)
         self.btn_graph.setEnabled(True)
+        _ag = report.get('attack_graph') or {}
+        self.btn_attack_graph.setEnabled(bool(_ag.get('paths')))
         self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
         self.status_label.setText(
@@ -374,6 +434,12 @@ class RunView(QWidget):
             return
         GraphDialog(self._last_report, self).exec()
 
+    def _on_attack_graph_clicked(self) -> None:
+        if not self._last_report:
+            return
+        from paradox_gui.dialogs.attack_graph_dialog import AttackGraphDialog
+        AttackGraphDialog(self._last_report, self).exec()
+
     def _on_what_if_clicked(self) -> None:
         if not self._last_report:
             return
@@ -399,7 +465,7 @@ class RunView(QWidget):
         self.btn_reset_filter.setVisible(True)
 
         self.toasts.show(
-            f"What-If: удалено {removed_count} находок", 
+            f"What-If: удалено {removed_count} находок",
             "info"
         )
         self.status_label.setText(
@@ -474,6 +540,7 @@ class RunView(QWidget):
         if hasattr(self, "btn_what_if"):
             self.btn_what_if.setEnabled(False)
             self.btn_graph.setEnabled(False)
+            self.btn_attack_graph.setEnabled(False)
             self.btn_reset_filter.setVisible(False)
 
     # =========================================================================

@@ -185,12 +185,23 @@ QCheckBox::indicator:checked {{
 /* =========================================================================
    ТАБЛИЦЫ
    ========================================================================= */
-QTableWidget, QTableView {{
+QTableWidget, QTableView, QTreeWidget, QTreeView {{
     background-color: {bg_light};
     border: 1px solid {border};
     gridline-color: {border};
     selection-background-color: {bg_hover};
     alternate-background-color: {bg};
+}}
+QTreeWidget::item, QTreeView::item {{
+    padding: 4px 6px;
+    color: {text};
+}}
+QTreeWidget::item:selected, QTreeView::item:selected {{
+    background: {bg_hover};
+    color: {text};
+}}
+QTreeView::branch {{
+    background: transparent;
 }}
 QHeaderView::section {{
     background-color: {bg_lighter};
@@ -316,7 +327,7 @@ QLabel#summaryValueContra[hasContra="true"] {{
 /* =========================================================================
    >>> СЛЕДУЮЩИЙ ВИДЖЕТ ДОБАВЛЯТЬ СЮДА <<<
    ========================================================================= */
-   
+
    /* =========================================================================
    ВИДЖЕТ: HistoryView
    ========================================================================= */
@@ -348,7 +359,7 @@ QTextBrowser#historyDetails {{
     color: {text};
     selection-background-color: {accent};
 }}
-   
+
    /* =========================================================================
    ВИДЖЕТ: SettingsView
    ========================================================================= */
@@ -372,7 +383,7 @@ QListWidget#settingsSidebar::item:selected {{
     background: {accent};
     color: #ffffff;
 }}
-   
+
 /* =========================================================================
    ВИДЖЕТ: Toast
    ========================================================================= */
@@ -392,8 +403,8 @@ QWidget#toast_error   {{ border-left: 4px solid {danger}; }}
 QLabel#toastText {{
     color: {text};
     font-size: 13px;
-}}   
-   
+}}
+
 /* =========================================================================
    ВИДЖЕТ: FindingsTable / FindingDialog
    ========================================================================= */
@@ -417,11 +428,11 @@ QDialog QLabel#h1 {{
 QDialog QLabel#mono {{
     font-family: {mono};
     font-size: 12px;
-}}   
-   
-   
-   
-   
+}}
+
+
+
+
 /* =========================================================================
    ВИДЖЕТ: ContradictionDialog
    ========================================================================= */
@@ -439,8 +450,8 @@ QDialog QFrame#contraFacts {{
 QDialog QFrame#contraFacts QLabel {{
     color: {text_muted};
     font-size: 12px;
-}}   
-   
+}}
+
 /* =========================================================================
    ВИДЖЕТ: ContradictionsSection
    ========================================================================= */
@@ -452,9 +463,9 @@ QScrollArea {{
 }}
 QScrollArea > QWidget > QWidget {{
     background: transparent;
-}}   
-   
-   
+}}
+
+
    /* =========================================================================
    ВИДЖЕТ: ContradictionCard
    ========================================================================= */
@@ -521,7 +532,7 @@ QPushButton#small {{
     padding: 3px 10px;
     font-size: 12px;
 }}
- 
+
 /* =========================================================================
    ВИДЖЕТ: RoadmapView + общие h1 / muted
    ========================================================================= */
@@ -545,9 +556,9 @@ QTextBrowser {{
     padding: 8px 12px;
     color: {text};
     selection-background-color: {accent};
-}} 
-    
-   
+}}
+
+
 """.format(
     ui=UI_FAMILY,
     mono=MONO_FAMILY,

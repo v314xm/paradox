@@ -40,6 +40,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QMainWindow,
     QMenuBar,
@@ -50,6 +51,7 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui.i18n import set_language, tr
+from paradox_gui.views.diff_view import DiffView
 from paradox_gui.views.enrich_view import EnrichView
 from paradox_gui.views.export_view import ExportView
 from paradox_gui.views.history_view import HistoryView
@@ -73,6 +75,14 @@ TAB_TITLES = (
     "Экспорт",
 )
 APP_VERSION = "1.0.0"
+
+class ClickableLabel(QLabel):
+    from PySide6.QtCore import Signal
+    clicked = Signal()
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
+        super().mousePressEvent(event)
 
 
 # Соответствие латиница → кириллица в ЙЦУКЕН-раскладке.
@@ -404,16 +414,39 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.ipv6_view, tr("tab_ipv6"))
         self.tabs.addTab(self.timeline_view, tr("tab_timeline"))
         self.tabs.addTab(self.export_view, tr("tab_export"))
+        self.diff_view = DiffView()
+        self.tabs.addTab(self.diff_view, "Сравнение")
 
         # Меню — отдельный QMenuBar НАД табами. QMainWindow с одним
         # setCentralWidget не покажет self._topmenu, если он не внутри
         # центрального виджета. Оборачиваем всё в контейнер с QVBox:
         # меню сверху, табы растягиваются ниже.
+        # Шапка: логотип + меню
+        try:
+            from paradox_gui.logo import get_app_icon, render_logo
+            self.setWindowIcon(get_app_icon())
+            _logo = ClickableLabel()
+            _logo.setPixmap(render_logo(24))
+            _logo.setFixedSize(24, 24)
+            _logo.setCursor(Qt.CursorShape.PointingHandCursor)
+            _logo.setToolTip("О программе")
+            _logo.clicked.connect(self._on_about)
+        except Exception:
+            _logo = None
+
+        header = QWidget()
+        header_h = QHBoxLayout(header)
+        header_h.setContentsMargins(10, 4, 4, 0)
+        header_h.setSpacing(6)
+        if _logo is not None:
+            header_h.addWidget(_logo)
+        header_h.addWidget(self._topmenu, stretch=1)
+
         container = QWidget()
         vbox = QVBoxLayout(container)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
-        vbox.addWidget(self._topmenu)
+        vbox.addWidget(header)
         vbox.addWidget(self.tabs, stretch=1)
         self.setCentralWidget(container)
 
@@ -440,7 +473,12 @@ class MainWindow(QMainWindow):
         sb.addWidget(QLabel("  Файл:"))
         sb.addWidget(self._status_file)
 
-        sb.addPermanentWidget(QLabel(f"Версия: {APP_VERSION}"))
+        self._version_lbl = ClickableLabel(f"v{APP_VERSION} · © v314xm")
+        self._version_lbl.setStyleSheet("color: #a0a0b0; padding: 0 8px;")
+        self._version_lbl.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._version_lbl.setToolTip("О программе")
+        self._version_lbl.clicked.connect(self._on_about)
+        sb.addPermanentWidget(self._version_lbl)
 
         # >>> СТАТУС-БАР: TI <<<
         # Шаг 13: sb.addPermanentWidget(QLabel("TI: AbuseIPDB ✓ · Shodan ✓"))
@@ -549,24 +587,84 @@ class MainWindow(QMainWindow):
         )
 
     def _on_about(self) -> None:
+        """About-диалог с логотипом."""
         try:
-            box = QMessageBox(self)
-            box.setWindowTitle("О программе")
-            box.setTextFormat(Qt.TextFormat.RichText)
-            box.setText(
-                f"<b>Paradox v{APP_VERSION}</b><br><br>"
-                "Оффлайн-триаж pcap.<br>"
-                "18 детекторов · 9 экстракторов · 12 правил · 4 анализатора"
+            from PySide6.QtWidgets import (
+                QDialog,
+                QDialogButtonBox,
+                QLabel,
+                QVBoxLayout,
             )
-            box.setInformativeText("© 2026 Andrey Grigoryev (v314xm)")
-            box.setIcon(QMessageBox.Icon.Information)
-            box.exec()
+
+            from paradox_gui.logo import render_logo
+
+            dlg = QDialog(self)
+            dlg.setWindowTitle("О программе")
+            dlg.setMinimumWidth(420)
+            v = QVBoxLayout(dlg)
+            v.setContentsMargins(24, 24, 24, 16)
+            v.setSpacing(10)
+
+            # Логотип по центру
+            logo_lbl = QLabel()
+            logo_lbl.setPixmap(render_logo(96))
+            logo_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            v.addWidget(logo_lbl)
+
+            # Заголовок
+            title = QLabel(f"Paradox v{APP_VERSION}")
+            title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            title.setStyleSheet(
+                "font-size: 20px; font-weight: 700; color: #5b8cff;"
+            )
+            v.addWidget(title)
+
+            subtitle = QLabel("Оффлайн-триаж pcap")
+            subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            subtitle.setObjectName("muted")
+            v.addWidget(subtitle)
+
+            # Модули — сетка
+            modules = QLabel(
+                "<div style='text-align:center; line-height:1.6;'>"
+                "<span style='color:#e0e0e0;'>"
+                "20 детекторов · 12 правил<br>"
+                "4 экстрактора · 4 анализатора<br>"
+                "</span>"
+                "<span style='color:#a0a0b0; font-size:11px;'>"
+                "Attack Graph · Multi-pcap · Threat Intel<br>"
+                "Shodan · AbuseIPDB · VirusTotal · OTX · URLScan"
+                "</span></div>"
+            )
+            modules.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            v.addWidget(modules)
+
+            # Разделитель
+            sep = QLabel("─" * 30)
+            sep.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            sep.setStyleSheet("color: #3a3d4d;")
+            v.addWidget(sep)
+
+            # Копирайт
+            copyright_lbl = QLabel("© 2026 Andrey Grigoryev (v314xm)")
+            copyright_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            copyright_lbl.setObjectName("muted")
+            v.addWidget(copyright_lbl)
+
+            # Кнопка закрыть
+            btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+            btn.rejected.connect(dlg.reject)
+            btn.button(QDialogButtonBox.StandardButton.Close).setText("Закрыть")
+            v.addWidget(btn)
+
+            dlg.exec()
         except Exception as e:
             import traceback
             traceback.print_exc()
             QMessageBox.critical(
                 self, "О программе — ошибка", f"{type(e).__name__}: {e}",
             )
+
 
     def _on_hotkeys(self) -> None:
         QMessageBox.information(

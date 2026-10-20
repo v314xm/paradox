@@ -358,7 +358,7 @@ Injection, FileCarve, JA3, Beaconing, DNS Tunneling, Enrichment.
     (critical, 0.8) и `reverse_asymmetry` на `192.168.1.1`
     (low, 0.541, bulk-паттерн — шлюз).
   - Роль `pivot` в сущности `192.168.1.12`.
-  - 
+  -
 - **CyberCampTask.pcap** — 7 findings, **0 FP**:
   - `command_injection` — Lua RCE (io.popen + wget)
   - `brute_force` — HTTP /loginok.html

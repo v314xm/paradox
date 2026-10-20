@@ -33,7 +33,7 @@ class PortScanDetector:
         # (src_ip, dst_port) → Counter[dst_ip]
         scans: dict[tuple[str, int], Counter] = defaultdict(Counter)
 
-        for key, flow in state.flows.items():
+        for key, _flow in state.flows.items():
             if key.proto != "tcp":
                 continue
             if key.dst_port is None:

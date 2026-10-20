@@ -203,7 +203,6 @@ class VulnerablePathDetector:
 
         # --- Фаза 2: individual findings (только для не-scanner пар) ---
         findings: list[Finding] = []
-        suppressed_pairs: set[tuple[str, str]] = set()
 
         for (kind, path_key), bucket in per_uri.items():
             # Если для этой path_key ВСЕ src-пары — scanner, пропускаем.

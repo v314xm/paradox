@@ -140,7 +140,6 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
     result: list[tuple[str, str]] = []
     ftype = f.type
     value = f.value or ""
-    ev = f.evidence or {}
 
     # v0.9.0: top-level поля заполняются в Finding.__post_init__.
     src_ip = f.src_ip
@@ -236,7 +235,7 @@ def build_entities(
 
     # --- сервисный трафик к DC: порты 88, 389, 445, 3268, 636 ---
     dc_ports = config.dc_service_ports
-    for key, flow in state.flows.items():
+    for key in state.flows:
         if key.dst_port not in dc_ports:
             continue
         dst = get(key.dst_ip)

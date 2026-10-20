@@ -50,14 +50,22 @@ class AnalysisWorker(QThread):
 
     def __init__(
             self,
-            pcap_path: str,
+            pcap_path: str | list[str],
             config,
             disabled_detectors: set[str] | None = None,
             disabled_contradictions: set[str] | None = None,
             parent=None,
     ) -> None:
         super().__init__(parent)
-        self._pcap_path = Path(pcap_path)
+        # v1.2: multi-pcap — принимаем один путь или список
+        if isinstance(pcap_path, list):
+            self._pcap_paths = [Path(p) for p in pcap_path]
+            self._is_multi = True
+            self._pcap_path = self._pcap_paths[0]  # для совместимости
+        else:
+            self._pcap_paths = [Path(pcap_path)]
+            self._is_multi = False
+            self._pcap_path = self._pcap_paths[0]
         self._config = config
         self._disabled_detectors = disabled_detectors or set()
         self._disabled_contradictions = disabled_contradictions or set()
@@ -68,6 +76,7 @@ class AnalysisWorker(QThread):
             from paradox.contradictions import registry as contra_registry
             from paradox.pipeline import (
                 PipelineCancelled,
+                run_multi_pipeline,
                 run_pipeline,
             )
         except ImportError as e:
@@ -93,13 +102,22 @@ class AnalysisWorker(QThread):
 
         t0 = time.perf_counter()
         try:
-            report = run_pipeline(
-                self._pcap_path,
-                self._config,
-                should_stop=self.isInterruptionRequested,
-                on_progress=self._emit_progress,
-                on_phase=self._emit_phase,
-            )
+            if self._is_multi:
+                report = run_multi_pipeline(
+                    self._pcap_paths,
+                    self._config,
+                    should_stop=self.isInterruptionRequested,
+                    on_progress=self._emit_progress,
+                    on_phase=self._emit_phase,
+                )
+            else:
+                report = run_pipeline(
+                    self._pcap_path,
+                    self._config,
+                    should_stop=self.isInterruptionRequested,
+                    on_progress=self._emit_progress,
+                    on_phase=self._emit_phase,
+                )
         except PipelineCancelled:
             self.cancelled.emit()
             return
@@ -112,7 +130,14 @@ class AnalysisWorker(QThread):
         elapsed = time.perf_counter() - t0
 
         summary = dict(report.get("summary", {}))
-        summary.setdefault("size_bytes", self._pcap_path.stat().st_size)
+        if "size_bytes" not in summary:
+            total_size = 0
+            for p in self._pcap_paths:
+                try:
+                    total_size += p.stat().st_size
+                except OSError:
+                    pass
+            summary["size_bytes"] = total_size
         summary.setdefault("duration_sec", elapsed)
         report["summary"] = summary
 

@@ -237,7 +237,7 @@ class GraphDialog(QDialog):
 
     def _draw_graph(self):
         try:
-            only_findings = self.cb_only_findings.isChecked()
+            self.cb_only_findings.isChecked()
             hide_isolated = self.cb_hide_isolated.isChecked()
 
             entities = self.report.get("entities") or {}
@@ -281,8 +281,8 @@ class GraphDialog(QDialog):
             ext_nodes = []
             for subnet, data in external_clustered.items():
                 ext_nodes.append({
-                    "ip": subnet, 
-                    "roles": list(set(data["roles"])), 
+                    "ip": subnet,
+                    "roles": list(set(data["roles"])),
                     "bytes": data["bytes"],
                     "is_cluster": len(data["ips"]) > 1
                 })
@@ -300,7 +300,7 @@ class GraphDialog(QDialog):
                 if not ip: continue
                 total_b = traffic_map.get(ip, 0)
                 r = min(35, max(15, 15 + math.log10(total_b + 10) * 2))
-                if ip in finding_ips: r = max(r, 22) 
+                if ip in finding_ips: r = max(r, 22)
                 y = (i - len(internal)/2) * 120 + 500
                 node_data[ip] = {"x": 150, "y": y, "r": r, "roles": e.get("roles") or [], "bytes": total_b}
 
@@ -398,7 +398,7 @@ class GraphDialog(QDialog):
         current_t = self.t_min + (self.t_max - self.t_min) * (value / 100.0)
         try:
             time_str = dt.fromtimestamp(current_t).strftime("%Y-%m-%d %H:%M:%S")
-        except:
+        except (OSError, ValueError, OverflowError):
             time_str = f"{current_t:.1f}"
         self.lbl_time.setText(f"Время: {time_str}")
 

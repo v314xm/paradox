@@ -177,7 +177,7 @@ def test_udp_ignored():
 def test_flow_without_dst_port_ignored():
     """Flow без dst_port (например, other-протокол) — пропускается."""
     state = CaptureState()
-    for i in range(50):
+    for _i in range(50):
         key = FlowKey(proto="other", src_ip="10.0.1.50",
                       dst_ip="192.168.1.12", src_port=None, dst_port=None)
         state.flows[key] = FlowStats(packets=1, bytes_sent=50,

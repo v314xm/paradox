@@ -12,7 +12,7 @@ from paradox.models import CaptureState, FlowKey
 def _state(response_bodies):
     state = CaptureState()
     objs = []
-    for i, (src_ip, uri, ct, body) in enumerate(response_bodies):
+    for i, (src_ip, _uri, ct, body) in enumerate(response_bodies):
         key = FlowKey(
             proto="tcp", src_ip=src_ip, dst_ip="10.0.1.50",
             src_port=80, dst_port=50000 + i,

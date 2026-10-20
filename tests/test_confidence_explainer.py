@@ -5,8 +5,8 @@ from paradox.models import Finding
 def test_confidence_reasons_default():
     """По умолчанию список причин пуст."""
     f = Finding(
-        type="test", 
-        value="test_value", 
+        type="test",
+        value="test_value",
         confidence=0.5
     )
     assert hasattr(f, "confidence_reasons")
@@ -15,8 +15,8 @@ def test_confidence_reasons_default():
 def test_confidence_reasons_add():
     """Можно добавлять причины."""
     f = Finding(
-        type="dga", 
-        value="DGA domain", 
+        type="dga",
+        value="DGA domain",
         confidence=0.8
     )
     f.confidence_reasons.append("Высокая энтропия")
@@ -28,8 +28,8 @@ def test_confidence_reasons_add():
 def test_confidence_reasons_to_dict():
     """Причины попадают в сериализованный JSON."""
     f = Finding(
-        type="dga", 
-        value="DGA domain", 
+        type="dga",
+        value="DGA domain",
         confidence=0.8
     )
     f.confidence_reasons.append("Причина 1")

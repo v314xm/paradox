@@ -12,7 +12,7 @@ def _build_client_hello(sni: str | None) -> bytes:
     # --- extensions ---
     if sni is not None:
         sni_bytes = sni.encode("ascii")
-        server_name_data = (
+        (
             len(sni_bytes + b"").to_bytes(2, "big")  # placeholder, ниже поправим
         )
         # server_name list: name_type(1) + name_len(2) + name
