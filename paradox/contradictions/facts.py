@@ -25,11 +25,13 @@
 """
 from __future__ import annotations
 
+from datetime import UTC
+from ipaddress import ip_address
+
 from paradox.config import Config
+from paradox.contradictions.base import Fact
 from paradox.models import CaptureState, Finding, make_session_key
 from paradox.net_utils import is_internal_ip
-from paradox.contradictions.base import Fact
-from ipaddress import ip_address
 
 # =====================================================================
 # Attack facts: кто кого атакует по findings
@@ -833,9 +835,9 @@ def extract_direct_ip_facts(
 
 def _parse_iso_ts(iso: str) -> float:
     """ISO-строка из X.509 (UTC) → unix timestamp. 0.0 на битом."""
-    from datetime import datetime, timezone
+    from datetime import datetime
     try:
-        dt = datetime.fromisoformat(iso).replace(tzinfo=timezone.utc)
+        dt = datetime.fromisoformat(iso).replace(tzinfo=UTC)
         return dt.timestamp()
     except (ValueError, TypeError):
         return 0.0

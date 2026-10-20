@@ -40,27 +40,26 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QFileDialog,
-    QHBoxLayout,
     QLabel,
     QMainWindow,
     QMenuBar,
     QMessageBox,
-    QStackedWidget,
-    QTabBar,
     QTabWidget,
     QVBoxLayout,
     QWidget,
 )
 
+from paradox_gui.i18n import set_language, tr
+from paradox_gui.views.enrich_view import EnrichView
+from paradox_gui.views.export_view import ExportView
+from paradox_gui.views.history_view import HistoryView
+from paradox_gui.views.ipv6_view import IPv6View
+
 # >>> ИМПОРТЫ VIEWS <<<
 from paradox_gui.views.run_view import RunView
 from paradox_gui.views.settings_view import SettingsView
-from paradox_gui.views.enrich_view import EnrichView
-from paradox_gui.views.history_view import HistoryView
-from paradox_gui.views.ipv6_view import IPv6View
 from paradox_gui.views.timeline_view import TimelineView
-from paradox_gui.views.export_view import ExportView
-from paradox_gui.i18n import tr, set_language
+
 # >>> /ИМПОРТЫ VIEWS <<<
 
 

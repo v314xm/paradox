@@ -1,7 +1,7 @@
 from unittest.mock import patch
-from pathlib import Path
-from paradox.pipeline import run_pipeline
+
 from paradox.config import Config
+from paradox.pipeline import run_pipeline
 
 
 @patch("paradox.pipeline.RawPcapReader")

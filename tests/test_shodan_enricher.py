@@ -5,8 +5,6 @@ HTTP замокан — никакой сети в тестах.
 """
 import time
 
-import pytest
-
 from paradox.config import Config
 from paradox.integrations.base import EnrichmentResult
 from paradox.integrations.cache import EnrichmentCache
@@ -17,7 +15,6 @@ from paradox.integrations.enricher import (
 from paradox.integrations.shodan_internetdb import (
     ShodanInternetDBEnricher,
 )
-
 
 # ---------- Shodan провайдер ----------
 

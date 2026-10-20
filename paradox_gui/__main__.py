@@ -20,8 +20,7 @@ if sys.stderr is None:
     sys.stderr = open(os.devnull, "w", encoding="utf-8")
 # >>> /ЗАЩИТА ОТ --windowed <<<
 
-from paradox_gui.app import main  # noqa: E402
-
+from paradox_gui.app import main
 
 if __name__ == "__main__":
     sys.exit(main())

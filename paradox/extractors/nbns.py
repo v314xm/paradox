@@ -11,7 +11,6 @@ from paradox.models import CaptureState, HostIdentity
 from paradox.nbns_parse import parse_nbns
 from paradox.parsers import PacketRecord
 
-
 HOSTNAME_SUFFIXES = {0x00, 0x20}
 
 

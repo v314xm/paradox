@@ -13,14 +13,13 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QLineEdit,
+    QMenu,
     QPushButton,
     QSizePolicy,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
-    QMenu,
 )
-
 
 # Колонки: (заголовок, ширина по умолчанию в пикселях, растягивать?)
 _COLUMNS = (

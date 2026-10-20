@@ -2,9 +2,7 @@
 Тесты attach_enrichment_to_findings и enrich_findings (без сети).
 """
 import time
-from dataclasses import replace
 
-from paradox.config import Config
 from paradox.integrations.base import EnrichmentResult
 from paradox.integrations.pipeline import (
     attach_enrichment_to_findings,

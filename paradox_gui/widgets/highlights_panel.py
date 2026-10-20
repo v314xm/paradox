@@ -4,7 +4,7 @@ HighlightsPanel — топ-3 интересного из отчёта.
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QLabel
+from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 
 def _fmt_bytes(n: int) -> str:

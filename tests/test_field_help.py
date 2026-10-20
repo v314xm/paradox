@@ -2,7 +2,6 @@
 from paradox.config import Config
 from paradox_gui.field_help import (
     FIELD_HELP,
-    SECTION_BY_TITLE,
     SECTION_HELP,
     get_field_help,
     get_section_help,

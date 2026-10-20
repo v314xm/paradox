@@ -12,7 +12,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-
 _MISSING = object()
 
 def rehydrate(default: Any, raw: Any) -> Any:

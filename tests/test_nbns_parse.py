@@ -6,7 +6,6 @@ NBNS-запрос от 10.6.13.133 к broadcast с именем DESKTOP-5AVE44C<
 """
 from paradox.nbns_parse import decode_nbns_name, parse_nbns
 
-
 # --- эталонный NBNS-payload из frame 24 ---
 NBNS_FRAME_24 = bytes.fromhex(
     "840d29100001000000000001"

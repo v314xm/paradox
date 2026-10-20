@@ -6,9 +6,8 @@
 
 Очередь: несколько toast'ов стекаются снизу вверх с шагом 8px.
 """
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
-
 
 _TOAST_WIDTH = 320
 _TOAST_MARGIN = 20     # отступ от краёв экрана

@@ -26,7 +26,6 @@ TCP reassembler.
 from paradox.models import FlowKey
 from paradox.parsers import PacketRecord
 
-
 _TCP_FIN = 0x01
 _TCP_SYN = 0x02
 _TCP_RST = 0x04
@@ -54,8 +53,13 @@ class TCPReassembler:
         self._finalized: dict[FlowKey, bytes] = {}
         # потоки, которые не влезли в лимит
         self._truncated: set[FlowKey] = set()
-        # общий счётчик байт (в буферах + финализированных)
+        # Текущий объём буферов (для проверки лимита).
+        # Уменьшается в _finalize при склейке потока.
         self._total_bytes = 0
+        # Монотонный счётчик «сколько всего прошло» — для stats().
+        # Не уменьшается при финализации: пользователь видит
+        # суммарный объём, а не текущее заполнение буферов.
+        self._bytes_seen_total = 0
 
     def feed(self, record: PacketRecord) -> None:
         """Принять пакет. Обрабатываются только TCP с известным seq."""
@@ -120,6 +124,7 @@ class TCPReassembler:
         buf[offset] = data
         self._flow_sizes[key] = flow_size + len(data)
         self._total_bytes += len(data)
+        self._bytes_seen_total += len(data)
 
     def _finalize(self, key: FlowKey) -> None:
         if key in self._finalized:
@@ -132,6 +137,11 @@ class TCPReassembler:
         offsets = sorted(buf.keys())
         data = b"".join(buf[o] for o in offsets)
         self._finalized[key] = data
+        # v1.1: освобождаем учтённые байты — лимит должен
+        # ограничивать текущий объём буферов, а не сумму за захват.
+        self._total_bytes = max(
+            0, self._total_bytes - sum(len(v) for v in buf.values())
+        )
 
     def finalize_all(self) -> None:
         """Склеить все незакрытые потоки (конец захвата)."""
@@ -148,5 +158,5 @@ class TCPReassembler:
         return {
             "streams_total": len(self._finalized),
             "streams_truncated": len(self._truncated),
-            "bytes_total": self._total_bytes,
+            "bytes_total": self._bytes_seen_total,
         }

@@ -56,8 +56,6 @@ class ARPMacHistoryExtractor:
             # [first_ts, last_ts, count]
             per_ip[mac] = [ts, ts, 1]
         else:
-            if ts < entry[0]:
-                entry[0] = ts
-            if ts > entry[1]:
-                entry[1] = ts
+            entry[0] = min(entry[0], ts)
+            entry[1] = max(entry[1], ts)
             entry[2] += 1

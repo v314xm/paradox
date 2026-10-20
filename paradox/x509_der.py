@@ -28,7 +28,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-
 # === Константы тэгов (universal class, low-tag) ===
 
 TAG_BOOLEAN = 0x01
@@ -72,7 +71,7 @@ class DerNode:
     tag_class: int
     constructed: bool
     value: bytes
-    children: list["DerNode"] = field(default_factory=list)
+    children: list[DerNode] = field(default_factory=list)
 
     @property
     def is_primitive(self) -> bool:

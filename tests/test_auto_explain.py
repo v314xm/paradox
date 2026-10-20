@@ -1,6 +1,6 @@
 """Тесты автогенерации confidence_reasons."""
-from paradox.models import Finding
 from paradox.detectors.explainer import build_reasons
+from paradox.models import Finding
 
 
 def test_build_reasons_empty():

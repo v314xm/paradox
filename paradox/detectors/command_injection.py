@@ -31,7 +31,6 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from urllib.parse import unquote
 
-
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 

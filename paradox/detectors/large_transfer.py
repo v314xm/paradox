@@ -14,7 +14,6 @@ from paradox.config import Config
 from paradox.models import CaptureState, Finding, FlowKey
 from paradox.net_utils import is_internal_ip
 
-
 # Если одна сторона >N× другой — считаем обмен односторонним.
 # Порог «на глаз»: symmetric TLS handshake + data обычно дают ≥1:10.
 _ASYMMETRY_RATIO = 5.0

@@ -6,7 +6,6 @@ from paradox.domain_utils import (
     split_domain,
 )
 
-
 # ---------- split_domain ----------
 
 def test_split_simple():

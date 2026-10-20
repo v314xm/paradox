@@ -1,8 +1,14 @@
 """Диалоговое окно истории хоста (таймлайн)."""
 from datetime import datetime
+
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QTextBrowser, QPushButton, QHBoxLayout
+    QDialog,
+    QHBoxLayout,
+    QPushButton,
+    QTextBrowser,
+    QVBoxLayout,
 )
+
 
 class HostStoryDialog(QDialog):
     def __init__(self, ip: str, story: dict, parent=None):

@@ -19,7 +19,6 @@ from __future__ import annotations
 from paradox.models import CaptureState
 from paradox.parsers import PacketRecord
 
-
 # Порты SMTP, где ожидаем plaintext.
 SMTP_PORTS = frozenset({25, 587})
 

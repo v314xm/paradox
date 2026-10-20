@@ -8,10 +8,10 @@
 """
 from pathlib import Path
 
-from scapy.all import Ether, IP, TCP, UDP, DNS, DNSQR, wrpcap
+from scapy.all import DNS, DNSQR, IP, TCP, UDP, Ether, wrpcap
 
-from paradox.pipeline import run_pipeline
 from paradox.config import Config
+from paradox.pipeline import run_pipeline
 
 
 def _build_pcap(tmp_path) -> Path:

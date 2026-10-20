@@ -1,16 +1,25 @@
 """Вкладка Экспорта (CSV и STIX) с копированием в буфер."""
 import csv
-import json
 import html
-import uuid
 import ipaddress
+import json
 import re
-from datetime import datetime, timezone
-from pathlib import Path
+import uuid
+from datetime import UTC, datetime
+
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-    QTextBrowser, QFileDialog, QComboBox, QMessageBox, QApplication
+    QApplication,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
 )
+
 
 def _is_private_ip(ip_str: str) -> bool:
     try:
@@ -31,10 +40,10 @@ def _extract_stix_iocs(findings: list) -> list[dict]:
                     "type": "indicator",
                     "spec_version": "2.1",
                     "id": f"indicator--{uuid.uuid4()}",
-                    "created": datetime.now(timezone.utc).isoformat(),
+                    "created": datetime.now(UTC).isoformat(),
                     "pattern": f"[ipv4-addr:value = '{ip}']",
                     "pattern_type": "stix",
-                    "valid_from": datetime.now(timezone.utc).isoformat(),
+                    "valid_from": datetime.now(UTC).isoformat(),
                     "name": "External IP",
                     "description": f"Найден в детекторе: {f.get('type')}"
                 })
@@ -49,10 +58,10 @@ def _extract_stix_iocs(findings: list) -> list[dict]:
                     "type": "indicator",
                     "spec_version": "2.1",
                     "id": f"indicator--{uuid.uuid4()}",
-                    "created": datetime.now(timezone.utc).isoformat(),
+                    "created": datetime.now(UTC).isoformat(),
                     "pattern": f"[domain-name:value = '{domain}']",
                     "pattern_type": "stix",
-                    "valid_from": datetime.now(timezone.utc).isoformat(),
+                    "valid_from": datetime.now(UTC).isoformat(),
                     "name": "Domain",
                     "description": f"Найден в детекторе: {f.get('type')}"
                 })

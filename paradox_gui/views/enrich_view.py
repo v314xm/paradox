@@ -34,7 +34,6 @@ from PySide6.QtWidgets import (
 
 from paradox_gui.workers.enrichment_worker import EnrichmentWorker
 
-
 # Индексы колонок верхней (кандидаты) и нижней (результаты) таблиц.
 # Магические числа в коде читаемы, но именованные константы — надёжнее.
 C_CHECK, C_IOC, C_TYPE, C_STATUS = range(4)

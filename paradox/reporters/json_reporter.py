@@ -10,8 +10,9 @@ def write_json(report: dict, path: Path) -> None:
 
 def write_markdown(report: dict, path) -> None:
     """Записать Markdown-версию отчёта."""
-    from paradox.reporters.markdown_reporter import render_markdown
     from pathlib import Path
+
+    from paradox.reporters.markdown_reporter import render_markdown
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

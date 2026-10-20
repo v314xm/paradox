@@ -1,7 +1,7 @@
 """Тесты callbacks в run_pipeline: on_progress, on_phase, should_stop."""
 from unittest.mock import MagicMock
 
-from scapy.all import Ether, IP, UDP, DNS, DNSQR, wrpcap
+from scapy.all import DNS, DNSQR, IP, UDP, Ether, wrpcap
 
 from paradox.config import Config
 from paradox.pipeline import run_pipeline

@@ -69,6 +69,7 @@ class QuickCheckWorker(QThread):
 
 def _error_result(source: str, ioc: str, ioc_type: str, msg: str):
     import time
+
     from paradox.integrations.base import EnrichmentResult
     return EnrichmentResult(
         source=source, ioc=ioc, ioc_type=ioc_type,

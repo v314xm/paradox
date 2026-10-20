@@ -24,7 +24,6 @@ TCP-сегмент. Полная сборка требует StreamReassembler �
 import hashlib
 import struct
 
-
 _TLS_CONTENT_HANDSHAKE = 0x16
 _TLS_HANDSHAKE_CLIENT_HELLO = 0x01
 _TLS_HANDSHAKE_SERVER_HELLO = 0x02
@@ -126,8 +125,7 @@ def _parse_client_hello(payload: bytes) -> dict | None:
         ext_total_len = struct.unpack(">H", payload[pos:pos + 2])[0]
         pos += 2
         ext_end = pos + ext_total_len
-        if ext_end > len(payload):
-            ext_end = len(payload)
+        ext_end = min(ext_end, len(payload))
 
         while pos + 4 <= ext_end:
             ext_type = struct.unpack(">H", payload[pos:pos + 2])[0]
@@ -203,8 +201,7 @@ def _parse_server_hello(payload: bytes) -> dict | None:
         ext_total_len = struct.unpack(">H", payload[pos:pos + 2])[0]
         pos += 2
         ext_end = pos + ext_total_len
-        if ext_end > len(payload):
-            ext_end = len(payload)
+        ext_end = min(ext_end, len(payload))
         while pos + 4 <= ext_end:
             ext_type = struct.unpack(">H", payload[pos:pos + 2])[0]
             ext_len = struct.unpack(">H", payload[pos + 2:pos + 4])[0]

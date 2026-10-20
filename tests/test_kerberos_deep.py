@@ -1,11 +1,9 @@
 """Углублённые тесты Kerberos: TGS-REQ, AS-REP, экстрактор."""
-import pytest
 
-from paradox.kerberos_parse import parse_kerberos
 from paradox.extractors.kerberos import KerberosExtractor
+from paradox.kerberos_parse import parse_kerberos
 from paradox.models import CaptureState
 from paradox.parsers import PacketRecord
-
 
 # TGS-REQ: msg_type=12, та же структура req-body, что AS-REQ
 # (cname=test, realm=EXAMPLE.COM, sname=krbtgt)

@@ -1,12 +1,21 @@
 """Вкладка Kill-Chain Таймлайн (Умный парсинг v4)."""
 import re
-from datetime import datetime as dt
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem, 
-    QHeaderView, QLabel, QSplitter, QTextBrowser, QLineEdit, QPushButton
-)
-from PySide6.QtGui import QColor, QFont, QBrush
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QColor, QFont
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSplitter,
+    QTextBrowser,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 # Паттерн для поиска связи "IP -> IP" (с учетом возможных пробелов вокруг стрелки)
 ARROW_REGEX = re.compile(r'((?:\d{1,3}\.){3}\d{1,3})\s*->\s*((?:\d{1,3}\.){3}\d{1,3})')
@@ -111,7 +120,7 @@ class TimelineView(QWidget):
 
         sorted_phases = sorted(
             phases.keys(), 
-            key=lambda p: min((e.get("chain_order", 999) for e in phases[p]))
+            key=lambda p: min(e.get("chain_order", 999) for e in phases[p])
         )
 
         t0 = min(e.get("ts", 0.0) for e in timeline)

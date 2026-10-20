@@ -27,7 +27,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 HTTP_METHODS = frozenset({
     "GET", "HEAD", "POST", "PUT", "DELETE",
     "CONNECT", "OPTIONS", "TRACE", "PATCH",

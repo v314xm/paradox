@@ -3,9 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
-
-from paradox.cli import _safe_stem, _resolve_output
+from paradox.cli import _resolve_output, _safe_stem
 
 
 @dataclass

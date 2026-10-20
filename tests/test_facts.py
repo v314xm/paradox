@@ -1,5 +1,5 @@
-from paradox.contradictions.facts import extract_attack_facts, extract_arp_facts
-from paradox.models import Finding, CaptureState
+from paradox.contradictions.facts import extract_arp_facts, extract_attack_facts
+from paradox.models import CaptureState, Finding
 
 
 def test_extract_attack_facts():

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QFrame,
@@ -12,9 +11,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QTextEdit,
     QVBoxLayout,
-    QWidget,
 )
-
 
 _VERDICT_COLORS = {
     "clean": "#5a9a5a",     # зелёный

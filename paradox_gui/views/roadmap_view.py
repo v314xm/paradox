@@ -16,7 +16,6 @@
 """
 from PySide6.QtWidgets import QTextBrowser, QVBoxLayout, QWidget
 
-
 # Содержимое — единственная точка правки. Обновляется руками.
 # Отступ HTML не в столбик 0 ради читаемости diff'ов.
 _ROADMAP_HTML = r"""

@@ -2,13 +2,6 @@
 from paradox.tls_cert import parse_certificate_from_stream
 from tests.test_x509_cert import (
     _cert,
-    _ctx,
-    _int,
-    _null,
-    _oid,
-    _octet,
-    _seq,
-    _tlv,
 )
 
 

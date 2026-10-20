@@ -12,7 +12,6 @@ from paradox.detectors.ja3_malware import JA3MalwareDetector
 from paradox.ja3 import parse_client_hello, parse_server_hello
 from paradox.models import CaptureState, FlowKey, FlowStats
 
-
 # ---------- helpers ----------
 
 def _ext(ext_type: int, data: bytes) -> bytes:

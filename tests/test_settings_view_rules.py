@@ -8,7 +8,6 @@ from pathlib import Path
 
 from paradox_gui.views.settings_view import _CONTRADICTIONS
 
-
 CORE_RULES_DIR = Path(__file__).resolve().parent.parent / "paradox" / "contradictions" / "rules"
 
 

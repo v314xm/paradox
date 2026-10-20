@@ -18,7 +18,6 @@ from __future__ import annotations
 from paradox.models import CaptureState
 from paradox.parsers import PacketRecord
 
-
 # Порты, на которых ожидаем SSH-сервер. Клиент обычно на эфемерном.
 SSH_SERVER_PORTS = frozenset({22, 2222, 2022})
 

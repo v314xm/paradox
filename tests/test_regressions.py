@@ -299,8 +299,9 @@ def test_lateral_movement_external_src_not_flagged():
 
 def test_lateral_movement_admin_allowlist():
     """Allowlist: jump-host не флагуется."""
-    from paradox.detectors.lateral_movement import LateralMovementDetector
     from dataclasses import replace
+
+    from paradox.detectors.lateral_movement import LateralMovementDetector
     config = replace(
         Config(),
         lateral_movement_admin_srcs=frozenset({"10.0.1.50"}),
@@ -585,9 +586,9 @@ def test_mitre_map_covers_all_detectors():
 
 
 def test_mitre_enrichment_in_pipeline():
-    from paradox.pipeline import _detect
     from paradox.config import Config
     from paradox.models import CaptureState, FlowKey, FlowStats
+    from paradox.pipeline import _detect
 
     state = CaptureState()
     for i in range(15):

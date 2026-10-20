@@ -17,7 +17,6 @@ from paradox.config import Config
 from paradox.detectors.dns_tunneling import DNSTunnelingDetector
 from paradox.models import CaptureState
 
-
 # 35-символьный префикс. С "000000.dns.attacker.com" даёт ~58 символов —
 # уверенно выше порога 50.
 _LONG_PREFIX = "aGVsbG8gd29ybGQgaGVsbG8gd29ybGQK000"

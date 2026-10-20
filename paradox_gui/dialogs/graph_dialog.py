@@ -2,19 +2,32 @@
 import math
 import traceback
 from datetime import datetime as dt
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QGraphicsView, 
-    QGraphicsScene, QGraphicsEllipseItem, QGraphicsTextItem, 
-    QPushButton, QLabel, QGraphicsItem, QGraphicsPathItem, 
-    QTextBrowser, QSplitter, QWidget, QSlider, QCheckBox
-)
+
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPen, QColor, QBrush, QFont, QPainter, QPainterPath
+from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPainterPath, QPen
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QDialog,
+    QGraphicsEllipseItem,
+    QGraphicsItem,
+    QGraphicsPathItem,
+    QGraphicsScene,
+    QGraphicsTextItem,
+    QGraphicsView,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QSplitter,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+)
 
 # Попытка импортировать диалог истории хоста
 try:
-    from paradox_gui.dialogs.host_story_dialog import HostStoryDialog
     from paradox.analyzers.story import build_host_story
+    from paradox_gui.dialogs.host_story_dialog import HostStoryDialog
     HAS_STORY = True
 except ImportError:
     HAS_STORY = False

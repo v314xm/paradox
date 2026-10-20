@@ -1,9 +1,15 @@
 """Диалог для What-If анализа."""
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-    QPlainTextEdit, QPushButton
-)
 import re
+
+from PySide6.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QPlainTextEdit,
+    QPushButton,
+    QVBoxLayout,
+)
+
 
 class WhatIfDialog(QDialog):
     def __init__(self, parent=None):

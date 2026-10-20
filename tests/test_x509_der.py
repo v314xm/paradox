@@ -2,18 +2,15 @@
 import pytest
 
 from paradox.x509_der import (
-    DerError,
     TAG_INTEGER,
-    TAG_OID,
     TAG_SEQUENCE,
-    TAG_UTF8_STRING,
+    DerError,
     as_int,
     as_oid,
     as_str,
     as_time,
     parse_der,
 )
-
 
 # === Базовый разбор ===
 

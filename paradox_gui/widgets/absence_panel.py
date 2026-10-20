@@ -1,8 +1,15 @@
 """Панель аномалий (оборванные сессии)."""
 from PySide6.QtWidgets import (
-    QFrame, QVBoxLayout, QLabel, QTableWidget, 
-    QTableWidgetItem, QHeaderView, QTabWidget, QWidget
+    QFrame,
+    QHeaderView,
+    QLabel,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
+
 
 class AbsencePanel(QFrame):
     def __init__(self, parent=None):

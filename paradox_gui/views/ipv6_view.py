@@ -1,16 +1,26 @@
 """UI-виджет для IPv6 (NDP + потоки) с вертикальным QSplitter."""
 try:
-    from PySide6.QtWidgets import (
-        QWidget, QVBoxLayout, QSplitter, QTableWidget, 
-        QTableWidgetItem, QLabel, QHeaderView
-    )
     from PySide6.QtCore import Qt
-except ImportError:
-    from PyQt5.QtWidgets import (
-        QWidget, QVBoxLayout, QSplitter, QTableWidget, 
-        QTableWidgetItem, QLabel, QHeaderView
+    from PySide6.QtWidgets import (
+        QHeaderView,
+        QLabel,
+        QSplitter,
+        QTableWidget,
+        QTableWidgetItem,
+        QVBoxLayout,
+        QWidget,
     )
+except ImportError:
     from PyQt5.QtCore import Qt
+    from PyQt5.QtWidgets import (
+        QHeaderView,
+        QLabel,
+        QSplitter,
+        QTableWidget,
+        QTableWidgetItem,
+        QVBoxLayout,
+        QWidget,
+    )
 
 
 class IPv6View(QWidget):

@@ -1,5 +1,4 @@
 """Тесты IOC reporter."""
-from pathlib import Path
 
 from paradox.reporters.ioc_reporter import (
     build_ioc_report,

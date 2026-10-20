@@ -1,8 +1,9 @@
 """Тесты DNS-экстрактора."""
-from scapy.all import Ether, IP, UDP, DNS, DNSQR, DNSRR
+from scapy.all import DNS, DNSQR, IP, UDP, Ether
+
+from paradox.extractors.dns import DNSExtractor
 from paradox.models import CaptureState
 from paradox.parsers import PacketRecord
-from paradox.extractors.dns import DNSExtractor
 
 
 def _make_dns_record(qname: str, rcode: int = 0, answers: list | None = None) -> PacketRecord:

@@ -1,9 +1,9 @@
 import pytest
-from paradox.models import CaptureState, FlowKey, FlowStats
+
 from paradox.config import Config
-from paradox.detectors.large_transfer import LargeTransferDetector
 from paradox.detectors.dga import DGADetector
-from paradox.detectors.sni_mismatch import SNIMismatchDetector
+from paradox.detectors.large_transfer import LargeTransferDetector
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 @pytest.fixture

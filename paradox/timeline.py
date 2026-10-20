@@ -36,7 +36,6 @@ from dataclasses import dataclass
 
 from paradox.models import Finding
 
-
 # Маппинг тип finding → kill-chain фаза.
 # Тип вне мапы → phase="other", chain_order=999 (в конце).
 _PHASE_BY_TYPE: dict[str, str] = {

@@ -23,9 +23,7 @@ Markdown-рендер отчёта.
 from __future__ import annotations
 
 # v0.8.0: timeline
-
 from ipaddress import ip_address
-
 
 # ---------------------------------------------------------------------
 # MITRE ATT&CK маппинг: тип finding → ID + тактика
@@ -118,8 +116,7 @@ def _fmt_duration(seconds: float) -> str:
 
 def _fmt_rel(seconds: float) -> str:
     """Время в формате H:MM:SS для timeline."""
-    if seconds < 0:
-        seconds = 0
+    seconds = max(seconds, 0)
     h = int(seconds // 3600)
     m = int((seconds % 3600) // 60)
     s = int(seconds % 60)

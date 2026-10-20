@@ -1,7 +1,7 @@
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from typing import Mapping
 
 
 def _frozen(*items: str) -> frozenset[str]:
@@ -781,6 +781,8 @@ class Config:
             errors.append("suspicious_ports must be in range 1..65535")
         if any(p <= 0 or p > 65535 for p in self.dc_service_ports):
             errors.append("dc_service_ports must be in range 1..65535")
+
+
 
         if errors:
             raise ValueError(

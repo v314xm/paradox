@@ -8,31 +8,32 @@ import time
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QDialog,
-    QScrollArea,
     QHBoxLayout,
     QLabel,
     QMessageBox,
     QProgressBar,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
+from paradox.analyzers.counterfactual import evaluate_what_if
+from paradox_gui.dialogs.carved_files_dialog import CarvedFilesDialog
 from paradox_gui.dialogs.contradiction_dialog import ContradictionDialog
 from paradox_gui.dialogs.finding_dialog import FindingDialog
-from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
 from paradox_gui.dialogs.graph_dialog import GraphDialog
-from paradox_gui.dialogs.carved_files_dialog import CarvedFilesDialog
-from paradox.analyzers.counterfactual import evaluate_what_if
+from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
+from paradox_gui.widgets.absence_panel import AbsencePanel
 from paradox_gui.widgets.contradictions_section import ContradictionsSection
 from paradox_gui.widgets.drop_zone import DropZone
 from paradox_gui.widgets.findings_table import FindingsTable
-from paradox_gui.widgets.absence_panel import AbsencePanel
 from paradox_gui.widgets.summary_grid import SummaryGrid
 from paradox_gui.widgets.toast import ToastManager
 from paradox_gui.workers.analysis_worker import AnalysisWorker
-from ..widgets.observations_panel import ObservationsPanel
+
 from ..widgets.highlights_panel import HighlightsPanel
+from ..widgets.observations_panel import ObservationsPanel
 
 
 class RunView(QWidget):
@@ -385,7 +386,6 @@ class RunView(QWidget):
         if not exclude_ips and not exclude_domains:
             return
 
-        from paradox.analyzers.counterfactual import evaluate_what_if
         res = evaluate_what_if(
             self._last_report,
             exclude_ips=exclude_ips,

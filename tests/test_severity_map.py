@@ -4,7 +4,6 @@ from pathlib import Path
 
 from paradox.models import _SEVERITY_BY_TYPE
 
-
 _DETECTORS_DIR = Path(__file__).resolve().parent.parent / "paradox" / "detectors"
 _TYPE_LITERAL = re.compile(r'type\s*=\s*"([a-z_]+)"')
 

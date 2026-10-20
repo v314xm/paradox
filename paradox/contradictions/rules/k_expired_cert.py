@@ -11,9 +11,11 @@ Severity: low. Confidence 0.9 — факт точный, но само по се
 """
 from __future__ import annotations
 
+from datetime import UTC
+
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.models import CaptureState, Finding
 
 
 class ExpiredCertRule:
@@ -41,13 +43,13 @@ class ExpiredCertRule:
             if not_after_ts >= f.ts:
                 continue
 
-            from datetime import datetime, timezone
+            from datetime import datetime
             try:
                 expires_iso = datetime.fromtimestamp(
-                    not_after_ts, tz=timezone.utc,
+                    not_after_ts, tz=UTC,
                 ).strftime("%Y-%m-%d %H:%M")
                 seen_iso = datetime.fromtimestamp(
-                    f.ts, tz=timezone.utc,
+                    f.ts, tz=UTC,
                 ).strftime("%Y-%m-%d %H:%M")
             except (OSError, ValueError):
                 expires_iso, seen_iso = "?", "?"

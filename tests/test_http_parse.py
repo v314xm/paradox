@@ -7,7 +7,6 @@ from paradox.http_parse import (
     parse_request,
 )
 
-
 # ---------- валидные запросы ----------
 
 def test_simple_get():

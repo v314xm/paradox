@@ -31,7 +31,6 @@ from dataclasses import dataclass, field
 
 from paradox.http_parse import HTTP_METHODS
 
-
 # Максимум, сколько body читать (защита от гигабайтных ответов)
 DEFAULT_BODY_LIMIT = 1 * 1024 * 1024
 

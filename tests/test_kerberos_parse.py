@@ -7,7 +7,6 @@
 """
 from paradox.kerberos_parse import parse_kerberos
 
-
 # [APPLICATION 10] SEQUENCE {
 #   [1] pvno = 5,
 #   [2] msg-type = 10 (AS-REQ),

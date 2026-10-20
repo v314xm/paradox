@@ -1,9 +1,8 @@
 """Тесты парсера X.509 Certificate на синтетических мини-сертификатах."""
 import pytest
 
-from paradox.x509_der import DerError
 from paradox.x509_cert import parse_certificate
-
+from paradox.x509_der import DerError
 
 # === Хелперы для сборки TLV ===
 

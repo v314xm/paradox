@@ -18,9 +18,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QVBoxLayout,
-    QWidget,
 )
-
 
 # Иконки severity — Unicode, без внешних ресурсов. Прототип использует
 # те же цвета (красный/оранжевый/жёлтый/зелёный).

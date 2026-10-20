@@ -20,7 +20,6 @@ import certifi
 
 from paradox.integrations.base import EnrichmentResult
 
-
 # Общий SSL-контекст с CA-бандлом certifi. Python на Windows не
 # читает Windows Certificate Store, поэтому без этого все HTTPS-
 # запросы падают с CERTIFICATE_VERIFY_FAILED.

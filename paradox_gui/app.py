@@ -5,6 +5,7 @@
 логика вкладок появится по мере готовности views/*.
 """
 import sys
+
 from PySide6.QtWidgets import QApplication
 
 from paradox_gui.main_window import MainWindow

@@ -361,7 +361,7 @@ class EditableListWidget(QWidget):
 
         QTimer.singleShot(1500, _reset)
 
-    def keyPressEvent(self, event) -> None:  # noqa: N802
+    def keyPressEvent(self, event) -> None:
         if event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             if self._list.hasFocus() and self._list.isVisible():
                 self._remove_selected()

@@ -5,14 +5,13 @@ Unit-тесты быстрого парсера.
 Эталонные пакеты собраны вручную из hex-дампов.
 """
 from paradox.parsers import (
-    parse_packet,
     ETHERTYPE_ARP,
     ETHERTYPE_IPV4,
+    IP_PROTO_ICMP,
     IP_PROTO_TCP,
     IP_PROTO_UDP,
-    IP_PROTO_ICMP,
+    parse_packet,
 )
-
 
 # ---------- эталонные блоки ----------
 

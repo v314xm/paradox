@@ -1,7 +1,6 @@
 from paradox.models import CaptureState, FlowKey, FlowStats
 from paradox.parsers import PacketRecord
 
-
 # флаги TCP
 TCP_FLAG_SYN = 0x02
 TCP_FLAG_ACK = 0x10

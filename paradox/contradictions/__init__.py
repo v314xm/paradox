@@ -20,9 +20,9 @@ from paradox.contradictions.base import (
 from paradox.contradictions.registry import RULES, run_all
 
 __all__ = [
+    "RULES",
     "Contradiction",
     "ContradictionRule",
     "Fact",
-    "RULES",
     "run_all",
 ]

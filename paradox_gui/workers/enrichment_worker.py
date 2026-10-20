@@ -29,8 +29,8 @@ class EnrichmentWorker(QThread):
     def run(self) -> None:
         try:
             from paradox.integrations.pipeline import (
-                build_default_orchestrator,
                 attach_enrichment_to_findings,
+                build_default_orchestrator,
             )
         except ImportError as e:
             self.error.emit(f"Не удалось импортировать обогащение: {e}")

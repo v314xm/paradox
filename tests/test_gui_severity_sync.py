@@ -8,7 +8,6 @@ import re
 from paradox.contradictions.registry import RULES
 from paradox_gui.views.settings_view import _CONTRADICTIONS
 
-
 _SEVERITY_LABEL = re.compile(r'^.+?\s+—\s+(critical|high|medium|low|info)$')
 
 

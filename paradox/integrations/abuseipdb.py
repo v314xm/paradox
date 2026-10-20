@@ -33,9 +33,6 @@ import urllib.request
 
 import certifi
 
-import certifi
-import urllib.request
-
 from paradox.integrations.base import EnrichmentResult
 
 # SSL-контекст с CA-бандлом certifi. Python на Windows не читает

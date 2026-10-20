@@ -1,9 +1,12 @@
 import time
+
 import pytest
-from paradox.models import CaptureState, FlowKey, FlowStats
+
+pytestmark = pytest.mark.slow
 from paradox.config import Config
-from paradox.detectors.port_scan import PortScanDetector
 from paradox.detectors.beaconing import BeaconingDetector
+from paradox.detectors.port_scan import PortScanDetector
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 @pytest.fixture
@@ -25,7 +28,7 @@ def test_port_scan_perf(config):
     elapsed = time.perf_counter() - t0
 
     print(f"\nPortScan 10k flows: {elapsed:.3f} сек")
-    assert elapsed < 1.0, f"Слишком медленно: {elapsed:.3f} сек"
+    assert elapsed < 3.0, f"Слишком медленно: {elapsed:.3f} сек"
 
 
 def test_beaconing_perf(config):

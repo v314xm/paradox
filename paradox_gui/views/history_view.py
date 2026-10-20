@@ -29,8 +29,6 @@
 from datetime import datetime
 
 from PySide6.QtCore import Qt
-from paradox_gui.storage import HistoryDB
-
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -41,6 +39,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from paradox_gui.storage import HistoryDB
 
 
 class HistoryView(QWidget):

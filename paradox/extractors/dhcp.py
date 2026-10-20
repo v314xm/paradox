@@ -27,7 +27,6 @@ import struct
 from paradox.models import CaptureState, HostIdentity
 from paradox.parsers import PacketRecord
 
-
 # Магический cookie BOOTP/DHCP. Опции начинаются после него.
 _DHCP_MAGIC = b"\x63\x82\x53\x63"
 

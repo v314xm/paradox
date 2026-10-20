@@ -65,11 +65,11 @@ class AnalysisWorker(QThread):
     def run(self) -> None:
         try:
             import paradox.pipeline as core
+            from paradox.contradictions import registry as contra_registry
             from paradox.pipeline import (
                 PipelineCancelled,
                 run_pipeline,
             )
-            from paradox.contradictions import registry as contra_registry
         except ImportError as e:
             self.error.emit(f"Не удалось импортировать ядро: {e}")
             return

@@ -1,10 +1,10 @@
 """Тесты правила victim_makes_attack (PIVOT)."""
-from paradox.models import Finding
 from paradox.contradictions.base import Fact
 from paradox.contradictions.facts import extract_attack_facts
 from paradox.contradictions.rules.e_victim_makes_attack import (
     VictimMakesAttackRule,
 )
+from paradox.models import Finding
 
 
 def _finding(ftype, src, dst, conf=0.85, ts=100.0):

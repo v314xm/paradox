@@ -1,7 +1,7 @@
 """Тесты агрегатора NDP."""
-from dataclasses import dataclass
 import ipaddress
 import struct
+from dataclasses import dataclass
 
 from paradox.analyzers.ndp import analyze_ndp
 

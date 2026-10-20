@@ -23,6 +23,19 @@ def build_default_orchestrator(config: Config) -> EnricherOrchestrator:
     from paradox.integrations.registry import REGISTRY
 
     enabled = set(config.enrichment_enabled_providers)
+    # v1.1: предупреждаем об опечатках в именах провайдеров.
+    # Config — чистый dataclass, не должен знать про REGISTRY;
+    # имя провайдера — контракт integration-слоя, не Config.
+    known = set(REGISTRY)
+    unknown = enabled - known
+    if unknown:
+        import logging
+        logging.getLogger(__name__).warning(
+            "enrichment_enabled_providers: неизвестные: %s. "
+            "Известные: %s",
+            sorted(unknown), sorted(known),
+        )
+
     providers = [
         cls() for name, cls in REGISTRY.items() if name in enabled
     ]

@@ -34,13 +34,12 @@ from __future__ import annotations
 from collections import defaultdict
 
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
 from paradox.contradictions.base import (
+    SEVERITY_ORDER,
     Contradiction,
     Fact,
-    SEVERITY_ORDER,
 )
-
+from paradox.models import CaptureState, Finding
 
 # Порты критичных сервисов: туннель поверх них — high.
 # Остальные порты из config.port_service_allowed — medium.
@@ -77,7 +76,6 @@ class PortServiceMismatchRule:
     ) -> list[Contradiction]:
         # find_contradictions не получает config по контракту Protocol —
         # читаем на месте.
-        from paradox.config import Config as _Cfg
         allow = getattr(self, "_allowed", None)
         if allow is None:
             from paradox.config import Config

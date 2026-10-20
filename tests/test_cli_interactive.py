@@ -1,8 +1,5 @@
 """Тесты интерактивного ввода пути в CLI."""
-from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 from paradox.cli import _ask_pcap_path
 

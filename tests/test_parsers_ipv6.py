@@ -2,8 +2,6 @@
 import ipaddress
 import struct
 
-import pytest
-
 from paradox.parsers_ipv6 import parse_ipv6_packet
 
 

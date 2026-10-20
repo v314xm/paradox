@@ -1,8 +1,9 @@
-from scapy.all import Ether, ARP, IP, UDP, DNS, DNSQR
+from scapy.all import ARP, DNS, DNSQR, IP, UDP, Ether
+
+from paradox.extractors.arp_history import ARPMacHistoryExtractor
+from paradox.extractors.dns import DNSExtractor
 from paradox.models import CaptureState
 from paradox.parsers import PacketRecord
-from paradox.extractors.dns import DNSExtractor
-from paradox.extractors.arp_history import ARPMacHistoryExtractor
 
 
 def test_dns_extractor_a_record():

@@ -4,7 +4,6 @@ import struct
 from paradox.extractors.dhcp import DHCPExtractor, parse_dhcp
 from paradox.models import CaptureState
 
-
 _MAGIC = b"\x63\x82\x53\x63"
 
 

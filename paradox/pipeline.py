@@ -1,7 +1,7 @@
 import hashlib
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from scapy.utils import RawPcapReader
 
@@ -10,51 +10,50 @@ from paradox.aggregators.entities import build_entities
 from paradox.analyzers.absence import analyze_absence
 from paradox.config import Config
 from paradox.contradictions import run_all as run_contradictions
+from paradox.detectors.beaconing import BeaconingDetector
+from paradox.detectors.brute_force import BruteForceDetector
 from paradox.detectors.cloud_tunnel import CloudTunnelDetector
+from paradox.detectors.command_injection import CommandInjectionDetector
 from paradox.detectors.dga import DGADetector
+from paradox.detectors.dns_tunneling import DNSTunnelingDetector
+from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
 from paradox.detectors.ip_check_service import IPCheckServiceDetector
-from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
-from paradox.detectors.sni_mismatch import SNIMismatchDetector
 from paradox.detectors.ja3_malware import JA3MalwareDetector
+from paradox.detectors.large_transfer import LargeTransferDetector
+from paradox.detectors.lateral_movement import LateralMovementDetector
+from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from paradox.detectors.port_scan import PortScanDetector
+from paradox.detectors.smtp_spam import SMTP_SpamDetector
+from paradox.detectors.sni_mismatch import SNIMismatchDetector
+from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
 from paradox.detectors.suspicious_port import SuspiciousPortDetector
 from paradox.detectors.typosquatting import TyposquattingDetector
-from paradox.extractors.dns import DNSExtractor
-from paradox.extractors.flow import FlowExtractor
-from paradox.extractors.tls import TLSExtractor
+from paradox.detectors.vulnerable_path import VulnerablePathDetector
+from paradox.detectors.yara_detector import YARADetector
 from paradox.extractors.arp_history import ARPMacHistoryExtractor
 from paradox.extractors.dhcp import DHCPExtractor
+from paradox.extractors.dns import DNSExtractor
+from paradox.extractors.flow import FlowExtractor
+from paradox.extractors.host_identity import HostIdentityExtractor
+from paradox.extractors.http import HTTPExtractor
+from paradox.extractors.http_object import HTTPObjectExtractor
+from paradox.extractors.kerberos import KerberosExtractor
+from paradox.extractors.nbns import NBNSExtractor
 from paradox.extractors.ndp import NDPExtractor
-from paradox.extractors.ssh_banner import SSHBannerExtractor
 from paradox.extractors.smtp import SMTPExtractor
+from paradox.extractors.ssh_banner import SSHBannerExtractor
+from paradox.extractors.tls import TLSExtractor
+from paradox.file_carve import carve_files
 from paradox.models import CaptureState
 from paradox.parsers import parse_packet
 from paradox.reassembler import TCPReassembler
-from paradox.timeline import build_timeline
-from paradox.file_carve import carve_files
 from paradox.reporters.flow_report import (
     build_dns_report,
     build_flow_report,
     build_http_object_report,
     build_http_report,
 )
-from paradox.detectors.brute_force import BruteForceDetector
-from paradox.extractors.http import HTTPExtractor
-from paradox.extractors.http_object import HTTPObjectExtractor
-from paradox.detectors.vulnerable_path import VulnerablePathDetector
-from paradox.extractors.host_identity import HostIdentityExtractor
-from paradox.extractors.nbns import NBNSExtractor
-from paradox.extractors.kerberos import KerberosExtractor
-from paradox.detectors.lateral_movement import LateralMovementDetector
-from paradox.detectors.large_transfer import LargeTransferDetector
-from paradox.detectors.yara_detector import YARADetector
-from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
-from paradox.detectors.command_injection import CommandInjectionDetector
-from paradox.detectors.beaconing import BeaconingDetector
-from paradox.detectors.dns_tunneling import DNSTunnelingDetector
-from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
-from paradox.detectors.smtp_spam import SMTP_SpamDetector
-
+from paradox.timeline import build_timeline
 
 # Порядок экстракторов важен: FlowExtractor ДОЛЖЕН идти первым,
 # остальные экстракторы, пишущие в FlowStats, ищут существующий flow.
@@ -362,7 +361,8 @@ def run_pipeline(
     if getattr(config, "ioc_export_enabled", True):
         try:
             from paradox.reporters.ioc_reporter import (
-                build_ioc_report, write_ioc_files,
+                build_ioc_report,
+                write_ioc_files,
             )
             ioc_report = build_ioc_report({
                 "findings": [f.to_dict() for f in findings],

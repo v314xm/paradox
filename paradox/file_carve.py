@@ -29,7 +29,6 @@ from paradox.config import Config
 from paradox.http_object import HttpObject
 from paradox.models import CaptureState
 
-
 _MIME_TO_EXT = {
     "application/x-dosexec": ".exe",
     "application/x-msdownload": ".exe",

@@ -13,7 +13,6 @@ from typing import Any, Protocol, runtime_checkable
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 
-
 SEVERITY_ORDER: dict[str, int] = {
     "critical": 0,
     "high": 1,

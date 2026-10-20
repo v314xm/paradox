@@ -25,8 +25,8 @@ from __future__ import annotations
 from collections import defaultdict
 
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.models import CaptureState, Finding
 
 
 class DnsAnswerMismatchRule:

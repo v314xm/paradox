@@ -3,17 +3,17 @@
    CaptureState → extract_*_facts → правило → Contradiction.
 """
 from paradox.config import Config
-from paradox.models import CaptureState, FlowKey, FlowStats
 from paradox.contradictions.facts import (
     extract_direct_ip_facts,
     extract_tls_host_facts,
 )
-from paradox.contradictions.rules.g_direct_ip_no_dns import (
-    DirectIpNoDnsRule,
-)
 from paradox.contradictions.rules.a_sni_without_dns import (
     SniWithoutDnsRule,
 )
+from paradox.contradictions.rules.g_direct_ip_no_dns import (
+    DirectIpNoDnsRule,
+)
+from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 def _flow(src, dst, port=443, sni=None):

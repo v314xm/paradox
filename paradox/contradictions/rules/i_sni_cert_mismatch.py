@@ -12,11 +12,9 @@ Severity: medium. Confidence 0.7 — сильный сигнал, но возм�
 """
 from __future__ import annotations
 
-from collections import defaultdict
-
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.models import CaptureState, Finding
 
 
 def _match_one(sni: str, pattern: str) -> bool:

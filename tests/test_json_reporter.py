@@ -1,7 +1,6 @@
 import json
-import pytest
-from pathlib import Path
 from unittest.mock import patch
+
 from paradox.reporters.json_reporter import write_json, write_markdown
 
 

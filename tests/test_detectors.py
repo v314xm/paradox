@@ -16,10 +16,8 @@ from paradox.detectors.ip_check_service import IPCheckServiceDetector
 from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from paradox.detectors.sni_mismatch import SNIMismatchDetector
 from paradox.detectors.suspicious_port import SuspiciousPortDetector
-from paradox.detectors.typosquatting import TyposquattingDetector
-from paradox.detectors.typosquatting import levenshtein
+from paradox.detectors.typosquatting import TyposquattingDetector, levenshtein
 from paradox.models import CaptureState, FlowKey, FlowStats
-
 
 # ---------- DGADetector ----------
 

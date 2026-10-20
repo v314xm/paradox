@@ -1,11 +1,10 @@
 """Окно для просмотра извлечённых файлов (Carved Files)."""
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QDesktopServices, QColor, QBrush
+from PySide6.QtGui import QBrush, QColor, QDesktopServices
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,

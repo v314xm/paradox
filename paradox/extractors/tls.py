@@ -1,7 +1,6 @@
+from paradox.ja3 import parse_client_hello, parse_server_hello
 from paradox.models import CaptureState, FlowKey, make_session_key
 from paradox.parsers import PacketRecord
-from paradox.ja3 import parse_client_hello, parse_server_hello
-from paradox.tls_parse import extract_sni
 
 
 class TLSExtractor:

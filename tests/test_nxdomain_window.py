@@ -6,7 +6,6 @@ from paradox.detectors.nxdomain_burst import (
 )
 from paradox.models import CaptureState
 
-
 # ---------- _max_in_window ----------
 
 def test_window_empty():

@@ -13,7 +13,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-
 # Порядок плиток: (ключ, подпись, акцентная?).
 # Ключи совпадают с report["summary"] из run_pipeline.
 _TILES = (

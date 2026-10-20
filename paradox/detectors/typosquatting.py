@@ -71,9 +71,7 @@ def _check_squat(sld: str, brand: str, lev_threshold: int) -> str | None:
     # Всё остальное (event-datamicrosoft) — contains-typosquat.
     if brand in sld:
         pos = sld.find(brand)
-        if pos == 0:
-            pass
-        elif pos + len(brand) == len(sld) and pos <= 3:
+        if pos == 0 or pos + len(brand) == len(sld) and pos <= 3:
             pass
         else:
             return "contains"

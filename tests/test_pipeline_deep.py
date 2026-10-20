@@ -1,8 +1,8 @@
 """Углублённые тесты pipeline: отмена, on_phase, исключения."""
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-from scapy.all import Ether, IP, TCP, Raw, wrpcap
+from scapy.all import IP, TCP, Ether, Raw, wrpcap
 
 from paradox.config import Config
 from paradox.pipeline import PipelineCancelled, run_pipeline

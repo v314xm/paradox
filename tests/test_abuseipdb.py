@@ -1,9 +1,7 @@
 """
 Тесты AbuseIPDBEnricher. HTTP замокан — никакой сети.
 """
-import time
 
-import pytest
 
 from paradox.integrations.abuseipdb import AbuseIPDBEnricher
 

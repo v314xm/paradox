@@ -21,7 +21,6 @@ Confidence по количеству уникальных получателей
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 
-
 # Подстроки в X-Mailer / User-Agent, частые у масс-мейлеров.
 # На confidence не влияют — только в evidence для аналитика.
 _MASS_MAILER_MARKERS = (
@@ -77,6 +76,16 @@ class SMTP_SpamDetector:
             from_addrs = sorted(state.smtp_from_by_src.get(src_ip, set()))
             from_sample = from_addrs[0] if from_addrs else ""
 
+            # v1.1: dst из flows SMTP-портов.
+            dst_counts = {}
+            for key in state.flows:
+                if key.src_ip == src_ip and key.dst_port in (25, 465, 587):
+                    dst_counts[key.dst_ip] = dst_counts.get(key.dst_ip, 0) + 1
+            top_dsts = sorted(
+                ({"ip": ip, "count": c} for ip, c in dst_counts.items()),
+                key=lambda d: -d["count"],
+            )[:5]
+
             evidence = {
                 "src_ip": src_ip,
                 "recipients_count": count,
@@ -84,6 +93,8 @@ class SMTP_SpamDetector:
                 "helo": helo,
                 "from_sample": from_sample,
                 "mailer_markers": sorted(matched_markers),
+                "top_dst_ips": top_dsts,
+                "recipients_sample": sorted(rcpt_set)[:10],
             }
 
             findings.append(Finding(

@@ -4,28 +4,8 @@
 Противоречия, Brute force, Сеть, Производительность, Allowlist, DGA,
 Threat Intel, Отчёты. Заглушка — только «Общие».
 """
-from pathlib import Path
 import re
-
-from paradox_gui.settings_rehydrate import rehydrate
-from paradox_gui.profiles import (
-    ALL_PROFILES,
-    DEFAULT_PROFILE_KEY,
-    get_profile,
-)
-from paradox_gui.field_help import (
-    SECTION_BY_TITLE,
-    get_field_help,
-    get_section_help,
-)
-from paradox_gui.widgets.editable_list import (
-    PORT_FIELDS,
-    EditableListWidget,
-)
-from paradox_gui.detector_help import get_detector_help
-from paradox_gui.contradiction_help import get_contradiction_help
-from paradox_gui.settings_store import SettingsStore
-from paradox_gui.secrets_store import SecretsStore
+from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -36,9 +16,9 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QMessageBox,
     QListWidget,
     QListWidgetItem,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
     QScrollArea,
@@ -48,6 +28,25 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.contradiction_help import get_contradiction_help
+from paradox_gui.detector_help import get_detector_help
+from paradox_gui.field_help import (
+    SECTION_BY_TITLE,
+    get_field_help,
+    get_section_help,
+)
+from paradox_gui.profiles import (
+    ALL_PROFILES,
+    DEFAULT_PROFILE_KEY,
+    get_profile,
+)
+from paradox_gui.secrets_store import SecretsStore
+from paradox_gui.settings_rehydrate import rehydrate
+from paradox_gui.settings_store import SettingsStore
+from paradox_gui.widgets.editable_list import (
+    PORT_FIELDS,
+    EditableListWidget,
+)
 
 _SECTIONS = (
     ("general",       "Общие"),
@@ -409,9 +408,7 @@ class SettingsView(QWidget):
                     widget.valueChanged.connect(self._check_modified)
                 elif isinstance(widget, QCheckBox):
                     widget.stateChanged.connect(self._check_modified)
-                elif isinstance(widget, QLineEdit):
-                    widget.textChanged.connect(self._check_modified)
-                elif isinstance(widget, (QPlainTextEdit, EditableListWidget)):
+                elif isinstance(widget, QLineEdit) or isinstance(widget, (QPlainTextEdit, EditableListWidget)):
                     widget.textChanged.connect(self._check_modified)
 
     def _check_modified(self, *args) -> None:
@@ -489,8 +486,11 @@ class SettingsView(QWidget):
     @staticmethod
     def _widget_differs(widget, default) -> bool:
         from PySide6.QtWidgets import (
-            QCheckBox, QDoubleSpinBox, QLineEdit,
-            QPlainTextEdit, QSpinBox,
+            QCheckBox,
+            QDoubleSpinBox,
+            QLineEdit,
+            QPlainTextEdit,
+            QSpinBox,
         )
         if isinstance(widget, QSpinBox):
             return int(widget.value()) != int(default)
@@ -603,7 +603,7 @@ class SettingsView(QWidget):
     # =========================================================================
 
     def _build_profile_row(self):
-        from PySide6.QtWidgets import QComboBox, QLabel, QHBoxLayout, QPushButton
+        from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QPushButton
 
         row = QHBoxLayout()
         row.setSpacing(8)
@@ -815,6 +815,7 @@ class SettingsView(QWidget):
         фиксированной ширины (160px) — он не участвует в stretch.
         """
         from PySide6.QtWidgets import QSizePolicy
+
         from paradox_gui.field_help import get_field_help
 
         host = QWidget()
@@ -888,9 +889,7 @@ class SettingsView(QWidget):
     def _apply_thresholds(self) -> None:
         values = {}
         for key, widget in self._threshold_inputs.items():
-            if isinstance(widget, QSpinBox):
-                values[key] = widget.value()
-            elif isinstance(widget, QDoubleSpinBox):
+            if isinstance(widget, QSpinBox) or isinstance(widget, QDoubleSpinBox):
                 values[key] = widget.value()
         self.thresholds_applied.emit(values)
 
@@ -982,9 +981,7 @@ class SettingsView(QWidget):
         skipped_total = 0
         previews: list[str] = []
         for key, widget in self._brute_inputs.items():
-            if isinstance(widget, QSpinBox):
-                values[key] = widget.value()
-            elif isinstance(widget, QDoubleSpinBox):
+            if isinstance(widget, QSpinBox) or isinstance(widget, QDoubleSpinBox):
                 values[key] = widget.value()
             elif isinstance(widget, QPlainTextEdit):
                 text = widget.toPlainText()

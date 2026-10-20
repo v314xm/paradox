@@ -33,7 +33,6 @@ import socket
 import struct
 from dataclasses import dataclass
 
-
 # --- размеры заголовков ---
 ETHERNET_HEADER_LEN = 14
 VLAN_TAG_LEN = 4
@@ -212,8 +211,7 @@ def _parse_tcp(raw: bytes, rec: PacketRecord, offset: int) -> None:
     rec.tcp_ack = struct.unpack_from("!I", raw, offset + 8)[0]
 
     data_offset = (raw[offset + 12] >> 4) * 4
-    if data_offset < TCP_MIN_HEADER_LEN:
-        data_offset = TCP_MIN_HEADER_LEN
+    data_offset = max(data_offset, TCP_MIN_HEADER_LEN)
     rec.tcp_flags = raw[offset + 13]
 
     payload_start = offset + data_offset

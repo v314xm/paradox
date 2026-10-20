@@ -19,7 +19,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 # --- теги ASN.1, которые нас интересуют ---
 TAG_INTEGER = 0x02
 TAG_OCTET_STRING = 0x04

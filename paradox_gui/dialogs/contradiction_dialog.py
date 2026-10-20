@@ -5,7 +5,6 @@
 likely_causes. Никаких действий с данными — только чтение dict'а
 из report["contradictions"].
 """
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -16,7 +15,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
 
 _SEVERITY_ICON = {
     "critical": "🔴",

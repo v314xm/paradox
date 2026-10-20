@@ -23,6 +23,9 @@ Paradox = "paradox.cli:main"
 include = ["paradox*"]
 
 [tool.pytest.ini_options]
+markers = [
+    "slow: тяжёлые тесты, не для CI по умолчанию",
+]
 filterwarnings = [
     "ignore::DeprecationWarning:scapy.*",
 ]

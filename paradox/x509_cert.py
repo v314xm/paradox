@@ -19,19 +19,18 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from paradox.x509_der import (
-    DerError,
-    DerNode,
     TAG_CTX_0,
     TAG_CTX_3,
     TAG_OCTET_STRING,
     TAG_OID,
     TAG_SEQUENCE,
+    DerError,
+    DerNode,
     as_oid,
     as_str,
     as_time,
     parse_der,
 )
-
 
 # OID, которые нам нужны
 CN_OID = "2.5.4.3"          # commonName (2.5.4.3)

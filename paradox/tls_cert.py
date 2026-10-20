@@ -28,7 +28,6 @@ from __future__ import annotations
 from paradox.x509_cert import Certificate, parse_certificate
 from paradox.x509_der import DerError
 
-
 TLS_RECORD_HANDSHAKE = 0x16
 HS_TYPE_CERTIFICATE = 11
 

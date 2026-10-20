@@ -4,8 +4,6 @@
 QT_QPA_PLATFORM=offscreen — без реального окна.
 """
 import os
-import tempfile
-from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 

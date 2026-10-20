@@ -22,7 +22,6 @@ from paradox_gui.ioc_utils import detect_ioc_type, provider_link
 from paradox_gui.widgets.provider_card import ProviderCard
 from paradox_gui.workers.quick_check_worker import QuickCheckWorker
 
-
 _AUTO = "Авто"
 _TYPES = ("ip", "domain", "url", "hash")
 

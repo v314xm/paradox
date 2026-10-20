@@ -35,7 +35,6 @@ from urllib.parse import unquote, urlsplit
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 
-
 _EVIDENCE_SAMPLE_SIZE = 5
 
 

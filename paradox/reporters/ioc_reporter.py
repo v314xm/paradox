@@ -20,7 +20,6 @@ import ipaddress
 import json
 from pathlib import Path
 
-
 # Типы findings, из которых достаём домены.
 _DOMAIN_FINDING_TYPES = frozenset({
     "dga_domain",

@@ -24,7 +24,6 @@ import ipaddress
 import struct
 from typing import Any
 
-
 EXT_HOP_BY_HOP = 0
 EXT_ROUTING = 43
 EXT_FRAGMENT = 44
@@ -149,9 +148,7 @@ def parse_ipv6_packet(
     src_port: int | None = None
     dst_port: int | None = None
 
-    if nh == PROTO_TCP and len(l4) >= 4:
-        src_port, dst_port = struct.unpack("!HH", l4[:4])
-    elif nh == PROTO_UDP and len(l4) >= 4:
+    if nh == PROTO_TCP and len(l4) >= 4 or nh == PROTO_UDP and len(l4) >= 4:
         src_port, dst_port = struct.unpack("!HH", l4[:4])
 
     record = _make_record(

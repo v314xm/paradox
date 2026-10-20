@@ -42,7 +42,6 @@
 """
 from __future__ import annotations
 
-
 # content types
 TLS_CONTENT_HANDSHAKE = 0x16
 

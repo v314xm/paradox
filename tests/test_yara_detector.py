@@ -6,16 +6,13 @@
 """
 from __future__ import annotations
 
-import os
-import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from paradox.detectors.yara_detector import YARADetector
 from paradox.models import CaptureState
-
 
 # =============================================================================
 # ОБЩИЕ ФИКСТУРЫ
