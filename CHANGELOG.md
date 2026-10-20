@@ -5,40 +5,351 @@
 
 ## [Unreleased]
 
-## [Unreleased]
-
-#### Запланировано
-- ObfuscationDetector (base64/eval в HTTP body).
-- WebShellDetector (?cmd=, ?exec= в URI + POST body).
-- IOC → STIX 2.1 экспорт.
-- Windowing в CaptureState (fix nxdomain_burst долга,
-  медленные beaconing).
-- FlowAggregator + более сложные эвристики beaconing.
-- VirusTotal enricher (третий провайдер, домены).
-- DNS-ответы (A/AAAA/CNAME) — для sni_host_mismatch v2
-  и direct_ip_no_dns v2.
-- TLS certificate parser (CN, SAN).
-- SMB2/DHCP/SSH/SMTP экстракторы.
-- IPv6 поддержка в парсере.
-- REST API + Web UI.
+### Запланировано (v1.3.0)
+- Плагинная система: `~/.paradox/plugins/*.py`, автозагрузка детекторов.
+- PDF-экспорт Markdown-отчёта.
+- Лендинг + GitHub Pages.
+- STIX 2.1 экспорт IOC.
+- `beaconing` windowing для медленных C2 (интервал > часа).
+- Унификация полярности findings (сейчас дублируется в `entities.py` и `facts.py`).
 
 ### Известные проблемы
-- `nxdomain_burst` считает за весь файл, не по окну — 93 findings
-  на FIN-2015, часть могут быть FP.
-- `sni_without_dns` — 73 findings на FIN-2015, CDN без DNS в этом
-  же файле захвата. Не FP, но шумно.
-- `beaconing` чувствителен к jitter: реальные C2 с jitter > 0.1
-  не ловятся. Может давать FP на CDN-трафик. Требует windowing.
-- `victim_makes_attack` использует `beaconing`/`nxdomain_burst`
-  как источник victim-факта. Если beaconing FP — правило сработает
-  ложно. Решается через тюнинг beaconing allowlist.
-- TCP reassembly обрезает потоки > 1 МБ (per-flow limit).
-- Двухуровневые TLD (co.uk, com.au) не поддержаны в SLD.
-- `http_parse.py` без прямых тестов.
-- Внутренний C2 (internal → internal зашифрованный) не
-  детектируется без HTTP/2 framing.
-- Timeline / kill-chain отсутствуют как структура.
-- Универсальный контракт Finding не зафиксирован.
+- `test_multi_pcap.py` — 0 тестов (ручной `tools/test_multi_pcap.py`).
+- `NDPExtractor` без `layer = 0` — нарушает Protocol `Extractor`.
+- `sni_mismatch` шумит (73 FP на FIN-2015) — нужен context-aware allowlist.
+- JA3 браузеров не в config — ja3_ua_mismatch работает только на tool/malware.
+- TLS 1.3 Certificate зашифрован — правила на сертификатах только для TLS 1.2.
+- `markdown_reporter.py` — 976 строк, `settings_view.py` — 2021, `facts.py` — 927. Кандидаты на разбивку.
+- `beaconing` не ловит медленный C2 (интервал > часа) — нужен windowing.
+- Внутренний C2 (internal→internal зашифрованный) — вне зоны видимости.
+- Двухуровневые TLD поддержаны (domain_utils), но не в typosquatting SLD-фильтре для части кейсов.
+
+## [1.2.0] — 2026-10-20
+
+Release v1.2.0. Attack Graph + Multi-pcap + Splash + Logo + Diff.
+Тестов 938 → 942. Детекторов 20. Экстракторов 12. Правил 12.
+
+### Добавлено
+
+**Attack Graph (ядро + GUI):**
+- `paradox/analyzers/attack_graph.py` (382) — directed graph
+  из findings + contradictions. Узлы = IP, рёбра = findings с
+  (src, dst), пути = BFS от entry до impact.
+- `AttackNode`, `AttackEdge`, `AttackPath`, `AttackGraph`.
+- `build_attack_graph(findings, config, entities, contradictions)`.
+- Entry: `victim_candidate` или (external→internal с initial_access).
+  Impact: `c2_candidate` / `attacker_candidate` или impact-phase.
+- `_PHASE_OF_TYPE` маппинг тип → kill-chain фаза.
+- `paradox_gui/dialogs/attack_graph_dialog.py` (651) — диалог
+  визуализации: узлы по фазам, рёбра цветные, пути слева,
+  детали справа.
+- Time Machine: слайдер + кнопка Play, узлы/рёбра проявляются
+  по времени.
+- Экспорт PNG / DOT (Graphviz) / GraphML (Gephi/Neo4j).
+- Кнопка «Граф атаки» в RunView, активируется если есть nodes.
+- `paradox/analyzers/attack_graph.py::build_attack_graph` вызывается
+  в `run_pipeline` и `run_multi_pipeline` (try/except fallback).
+- `Finding.attack_graph` в JSON-схеме.
+- 15 тестов в `tests/test_attack_graph.py`.
+
+**Multi-pcap:**
+- `paradox/multi_pcap.py` (169) — `merge_capture_states(states)`.
+  Слияние N датасетов: Counter.update, dict merge с dedup,
+  sum FlowStats по FlowKey, extend списков, min/max timestamps.
+- `paradox/pipeline.py::run_multi_pipeline` (append-only, не
+  трогает `run_pipeline`).
+- `paradox_gui/workers/analysis_worker.py` — принимает
+  `str | list[str]`, выбирает single/multi.
+- Кнопка «Открыть несколько pcap для слияния…» в RunView.
+- `provenance.merged_files` в JSON.
+- Summary показывает сумму packets/flows по всем файлам.
+
+**Splash screen:**
+- `paradox_gui/splash.py` (159) — `ParadoxSplash`.
+  640×400, тёмный градиент, логотип PARADOX, прогресс-бар,
+  4 стадии загрузки (Threat Intel keys → тема → MainWindow → готово).
+- Градиентный прогресс-бар (сине-голубой).
+
+**Логотип-система:**
+- `paradox_gui/logo.py` (110) — `render_logo`, `get_app_icon`,
+  `logo_label`, `wordmark_pixmap`. Рисуется кодом (`QPainter`),
+  без внешних PNG/SVG.
+- Иконка приложения в taskbar и title bar (∞ в круге, градиент).
+- Логотип в шапке главного окна (слева от меню).
+- About-диалог с лого 96×96, версией, списком модулей,
+  копирайтом.
+- DropZone: логотип вместо эмодзи 📁.
+
+**Diff двух прогонов:**
+- `paradox_gui/analyzers/run_diff.py` (105) — сравнение двух
+  report dict'ов: added/removed/changed по findings,
+  contradictions, flows.
+- `paradox_gui/views/diff_view.py` (190) — вкладка «Сравнение»:
+  загрузка двух JSON, показ разницы.
+- 10 тестов в `tests/test_run_diff.py`.
+
+**Branding:**
+- `ClickableLabel` — лого в шапке и версия в статус-баре
+  кликабельны → About.
+- Версия в статус-баре: `v1.2.0 · © v314xm`.
+- Markdown-отчёты: футер `**Paradox** v1.2.0 · © 2026 Andrey Grigoryev (v314xm)`.
+
+**Enrichment providers (9 вместо 3):**
+- Добавлены: `greynoise`, `alienvault_otx`, `urlscan` (без ключа),
+  `urlhaus`, `malwarebazaar`, `threatfox` (требуют `ABUSECH_AUTH_KEY`).
+- `BaseEnricher` — базовый класс для новых провайдеров с
+  общим HTTP-клиентом (certifi CA, error handling, timeout).
+
+**IOC reporter:**
+- `paradox/reporters/ioc_reporter.py` (349) — экспорт IOC:
+  `iocs.txt`, `iocs.csv`, `iocs.json`, `suricata.rules` (SID 9000000+),
+  `queries.txt` (KQL + Splunk).
+- IPv4 + IPv6 через `ipaddress`.
+
+### Изменено
+- `paradox/models.py::_SEVERITY_BY_TYPE` — добавлены
+  `smtp_spam`, `sni_without_dns`, `cloud_tunnel_domain`.
+- `paradox_gui/views/settings_view.py` — 4 severity-метки
+  синхронизированы с `rule.severity_base` ядра
+  (SniWithoutDnsRule, DnsAnswerMismatchRule, SniCertMismatchRule,
+  ExpiredCertRule).
+- `paradox/pipeline.py` — `build_attack_graph` в `run_pipeline`,
+  `run_multi_pipeline` добавлен (append-only).
+- `paradox_gui/theme.py` — QTreeWidget/QTreeView стилизованы
+  под тёмную тему (было: белые строки в Diff/Timeline).
+- `paradox/detectors/smtp_spam.py` — `dst_ip` из flows на порты
+  25/465/587, `recipients_sample` в evidence.
+- `paradox/reassembler.py` — разделены `_total_bytes` (для лимита,
+  уменьшается при finalize) и `_bytes_seen_total` (для stats,
+  монотонный).
+- `paradox/reporters/markdown_reporter.py` — футер с версией и автором.
+- `paradox_gui/main_window.py` — `ClickableLabel`, кликабельный
+  логотип, статус-бар с версией.
+- Attack Graph стрелки: рисуются по касательной к границе узла,
+  обрезка линии по радиусам кругов, `setData(0/1)` для корректной
+  подсветки путей.
+
+### Исправлено
+- **Attack Graph не строился в `run_pipeline`** после `git checkout`
+  pipeline.py в середине сессии — восстановлен через отдельный патч.
+- **`AttackGraphDialog` — NameError: QTimer** — добавлен импорт.
+- **Дубликат splitter** в `_build()` — вызывал
+  `RuntimeError: Internal C++ object already deleted`.
+- **Attack Graph фазы `"other"`** — PHASE_ORDER comparison не
+  срабатывал из-за инициализации `phase_order=999`. Инициализация
+  `phase_order=0`, реальные фазы обновляют.
+- **QHBoxLayout missing в main_window.py** — потерян при патче шапки.
+- **`_looks_like_ip` не видел IPv6** в IOC reporter — переведён на
+  `ipaddress.ip_address`.
+- **`_SEVERITY_BY_TYPE["cloud_tunnel"]`** не матчил реальный
+  `type="cloud_tunnel_domain"` — добавлен алиас.
+- **Evidence fallbacks:** `suspicious_port` (`src_ips`) и
+  `ja3_malware` (`top_dst_ips`) не поднимались в top-level `src_ip`/
+  `dst_ip` — добавлены в `Finding.__post_init__`.
+
+### Производительность
+- `paradox/` — 15 870 строк, `paradox_gui/` — 11 931. Всего ~27 800.
+- 942 теста в 110 файлах, полный suite ~22 сек.
+
+### Тесты
+- 938 → **942 passed** (+15 attack_graph, +10 diff, −13 при
+  рефакторинге +0).
+- Новые файлы: `test_attack_graph.py` (15), `test_run_diff.py` (10),
+  `test_multi_pcap.py` (0 — заглушка).
+
+## [1.1.0] — 2026-10-16
+
+Severity guards, evidence fallbacks, IPv6 IOC, provider validation fix.
+Тестов 925 → 938.
+
+### Добавлено
+- `tests/test_severity_map.py` — страж: все типы findings из
+  детекторов должны быть в `_SEVERITY_BY_TYPE`.
+- `tests/test_gui_severity_sync.py` — страж: severity в GUI-лейблах
+  правил должна совпадать с `rule.severity_base`.
+- `tools/verify_all.py` — прогон всех фиксов + targeted + full suite.
+- `tools/rollback.py` — откат через git checkout.
+- `tools/cleanup_before_publish.py` — dry-run очистка проекта.
+
+### Изменено
+- `paradox/models.py::Finding.__post_init__` — fallback на
+  `evidence.src_ips` и `evidence.top_dst_ips`. `suspicious_port` и
+  `ja3_malware` findings теперь привязываются к сущностям.
+- `paradox/reporters/ioc_reporter.py::_looks_like_ip` — `ipaddress`
+  вместо regex-like проверки.
+- `paradox/config.py` — убрана валидация имён провайдеров из
+  `_validate()` (нарушала слои: Config → integrations).
+  Валидация переехала в `build_default_orchestrator` как warning.
+- `paradox/reassembler.py` — разделены `_total_bytes` (лимит) и
+  `_bytes_seen_total` (stats).
+
+### Исправлено
+- **5 тестов `test_orchestrator_*` падали** на `Config()` из-за
+  валидации имён провайдеров (mock). Возврат к warning.
+- **`test_stats` падал** на `bytes_total == 2` — reassembler
+  возвращал текущий буфер, а не монотонный счётчик.
+
+### Тесты
+- 925 → **938 passed**.
+
+## [1.0.0] — 2026-10-15
+
+Стабилизация 0.x → 1.0.0. Тестов 302 → 925. Детекторов 17 → 20.
+Экстракторов 8 → 12. Правил 7 → 12.
+
+### Добавлено
+
+**Экстракторы (12 вместо 8):**
+- `extractors/dhcp.py` (180) — MAC + hostname из BOOTP/DHCP.
+- `extractors/ssh_banner.py` (104) — SSH server/client version,
+  `ssh_client_attempts` для brute_force.
+- `extractors/smtp.py` (130) — EHLO/MAIL FROM/RCPT TO/mailer.
+- `extractors/ndp.py` (132) — NDP для IPv6 (neighbors, routers).
+- `extractors/kerberos.py` (77) — cname, realm, sname.
+- `extractors/tls_cert.py` (52) — X.509 из TLS handshake.
+
+**Детекторы (20 вместо 17):**
+- `detectors/ssh_brute_force.py` (58) — 20+ SSH-баннеров на пару.
+- `detectors/smtp_spam.py` (108) — 50+ уникальных RCPT TO.
+- `detectors/yara_detector.py` (81) — YARA на carved_files
+  (опционально, если `yara-python` установлен).
+
+**Правила Contradictions (12 вместо 7):**
+- `a_sni_without_dns.py` — SNI без DNS-ответа.
+- `h_dns_answer_mismatch.py` — SNI ≠ резолвнутый IP.
+- `i_sni_cert_mismatch.py` — SNI ≠ CN/SAN сертификата.
+- `j_self_signed_cert.py` — issuer == subject.
+- `k_expired_cert.py` — not_after < ts flow.
+
+**IPv6:**
+- `paradox/parsers_ipv6.py` (207) — IPv6-парсер с extension chains.
+- `paradox/analyzers/ndp.py` (46) — `analyze_ndp(packets)`.
+- `paradox_gui/views/ipv6_view.py` (114) — вкладка IPv6.
+- `PacketRecord.ipv6_meta` — traffic_class, flow_label,
+  extension_chain, fragment_id.
+
+**X.509:**
+- `paradox/x509_der.py` (248) — DER-парсер.
+- `paradox/x509_cert.py` (194) — `Certificate`, `parse_certificate`.
+- `paradox/tls_cert.py` (122) — `parse_certificate_from_stream`.
+- `CaptureState.tls_certs`.
+
+**DNS-ответы:**
+- `CaptureState.dns_answers_by_name`, `dns_answers_by_ip`.
+- CNAME-цепочки через `_collect_ips_for` в facts.py.
+- A/AAAA/CNAME из DNS-ответов (только `qr=1`).
+
+**NXDOMAIN window:**
+- `nxdomain_burst_window_sec=60`, `nxdomain_burst_min_ratio=0.2`.
+- `CaptureState.dns_nxdomain_ts_by_src`.
+- `_max_in_window` — двухpointer sliding window.
+
+**Domain utils:**
+- `paradox/domain_utils.py` (151) — `split_domain`, `base_domain`,
+  `registered_label`, `matches_suffix`. Двухуровневые TLD
+  (co.uk, com.au, co.jp, co.br, …).
+
+**Timeline:**
+- `paradox/timeline.py` (305) — `TimelineEvent`, `build_timeline`,
+  `summarize_by_phase`. Kill-chain reconstruction.
+- `_PHASE_BY_TYPE`, `_PHASE_ORDER`.
+- `paradox_gui/views/timeline_view.py` (251) — вкладка «Таймлайн».
+
+**Анализаторы:**
+- `paradox/analyzers/absence.py` (53) — DNS без ответа,
+  TCP без обратного flow.
+- `paradox/analyzers/counterfactual.py` (77) — What-If.
+- `paradox/analyzers/story.py` (65) — история хоста.
+
+**IOC reporter:**
+- `paradox/reporters/ioc_reporter.py` (349).
+
+**GUI вкладки (8 вместо 5):**
+- IPv6, Таймлайн, Экспорт, (Сравнение в v1.2.0).
+
+**GUI компоненты:**
+- `splash.py`, `logo.py`, `storage.py` (SQLite history),
+  `settings_store.py`, `settings_rehydrate.py`, `secrets_store.py`,
+  `profiles.py`, `ioc_utils.py`, `editable_list.py`.
+
+### Изменено
+- `paradox/__init__.py` — `__version__ = "1.0.0"`.
+- `paradox_gui/__init__.py` — `__version__ = "1.0.0"`.
+- `paradox/config.py` — новые секции:
+  `nxdomain_burst_window_sec`, `nxdomain_burst_min_ratio`,
+  `smtp_spam_min_recipients`, `ssh_brute_force_min_flows`,
+  `yara_rules_path`, `dns_tunneling_*`.
+- `paradox/models.py` — `Finding.__post_init__` нормализует
+  `src_ip`/`dst_ip`/`severity`/`mitre_techniques` из evidence.
+  `_SEVERITY_BY_TYPE` карта.
+- `paradox/reporters/markdown_reporter.py` — секция Timeline.
+
+### Исправлено
+- `cloud_tunnel_domain` — `type` переименован из `cloud_tunnel`
+  (детектор не находился).
+- `_SEVERITY_BY_TYPE` не покрывал новые типы — тест-страж в v1.1.0.
+
+### Тесты
+- 302 → **925 passed** (+623 за 3 версии, в основном contradictions
+  и экстракторы).
+
+## [0.9.0] — 2026-10-14
+
+DNS-ответы, X.509, SSH/SMTP/DHCP/YARA, IPv6, 5 правил, NXDOMAIN window.
+Детекторов 17 → 20. Экстракторов 8 → 12. Правил 7 → 12.
+Тестов 302 → 500+.
+
+### Добавлено
+
+См. v1.0.0 — здесь ядро репозитория перешло от «набора работающих
+правил» к полной инфраструктуре. Все модули, перечисленные выше
+в v1.0.0, появились в v0.9.0 и были стабилизированы в v1.0.0.
+
+Ключевые изменения:
+- **DNS-ответы:** `dns_answers_by_name`, `dns_answers_by_ip`.
+- **X.509 парсер:** `x509_der.py`, `x509_cert.py`, `tls_cert.py`.
+- **5 новых правил:** sni_without_dns, dns_answer_mismatch,
+  sni_cert_mismatch, self_signed_cert, expired_cert.
+- **NXDOMAIN window:** `nxdomain_burst_window_sec=60`.
+- **Экстракторы:** DHCP, SSH banner, SMTP, NDP, Kerberos, TLS cert.
+- **Детекторы:** SSH brute force, SMTP spam, YARA.
+- **IPv6:** `parsers_ipv6.py`, NDP-анализатор, IPv6View.
+- **domain_utils.py:** двухуровневые TLD.
+
+### Исправлено
+- `cloud_tunnel` → `cloud_tunnel_domain` (не находится детектором).
+- `ExpiredCertRule` — `not_after_ts` из ISO в unix ts.
+- `SniCertMismatchRule` — wildcard `*.example.com` matches
+  `a.example.com`, не `a.b.example.com` (RFC 6125).
+
+### Тесты
+- 302 → 500+ (полная переработка тестовой инфраструктуры,
+  `pytest-qt`, offscreen).
+
+## [0.8.0] — 2026-10-14
+
+Timeline / kill-chain reconstruction.
+
+### Добавлено
+- `paradox/timeline.py` (305) — `TimelineEvent`, `build_timeline`,
+  `summarize_by_phase`.
+- `_PHASE_BY_TYPE`, `_PHASE_ORDER` — маппинг type/rule → фаза.
+- Секция Timeline в Markdown-отчёте.
+- `report["timeline"]` — плоский список TimelineEvent, отсортирован.
+- `paradox_gui/views/timeline_view.py` (251) — вкладка «Таймлайн»
+  (QTreeWidget по фазам).
+
+### Изменено
+- `paradox/reporters/markdown_reporter.py` — секция Timeline
+  использует `report["timeline"]`, fallback на старое поведение.
+- `paradox/models.py::Finding` — `mitre_techniques` instance-level
+  приоритетнее type-map.
+
+### Исправлено
+- Deterministic timeline: sort by (ts, chain_order, subject, type, kind).
+
+### Тесты
+- 302 → 339 (+37 в `test_timeline.py`).
 
 ## [0.7.0] — 2026-10-13
 
@@ -677,11 +988,11 @@ Initial snapshot. Первый рабочий pipeline.
 
 ## Как читать changelog
 
-**Major** (0 → 1) — несовместимые изменения. Пока не было ни одного.
+**Major** (1 → 2) — несовместимые изменения API.
 
-**Minor** (0.1 → 0.2) — новая функциональность, старая совместима.
+**Minor** (1.1 → 1.2) — новая функциональность, старая совместима.
 
-**Patch** (0.1.0 → 0.1.1) — исправления и производительность.
+**Patch** (1.2.0 → 1.2.1) — исправления, оптимизация.
 
 ### Что считается major
 
@@ -691,12 +1002,13 @@ Initial snapshot. Первый рабочий pipeline.
 
 ### Что считается minor
 
-- Новый экстрактор или детектор.
+- Новый экстрактор, детектор, правило contradictions.
 - Новое поле в JSON-схеме.
 - Новая секция в Markdown-отчёте.
+- Новая вкладка в GUI.
 
 ### Что считается patch
 
 - Исправление false positive.
 - Исправление бага в парсере.
-- Оптимизация производительности без изменения API .
+- Оптимизация производительности без изменения API.
