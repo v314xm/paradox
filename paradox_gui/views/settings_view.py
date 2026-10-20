@@ -98,11 +98,11 @@ _CONTRADICTIONS = (
     ("PortServiceMismatchRule", "port_service_mismatch (tunnel) — high"),
     ("DirectIpNoDnsRule",       "direct_ip_no_dns (hardcoded) — medium"),
     # v0.9.0: добавлены недостающие 5 правил
-    ("SniWithoutDnsRule",       "sni_without_dns (SNI без DNS) — high"),
-    ("DnsAnswerMismatchRule",   "dns_answer_mismatch (подмена ответа) — critical"),
-    ("SniCertMismatchRule",     "sni_cert_mismatch (CN/SAN ≠ SNI) — high"),
+    ("SniWithoutDnsRule",       "sni_without_dns (SNI без DNS) — medium"),
+    ("DnsAnswerMismatchRule",   "dns_answer_mismatch (подмена ответа) — medium"),
+    ("SniCertMismatchRule",     "sni_cert_mismatch (CN/SAN ≠ SNI) — medium"),
     ("SelfSignedCertRule",      "self_signed_cert — medium"),
-    ("ExpiredCertRule",         "expired_cert — medium"),
+    ("ExpiredCertRule",         "expired_cert — low"),
 )
 
 

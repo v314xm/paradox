@@ -44,8 +44,11 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "dns_tunneling": "medium",
     "suspicious_port": "medium",
     "cloud_tunnel": "medium",
+    "cloud_tunnel_domain": "medium",
     "sni_mismatch": "medium",
     "dga_domain": "medium",
+    "smtp_spam": "medium",
+    "sni_without_dns": "medium",
     "large_transfer": "medium",
     "carved_file": "medium",
 
@@ -130,10 +133,13 @@ class Finding:
             self.src_ip = (
                 ev.get("src_ip")
                 or _first_ip_from_aggregated(ev.get("top_src_ips"))
+                or _first_ip_from_aggregated(ev.get("src_ips"))
             )
         if self.dst_ip is None:
             self.dst_ip = (
-                ev.get("dst_ip") or _first_from_list(ev.get("dst_ips"))
+                ev.get("dst_ip")
+                or _first_ip_from_aggregated(ev.get("dst_ips"))
+                or _first_ip_from_aggregated(ev.get("top_dst_ips"))
             )
         if self.dst_port is None:
             self.dst_port = (

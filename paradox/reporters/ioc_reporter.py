@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import csv
 import io
+import ipaddress
 import json
 from pathlib import Path
 
@@ -80,14 +81,12 @@ def _upsert_ioc(
 
 
 def _looks_like_ip(s: str) -> bool:
-    """Быстрая проверка 'похоже на IPv4'."""
-    if not s or "." not in s:
-        return False
-    parts = s.split(".")
-    if len(parts) != 4:
+    """Проверка IPv4/IPv6 через ipaddress."""
+    if not s:
         return False
     try:
-        return all(0 <= int(p) <= 255 for p in parts)
+        ipaddress.ip_address(s)
+        return True
     except ValueError:
         return False
 
