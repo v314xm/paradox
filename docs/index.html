@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradox — PCAP Triage Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .terminal { background: #1e293b; border-left: 4px solid #38bdf8; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="flex justify-between items-center p-6 max-w-6xl mx-auto">
+        <div class="text-2xl font-bold tracking-wider">🛡️ PARADOX</div>
+        <div class="space-x-6 hidden md:block">
+            <a href="https://github.com/v314xm/paradox" class="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg font-semibold transition">GitHub</a>
+        </div>
+    </nav>
+
+    <header class="max-w-4xl mx-auto text-center mt-24 px-6">
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-6">
+            Найди то, что <span class="gradient-text">скрыто</span> в твоем PCAP
+        </h1>
+        <p class="text-xl text-slate-400 mb-8">
+            Paradox — это offline-инструмент для триажа трафика. 20 детекторов, 12 правил противоречий, поиск пивотов и C2-каналов.
+        </p>
+        <div class="flex justify-center space-x-4">
+            <a href="https://github.com/v314xm/paradox/releases" class="bg-white text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-slate-200 transition">Скачать .exe</a>
+            <a href="https://github.com/v314xm/paradox" class="border border-slate-600 px-6 py-3 rounded-lg font-bold text-lg hover:border-sky-400 transition">Смотреть код</a>
+        </div>
+    </header>
+
+    <section class="max-w-3xl mx-auto mt-20 px-6">
+        <div class="terminal p-6 rounded-lg font-mono text-sm text-slate-300 shadow-2xl">
+            <div class="flex space-x-2 mb-4">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <p><span class="text-sky-400">$</span> pip install -e ".[gui]"</p>
+            <p><span class="text-sky-400">$</span> python -m paradox_gui</p>
+            <p class="text-slate-500 mt-2"># Загрузите capture.pcap и нажмите "Анализировать"</p>
+        </div>
+    </section>
+
+    <section class="max-w-6xl mx-auto mt-32 px-6 mb-20">
+        <h2 class="text-3xl font-bold text-center mb-12">Почему Paradox?</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-slate-800 p-6 rounded-xl">
+                <h3 class="text-xl font-bold mb-2 text-sky-400">🔍 Противоречия</h3>
+                <p class="text-slate-400">Инструмент ищет несогласованности между слоями данных (SNI без DNS, MAC на разных IP).</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl">
+                <h3 class="text-xl font-bold mb-2 text-sky-400">🕸️ Граф Атак</h3>
+                <p class="text-slate-400">Визуализация связей между хостами. Сразу видно, как атакующий перемещается по сети.</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl">
+                <h3 class="text-xl font-bold mb-2 text-sky-400">🔄 Diff</h3>
+                <p class="text-slate-400">Сравнивайте два захвата и смотрите, какие новые находки появились за сутки.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-slate-800 py-10 text-center text-slate-500 text-sm">
+        <p>Сделано для CTF, SOC и Malware Analysts.</p>
+        <p class="mt-2">Paradox © 2026 Andrey Grigoryev. MIT License.</p>
+    </footer>
+
+</body>
+</html>
