@@ -35,6 +35,12 @@ from paradox_gui.field_help import (
     get_field_help,
     get_section_help,
 )
+from paradox_gui.i18n import (
+    DEFAULT_LANGUAGE,
+    SUPPORTED_LANGUAGES,
+    language_display_name,
+    tr,
+)
 from paradox_gui.profiles import (
     ALL_PROFILES,
     DEFAULT_PROFILE_KEY,
@@ -228,7 +234,7 @@ class SettingsView(QWidget):
 
         self._search_line = QLineEdit()
         self._search_line.setPlaceholderText(
-            "Поиск по настройкам (Ctrl+F)…"
+            tr("settings.search.placeholder")
         )
         self._search_line.setClearButtonEnabled(True)
         self._search_line.setToolTip(
@@ -285,8 +291,8 @@ class SettingsView(QWidget):
         w = QListWidget()
         w.setObjectName("settingsSidebar")
         w.setFixedWidth(200)
-        for key, label in _SECTIONS:
-            item = QListWidgetItem(label)
+        for key, _label in _SECTIONS:
+            item = QListWidgetItem(tr(f"settings.section.{key}"))
             item.setData(Qt.ItemDataRole.UserRole, key)
             w.addItem(item)
         return w
@@ -335,7 +341,9 @@ class SettingsView(QWidget):
         h.setObjectName("h1")
         v.addWidget(h)
 
-        body = _PLACEHOLDER_TEXT.get(key, "Секция в разработке.")
+        body = tr(f"settings.placeholder.{key}")
+        if body == f"settings.placeholder.{key}":
+            body = tr("settings.placeholder.fallback")
         hint = QLabel(body)
         hint.setObjectName("muted")
         hint.setWordWrap(True)
@@ -589,9 +597,9 @@ class SettingsView(QWidget):
     def _make_buttons(self, reset_slot, apply_slot) -> QHBoxLayout:
         h = QHBoxLayout()
         h.addStretch(1)
-        rst = QPushButton("Сбросить к default")
+        rst = QPushButton(tr("settings.btn.reset"))
         rst.clicked.connect(reset_slot)
-        apt = QPushButton("Применить")
+        apt = QPushButton(tr("settings.btn.apply"))
         apt.setObjectName("primary")
         apt.clicked.connect(apply_slot)
         h.addWidget(rst)
@@ -608,7 +616,7 @@ class SettingsView(QWidget):
         row = QHBoxLayout()
         row.setSpacing(8)
 
-        row.addWidget(QLabel("Профиль:"))
+        row.addWidget(QLabel(tr("settings.profile.label")))
         self._profile_combo = QComboBox()
         self._profile_combo.setFixedWidth(240)
         for p in ALL_PROFILES:
@@ -622,7 +630,7 @@ class SettingsView(QWidget):
         )
         row.addWidget(self._profile_combo)
 
-        apply_btn = QPushButton("Применить профиль")
+        apply_btn = QPushButton(tr("settings.profile.apply"))
         apply_btn.clicked.connect(self._apply_active_profile)
         row.addWidget(apply_btn)
 
@@ -725,8 +733,8 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Общие настройки",
-            "Базовые параметры интерфейса.",
+            tr("settings.general.title"),
+            tr("settings.general.subtitle"),
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -735,18 +743,18 @@ class SettingsView(QWidget):
         form.setSpacing(14)
 
         self._lang_combo = QComboBox()
-        self._lang_combo.addItem("Русский", "ru")
-        self._lang_combo.addItem("English", "en")
+        for _code in SUPPORTED_LANGUAGES:
+            self._lang_combo.addItem(language_display_name(_code), _code)
 
         # Загружаем текущий язык
         if self._store:
-            current_lang = self._store.load().get("language", "ru")
+            current_lang = self._store.load().get("language", DEFAULT_LANGUAGE)
             idx = self._lang_combo.findData(current_lang)
             if idx >= 0:
                 self._lang_combo.setCurrentIndex(idx)
 
         self._lang_combo.currentIndexChanged.connect(self._on_lang_changed)
-        form.addRow("Язык интерфейса:", self._lang_combo)
+        form.addRow(tr("settings.general.language"), self._lang_combo)
         outer.addLayout(form)
         outer.addStretch(1)
         return w
@@ -756,8 +764,9 @@ class SettingsView(QWidget):
         if self._store and lang:
             self._store.save_partial(language=lang)
             QMessageBox.information(
-                self, "Язык",
-                "Язык изменён. Для полного применения перезапустите программу.",
+                self,
+                tr("dialog.lang_changed.title"),
+                tr("dialog.lang_changed.body"),
             )
 
     def _build_thresholds_page(self) -> QWidget:
@@ -779,27 +788,27 @@ class SettingsView(QWidget):
         scroll, form = self._make_scroll_form()
         self._threshold_inputs: dict[str, object] = {}
 
-        self._add_int_row(form, "dga_min_label_length", "DGA: минимальная длина label")
-        self._add_float_row(form, "dga_entropy_threshold", "DGA: порог энтропии", step=0.1)
-        self._add_int_row(form, "nxdomain_burst_threshold", "NXDOMAIN burst: порог")
+        self._add_int_row(form, "dga_min_label_length", tr("settings.field.dga_min_label_length"))
+        self._add_float_row(form, "dga_entropy_threshold", tr("settings.field.dga_entropy_threshold"), step=0.1)
+        self._add_int_row(form, "nxdomain_burst_threshold", tr("settings.field.nxdomain_burst_threshold"))
         self._add_int_row(form, "nxdomain_burst_window_sec",
-                          "NXDOMAIN burst: окно (сек)", lo=1, hi=86400)
+                          tr("settings.field.nxdomain_burst_window_sec"), lo=1, hi=86400)
         self._add_float_row(form, "nxdomain_burst_min_ratio",
-                            "NXDOMAIN burst: мин. доля NXDOMAIN",
+                            tr("settings.field.nxdomain_burst_min_ratio"),
                             step=0.05, lo=0.0, hi=1.0)
-        self._add_int_row(form, "dns_tunneling_min_qname_length", "DNS tunneling: мин. длина qname")
-        self._add_int_row(form, "dns_tunneling_min_queries", "DNS tunneling: мин. запросов")
-        self._add_int_row(form, "brute_force_min_flows", "Brute force: мин. flows")
-        self._add_int_row(form, "brute_force_max_avg_packets", "Brute force: макс. avg packets")
-        self._add_int_row(form, "ftp_brute_force_min_flows", "FTP brute force: мин. flows")
-        self._add_int_row(form, "beaconing_min_connections", "Beaconing: мин. соединений")
-        self._add_int_row(form, "beaconing_min_duration_sec", "Beaconing: мин. длительность (сек)")
-        self._add_float_row(form, "beaconing_max_jitter_ratio", "Beaconing: макс. jitter", step=0.01)
-        self._add_int_row(form, "large_transfer_min_bytes", "Large transfer: мин. байт")
-        self._add_int_row(form, "port_scan_min_distinct_dsts", "Port scan: мин. dsts")
-        self._add_int_row(form, "port_scan_max_flows_per_dst", "Port scan: макс. flows/dst")
-        self._add_float_row(form, "reverse_asymmetry_min_ratio", "Reverse asymmetry: мин. ratio", step=0.5)
-        self._add_int_row(form, "reverse_asymmetry_min_total_bytes", "Reverse asymmetry: мин. байт")
+        self._add_int_row(form, "dns_tunneling_min_qname_length", tr("settings.field.dns_tunneling_min_qname_length"))
+        self._add_int_row(form, "dns_tunneling_min_queries", tr("settings.field.dns_tunneling_min_queries"))
+        self._add_int_row(form, "brute_force_min_flows", tr("settings.field.brute_force_min_flows"))
+        self._add_int_row(form, "brute_force_max_avg_packets", tr("settings.field.brute_force_max_avg_packets"))
+        self._add_int_row(form, "ftp_brute_force_min_flows", tr("settings.field.ftp_brute_force_min_flows"))
+        self._add_int_row(form, "beaconing_min_connections", tr("settings.field.beaconing_min_connections"))
+        self._add_int_row(form, "beaconing_min_duration_sec", tr("settings.field.beaconing_min_duration_sec"))
+        self._add_float_row(form, "beaconing_max_jitter_ratio", tr("settings.field.beaconing_max_jitter_ratio"), step=0.01)
+        self._add_int_row(form, "large_transfer_min_bytes", tr("settings.field.large_transfer_min_bytes"))
+        self._add_int_row(form, "port_scan_min_distinct_dsts", tr("settings.field.port_scan_min_distinct_dsts"))
+        self._add_int_row(form, "port_scan_max_flows_per_dst", tr("settings.field.port_scan_max_flows_per_dst"))
+        self._add_float_row(form, "reverse_asymmetry_min_ratio", tr("settings.field.reverse_asymmetry_min_ratio"), step=0.5)
+        self._add_int_row(form, "reverse_asymmetry_min_total_bytes", tr("settings.field.reverse_asymmetry_min_total_bytes"))
 
         outer.addWidget(scroll, stretch=1)
         outer.addLayout(self._make_buttons(self._load_thresholds, self._apply_thresholds))
@@ -915,15 +924,15 @@ class SettingsView(QWidget):
         self._brute_inputs: dict[str, object] = {}
 
         self._add_int_row_bf(form, "brute_force_min_unique_src_ports",
-                             "HTTP: мин. уникальных src-портов", lo=1, hi=10000)
+                             tr("settings.field.brute_force_min_unique_src_ports"), lo=1, hi=10000)
         self._add_float_row_bf(form, "brute_force_uri_ratio_threshold",
-                               "HTTP: доля запросов к login-endpoint",
+                               tr("settings.field.brute_force_uri_ratio_threshold"),
                                lo=0.01, hi=1.0, step=0.05, decimals=2)
         self._add_float_row_bf(form, "brute_force_min_rate_flows_per_sec",
-                               "HTTP: мин. скорость (flows/сек)",
+                               tr("settings.field.brute_force_min_rate_flows_per_sec"),
                                lo=0.001, hi=1000.0, step=0.01, decimals=3)
         self._add_int_row_bf(form, "ftp_brute_force_min_unique_src_ports",
-                             "FTP: мин. уникальных src-портов", lo=1, hi=10000)
+                             tr("settings.field.ftp_brute_force_min_unique_src_ports"), lo=1, hi=10000)
 
         self._bf_skip_tls = EditableListWidget(port_mode=True)
         form.addRow("HTTP: порты, где brute force не ищем (TLS)", self._bf_skip_tls)
@@ -1786,9 +1795,9 @@ class SettingsView(QWidget):
         outer.addWidget(scroll, stretch=1)
 
         buttons = QHBoxLayout()
-        all_btn = QPushButton("Включить все")
+        all_btn = QPushButton(tr("settings.btn.enable_all"))
         all_btn.clicked.connect(lambda: self._set_all_detectors(True))
-        none_btn = QPushButton("Отключить все")
+        none_btn = QPushButton(tr("settings.btn.disable_all"))
         none_btn.clicked.connect(lambda: self._set_all_detectors(False))
         buttons.addWidget(all_btn)
         buttons.addWidget(none_btn)

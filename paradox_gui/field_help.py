@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+from paradox_gui.i18n import tr
+
 FIELD_HELP: dict[str, str] = {
     # --- Пороги: DGA ---
     "dga_min_label_length":
@@ -212,11 +214,17 @@ SECTION_BY_TITLE: dict[str, str] = {
 
 
 def get_field_help(key: str) -> str:
+    translated = tr(f"settings.help.{key}")
+    if translated != f"settings.help.{key}":
+        return translated
     text = FIELD_HELP.get(key)
     if text:
         return text
-    return f"Параметр «{key}» из Config ядра. См. paradox/config.py."
+    return tr("settings.help.fallback", key=key)
 
 
 def get_section_help(key: str) -> str:
+    translated = tr(f"settings.section_help.{key}")
+    if translated != f"settings.section_help.{key}":
+        return translated
     return SECTION_HELP.get(key, "")

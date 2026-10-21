@@ -50,7 +50,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from paradox_gui.i18n import set_language, tr
+from paradox_gui.i18n import DEFAULT_LANGUAGE, set_language, tr
 from paradox_gui.views.diff_view import DiffView
 from paradox_gui.views.enrich_view import EnrichView
 from paradox_gui.views.export_view import ExportView
@@ -65,15 +65,6 @@ from paradox_gui.views.timeline_view import TimelineView
 # >>> /ИМПОРТЫ VIEWS <<<
 
 
-TAB_TITLES = (
-    "Прогон",
-    "История",
-    "Обогащение",
-    "Настройки",
-    "IPv6",
-    "Таймлайн",
-    "Экспорт",
-)
 APP_VERSION = "1.0.0"
 
 class ClickableLabel(QLabel):
@@ -113,7 +104,14 @@ def _cyr_variant(seq: str) -> str | None:
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle(f"Paradox v{APP_VERSION}")
+        # Язык читаем ДО setWindowTitle/_build_menubar: они вызывают tr().
+        from paradox_gui.settings_store import SettingsStore as _SS
+        self._settings_store = _SS()
+        _saved_lang = self._settings_store.load().get(
+            "language", DEFAULT_LANGUAGE,
+        )
+        set_language(_saved_lang)
+        self.setWindowTitle(tr("app.title", version=APP_VERSION))
         self.resize(1440, 900)
         self._apply_dark_titlebar()
 
@@ -197,69 +195,63 @@ class MainWindow(QMainWindow):
     def _menu_settings(self, mb) -> None:
         # Меню «Настройки» убрано с панели. Ctrl+, — хоткей окна.
         self._act_open_settings = self._act(
-            "Открыть настройки…", "Ctrl+,", self._on_open_settings,
+            tr("menu.settings"), "Ctrl+,", self._on_open_settings,
             enabled=True,
         )
         self.addAction(self._act_open_settings)
+
     def _menu_file(self, mb) -> None:
-        m = mb.addMenu("Файл")
-        m.addAction(self._act("Открыть pcap…", "Ctrl+O", self._on_open_pcap))
+        m = mb.addMenu(tr("menu.file"))
         m.addAction(self._act(
-            "Открыть отчёт…", "Ctrl+Shift+O", self._on_open_report,
+            tr("menu.file.open_pcap"), "Ctrl+O", self._on_open_pcap,
+        ))
+        m.addAction(self._act(
+            tr("menu.file.open_report"), "Ctrl+Shift+O", self._on_open_report,
         ))
 
-        # >>> ФАЙЛ: ЭКСПОРТ <<<
-        # Подменю «Экспорт». Пункты выключены до первого успешного
-        # анализа — включаются в _on_analysis_finished.
         m.addSeparator()
-        export = m.addMenu("Экспорт")
+        export = m.addMenu(tr("menu.file.export"))
         self._act_export_json = self._act(
-            "JSON-отчёт…", slot=self._on_export_json, enabled=False,
+            tr("menu.file.export.json"), slot=self._on_export_json, enabled=False,
         )
         self._act_export_md = self._act(
-            "Markdown-отчёт…", slot=self._on_export_md, enabled=False,
+            tr("menu.file.export.markdown"), slot=self._on_export_md, enabled=False,
         )
         self._act_export_conn = self._act(
-            "Flow report (conn.log)…", slot=self._on_export_conn, enabled=False,
+            tr("menu.file.export.conn_log"), slot=self._on_export_conn, enabled=False,
         )
         export.addAction(self._act_export_json)
         export.addAction(self._act_export_md)
         export.addSeparator()
         export.addAction(self._act_export_conn)
-        # >>> /ФАЙЛ: ЭКСПОРТ <<<
 
         m.addSeparator()
-        m.addAction(self._act("Выход", "Ctrl+Q", self.close))
+        m.addAction(self._act(tr("menu.file.quit"), "Ctrl+Q", self.close))
 
     def _menu_run(self, mb) -> None:
-        # Меню «Прогон» убрано с панели. F5 / Ctrl+F5 / Esc
-        # остаются хоткеями окна. QAction'ы нужны
-        # MainWindow._on_analysis_* для enable/disable.
         self._act_analyze = self._act(
-            "Анализировать", "F5", self._on_analyze, enabled=True,
+            tr("menu.run.analyze"), "F5", self._on_analyze, enabled=True,
         )
         self._act_analyze_cfg = self._act(
-            "Анализировать с настройками…", "Ctrl+F5",
+            tr("menu.run.analyze_with_config"), "Ctrl+F5",
             self._on_analyze_with_config, enabled=False,
         )
         self._act_stop = self._act(
-            "Остановить", "Esc", self._on_stop, enabled=False,
+            tr("menu.run.stop"), "Esc", self._on_stop, enabled=False,
         )
-        for a in (self._act_analyze, self._act_analyze_cfg,
-                  self._act_stop):
+        for a in (self._act_analyze, self._act_analyze_cfg, self._act_stop):
             self.addAction(a)
 
     def _menu_view(self, mb) -> None:
-        # Меню «Вид» убрано с панели. F11 остаётся хоткеем окна.
         self._act_fullscreen = self._act(
-            "Полноэкранный режим", "F11", self._toggle_fullscreen,
+            tr("menu.view.fullscreen"), "F11", self._toggle_fullscreen,
         )
         self.addAction(self._act_fullscreen)
 
     def _menu_tools(self, mb) -> None:
-        m = mb.addMenu("Инструменты")
+        m = mb.addMenu(tr("menu.tools"))
         m.addAction(self._act(
-            "Быстрая проверка IOC…", "Ctrl+Shift+I",
+            tr("menu.tools.quick_check"), "Ctrl+Shift+I",
             self._on_quick_check,
         ))
 
@@ -313,50 +305,29 @@ class MainWindow(QMainWindow):
         self._quick_check.activateWindow()
 
     def _menu_help(self, mb) -> None:
-        m = mb.addMenu("Помощь")
-        # QAction'ы храним на self: в PySide6 временные QAction без
-        # Python-ссылки иногда GC'ятся, и пункт меню становится мёртвым.
+        m = mb.addMenu(tr("menu.help"))
         self._act_help_reference = self._act(
-            "Справка", slot=self._on_help_reference,
+            tr("menu.help.reference"), slot=self._on_help_reference,
         )
         self._act_help_about = self._act(
-            "О программе", slot=self._on_about,
+            tr("menu.help.about"), slot=self._on_about,
         )
         self._act_help_hotkeys = self._act(
-            "Горячие клавиши", slot=self._on_hotkeys,
+            tr("menu.help.hotkeys"), slot=self._on_hotkeys,
         )
         m.addAction(self._act_help_reference)
         m.addSeparator()
         m.addAction(self._act_help_about)
         m.addAction(self._act_help_hotkeys)
 
-        # F1 — прямой хоткей на справку. Работает даже если меню
-        # по какой-то причине не отвечает.
         self._act_f1_help = self._act(
-            "Справка (F1)", "F1", self._on_help_reference,
+            f"{tr('menu.help.reference')} (F1)", "F1", self._on_help_reference,
         )
         self.addAction(self._act_f1_help)
-
-    # =========================================================================
-    # TABS
-    # =========================================================================
 
     def _build_tabs(self) -> None:
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
-
-        # Создаём все view'шки сразу. Порядок создания не связан с
-        # порядком вкладок: settings_view нужен раньше, чем мы будем
-        # подключать его сигналы к enrich_view, а вкладку при этом
-        # показываем после Обогащения.
-        # Единый SettingsStore: один и тот же settings.json читают и
-        # пишут оба view. Два разных экземпляра = расходящееся состояние.
-        from paradox_gui.settings_store import SettingsStore
-        self._settings_store = SettingsStore()
-
-        # Применяем сохранённый язык
-        _saved_lang = self._settings_store.load().get("language", "ru")
-        set_language(_saved_lang)
 
         self.run_view = RunView(store=self._settings_store)
         self.settings_view = SettingsView(store=self._settings_store)
@@ -366,18 +337,11 @@ class MainWindow(QMainWindow):
         self.timeline_view = TimelineView()
         self.export_view = ExportView()
 
-        # --- Прогон → главное окно ---
         self.run_view.analysis_started.connect(self._on_analysis_started)
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
         self.run_view.analysis_failed.connect(self._on_analysis_failed)
         self.run_view.analysis_cancelled.connect(self._on_analysis_cancelled)
 
-        # --- Настройки → Прогон и Обогащение ---
-        # thresholds_applied — отдельный сигнал для Порогов, шлёт плоский dict.
-        # config_applied — общий сигнал остальных секций (Brute force, Сеть,
-        # Производительность, Allowlist, DGA, Threat Intel, Отчёты).
-        # Оба идут в run_view через dict.update (мердж), чтобы применения
-        # разных секций не затирали друг друга.
         self.settings_view.thresholds_applied.connect(
             self.run_view.set_config_overrides
         )
@@ -390,37 +354,24 @@ class MainWindow(QMainWindow):
         self.settings_view.contradictions_applied.connect(
             self.run_view.set_disabled_contradictions
         )
-        # Config (Threat Intel: провайдеры, кэш, лимит IOC) → Обогащение.
         self.settings_view.config_applied.connect(
             self.enrich_view.set_config_overrides
         )
 
-        # --- Обогащение → История ---
-        # После обогащения report мутирован in-place; История должна
-        # перерисовать текущую запись, иначе секция «Обогащение» не
-        # появится до повторного клика.
         self.enrich_view.enrichment_finished.connect(
             self._on_enrichment_finished
         )
 
-        # --- Вкладки: Прогон · История · Обогащение · Настройки · Развитие ---
-        # addTab последовательно = порядок кода = порядок вкладок.
-        # История сразу после Прогона: смотреть прошлые результаты
-        # приходится чаще, чем менять настройки или обогащать.
-        self.tabs.addTab(self.run_view, tr("tab_run"))
-        self.tabs.addTab(self.history_view, tr("tab_history"))
-        self.tabs.addTab(self.enrich_view, tr("tab_enrich"))
-        self.tabs.addTab(self.settings_view, tr("tab_settings"))
-        self.tabs.addTab(self.ipv6_view, tr("tab_ipv6"))
-        self.tabs.addTab(self.timeline_view, tr("tab_timeline"))
-        self.tabs.addTab(self.export_view, tr("tab_export"))
+        self.tabs.addTab(self.run_view, tr("tab.run"))
+        self.tabs.addTab(self.history_view, tr("tab.history"))
+        self.tabs.addTab(self.enrich_view, tr("tab.enrich"))
+        self.tabs.addTab(self.settings_view, tr("tab.settings"))
+        self.tabs.addTab(self.ipv6_view, tr("tab.ipv6"))
+        self.tabs.addTab(self.timeline_view, tr("tab.timeline"))
+        self.tabs.addTab(self.export_view, tr("tab.export"))
         self.diff_view = DiffView()
-        self.tabs.addTab(self.diff_view, "Сравнение")
+        self.tabs.addTab(self.diff_view, tr("tab.diff"))
 
-        # Меню — отдельный QMenuBar НАД табами. QMainWindow с одним
-        # setCentralWidget не покажет self._topmenu, если он не внутри
-        # центрального виджета. Оборачиваем всё в контейнер с QVBox:
-        # меню сверху, табы растягиваются ниже.
         # Шапка: логотип + меню
         try:
             from paradox_gui.logo import get_app_icon, render_logo
@@ -429,7 +380,7 @@ class MainWindow(QMainWindow):
             _logo.setPixmap(render_logo(24))
             _logo.setFixedSize(24, 24)
             _logo.setCursor(Qt.CursorShape.PointingHandCursor)
-            _logo.setToolTip("О программе")
+            _logo.setToolTip(tr("dialog.about.title"))
             _logo.clicked.connect(self._on_about)
         except Exception:
             _logo = None
@@ -466,27 +417,19 @@ class MainWindow(QMainWindow):
     def _build_statusbar(self) -> None:
         sb = self.statusBar()
 
-        self._status_text = QLabel("Готов")
+        self._status_text = QLabel(tr("status.ready"))
         self._status_file = QLabel("—")
         self._status_file.setObjectName("muted")
         sb.addWidget(self._status_text)
-        sb.addWidget(QLabel("  Файл:"))
+        sb.addWidget(QLabel(tr("status.file")))
         sb.addWidget(self._status_file)
 
         self._version_lbl = ClickableLabel(f"v{APP_VERSION} · © v314xm")
         self._version_lbl.setStyleSheet("color: #a0a0b0; padding: 0 8px;")
         self._version_lbl.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._version_lbl.setToolTip("О программе")
+        self._version_lbl.setToolTip(tr("dialog.about.title"))
         self._version_lbl.clicked.connect(self._on_about)
         sb.addPermanentWidget(self._version_lbl)
-
-        # >>> СТАТУС-БАР: TI <<<
-        # Шаг 13: sb.addPermanentWidget(QLabel("TI: AbuseIPDB ✓ · Shodan ✓"))
-        # >>> /СТАТУС-БАР: TI <<<
-
-    # =========================================================================
-    # HANDLERS — действия меню
-    # =========================================================================
 
     def _on_open_pcap(self) -> None:
         try:
@@ -498,16 +441,11 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Ошибка", f"{type(e).__name__}: {e}")
 
     def _on_open_report(self) -> None:
-        """Загрузить JSON-отчёт, сохранённый через «Экспорт → JSON».
-
-        Прогон не запускается: JSON подаётся туда же, где оказался бы
-        результат run_pipeline — в _on_analysis_finished. Значит,
-        summary / contradictions / findings / история / обогащение
-        заполняются так же, как после обычного прогона.
-        """
         path, _ = QFileDialog.getOpenFileName(
-            self, "Открыть отчёт", "",
-            "JSON (*.json);;Все файлы (*)",
+            self,
+            tr("dialog.file.open_report.title"),
+            "",
+            tr("dialog.file.open_report.filter"),
         )
         if not path:
             return
@@ -515,23 +453,24 @@ class MainWindow(QMainWindow):
             data = json.loads(Path(path).read_text(encoding="utf-8"))
         except Exception as e:
             QMessageBox.critical(
-                self, "Ошибка чтения", f"{type(e).__name__}: {e}",
+                self,
+                tr("error.read.title"),
+                tr("error.read.body", type=type(e).__name__, message=str(e)),
             )
             return
         if not isinstance(data, dict) or "findings" not in data:
             QMessageBox.critical(
-                self, "Не тот файл",
-                "Это не JSON-отчёт Paradox: нет ключа 'findings'.",
+                self,
+                tr("error.wrong_file.title"),
+                tr("error.wrong_file.body"),
             )
             return
         self.tabs.setCurrentIndex(0)
-        # Сначала заполняем RunView, потом рассылаем в
-        # историю / обогащение / статус-бар. Порядок важен:
-        # load_report не эмитит analysis_finished, поэтому
-        # дубликата записи в Истории не будет.
         self.run_view.load_report(data)
         self._on_analysis_finished(data)
-        self.statusBar().showMessage(f"Загружен отчёт: {path}", 5000)
+        self.statusBar().showMessage(
+            tr("status.report_loaded", path=path), 5000,
+        )
 
     def _on_analyze(self) -> None:
         self.run_view.reanalyze()
@@ -549,41 +488,10 @@ class MainWindow(QMainWindow):
         self.tabs.setCurrentIndex(3)
 
     def _on_help_reference(self) -> None:
-        """Заглушка справки: экстракторы, детекторы, правила.
-
-        Полноценное содержимое будет отдельно — с описанием
-        каждого модуля, что он ищет и на что обращать внимание.
-        Сейчас — компактный список, чтобы пользователь видел
-        состав инструмента, а не пустое окно.
-        """
         QMessageBox.information(
             self,
-            "Справка по инструменту",
-            "<b>Что делает Paradox</b><br>"
-            "Извлекает факты о сети из pcap и ищет противоречия "
-            "между слоями данных: DNS vs SNI, JA3 vs UA, MAC vs IP, "
-            "роли vs поведение.<br><br>"
-            "<b>Экстракторы (9):</b><br>"
-            "flow, dns, host_identity, arp_history, nbns, "
-            "kerberos, tls, http, <b>ndp (IPv6)</b>.<br><br>"
-            "<b>Детекторы (18):</b><br>"
-            "dga, cloud_tunnel, ip_check_service, typosquatting, "
-            "sni_mismatch, suspicious_port, port_scan, web_scanner, "
-            "brute_force, ftp_brute_force, beaconing, dns_tunneling, "
-            "lateral_movement, large_transfer, vulnerable_path, "
-            "command_injection, ja3_malware, nxdomain_burst, <b>yara</b>.<br><br>"
-            "<b>Анализаторы:</b><br>"
-            "Confidence Explainer, What-If (Counterfactual), "
-            "Absence (Оборванные сессии), Host Story.<br><br>"
-            "<b>Правила противоречий (12):</b><br>"
-            "victim_makes_attack, mac_ip_conflict, "
-            "sni_host_mismatch, ja3_ua_mismatch, reverse_asymmetry, "
-            "port_service_mismatch, direct_ip_no_dns, "
-            "sni_without_dns, dns_answer_mismatch, "
-            "sni_cert_mismatch, self_signed_cert, "
-            "expired_cert.<br><br>"
-            "<i>Подробное описание каждого модуля — в отдельном "
-            "релизе.</i>",
+            tr("dialog.help.title"),
+            tr("dialog.help.body_html"),
         )
 
     def _on_about(self) -> None:
@@ -599,62 +507,48 @@ class MainWindow(QMainWindow):
             from paradox_gui.logo import render_logo
 
             dlg = QDialog(self)
-            dlg.setWindowTitle("О программе")
+            dlg.setWindowTitle(tr("dialog.about.title"))
             dlg.setMinimumWidth(420)
             v = QVBoxLayout(dlg)
             v.setContentsMargins(24, 24, 24, 16)
             v.setSpacing(10)
 
-            # Логотип по центру
             logo_lbl = QLabel()
             logo_lbl.setPixmap(render_logo(96))
             logo_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             v.addWidget(logo_lbl)
 
-            # Заголовок
-            title = QLabel(f"Paradox v{APP_VERSION}")
+            title = QLabel(tr("dialog.about.app_title", version=APP_VERSION))
             title.setAlignment(Qt.AlignmentFlag.AlignCenter)
             title.setStyleSheet(
                 "font-size: 20px; font-weight: 700; color: #5b8cff;"
             )
             v.addWidget(title)
 
-            subtitle = QLabel("Оффлайн-триаж pcap")
+            subtitle = QLabel(tr("dialog.about.subtitle"))
             subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
             subtitle.setObjectName("muted")
             v.addWidget(subtitle)
 
-            # Модули — сетка
-            modules = QLabel(
-                "<div style='text-align:center; line-height:1.6;'>"
-                "<span style='color:#e0e0e0;'>"
-                "20 детекторов · 12 правил<br>"
-                "4 экстрактора · 4 анализатора<br>"
-                "</span>"
-                "<span style='color:#a0a0b0; font-size:11px;'>"
-                "Attack Graph · Multi-pcap · Threat Intel<br>"
-                "Shodan · AbuseIPDB · VirusTotal · OTX · URLScan"
-                "</span></div>"
-            )
+            modules = QLabel(tr("dialog.about.modules_html"))
             modules.setAlignment(Qt.AlignmentFlag.AlignCenter)
             v.addWidget(modules)
 
-            # Разделитель
             sep = QLabel("─" * 30)
             sep.setAlignment(Qt.AlignmentFlag.AlignCenter)
             sep.setStyleSheet("color: #3a3d4d;")
             v.addWidget(sep)
 
-            # Копирайт
-            copyright_lbl = QLabel("© 2026 Andrey Grigoryev (v314xm)")
+            copyright_lbl = QLabel(tr("dialog.about.copyright"))
             copyright_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             copyright_lbl.setObjectName("muted")
             v.addWidget(copyright_lbl)
 
-            # Кнопка закрыть
             btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
             btn.rejected.connect(dlg.reject)
-            btn.button(QDialogButtonBox.StandardButton.Close).setText("Закрыть")
+            btn.button(QDialogButtonBox.StandardButton.Close).setText(
+                tr("btn.close")
+            )
             v.addWidget(btn)
 
             dlg.exec()
@@ -662,26 +556,20 @@ class MainWindow(QMainWindow):
             import traceback
             traceback.print_exc()
             QMessageBox.critical(
-                self, "О программе — ошибка", f"{type(e).__name__}: {e}",
+                self,
+                tr("error.title"),
+                f"{type(e).__name__}: {e}",
             )
-
 
     def _on_hotkeys(self) -> None:
         QMessageBox.information(
             self,
-            "Горячие клавиши",
-            "Ctrl+O — открыть pcap\n"
-            "F5 — анализ\n"
-            "F11 — полноэкранный режим",
+            tr("dialog.hotkeys.title"),
+            tr("dialog.hotkeys.body"),
         )
 
-    # =========================================================================
-    # HANDLERS — подписчики сигналов от views
-    # =========================================================================
-
-    # >>> СИГНАЛЫ ОТ RunView <<<
     def _on_analysis_started(self, path: str) -> None:
-        self._status_text.setText("Анализ…")
+        self._status_text.setText(tr("status.analyzing"))
         self._status_file.setText(path)
         # >>> ОСТАНОВКА <<<
         self._act_stop.setEnabled(True)
@@ -690,10 +578,11 @@ class MainWindow(QMainWindow):
 
     def _on_analysis_finished(self, report: object) -> None:
         s = report.get("summary", {}) if isinstance(report, dict) else {}
-        self._status_text.setText(
-            f"Готово · {s.get('findings', 0)} findings · "
-            f"{s.get('contradictions', 0)} противоречий"
-        )
+        self._status_text.setText(tr(
+            "status.done",
+            findings=s.get("findings", 0),
+            contradictions=s.get("contradictions", 0),
+        ))
         # Есть что сохранять — включаем экспорт.
         for a in (self._act_export_json, self._act_export_md, self._act_export_conn):
             a.setEnabled(True)
@@ -727,7 +616,7 @@ class MainWindow(QMainWindow):
     # >>> /СИГНАЛЫ ОТ RunView <<<
     # >>> ОСТАНОВКА <<<
     def _on_analysis_cancelled(self) -> None:
-        self._status_text.setText("Остановлено пользователем")
+        self._status_text.setText(tr("status.cancelled"))
         self._act_stop.setEnabled(False)
         self._act_analyze.setEnabled(True)
     # >>> /ОСТАНОВКА <<<
@@ -763,53 +652,54 @@ class MainWindow(QMainWindow):
         if not report:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить JSON-отчёт", self._default_export_name("json"),
-            "JSON (*.json);;Все файлы (*)",
+            self,
+            tr("dialog.file.save_json.title"),
+            self._default_export_name("json"),
+            tr("dialog.file.save_json.filter"),
         )
         if not path:
             return
         try:
-            # Пишем напрямую через json.dump — не зависим от имени
-            # функции в ядре (write_json / save_json / ...).
             Path(path).write_text(
                 json.dumps(report, indent=2, ensure_ascii=False, sort_keys=True),
                 encoding="utf-8",
             )
-            self._status_text.setText(f"Сохранено: {path}")
+            self._status_text.setText(tr("status.saved", path=path))
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+            QMessageBox.critical(self, tr("error.save.title"), str(e))
 
     def _on_export_md(self) -> None:
         report = self.run_view.last_report()
         if not report:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить Markdown-отчёт", self._default_export_name("md"),
-            "Markdown (*.md);;Все файлы (*)",
+            self,
+            tr("dialog.file.save_md.title"),
+            self._default_export_name("md"),
+            tr("dialog.file.save_md.filter"),
         )
         if not path:
             return
         try:
-            # render_markdown — из присланного markdown_reporter.py.
             from paradox.reporters.markdown_reporter import render_markdown
             Path(path).write_text(render_markdown(report), encoding="utf-8")
-            self._status_text.setText(f"Сохранено: {path}")
+            self._status_text.setText(tr("status.saved", path=path))
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+            QMessageBox.critical(self, tr("error.save.title"), str(e))
 
     def _on_export_conn(self) -> None:
         report = self.run_view.last_report()
         if not report:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить flow report", self._default_export_name("log"),
-            "Log (*.log);;Все файлы (*)",
+            self,
+            tr("dialog.file.save_conn.title"),
+            self._default_export_name("log"),
+            tr("dialog.file.save_conn.filter"),
         )
         if not path:
             return
         try:
-            # report["flows"] — dict от build_flow_report. Ключ со списком
-            # top-flow'ов может называться по-разному; пробуем варианты.
             flows = report.get("flows", {})
             rows = (
                 flows.get("top_by_bytes")
@@ -826,9 +716,9 @@ class MainWindow(QMainWindow):
                         "bytes",
                     )))
             Path(path).write_text("\n".join(lines), encoding="utf-8")
-            self._status_text.setText(f"Сохранено: {path}")
+            self._status_text.setText(tr("status.saved", path=path))
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка сохранения", str(e))
+            QMessageBox.critical(self, tr("error.save.title"), str(e))
 
     def _default_export_name(self, ext: str) -> str:
         report = self.run_view.last_report() or {}
