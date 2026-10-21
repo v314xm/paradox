@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Paradox — PCAP Triage Tool</title>
+    <meta name="description" content="Инструмент для поиска противоречий в сетевом трафике. 20 детекторов, поиск пивотов, ARP-spoof и C2-каналов.">
+
+    <!-- Open Graph (для красивого превью в Telegram/Twitter) -->
+    <meta property="og:title" content="Paradox — PCAP Triage Tool">
+    <meta property="og:description" content="Найди то, что скрыто в твоем PCAP.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/main.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
@@ -14,25 +26,53 @@
 <body class="antialiased">
 
     <nav class="flex justify-between items-center p-6 max-w-6xl mx-auto">
-        <div class="text-2xl font-bold tracking-wider">🛡️ PARADOX</div>
-        <div class="space-x-6 hidden md:block">
-            <a href="https://github.com/v314xm/paradox" class="bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg font-semibold transition">GitHub</a>
+        <div class="text-2xl font-bold tracking-wider text-white">🛡️ PARADOX</div>
+        <div class="space-x-4 hidden md:flex items-center">
+            <a href="https://github.com/v314xm/paradox" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-semibold transition border border-slate-700">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                <span>GitHub</span>
+            </a>
         </div>
     </nav>
 
     <header class="max-w-4xl mx-auto text-center mt-24 px-6">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-6">
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-white">
             Найди то, что <span class="gradient-text">скрыто</span> в твоем PCAP
         </h1>
         <p class="text-xl text-slate-400 mb-8">
             Paradox — это offline-инструмент для триажа трафика. 20 детекторов, 12 правил противоречий, поиск пивотов и C2-каналов.
         </p>
-        <div class="flex justify-center space-x-4">
-            <a href="https://github.com/v314xm/paradox/releases" class="bg-white text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-slate-200 transition">Скачать .exe</a>
-            <a href="https://github.com/v314xm/paradox" class="border border-slate-600 px-6 py-3 rounded-lg font-bold text-lg hover:border-sky-400 transition">Смотреть код</a>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="https://github.com/v314xm/paradox/releases" class="bg-sky-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-sky-400 transition shadow-lg shadow-sky-500/30">Скачать .exe</a>
+            <a href="https://github.com/v314xm/paradox" class="border border-slate-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:border-sky-400 hover:text-sky-400 transition">Смотреть код</a>
         </div>
     </header>
 
+    <!-- Главный скриншот -->
+    <section class="max-w-5xl mx-auto mt-20 px-6">
+        <div class="rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-sky-900/20">
+            <img src="assets/main.png" alt="Paradox Main Window" class="w-full h-auto">
+        </div>
+        <p class="text-center text-slate-500 mt-4 text-sm">Главное окно Paradox: Findings и Противоречия</p>
+    </section>
+
+    <!-- Галерея (Граф атак и Таймлайн) -->
+    <section class="max-w-6xl mx-auto mt-20 px-6 grid md:grid-cols-2 gap-8">
+        <div>
+            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
+                <img src="assets/graph.png" alt="Attack Graph" class="w-full h-auto">
+            </div>
+            <p class="text-center text-slate-500 mt-4 text-sm">Интерактивный Граф Атак</p>
+        </div>
+        <div>
+            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
+                <img src="assets/timeline.png" alt="Timeline View" class="w-full h-auto">
+            </div>
+            <p class="text-center text-slate-500 mt-4 text-sm">Таймлайн / Kill-chain фазы</p>
+        </div>
+    </section>
+
+    <!-- Терминал -->
     <section class="max-w-3xl mx-auto mt-20 px-6">
         <div class="terminal p-6 rounded-lg font-mono text-sm text-slate-300 shadow-2xl">
             <div class="flex space-x-2 mb-4">
@@ -46,20 +86,21 @@
         </div>
     </section>
 
+    <!-- Особенности -->
     <section class="max-w-6xl mx-auto mt-32 px-6 mb-20">
-        <h2 class="text-3xl font-bold text-center mb-12">Почему Paradox?</h2>
+        <h2 class="text-3xl font-bold text-center mb-12 text-white">Почему Paradox?</h2>
         <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-slate-800 p-6 rounded-xl">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
                 <h3 class="text-xl font-bold mb-2 text-sky-400">🔍 Противоречия</h3>
                 <p class="text-slate-400">Инструмент ищет несогласованности между слоями данных (SNI без DNS, MAC на разных IP).</p>
             </div>
-            <div class="bg-slate-800 p-6 rounded-xl">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
                 <h3 class="text-xl font-bold mb-2 text-sky-400">🕸️ Граф Атак</h3>
                 <p class="text-slate-400">Визуализация связей между хостами. Сразу видно, как атакующий перемещается по сети.</p>
             </div>
-            <div class="bg-slate-800 p-6 rounded-xl">
-                <h3 class="text-xl font-bold mb-2 text-sky-400">🔄 Diff</h3>
-                <p class="text-slate-400">Сравнивайте два захвата и смотрите, какие новые находки появились за сутки.</p>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
+                <h3 class="text-xl font-bold mb-2 text-sky-400">⏱️ Таймлайн</h3>
+                <p class="text-slate-400">Реконструкция kill-chain по фазам атаки от разведки до эксфильтрации.</p>
             </div>
         </div>
     </section>
