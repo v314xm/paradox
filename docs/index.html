@@ -12,6 +12,22 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/main.png">
 
+
+    <!-- SEO Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Paradox",
+      "operatingSystem": "Windows, Linux, macOS",
+      "applicationCategory": "SecurityApplication",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "PCAP triage tool for finding contradictions in network traffic.",
+      "author": { "@type": "Person", "name": "Andrey Grigoryev" },
+      "url": "https://v314xm.github.io/paradox/"
+    }
+    </script>
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -246,6 +262,14 @@
             .stat-value { font-size: 28px; }
             .terminal-body { font-size: 12px; padding: 16px; }
         }
+
+        /* Стили для Live Demo */
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .demo-tab.active { color: #f8fafc; border-bottom-color: #38bdf8; background: rgba(15, 23, 42, 0.5); }
+        .demo-pane { display: none; }
+        .demo-pane.active { display: block; }
+
     </style>
 </head>
 <body>
@@ -381,6 +405,159 @@
                 <div class="feature-icon">📊</div>
                 <h3 class="text-lg font-bold mb-2 text-cyan-400">Сравнение прогонов (B1)</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Два JSON-отчёта → что добавилось / исчезло / изменилось. Для повторного триажа одного и того же pcap.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- LIVE DEMO / ИНТЕРАКТИВНЫЙ ИНТЕРФЕЙС -->
+    <section id="live-demo" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Живой интерфейс Paradox</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">Нажмите на вкладки ниже, чтобы посмотреть, как выглядит работа с инструментом.</p>
+        </div>
+
+        <div class="bg-[#0f172a] rounded-xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col" style="min-height: 600px;">
+            <!-- Заголовок окна -->
+            <div class="bg-[#1e293b] px-4 py-3 flex items-center justify-between border-b border-slate-700">
+                <div class="flex items-center gap-4">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span class="text-sm text-slate-400 font-mono">Paradox v1.0.0 — CyberCampTask.pcap</span>
+                </div>
+                <div class="text-xs text-slate-500 font-mono">v1.0.0</div>
+            </div>
+
+            <!-- Вкладки -->
+            <div class="flex bg-[#1e293b] border-b border-slate-700 px-2 gap-1 text-sm">
+                <button class="demo-tab active px-4 py-2 text-slate-300 border-b-2 border-sky-400 bg-[#0f172a]/50" data-target="demo-run">Прогон</button>
+                <button class="demo-tab px-4 py-2 text-slate-400 border-b-2 border-transparent hover:text-slate-200" data-target="demo-timeline">Таймлайн</button>
+                <button class="demo-tab px-4 py-2 text-slate-400 border-b-2 border-transparent hover:text-slate-200" data-target="demo-graph">Граф атаки</button>
+            </div>
+
+            <!-- Контент вкладок -->
+            <div class="flex-1 relative overflow-auto bg-[#0b1120] p-6">
+                <!-- ВКЛАДКА 1: ПРОГОН -->
+                <div id="demo-run" class="demo-pane active animate-fadeIn">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-[#1e293b] border border-slate-700 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-sky-400 font-mono">627 694</div>
+                            <div class="text-xs text-slate-500 mt-1">Пакеты</div>
+                        </div>
+                        <div class="bg-[#1e293b] border border-slate-700 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-sky-400 font-mono">2 332</div>
+                            <div class="text-xs text-slate-500 mt-1">Flows</div>
+                        </div>
+                        <div class="bg-[#1e293b] border border-slate-700 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-sky-400 font-mono">7</div>
+                            <div class="text-xs text-slate-500 mt-1">Findings</div>
+                        </div>
+                        <div class="bg-[#1e293b] border border-rose-800/50 rounded-lg p-4 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-rose-500/5"></div>
+                            <div class="text-2xl font-bold text-rose-400 font-mono relative">2</div>
+                            <div class="text-xs text-rose-400/70 mt-1 relative">Противоречия</div>
+                        </div>
+                    </div>
+                    <div class="bg-[#1e293b] border border-slate-700 rounded-lg overflow-hidden">
+                        <div class="px-4 py-3 border-b border-slate-700 text-sm font-semibold text-slate-300">Найдено в трафике</div>
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-400 bg-slate-800/50">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium">Тип</th>
+                                    <th class="px-4 py-2 font-medium">Значение</th>
+                                    <th class="px-4 py-2 font-medium">MITRE</th>
+                                    <th class="px-4 py-2 font-medium">Severity</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50">
+                                <tr class="hover:bg-slate-800/50 cursor-pointer transition-colors">
+                                    <td class="px-4 py-2 text-slate-200">FTP brute force</td>
+                                    <td class="px-4 py-2 font-mono text-slate-400">10.0.1.50 → 192.168.1.12:21</td>
+                                    <td class="px-4 py-2 text-sky-400">T1110.001</td>
+                                    <td class="px-4 py-2"><span class="badge badge-critical">critical</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50 cursor-pointer transition-colors">
+                                    <td class="px-4 py-2 text-slate-200">Command injection</td>
+                                    <td class="px-4 py-2 font-mono text-slate-400">10.0.1.50 → 192.168.1.12:80</td>
+                                    <td class="px-4 py-2 text-sky-400">T1190</td>
+                                    <td class="px-4 py-2"><span class="badge badge-high">high</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/50 cursor-pointer transition-colors bg-slate-800/20">
+                                    <td class="px-4 py-2 text-slate-200">Lateral movement</td>
+                                    <td class="px-4 py-2 font-mono text-slate-400">192.168.1.12 → 192.168.1.1:5985</td>
+                                    <td class="px-4 py-2 text-sky-400">T1021.001</td>
+                                    <td class="px-4 py-2"><span class="badge badge-high">high</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА 2: ТАЙМЛАЙН -->
+                <div id="demo-timeline" class="demo-pane animate-fadeIn">
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="w-24 text-xs text-slate-500 font-mono pt-1 text-right">00:00:18</div>
+                            <div class="flex-1 bg-[#1e293b] border-l-2 border-amber-500 rounded-r-lg p-3">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-sm font-semibold text-amber-400">INITIAL_ACCESS</span>
+                                    <span class="text-xs text-slate-500 font-mono">T1110.001</span>
+                                </div>
+                                <p class="text-sm text-slate-300 font-mono">ftp_brute_force (10.0.1.50 → 192.168.1.12)</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-24 text-xs text-slate-500 font-mono pt-1 text-right">00:05:07</div>
+                            <div class="flex-1 bg-[#1e293b] border-l-2 border-rose-500 rounded-r-lg p-3">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-sm font-semibold text-rose-400">EXECUTION</span>
+                                    <span class="text-xs text-slate-500 font-mono">T1190</span>
+                                </div>
+                                <p class="text-sm text-slate-300 font-mono">command_injection (10.0.1.50 → 192.168.1.12)</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-24 text-xs text-slate-500 font-mono pt-1 text-right">00:10:56</div>
+                            <div class="flex-1 bg-[#1e293b] border-l-2 border-sky-500 rounded-r-lg p-3">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-sm font-semibold text-sky-400">LATERAL_MOVEMENT</span>
+                                    <span class="text-xs text-slate-500 font-mono">T1021.001</span>
+                                </div>
+                                <p class="text-sm text-slate-300 font-mono">victim_makes_attack: 192.168.1.12 → 192.168.1.1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ВКЛАДКА 3: ГРАФ -->
+                <div id="demo-graph" class="demo-pane animate-fadeIn flex justify-center items-center h-full min-h-[400px]">
+                    <svg viewBox="0 0 600 400" class="w-full max-w-3xl">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+                            </marker>
+                        </defs>
+                        <path d="M 100 200 L 300 200" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                        <path d="M 300 200 L 500 100" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                        <path d="M 300 200 L 500 300" stroke="#38bdf8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+                        <circle cx="100" cy="200" r="20" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+                        <text x="100" y="205" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">10.0.1.50</text>
+
+                        <circle cx="300" cy="200" r="20" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
+                        <text x="300" y="205" text-anchor="middle" fill="#fbbf24" font-size="10" font-family="monospace">192.168.1.12</text>
+                        <text x="300" y="235" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold">Pivot</text>
+
+                        <circle cx="500" cy="100" r="20" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                        <text x="500" y="105" text-anchor="middle" fill="#38bdf8" font-size="10" font-family="monospace">192.168.1.1</text>
+
+                        <circle cx="500" cy="300" r="20" fill="#1e293b" stroke="#f87171" stroke-width="2"/>
+                        <text x="500" y="305" text-anchor="middle" fill="#f87171" font-size="10" font-family="monospace">80.64.102.71</text>
+                    </svg>
+                </div>
             </div>
         </div>
     </section>
@@ -572,6 +749,25 @@
     </footer>
 
     <script>
+
+        // Переключение вкладок в Live Demo
+        document.querySelectorAll('.demo-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.demo-tab').forEach(t => {
+                    t.classList.remove('active', 'border-sky-400', 'text-slate-300', 'bg-[#0f172a]/50');
+                    t.classList.add('text-slate-400', 'border-transparent');
+                });
+                tab.classList.add('active', 'border-sky-400', 'text-slate-300', 'bg-[#0f172a]/50');
+                tab.classList.remove('text-slate-400', 'border-transparent');
+
+                document.querySelectorAll('.demo-pane').forEach(pane => {
+                    pane.classList.remove('active');
+                });
+                const targetId = tab.dataset.target;
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
         // Fade-in on scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
