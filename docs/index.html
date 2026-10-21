@@ -4,109 +4,585 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Paradox — PCAP Triage Tool</title>
-    <meta name="description" content="Инструмент для поиска противоречий в сетевом трафике. 20 детекторов, поиск пивотов, ARP-spoof и C2-каналов.">
+    <title>Paradox — PCAP Triage Tool для поиска противоречий</title>
+    <meta name="description" content="20 детекторов, 12 правил противоречий, GUI. Находит пивоты, ARP-spoof, domain-fronting, C2-каналы. Оффлайн-анализ pcap за минуты.">
 
     <meta property="og:title" content="Paradox — PCAP Triage Tool">
-    <meta property="og:description" content="Найди то, что скрыто в твоем PCAP.">
+    <meta property="og:description" content="Найди то, что скрыто в твоём PCAP. 20 детекторов, 12 правил противоречий, поиск пивотов и C2.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/main.png">
 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
-        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .terminal { background: #1e293b; border-left: 4px solid #38bdf8; }
+        :root {
+            --bg: #0b1120;
+            --bg-light: #111827;
+            --bg-card: #1e293b;
+            --border: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-2: #818cf8;
+            --danger: #f87171;
+            --warning: #fbbf24;
+            --success: #4ade80;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-border {
+            position: relative;
+            background: var(--bg-card);
+            border-radius: 16px;
+        }
+        .gradient-border::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.3), rgba(129,140,248,0.1), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .terminal-window {
+            background: #0f172a;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .terminal-header {
+            background: #1e293b;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .terminal-body {
+            padding: 20px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #cbd5e1;
+        }
+        .terminal-body .prompt { color: var(--accent); }
+        .terminal-body .comment { color: #64748b; }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(129,140,248,0.15));
+            border: 1px solid rgba(56,189,248,0.2);
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+
+        .contradiction-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(51,65,85,0.5);
+            align-items: center;
+        }
+        .contradiction-row:last-child { border-bottom: none; }
+        .contradiction-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+        }
+        .contradiction-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-critical { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+        .badge-high { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .badge-medium { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: var(--text); }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 8px 24px rgba(14,165,233,0.25);
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text);
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 80px 0;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* Стили для галереи скриншотов */
+        .screenshot-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .screenshot-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .stat-value { font-size: 28px; }
+            .terminal-body { font-size: 12px; padding: 16px; }
+        }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <nav class="flex justify-between items-center p-6 max-w-6xl mx-auto">
-        <div class="text-2xl font-bold tracking-wider text-white">🛡️ PARADOX</div>
-        <div class="space-x-4 hidden md:flex items-center">
-            <a href="https://github.com/v314xm/paradox" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-semibold transition border border-slate-700">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
-                <span>GitHub</span>
+    <!-- NAV -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[#0b1120]/80 backdrop-blur-lg border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="text-xl font-bold tracking-wider text-white flex items-center gap-2 no-underline">
+                <span class="text-2xl">🛡️</span> PARADOX
             </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="nav-link">Возможности</a>
+                <a href="#interface" class="nav-link">Интерфейс</a>
+                <a href="#contradictions" class="nav-link">Противоречия</a>
+                <a href="#install" class="nav-link">Установка</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="https://github.com/v314xm/paradox" target="_blank" rel="noopener" class="btn-secondary !py-2 !px-4 !text-sm">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+                    GitHub
+                </a>
+                <a href="https://github.com/v314xm/paradox/releases" target="_blank" rel="noopener" class="btn-primary !py-2 !px-4 !text-sm">
+                    Скачать
+                </a>
+            </div>
         </div>
     </nav>
 
-    <header class="max-w-4xl mx-auto text-center mt-24 px-6">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-6 text-white">
-            Найди то, что <span class="gradient-text">скрыто</span> в твоем PCAP
-        </h1>
-        <p class="text-xl text-slate-400 mb-8">
-            Paradox — это offline-инструмент для триажа трафика. 20 детекторов, 12 правил противоречий, поиск пивотов и C2-каналов.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a href="https://github.com/v314xm/paradox/releases" class="bg-sky-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-sky-400 transition shadow-lg shadow-sky-500/30">Скачать .exe</a>
-            <a href="https://github.com/v314xm/paradox" class="border border-slate-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:border-sky-400 hover:text-sky-400 transition">Смотреть код</a>
+    <!-- HERO -->
+    <header class="pt-36 pb-20 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700 rounded-full px-4 py-1.5 text-xs font-medium text-slate-300 mb-8">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                v1.0.0 · 20 детекторов · 12 правил · 933 теста
+            </div>
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+                Найди то, что <span class="gradient-text">скрыто</span><br>в твоём PCAP
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Paradox — оффлайн-инструмент для триажа трафика. Ищет <strong class="text-slate-200">противоречия между слоями данных</strong>: DNS vs SNI, JA3 vs User-Agent, MAC vs IP. Показывает пивоты, ARP-spoof, domain-fronting и C2-каналы — а не просто список findings.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="https://github.com/v314xm/paradox/releases" target="_blank" rel="noopener" class="btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Скачать .exe
+                </a>
+                <a href="https://github.com/v314xm/paradox" target="_blank" rel="noopener" class="btn-secondary">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+                    Смотреть код
+                </a>
+            </div>
         </div>
     </header>
 
-    <!-- Главный скриншот -->
-    <section class="max-w-5xl mx-auto mt-20 px-6">
-        <div class="rounded-xl overflow-hidden border border-slate-700 shadow-2xl shadow-sky-900/20">
-            <img src="assets/main.png" alt="Paradox Main Window" class="w-full h-auto">
-        </div>
-        <p class="text-center text-slate-500 mt-4 text-sm">Главное окно Paradox: Findings и Противоречия</p>
-    </section>
-
-    <!-- Галерея (Граф атак и Таймлайн) -->
-    <section class="max-w-6xl mx-auto mt-20 px-6 grid md:grid-cols-2 gap-8">
-        <div>
-            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
-                <img src="assets/graph.png" alt="Attack Graph" class="w-full h-auto">
+    <!-- STATS -->
+    <section class="max-w-5xl mx-auto px-6 -mt-4 mb-24 fade-in">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="stat-card">
+                <div class="stat-value">20</div>
+                <div class="stat-label">Детекторов</div>
             </div>
-            <p class="text-center text-slate-500 mt-4 text-sm">Интерактивный Граф Атак</p>
-        </div>
-        <div>
-            <div class="rounded-xl overflow-hidden border border-slate-700 shadow-xl">
-                <img src="assets/timeline.png" alt="Timeline View" class="w-full h-auto">
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Правил противоречий</div>
             </div>
-            <p class="text-center text-slate-500 mt-4 text-sm">Таймлайн / Kill-chain фазы</p>
-        </div>
-    </section>
-
-    <!-- Терминал -->
-    <section class="max-w-3xl mx-auto mt-20 px-6">
-        <div class="terminal p-6 rounded-lg font-mono text-sm text-slate-300 shadow-2xl">
-            <div class="flex space-x-2 mb-4">
-                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            <div class="stat-card">
+                <div class="stat-value">933</div>
+                <div class="stat-label">Теста</div>
             </div>
-            <p><span class="text-sky-400">$</span> pip install -e ".[gui]"</p>
-            <p><span class="text-sky-400">$</span> python -m paradox_gui</p>
-            <p class="text-slate-500 mt-2"># Загрузите capture.pcap и нажмите "Анализировать"</p>
-        </div>
-    </section>
-
-    <!-- Особенности -->
-    <section class="max-w-6xl mx-auto mt-32 px-6 mb-20">
-        <h2 class="text-3xl font-bold text-center mb-12 text-white">Почему Paradox?</h2>
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
-                <h3 class="text-xl font-bold mb-2 text-sky-400">🔍 Противоречия</h3>
-                <p class="text-slate-400">Инструмент ищет несогласованности между слоями данных (SNI без DNS, MAC на разных IP).</p>
-            </div>
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
-                <h3 class="text-xl font-bold mb-2 text-sky-400">🕸️ Граф Атак</h3>
-                <p class="text-slate-400">Визуализация связей между хостами. Сразу видно, как атакующий перемещается по сети.</p>
-            </div>
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-sky-500 transition">
-                <h3 class="text-xl font-bold mb-2 text-sky-400">⏱️ Таймлайн</h3>
-                <p class="text-slate-400">Реконструкция kill-chain по фазам атаки от разведки до эксфильтрации.</p>
+            <div class="stat-card">
+                <div class="stat-value">28.1с</div>
+                <div class="stat-label">на 627k пакетов</div>
             </div>
         </div>
     </section>
 
-    <footer class="border-t border-slate-800 py-10 text-center text-slate-500 text-sm">
-        <p>Сделано для CTF, SOC и Malware Analysts.</p>
-        <p class="mt-2">Paradox © 2026 Andrey Grigoryev. MIT License.</p>
+    <!-- TERMINAL / QUICK START -->
+    <section class="max-w-3xl mx-auto px-6 mb-24 fade-in">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <span class="terminal-dot bg-red-500"></span>
+                <span class="terminal-dot bg-yellow-500"></span>
+                <span class="terminal-dot bg-green-500"></span>
+                <span class="ml-4 text-xs text-slate-500 font-mono">paradox — quick start</span>
+            </div>
+            <div class="terminal-body">
+                <p><span class="prompt">$</span> pip install -e ".[gui]"</p>
+                <p><span class="prompt">$</span> paradox capture.pcap</p>
+                <p class="comment"># CLI → JSON + Markdown + IOC</p>
+                <p><span class="prompt">$</span> python -m paradox_gui</p>
+                <p class="comment"># GUI: 8 вкладок, граф связей, таймлайн</p>
+                <p class="text-slate-500 mt-4"># Пример вывода:</p>
+                <p class="text-slate-400">packets: 627 694 · unique DNS queries: 117</p>
+                <p class="text-slate-400">flows: 2 332 · findings: 7 · contradictions: 2</p>
+                <p class="text-sky-400">PIVOT: 192.168.1.12 (жертва brute_force, но атакует 192.168.1.1 через WinRM)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Почему Paradox?</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">Zeek, Arkime и tshark парсят pcap и находят DNS, TLS, HTTP. Paradox идёт дальше — проверяет согласованность между слоями и строит атомарные факты о мире.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="gradient-border p-8">
+                <div class="feature-icon">🔍</div>
+                <h3 class="text-lg font-bold mb-2 text-sky-400">Противоречия между слоями</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">SNI без DNS, MAC на разных IP, JA3 инструмента с браузерным User-Agent. 12 правил, которые находят то, что не сходится.</p>
+            </div>
+            <div class="gradient-border p-8">
+                <div class="feature-icon">🕸️</div>
+                <h3 class="text-lg font-bold mb-2 text-indigo-400">Поиск пивотов</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Хост одновременно жертва и атакующий — <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">victim_makes_attack</code>. Сразу видно, как злоумышленник перемещается по сети.</p>
+            </div>
+            <div class="gradient-border p-8">
+                <div class="feature-icon">⏱️</div>
+                <h3 class="text-lg font-bold mb-2 text-emerald-400">Kill-chain таймлайн</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Реконструкция атаки по фазам: recon → initial_access → execution → lateral_movement → c2 → exfiltration.</p>
+            </div>
+            <div class="gradient-border p-8">
+                <div class="feature-icon">📡</div>
+                <h3 class="text-lg font-bold mb-2 text-amber-400">C2-beaconing</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Периодические heartbeat-соединения с jitter &lt; 0.1, ≥ 20 обращений, ≥ 10 минут. Multi-tenant filter против CDN.</p>
+            </div>
+            <div class="gradient-border p-8">
+                <div class="feature-icon">🧬</div>
+                <h3 class="text-lg font-bold mb-2 text-rose-400">YARA + Carve</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Сканирование вырезанных файлов пользовательскими YARA-правилами. Metadata-only — тело на диск не пишется.</p>
+            </div>
+            <div class="gradient-border p-8">
+                <div class="feature-icon">📊</div>
+                <h3 class="text-lg font-bold mb-2 text-cyan-400">Сравнение прогонов (B1)</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Два JSON-отчёта → что добавилось / исчезло / изменилось. Для повторного триажа одного и того же pcap.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERFACE SHOWCASE -->
+    <section id="interface" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Интерфейс Paradox</h2>
+            <p class="text-slate-400 max-w-2xl mx-auto">От сырых пакетов до готового графа атаки и таймлайна. Весь инцидент на одном экране.</p>
+        </div>
+
+        <div class="space-y-8">
+            <!-- Главное окно -->
+            <div class="screenshot-card">
+                <img src="assets/main.png" alt="Paradox - Главное окно" loading="lazy">
+                <div class="p-6 bg-slate-800/50 border-t border-slate-700">
+                    <h3 class="text-lg font-bold mb-2 text-sky-400">Сводка прогона и Аномалии</h3>
+                    <p class="text-slate-400 text-sm">Мгновенная статистика по пакетам, flows и findings. Вкладка «Что видел инструмент» показывает разбивку по протоколам, а блок «Аномалии» сразу подсвечивает DNS без ответа и оборванные TCP-сессии.</p>
+                </div>
+            </div>
+
+            <!-- Сетка из двух экранов -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Граф -->
+                <div class="screenshot-card">
+                    <img src="assets/graph.png" alt="Paradox - Граф атаки" loading="lazy">
+                    <div class="p-6 bg-slate-800/50 border-t border-slate-700">
+                        <h3 class="text-lg font-bold mb-2 text-indigo-400">Интерактивный Граф Атак</h3>
+                        <p class="text-slate-400 text-sm">Визуализация связей между хостами. Сразу видно цепочку компрометации (Victim → Pivot → C2). Панель справа показывает фазы, MITRE ATT&CK и детали каждого ребра.</p>
+                    </div>
+                </div>
+
+                <!-- Таймлайн -->
+                <div class="screenshot-card">
+                    <img src="assets/timeline.png" alt="Paradox - Таймлайн" loading="lazy">
+                    <div class="p-6 bg-slate-800/50 border-t border-slate-700">
+                        <h3 class="text-lg font-bold mb-2 text-emerald-400">Таймлайн / Kill-chain</h3>
+                        <p class="text-slate-400 text-sm">Хронология инцидента, разбитая по фазам атаки: от Initial Access до Exfiltration. Удобная таблица с временем, источником, получателем и MITRE-техниками.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTRADICTIONS -->
+    <section id="contradictions" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
+            <div>
+                <h2 class="text-3xl font-bold mb-4">12 правил противоречий</h2>
+                <p class="text-slate-400 mb-8 leading-relaxed">Paradox строит атомарные факты о мире и ищет несогласованности. Это новый слой анализа — поверх findings и поверх entities.</p>
+                <div class="space-y-0">
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">victim_makes_attack</div>
+                            <div class="contradiction-desc">Хост одновременно жертва и атакующий → pivot</div>
+                        </div>
+                        <span class="badge badge-critical">critical</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">mac_ip_conflict</div>
+                            <div class="contradiction-desc">ARP-spoof: два MAC на одном IP</div>
+                        </div>
+                        <span class="badge badge-critical">critical</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">sni_host_mismatch</div>
+                            <div class="contradiction-desc">Domain fronting: SNI ≠ HTTP Host</div>
+                        </div>
+                        <span class="badge badge-high">high</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">ja3_ua_mismatch</div>
+                            <div class="contradiction-desc">JA3 инструмента + браузерный UA → мимикрия</div>
+                        </div>
+                        <span class="badge badge-high">high</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">port_service_mismatch</div>
+                            <div class="contradiction-desc">TLS на 22, HTTP на 445 → туннель</div>
+                        </div>
+                        <span class="badge badge-high">high</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-4">…и ещё 7 правил, включая reverse_asymmetry, sni_without_dns и dns_answer_mismatch.</p>
+            </div>
+            <div class="gradient-border p-6">
+                <div class="text-xs text-slate-500 font-mono mb-3 uppercase tracking-wider">Пример вывода · Markdown</div>
+                <div class="font-mono text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                    <p class="text-sky-400">## TL;DR</p>
+                    <p><span class="text-rose-400">PIVOT:</span> 192.168.1.12 (жертва brute_force, но сама атакует 192.168.1.1 через WinRM)</p>
+                    <p><span class="text-amber-400">Payload:</span> /ftp_update.sh (sh, 77 B, sha256 e83fb5b6a8cd…)</p>
+                    <p class="text-sky-400 mt-4">## Timeline</p>
+                    <p class="text-slate-400">initial_access → execution → lateral_movement → exfiltration</p>
+                    <p class="text-sky-400 mt-4">## Contradictions (2)</p>
+                    <p><span class="badge badge-critical">critical</span> victim_makes_attack</p>
+                    <p class="text-slate-400 pl-2">192.168.1.12 — одновременно victim_of 10.0.1.50 и attacker_of 192.168.1.1</p>
+                    <p><span class="badge badge-high">high</span> reverse_asymmetry</p>
+                    <p class="text-slate-400 pl-2">192.168.1.1: 9 acks vs 5000+ inbound bytes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PERFORMANCE -->
+    <section id="performance" class="max-w-5xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Производительность</h2>
+            <p class="text-slate-400">Собственный парсер на <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">struct.unpack</code> — 39× ускорение против чистого scapy.</p>
+        </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-800/60 text-slate-400 text-left">
+                        <th class="px-6 py-4 font-medium">Размер</th>
+                        <th class="px-6 py-4 font-medium">Пакетов</th>
+                        <th class="px-6 py-4 font-medium">Время</th>
+                        <th class="px-6 py-4 font-medium">Контекст</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="px-6 py-4 text-slate-200 font-mono">152 МБ</td>
+                        <td class="px-6 py-4 text-slate-300">232k</td>
+                        <td class="px-6 py-4 text-emerald-400 font-semibold">12 сек</td>
+                        <td class="px-6 py-4 text-slate-400">с TCP reassembly</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30 transition bg-sky-900/10">
+                        <td class="px-6 py-4 text-slate-200 font-mono">319 МБ</td>
+                        <td class="px-6 py-4 text-slate-300">627k</td>
+                        <td class="px-6 py-4 text-emerald-400 font-semibold">28 сек</td>
+                        <td class="px-6 py-4 text-slate-400">CTF CyberCampTask</td>
+                    </tr>
+                    <tr class="hover:bg-slate-800/30 transition">
+                        <td class="px-6 py-4 text-slate-200 font-mono">4.7 ГБ</td>
+                        <td class="px-6 py-4 text-slate-300">9.5M</td>
+                        <td class="px-6 py-4 text-emerald-400 font-semibold">10 мин</td>
+                        <td class="px-6 py-4 text-slate-400">FIRST-2015 · 58 pcap</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section id="install" class="max-w-4xl mx-auto px-6 mb-24 fade-in">
+        <div class="gradient-border p-8 md:p-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-3">Установка</h2>
+                <p class="text-slate-400">Python 3.11+. Windows / Linux / macOS. Готовый <strong class="text-slate-200">.exe</strong> — в Releases.</p>
+            </div>
+            <div class="space-y-3 font-mono text-sm">
+                <div class="bg-slate-900/80 rounded-lg p-4 border border-slate-800 flex items-center justify-between gap-4">
+                    <code class="text-slate-300"><span class="text-sky-400">#</span> Разработка с GUI</code>
+                </div>
+                <div class="bg-slate-900/80 rounded-lg p-4 border border-slate-800">
+                    <code class="text-emerald-400">pip install -e ".[dev,gui]"</code>
+                </div>
+                <div class="bg-slate-900/80 rounded-lg p-4 border border-slate-800">
+                    <code class="text-emerald-400">pip install -e ".[dev,gui,yara,enrich]"</code>
+                    <span class="text-slate-500 text-xs ml-2"># + YARA + Threat Intel</span>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <a href="https://github.com/v314xm/paradox/releases" target="_blank" rel="noopener" class="btn-primary">
+                    Скачать готовый .exe
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 py-12 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <div class="text-lg font-bold text-white mb-1">🛡️ PARADOX</div>
+                <p class="text-sm text-slate-500">PCAP triage для CTF, SOC и Malware Analysts.</p>
+            </div>
+            <div class="flex items-center gap-6 text-sm text-slate-500">
+                <a href="https://github.com/v314xm/paradox" target="_blank" rel="noopener" class="hover:text-sky-400 transition no-underline">GitHub</a>
+                <a href="https://github.com/v314xm/paradox/releases" target="_blank" rel="noopener" class="hover:text-sky-400 transition no-underline">Releases</a>
+                <span>MIT License</span>
+            </div>
+            <p class="text-xs text-slate-600">Paradox © 2026 Andrey Grigoryev</p>
+        </div>
     </footer>
+
+    <script>
+        // Fade-in on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
 
 </body>
 </html>
