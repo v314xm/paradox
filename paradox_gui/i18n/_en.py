@@ -333,4 +333,66 @@ STRINGS: dict[str, str] = {
     "quick_check.error": "Error: {msg}",
     "quick_check.auto": "Auto",
 
+    # --- Export ---
+    "export.title": "Data Export (SIEM / Threat Intelligence)",
+    "export.subtitle": "You can export Findings and IOCs as CSV (for Excel) or STIX 2.1 (for SIEM/EDR).",
+    "export.fmt_csv": "CSV (Findings)",
+    "export.fmt_stix": "STIX 2.1 (IOC Bundle)",
+    "export.copy": "Copy to clipboard",
+    "export.save": "Save to file...",
+    "export.empty": "No data. Run pcap analysis first.",
+    "export.copied": "Full data copied to clipboard.\nCan be pasted into SIEM or a text editor.",
+    "export.csv_saved": "CSV successfully saved.",
+    "export.stix_saved": "STIX Bundle successfully saved.",
+    "export.err_save": "Save error",
+
+    # --- Diff ---
+    "diff.title": "Run Comparison",
+    "diff.subtitle": "Load two JSON reports (old and new) to see what was added, removed, or changed. Useful for re-triaging the same pcap days/weeks later.",
+    "diff.load_old": "Load old…",
+    "diff.load_new": "Load new…",
+    "diff.placeholder": "Load both reports to see the comparison.",
+    "diff.export_md": "Export to Markdown…",
+    "diff.err_file": "Read error",
+    "diff.wrong_file": "Wrong file",
+    "diff.wrong_file_body": "Not a Paradox JSON report: missing 'findings'.",
+    "diff.expected_json": "Expected a JSON report.",
+    "diff.not_paradox": "This is not a Paradox JSON report.",
+    "diff.no_changes": "No changes",
+
+    # --- Finding Dialog ---
+    "finding.title": "Finding: {type}",
+    "finding.value": "Value",
+    "finding.mitre": "MITRE",
+    "finding.reasons": "Confidence reasons",
+    "finding.evidence": "Evidence",
+    "finding.no_reasons": "No detailed breakdown (old detector or no reasons).",
+    "finding.evidence_empty": "Evidence is empty.",
+    "finding.close": "Close",
+
+    # --- Contradiction Dialog ---
+    "contra.title": "{rule} — {subject}",
+    "contra.resolution": "Resolution",
+    "contra.facts": "Facts",
+    "contra.causes": "Likely causes",
+    "contra.not_specified": "Not specified.",
+    "contra.no_facts": "No facts.",
+    "contra.close": "Close",
+
+    # --- Carved Files ---
+    "carved.title": "Carved Files",
+    "carved.warning": "<b>⚠️ WARNING!</b> These files were extracted from captured network traffic. They may contain malware.<br>Do not open them on a production machine without checking in an isolated environment (Sandbox / VM).",
+    "carved.empty": "No files were extracted in this run.",
+    "carved.col_sha": "SHA256",
+    "carved.col_ext": "Type",
+    "carved.col_size": "Size",
+    "carved.col_uri": "URI",
+    "carved.col_status": "Status",
+    "carved.status_saved": "Saved to disk",
+    "carved.status_meta": "Metadata only",
+    "carved.open_dir": "Open files folder",
+    "carved.close": "Close",
+    "carved.not_saved_title": "File not saved",
+    "carved.not_saved_body": "File body was not saved to disk. Enable 'Write file bodies to disk' in Settings → Performance and re-run analysis.",
+
 }

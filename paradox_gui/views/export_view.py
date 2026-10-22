@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 
 def _is_private_ip(ip_str: str) -> bool:
     from paradox.net_utils import is_private_ip
@@ -108,29 +110,29 @@ class ExportView(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        lbl = QLabel("Экспорт данных (SIEM / Threat Intelligence)")
+        lbl = QLabel(tr("export.title"))
         lbl.setStyleSheet("font-size: 16px; font-weight: bold; color: #e0e0e0;")
         layout.addWidget(lbl)
 
-        info = QLabel("Вы можете выгрузить Findings и IOC в формате CSV (для Excel) или STIX 2.1 (для SIEM/EDR).")
+        info = QLabel(tr("export.subtitle"))
         info.setStyleSheet("color: #a0a0b0;")
         layout.addWidget(info)
 
         ctrl_layout = QHBoxLayout()
 
         self.format_combo = QComboBox()
-        self.format_combo.addItem("CSV (Findings)", "csv")
-        self.format_combo.addItem("STIX 2.1 (IOC Bundle)", "stix")
+        self.format_combo.addItem(tr("export.fmt_csv"), "csv")
+        self.format_combo.addItem(tr("export.fmt_stix"), "stix")
         self.format_combo.setMinimumWidth(250)
         self.format_combo.currentIndexChanged.connect(self._update_preview)
         ctrl_layout.addWidget(self.format_combo)
 
-        self.btn_copy = QPushButton("Копировать в буфер")
+        self.btn_copy = QPushButton(tr("export.copy"))
         self.btn_copy.clicked.connect(self._on_copy_clicked)
         self.btn_copy.setEnabled(False)
         ctrl_layout.addWidget(self.btn_copy)
 
-        self.btn_export = QPushButton("Сохранить в файл...")
+        self.btn_export = QPushButton(tr("export.save"))
         self.btn_export.setObjectName("primary")
         self.btn_export.clicked.connect(self._on_export_clicked)
         self.btn_export.setEnabled(False)
@@ -141,7 +143,7 @@ class ExportView(QWidget):
 
         self.preview = QTextBrowser()
         self.preview.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px; font-family: Consolas, monospace;")
-        self.preview.setHtml("<p style='color:#888;'>Нет данных. Сначала выполните анализ pcap.</p>")
+        self.preview.setHtml(f"<p style='color:#888;'>{tr('export.empty')}</p>")
         layout.addWidget(self.preview)
 
     def update_data(self, report: dict):
@@ -195,7 +197,7 @@ class ExportView(QWidget):
             return
         clipboard = QApplication.clipboard()
         clipboard.setText(self._current_export_data)
-        QMessageBox.information(self, "Успех", "Полные данные скопированы в буфер обмена.\nМожно вставлять в SIEM или текстовый редактор.")
+        QMessageBox.information(self, "Success", tr("export.copied"))
 
     def _on_export_clicked(self):
         if not self._report: return
@@ -207,15 +209,15 @@ class ExportView(QWidget):
             try:
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(self._current_export_data)
-                QMessageBox.information(self, "Успех", "CSV успешно сохранен.")
+                QMessageBox.information(self, "Success", tr("export.csv_saved"))
             except Exception as e:
-                QMessageBox.critical(self, "Ошибка", str(e))
+                QMessageBox.critical(self, tr("export.err_save"), str(e))
         else:
             path, _ = QFileDialog.getSaveFileName(self, "Сохранить STIX", "bundle.json", "JSON (*.json)")
             if not path: return
             try:
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(self._current_export_data)
-                QMessageBox.information(self, "Успех", "STIX Bundle успешно сохранен.")
+                QMessageBox.information(self, "Success", tr("export.stix_saved"))
             except Exception as e:
-                QMessageBox.critical(self, "Ошибка", str(e))
+                QMessageBox.critical(self, tr("export.err_save"), str(e))

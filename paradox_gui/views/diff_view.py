@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui.analyzers.run_diff import diff_reports, render_diff_markdown
+from paradox_gui.i18n import tr
 
 
 class DiffView(QWidget):
@@ -32,28 +33,24 @@ class DiffView(QWidget):
         outer.setContentsMargins(20, 20, 20, 20)
         outer.setSpacing(12)
 
-        title = QLabel("Сравнение прогонов")
+        title = QLabel(tr("diff.title"))
         title.setObjectName("h1")
         outer.addWidget(title)
 
-        hint = QLabel(
-            "Загрузите два JSON-отчёта (старый и новый) — увидите, что "
-            "добавилось, что исчезло, что изменилось. Удобно при повторном "
-            "триаже одного и того же pcap через день/неделю."
-        )
+        hint = QLabel(tr("diff.subtitle"))
         hint.setObjectName("muted")
         hint.setWordWrap(True)
         outer.addWidget(hint)
 
         row = QHBoxLayout()
-        self._btn_old = QPushButton("Загрузить старый…")
+        self._btn_old = QPushButton(tr("diff.load_old"))
         self._btn_old.clicked.connect(lambda: self._load("old"))
         self._lbl_old = QLabel("—")
         self._lbl_old.setObjectName("muted")
         row.addWidget(self._btn_old)
         row.addWidget(self._lbl_old, stretch=1)
 
-        self._btn_new = QPushButton("Загрузить новый…")
+        self._btn_new = QPushButton(tr("diff.load_new"))
         self._btn_new.clicked.connect(lambda: self._load("new"))
         self._lbl_new = QLabel("—")
         self._lbl_new.setObjectName("muted")
@@ -61,14 +58,14 @@ class DiffView(QWidget):
         row.addWidget(self._lbl_new, stretch=1)
         outer.addLayout(row)
 
-        self._summary = QLabel("Загрузите оба отчёта, чтобы увидеть сравнение.")
+        self._summary = QLabel(tr("diff.placeholder"))
         self._summary.setObjectName("muted")
         self._summary.setWordWrap(True)
         outer.addWidget(self._summary)
 
         btn_row = QHBoxLayout()
         btn_row.addStretch(1)
-        self._btn_export = QPushButton("Экспорт в Markdown…")
+        self._btn_export = QPushButton(tr("diff.export_md"))
         self._btn_export.setEnabled(False)
         self._btn_export.clicked.connect(self._on_export_md)
         btn_row.addWidget(self._btn_export)
@@ -91,12 +88,12 @@ class DiffView(QWidget):
         try:
             data = json.loads(Path(path).read_text(encoding="utf-8"))
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"{type(e).__name__}: {e}")
+            QMessageBox.critical(self, tr("diff.err_file"), f"{type(e).__name__}: {e}")
             return
         if not isinstance(data, dict) or "findings" not in data:
             QMessageBox.critical(
-                self, "Не тот файл",
-                "Не JSON-отчёт Paradox: нет ключа 'findings'.",
+                self, tr("diff.wrong_file"),
+                tr("diff.wrong_file_body"),
             )
             return
         if which == "old":
@@ -152,7 +149,7 @@ class DiffView(QWidget):
 
         if not d.has_changes():
             self._tree.addTopLevelItem(
-                QTreeWidgetItem(["Изменений нет", "", ""])
+                QTreeWidgetItem([tr("diff.no_changes"), "", ""])
             )
 
         if hasattr(self, "_btn_export"):
@@ -230,17 +227,17 @@ class DiffView(QWidget):
             return
         path = urls[0].toLocalFile()
         if not path.lower().endswith('.json'):
-            QMessageBox.warning(self, 'Ошибка', 'Ожидается JSON-отчёт.')
+            QMessageBox.warning(self, tr("diff.err_file"), tr("diff.expected_json"))
             return
 
         try:
             data = json.loads(Path(path).read_text(encoding='utf-8'))
         except Exception as e:
-            QMessageBox.critical(self, 'Ошибка', f'Ошибка чтения: {e}')
+            QMessageBox.critical(self, tr("diff.err_file"), f'{e}')
             return
 
         if not isinstance(data, dict) or 'findings' not in data:
-            QMessageBox.critical(self, 'Не тот файл', 'Это не JSON-отчёт Paradox.')
+            QMessageBox.critical(self, tr("diff.wrong_file"), tr("diff.not_paradox"))
             return
 
         # Логика распределения: сначала заполняем старый, потом новый.

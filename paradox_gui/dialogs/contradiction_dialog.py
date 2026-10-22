@@ -16,6 +16,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 _SEVERITY_ICON = {
     "critical": "🔴",
     "high":     "🟠",
@@ -39,7 +41,7 @@ class ContradictionDialog(QDialog):
         self._contra = contra
         rule = contra.get("rule", "?")
         subject = contra.get("subject", "—")
-        self.setWindowTitle(f"{rule} — {subject}")
+        self.setWindowTitle(tr("contra.title", rule=rule, subject=subject))
         self.resize(620, 560)
 
         self._build_ui()
@@ -50,11 +52,11 @@ class ContradictionDialog(QDialog):
         outer.setSpacing(14)
 
         outer.addWidget(self._build_header())
-        outer.addWidget(self._section_label("Разрешение"))
+        outer.addWidget(self._section_label(tr("contra.resolution")))
         outer.addWidget(self._build_resolution())
-        outer.addWidget(self._section_label("Факты"))
+        outer.addWidget(self._section_label(tr("contra.facts")))
         outer.addWidget(self._build_facts(), stretch=1)
-        outer.addWidget(self._section_label("Возможные причины"))
+        outer.addWidget(self._section_label(tr("contra.causes")))
         outer.addWidget(self._build_causes())
         outer.addLayout(self._build_footer())
 
@@ -95,7 +97,7 @@ class ContradictionDialog(QDialog):
         text = (
             self._contra.get("resolution_hint")
             or self._contra.get("hint")
-            or "Не указано."
+            or tr("contra.not_specified")
         )
         lbl = QLabel(text)
         lbl.setWordWrap(True)
@@ -111,7 +113,7 @@ class ContradictionDialog(QDialog):
         v.setSpacing(4)
 
         if not facts:
-            empty = QLabel("Фактов нет.")
+            empty = QLabel(tr("contra.no_facts"))
             empty.setObjectName("muted")
             v.addWidget(empty)
         else:
@@ -133,7 +135,7 @@ class ContradictionDialog(QDialog):
     def _build_causes(self) -> QLabel:
         causes = self._contra.get("likely_causes") or []
         if not causes:
-            lbl = QLabel("Не указано.")
+            lbl = QLabel(tr("contra.not_specified"))
             lbl.setObjectName("muted")
             return lbl
         text = "\n".join(f"•  {c}" for c in causes)
@@ -145,7 +147,7 @@ class ContradictionDialog(QDialog):
     def _build_footer(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.addStretch(1)
-        close = QPushButton("Закрыть")
+        close = QPushButton(tr("contra.close"))
         close.setObjectName("primary")
         close.clicked.connect(self.accept)
         row.addWidget(close)

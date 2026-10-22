@@ -333,4 +333,66 @@ STRINGS: dict[str, str] = {
     "quick_check.error": "Ошибка: {msg}",
     "quick_check.auto": "Авто",
 
+    # --- Export ---
+    "export.title": "Экспорт данных (SIEM / Threat Intelligence)",
+    "export.subtitle": "Вы можете выгрузить Findings и IOC в формате CSV (для Excel) или STIX 2.1 (для SIEM/EDR).",
+    "export.fmt_csv": "CSV (Findings)",
+    "export.fmt_stix": "STIX 2.1 (IOC Bundle)",
+    "export.copy": "Копировать в буфер",
+    "export.save": "Сохранить в файл...",
+    "export.empty": "Нет данных. Сначала выполните анализ pcap.",
+    "export.copied": "Полные данные скопированы в буфер обмена.\nМожно вставлять в SIEM или текстовый редактор.",
+    "export.csv_saved": "CSV успешно сохранен.",
+    "export.stix_saved": "STIX Bundle успешно сохранен.",
+    "export.err_save": "Ошибка сохранения",
+
+    # --- Diff ---
+    "diff.title": "Сравнение прогонов",
+    "diff.subtitle": "Загрузите два JSON-отчёта (старый и новый) — увидите, что добавилось, что исчезло, что изменилось. Удобно при повторном триаже одного и того же pcap через день/неделю.",
+    "diff.load_old": "Загрузить старый…",
+    "diff.load_new": "Загрузить новый…",
+    "diff.placeholder": "Загрузите оба отчёта, чтобы увидеть сравнение.",
+    "diff.export_md": "Экспорт в Markdown…",
+    "diff.err_file": "Ошибка чтения",
+    "diff.wrong_file": "Не тот файл",
+    "diff.wrong_file_body": "Не JSON-отчёт Paradox: нет ключа 'findings'.",
+    "diff.expected_json": "Ожидается JSON-отчёт.",
+    "diff.not_paradox": "Это не JSON-отчёт Paradox.",
+    "diff.no_changes": "Изменений нет",
+
+    # --- Finding Dialog ---
+    "finding.title": "Finding: {type}",
+    "finding.value": "Значение",
+    "finding.mitre": "MITRE",
+    "finding.reasons": "Почему такая уверенность",
+    "finding.evidence": "Evidence",
+    "finding.no_reasons": "Нет детального разбора (старый детектор или нет причин).",
+    "finding.evidence_empty": "Evidence пусто.",
+    "finding.close": "Закрыть",
+
+    # --- Contradiction Dialog ---
+    "contra.title": "{rule} — {subject}",
+    "contra.resolution": "Разрешение",
+    "contra.facts": "Факты",
+    "contra.causes": "Возможные причины",
+    "contra.not_specified": "Не указано.",
+    "contra.no_facts": "Фактов нет.",
+    "contra.close": "Закрыть",
+
+    # --- Carved Files ---
+    "carved.title": "Извлечённые файлы (Carved Files)",
+    "carved.warning": "<b>⚠️ ВНИМАНИЕ!</b> Эти файлы извлечены из перехваченного сетевого трафика. Они могут содержать вредоносное ПО.<br>Не открывайте их на рабочей машине без проверки в изолированной среде (Sandbox / VM).",
+    "carved.empty": "В этом прогоне файлы не извлекались.",
+    "carved.col_sha": "SHA256",
+    "carved.col_ext": "Тип",
+    "carved.col_size": "Размер",
+    "carved.col_uri": "URI",
+    "carved.col_status": "Статус",
+    "carved.status_saved": "Сохранён на диск",
+    "carved.status_meta": "Только метаданные",
+    "carved.open_dir": "Открыть папку с файлами",
+    "carved.close": "Закрыть",
+    "carved.not_saved_title": "Файл не сохранён",
+    "carved.not_saved_body": "Тело файла не сохранено на диск. Включите «Сохранять тела файлов на диск» в Настройках → Производительность и запустите анализ заново.",
+
 }

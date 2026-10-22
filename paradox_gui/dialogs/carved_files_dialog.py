@@ -18,12 +18,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.i18n import tr
+
 
 class CarvedFilesDialog(QDialog):
     def __init__(self, report: dict, parent=None) -> None:
         super().__init__(parent)
         self._report = report
-        self.setWindowTitle("Извлечённые файлы (Carved Files)")
+        self.setWindowTitle(tr("carved.title"))
         self.resize(900, 500)
         self._build_ui()
 
@@ -40,12 +42,7 @@ class CarvedFilesDialog(QDialog):
         )
         w_layout = QVBoxLayout(warn)
         w_layout.setContentsMargins(12, 10, 12, 10)
-        lbl_warn = QLabel(
-            "<b>⚠️ ВНИМАНИЕ!</b> Эти файлы извлечены из перехваченного "
-            "сетевого трафика. Они могут содержать вредоносное ПО.<br>"
-            "Не открывайте их на рабочей машине без проверки "
-            "в изолированной среде (Sandbox / VM)."
-        )
+        lbl_warn = QLabel(tr("carved.warning"))
         lbl_warn.setStyleSheet("color: #ff8888; font-size: 13px;")
         lbl_warn.setWordWrap(True)
         w_layout.addWidget(lbl_warn)
@@ -53,7 +50,7 @@ class CarvedFilesDialog(QDialog):
 
         files = (self._report.get("carved_files") or {}).get("files", [])
         if not files:
-            empty = QLabel("В этом прогоне файлы не извлекались.")
+            empty = QLabel(tr("carved.empty"))
             empty.setStyleSheet("color: #a0a0b0;")
             layout.addWidget(empty)
             layout.addStretch(1)
@@ -61,9 +58,11 @@ class CarvedFilesDialog(QDialog):
 
         # --- Таблица файлов ---
         self.table = QTableWidget(len(files), 5)
-        self.table.setHorizontalHeaderLabels(
-            ["SHA256", "Тип", "Размер", "URI", "Статус"]
-        )
+        self.table.setHorizontalHeaderLabels([
+            tr("carved.col_sha"), tr("carved.col_ext"),
+            tr("carved.col_size"), tr("carved.col_uri"),
+            tr("carved.col_status")
+        ])
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -87,11 +86,11 @@ class CarvedFilesDialog(QDialog):
             self.table.setItem(row, 3, QTableWidgetItem(uri or "—"))
 
             if saved and Path(saved).exists():
-                st_item = QTableWidgetItem("Сохранён на диск")
+                st_item = QTableWidgetItem(tr("carved.status_saved"))
                 st_item.setForeground(QBrush(QColor("#50fa7b")))
                 self.table.setItem(row, 4, st_item)
             else:
-                st_item = QTableWidgetItem("Только метаданные")
+                st_item = QTableWidgetItem(tr("carved.status_meta"))
                 st_item.setForeground(QBrush(QColor("#a0a0b0")))
                 self.table.setItem(row, 4, st_item)
 
@@ -109,11 +108,11 @@ class CarvedFilesDialog(QDialog):
             for f in files
         )
         if any_saved:
-            open_dir = QPushButton("Открыть папку с файлами")
+            open_dir = QPushButton(tr("carved.open_dir"))
             open_dir.clicked.connect(self._open_dir)
             btn_row.addWidget(open_dir)
 
-        close_btn = QPushButton("Закрыть")
+        close_btn = QPushButton(tr("carved.close"))
         close_btn.setObjectName("primary")
         close_btn.clicked.connect(self.accept)
         btn_row.addWidget(close_btn)
@@ -133,10 +132,8 @@ class CarvedFilesDialog(QDialog):
             )
         else:
             QMessageBox.information(
-                self, "Файл не сохранён",
-                "Тело файла не сохранено на диск. "
-                "Включите «Сохранять тела файлов на диск» "
-                "в Настройках → Производительность и запустите анализ заново.",
+                self, tr("carved.not_saved_title"),
+                tr("carved.not_saved_body"),
             )
 
     def _open_dir(self) -> None:

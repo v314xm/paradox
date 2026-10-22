@@ -16,13 +16,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 
 class FindingDialog(QDialog):
     def __init__(self, finding: dict, parent=None) -> None:
         super().__init__(parent)
         self._finding = finding
         ftype = finding.get("type", "?")
-        self.setWindowTitle(f"Finding: {ftype}")
+        self.setWindowTitle(tr("finding.title", type=ftype))
         self.resize(600, 500)
         self._build_ui()
 
@@ -32,13 +34,13 @@ class FindingDialog(QDialog):
         outer.setSpacing(12)
 
         outer.addWidget(self._build_header())
-        outer.addWidget(self._section_label("Значение"))
+        outer.addWidget(self._section_label(tr("finding.value")))
         outer.addWidget(self._build_value())
-        outer.addWidget(self._section_label("MITRE"))
+        outer.addWidget(self._section_label(tr("finding.mitre")))
         outer.addWidget(self._build_mitre())
-        outer.addWidget(self._section_label("Почему такая уверенность"))
+        outer.addWidget(self._section_label(tr("finding.reasons")))
         outer.addWidget(self._build_confidence_reasons())
-        outer.addWidget(self._section_label("Evidence"))
+        outer.addWidget(self._section_label(tr("finding.evidence")))
         outer.addWidget(self._build_evidence(), stretch=1)
         outer.addLayout(self._build_footer())
 
@@ -95,7 +97,7 @@ class FindingDialog(QDialog):
         v.setSpacing(4)
 
         if not reasons:
-            empty = QLabel("Нет детального разбора (старый детектор или нет причин).")
+            empty = QLabel(tr("finding.no_reasons"))
             empty.setObjectName("muted")
             v.addWidget(empty)
         else:
@@ -117,7 +119,7 @@ class FindingDialog(QDialog):
         v.setSpacing(4)
 
         if not ev:
-            empty = QLabel("Evidence пусто.")
+            empty = QLabel(tr("finding.evidence_empty"))
             empty.setObjectName("muted")
             v.addWidget(empty)
         elif isinstance(ev, dict):
@@ -144,7 +146,7 @@ class FindingDialog(QDialog):
     def _build_footer(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.addStretch(1)
-        close = QPushButton("Закрыть")
+        close = QPushButton(tr("finding.close"))
         close.setObjectName("primary")
         close.clicked.connect(self.accept)
         row.addWidget(close)
