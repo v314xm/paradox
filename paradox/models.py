@@ -262,6 +262,14 @@ class CaptureState:
         default_factory=dict,
     )
 
+    # v1.3.1: timestamps DNS-запросов по имени домена.
+    # Нужно dga/cloud_tunnel/typosquatting для first_seen/last_seen
+    # в Finding — иначе timeline их пропускает.
+    # Аналог dns_nxdomain_ts_by_src, но по имени, а не по src.
+    dns_query_ts_by_name: dict[str, list[float]] = field(
+        default_factory=dict,
+    )
+
     # flows
     flows: dict[FlowKey, FlowStats] = field(default_factory=dict)
 

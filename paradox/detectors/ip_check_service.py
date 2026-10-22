@@ -29,7 +29,8 @@ class IPCheckServiceDetector:
         hits: dict[str, dict] = {}
 
         def _touch(value: str, source: str, extra: dict | None = None,
-                   ts: float | None = None) -> None:
+                   first_ts: float | None = None,
+                   last_ts: float | None = None) -> None:
             h = hits.setdefault(value, {
                 "sources": set(), "extra": {},
                 "first": None, "last": None,
@@ -37,11 +38,12 @@ class IPCheckServiceDetector:
             h["sources"].add(source)
             if extra:
                 h["extra"].update(extra)
-            if ts is not None:
-                if h["first"] is None or ts < h["first"]:
-                    h["first"] = ts
-                if h["last"] is None or ts > h["last"]:
-                    h["last"] = ts
+            if first_ts is not None:
+                if h["first"] is None or first_ts < h["first"]:
+                    h["first"] = first_ts
+            if last_ts is not None:
+                if h["last"] is None or last_ts > h["last"]:
+                    h["last"] = last_ts
 
         # 1. DNS
         for qname, count in state.dns_queries.items():
@@ -54,24 +56,33 @@ class IPCheckServiceDetector:
             if flow.sni:
                 sni = flow.sni.lower().strip(".")
                 if sni in services:
-                    _touch(sni, "sni",
-                           {"flow": f"{key.src_ip} -> {key.dst_ip}"},
-                           ts=flow.first_ts)
+                    _touch(
+                        sni, "sni",
+                        {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                        first_ts=flow.first_ts,
+                        last_ts=flow.last_ts,
+                    )
 
             if flow.http_host:
                 host = flow.http_host.split(":", 1)[0].lower().strip(".")
                 if host in services:
-                    _touch(host, "http_host",
-                           {"flow": f"{key.src_ip} -> {key.dst_ip}"},
-                           ts=flow.first_ts)
+                    _touch(
+                        host, "http_host",
+                        {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                        first_ts=flow.first_ts,
+                        last_ts=flow.last_ts,
+                    )
 
             # direct IP — каноническое имя сервиса как value,
             # чтобы finding слился с DNS/SNI-находками
             service_name = service_ips.get(key.dst_ip)
             if service_name:
-                _touch(service_name, "direct_ip",
-                       {"flow": f"{key.src_ip} -> {key.dst_ip}"},
-                       ts=flow.first_ts)
+                _touch(
+                    service_name, "direct_ip",
+                    {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                    first_ts=flow.first_ts,
+                    last_ts=flow.last_ts,
+                )
 
         findings: list[Finding] = []
         for value, h in hits.items():

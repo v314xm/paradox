@@ -53,6 +53,10 @@ class DNSExtractor:
 
         state.dns_queries[name] += 1
 
+        # v1.3.1: timestamps запросов по имени — для dga/cloud_tunnel/
+        # typosquatting, чтобы timeline их видел.
+        state.dns_query_ts_by_name.setdefault(name, []).append(record.ts)
+
         # DNS по источнику: клиент — тот, кто спрашивал.
         # Если src_port == 53 — это ответ, клиент = dst_ip.
         # Иначе клиент = src_ip.
