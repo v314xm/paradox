@@ -218,7 +218,10 @@ def _extract(
         # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
         if config.file_carve_enabled:
             try:
-                state.carved_files = carve_files(state, config, output_dir=None)
+                _carved_dir = config.output_dir / "carved"
+                state.carved_files = carve_files(
+                    state, config, output_dir=_carved_dir,
+                )
             except Exception:
                 state.extractor_errors["file_carve"] += 1
 

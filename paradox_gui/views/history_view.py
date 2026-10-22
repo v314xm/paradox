@@ -58,10 +58,6 @@ class HistoryView(QWidget):
     # Передаёт словарь report из истории.
     compare_requested = Signal(object)
 
-    # Сигнал для запроса сравнения выбранного прогона с текущим.
-    # Передаёт словарь report из истории.
-    compare_requested = Signal(object)
-
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         # Хранилище: каждый элемент — (timestamp, report). Список

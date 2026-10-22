@@ -147,8 +147,9 @@ def build_http_report(
                 "user_agent": flow.http_user_agent,
             })
 
-    # Уникальные URI: сортируем по bytes убыв., берём top_n
-    # Дедуплицируем по (host, uri) — оставляем первый
+    # Полное множество (для поля unique_uris), не обрезанное top_n.
+    all_unique_uris = {(u["host"], u["uri"]) for u in uris}
+    # Топ — дедуплицированный список, обрезанный top_n.
     seen: set[tuple[str, str]] = set()
     unique_uris: list[dict] = []
     for u in sorted(uris, key=lambda x: -x["bytes"]):
@@ -163,7 +164,7 @@ def build_http_report(
     return {
         "unique_hosts": len(hosts),
         "unique_user_agents": len(user_agents),
-        "unique_uris": len(seen),
+        "unique_uris": len(all_unique_uris),
         "top_hosts": [
             {"host": h, "count": c}
             for h, c in sorted(hosts.items(),

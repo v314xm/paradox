@@ -392,8 +392,8 @@ class AttackGraphDialog(QDialog):
 
         item = QGraphicsPathItem(path)
         item.setPen(QPen(color, width, style))
-        item.setData(0, e["src"])       # для подсветки (v1.2.1: фикс)
-        item.setData(1, e["dst"])       # для подсветки (v1.2.1: фикс)
+        item.setData(Qt.ItemDataRole.UserRole, e["src"])
+        item.setData(Qt.ItemDataRole.UserRole + 1, e["dst"])
         item.setData(2, color.name())
         item.setToolTip(
             f"{e['src']} → {e['dst']}\n"
@@ -494,7 +494,7 @@ class AttackGraphDialog(QDialog):
             if not in_time:
                 item.setOpacity(0.05)
             elif path_edges is not None:
-                key = (item.data(0), item.data(1))
+                key = (item.data(Qt.ItemDataRole.UserRole), item.data(Qt.ItemDataRole.UserRole + 1))
                 item.setOpacity(1.0 if key in path_edges else 0.25)
             else:
                 item.setOpacity(1.0)
