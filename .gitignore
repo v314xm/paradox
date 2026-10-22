@@ -118,3 +118,6 @@ batch_run.log
 .DS_Store
 Thumbs.db
 desktop.ini
+*.zip
+Paradox.spec
+paradox.ico
