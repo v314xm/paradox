@@ -90,3 +90,31 @@ def assert_not_present(root: Path, rel_path: str, marker: str) -> None:
     path = root / rel_path
     if marker in path.read_text(encoding="utf-8"):
         raise FixError(f"{rel_path}: marker still present — {marker[:80]!r}")
+
+
+
+def write_new(
+    root: Path, rel_path: str, content: str,
+    *, overwrite_if_same: bool = True,
+) -> bool:
+    """Записать новый файл. Идемпотентна: повторный вызов с тем же
+    содержимым → False (не пишет). Если файл существует с другим
+    содержимым и overwrite_if_same=False → FixError.
+
+    Нужна для фиксов, которые добавляют целые новые модули.
+    """
+    path = root / rel_path
+    if path.exists():
+        existing = path.read_text(encoding="utf-8")
+        if existing == content:
+            return False
+        if not overwrite_if_same:
+            raise FixError(
+                f"{rel_path}: file exists with different content — "
+                f"manual review required"
+            )
+        # Файл есть с другим содержимым — перезаписываем (обычно это
+        # значит, что ручные правки уже внесены, но фикс свой делает).
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _write(path, content)
+    return True

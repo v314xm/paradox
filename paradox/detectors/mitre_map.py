@@ -39,6 +39,7 @@ MITRE_MAP: dict[str, tuple[str, ...]] = {
     "beaconing": ("T1071.001",),         # Web Protocols — heartbeat через HTTP(S)
     "dns_tunneling": ("T1071.004",),     # DNS
     "ja3_malware": ("T1071.001",),       # известный malware-JA3
+    "ja3s_malware": ("T1071.001",),      # известный malware-JA3S (сервер)
 
     # Domain fronting / SNI-mismatch
     "sni_mismatch": ("T1071.001",),

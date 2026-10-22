@@ -79,6 +79,7 @@ _DETECTORS = (
     ("typosquatting",      "Typosquatting"),
     ("sni_mismatch",       "SNI mismatch"),
     ("ja3_malware",        "JA3 malware"),
+    ("ja3s_malware",       "JA3S malware"),
     ("brute_force",        "Brute force (HTTP)"),
     ("ftp_brute_force",    "FTP brute force"),
     ("beaconing",          "Beaconing"),

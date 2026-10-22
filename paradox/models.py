@@ -32,6 +32,7 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "ssh_brute_force": "high",
     "lateral_movement": "high",
     "ja3_malware": "high",
+    "ja3s_malware": "high",
     "script_download": "high",
     "yara_match": "high",
 

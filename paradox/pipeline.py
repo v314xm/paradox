@@ -19,6 +19,7 @@ from paradox.detectors.dns_tunneling import DNSTunnelingDetector
 from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
 from paradox.detectors.ip_check_service import IPCheckServiceDetector
 from paradox.detectors.ja3_malware import JA3MalwareDetector
+from paradox.detectors.ja3s_malware import JA3SMalwareDetector
 from paradox.detectors.large_transfer import LargeTransferDetector
 from paradox.detectors.lateral_movement import LateralMovementDetector
 from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
@@ -90,6 +91,7 @@ DETECTORS = [
     TyposquattingDetector(),
     SNIMismatchDetector(),
     JA3MalwareDetector(),
+    JA3SMalwareDetector(),
     BruteForceDetector(),
     FTPBruteForceDetector(),
     BeaconingDetector(),

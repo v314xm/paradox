@@ -63,6 +63,7 @@ _PHASE_BY_TYPE: dict[str, str] = {
     "cloud_tunnel": "c2",
     "cloud_tunnel_domain": "c2",
     "ja3_malware": "c2",
+    "ja3s_malware": "c2",
     "ip_check_service": "c2",
     "sni_without_dns": "c2",
     "sni_mismatch": "c2",

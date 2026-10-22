@@ -81,6 +81,17 @@ class Config:
         }),
     )
 
+    # JA3S (ServerHello fingerprint). Дополняет клиентский JA3.
+    # Публичных баз JA3S меньше, чем JA3, поэтому по умолчанию пусто:
+    # детектор молчит, но flow.ja3s виден в отчёте для ручного анализа.
+    # Пользователь добавляет свои хеши после валидации на реальных pcap.
+    ja3s_known_malware: Mapping[str, str] = field(
+        default_factory=lambda: MappingProxyType({}),
+    )
+    ja3s_known_tools: Mapping[str, str] = field(
+        default_factory=lambda: MappingProxyType({}),
+    )
+
     # --- command injection ---
     # Паттерны RCE в HTTP URI/body. Два уровня confidence.
     #

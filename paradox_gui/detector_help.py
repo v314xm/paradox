@@ -33,6 +33,10 @@ DETECTOR_HELP: dict[str, str] = {
     "ja3_malware":
         "Отпечаток TLS-клиента совпадает с базой malware: "
         "Cobalt Strike, Trickbot, Emotet.",
+    "ja3s_malware":
+        "Отпечаток TLS-сервера (ServerHello) совпадает с базой malware. "
+        "Cobalt Strike, Meterpreter и др. База по умолчанию пуста — "
+        "сигнал появится, если добавите свои JA3S-хеши в Config.",
     "brute_force":
         "Много HTTP-запросов к login-endpoint с одного источника. "
         "Подбор пароля через web-форму.",

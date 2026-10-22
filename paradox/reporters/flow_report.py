@@ -30,6 +30,8 @@ def _flow_to_dict(
         d["sni"] = sni
     if flow.ja3:
         d["ja3"] = flow.ja3
+    if flow.ja3s:
+        d["ja3s"] = flow.ja3s
     if flow.http_host:
         d["http_host"] = flow.http_host
     if flow.http_user_agent:
