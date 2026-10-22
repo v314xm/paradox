@@ -32,13 +32,22 @@ class PortScanDetector:
     def run(self, state: CaptureState, config: Config) -> list[Finding]:
         # (src_ip, dst_port) → Counter[dst_ip]
         scans: dict[tuple[str, int], Counter] = defaultdict(Counter)
+        # (src_ip, dst_port) → [first_ts, last_ts]
+        scan_ts: dict[tuple[str, int], list[float]] = defaultdict(
+            lambda: [float("inf"), 0.0]
+        )
 
-        for key, _flow in state.flows.items():
+        for key, flow in state.flows.items():
             if key.proto != "tcp":
                 continue
             if key.dst_port is None:
                 continue
-            scans[(key.src_ip, key.dst_port)][key.dst_ip] += 1
+            group = (key.src_ip, key.dst_port)
+            scans[group][key.dst_ip] += 1
+            if flow.first_ts is not None and flow.first_ts < scan_ts[group][0]:
+                scan_ts[group][0] = flow.first_ts
+            if flow.last_ts is not None and flow.last_ts > scan_ts[group][1]:
+                scan_ts[group][1] = flow.last_ts
 
         findings: list[Finding] = []
         for (src_ip, dst_port), dst_counts in scans.items():
@@ -66,6 +75,7 @@ class PortScanDetector:
             ]
 
             confidence = 0.9 if distinct_dsts >= 30 else 0.75
+            first_ts, last_ts = scan_ts[(src_ip, dst_port)]
             findings.append(Finding(
                 type="port_scan",
                 value=f"{src_ip} -> *:{dst_port}",
@@ -79,6 +89,10 @@ class PortScanDetector:
                     "top_dsts": top_dsts,
                     "threshold": config.port_scan_min_distinct_dsts,
                 },
+                first_seen=(
+                    first_ts if first_ts != float("inf") else None
+                ),
+                last_seen=last_ts or None,
             ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))
