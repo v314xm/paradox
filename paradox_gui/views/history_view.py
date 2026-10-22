@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
 from paradox_gui.storage import HistoryDB
 
 
@@ -86,14 +87,11 @@ class HistoryView(QWidget):
         outer.setContentsMargins(24, 24, 24, 24)
         outer.setSpacing(12)
 
-        title = QLabel("История")
+        title = QLabel(tr("history.title"))
         title.setObjectName("h1")  # QSS-стиль из theme.py
         outer.addWidget(title)
 
-        subtitle = QLabel(
-            "Прогоны текущей сессии. Клик по записи — детали справа. "
-            "История не сохраняется между запусками."
-        )
+        subtitle = QLabel(tr("history.subtitle"))
         subtitle.setObjectName("muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -130,8 +128,7 @@ class HistoryView(QWidget):
         # Плейсхолдер вместо пустого белого прямоугольника: понятнее,
         # что здесь появится после первого прогона.
         self._details.setHtml(
-            '<p style="color:#a0a0b0;">Прогонов пока нет. '
-            'Откройте pcap во вкладке «Прогон».</p>'
+            f'<p style="color:#a0a0b0;">{tr("history.empty")}</p>'
         )
         columns.addWidget(self._details, stretch=1)
 
@@ -141,7 +138,7 @@ class HistoryView(QWidget):
         # для диалогов: главное действие справа внизу.
         buttons = QHBoxLayout()
         buttons.addStretch(1)
-        clear_btn = QPushButton("Очистить историю")
+        clear_btn = QPushButton(tr("history.clear_button"))
         clear_btn.clicked.connect(self.clear)
         buttons.addWidget(clear_btn)
         outer.addLayout(buttons)
@@ -253,7 +250,7 @@ class HistoryView(QWidget):
         self._list.clear()
         self._db.clear()
         self._details.setHtml(
-            '<p style="color:#a0a0b0;">История очищена.</p>'
+            f'<p style="color:#a0a0b0;">{tr("history.cleared")}</p>'
         )
 
     # =========================================================================
@@ -306,24 +303,7 @@ class HistoryView(QWidget):
         _, report, _ = self._runs[row]
 
         menu = QMenu(self)
-        action_compare = menu.addAction("Сравнить с текущим прогоном…")
-        action_compare.triggered.connect(lambda: self.compare_requested.emit(report))
-        menu.exec(self._list.viewport().mapToGlobal(pos))
-
-    def _on_context_menu(self, pos) -> None:
-        """Правый клик по записи: меню действий."""
-        item = self._list.itemAt(pos)
-        if item is None:
-            return
-
-        row = self._list.row(item)
-        if row < 0 or row >= len(self._runs):
-            return
-
-        _, report, _ = self._runs[row]
-
-        menu = QMenu(self)
-        action_compare = menu.addAction("Сравнить с текущим прогоном…")
+        action_compare = menu.addAction(tr("history.ctx_compare"))
         action_compare.triggered.connect(lambda: self.compare_requested.emit(report))
         menu.exec(self._list.viewport().mapToGlobal(pos))
 

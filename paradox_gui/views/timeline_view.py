@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 
 class TimelineView(QWidget):
     def __init__(self, parent=None):
@@ -27,22 +29,22 @@ class TimelineView(QWidget):
         layout.setSpacing(10)
 
         header_layout = QHBoxLayout()
-        self.lbl_info = QLabel("Хронология инцидента по фазам Kill-Chain")
+        self.lbl_info = QLabel(tr("timeline.title"))
         self.lbl_info.setStyleSheet("font-size: 16px; font-weight: bold; color: #e0e0e0;")
         header_layout.addWidget(self.lbl_info)
         header_layout.addStretch()
 
         self.search_edit = QLineEdit()
-        self.search_edit.setPlaceholderText("Поиск по IP, типу или MITRE...")
+        self.search_edit.setPlaceholderText(tr("timeline.search_placeholder"))
         self.search_edit.setMinimumWidth(300)
         self.search_edit.textChanged.connect(self._apply_filter)
         header_layout.addWidget(self.search_edit)
 
-        self.btn_expand = QPushButton("Развернуть все")
+        self.btn_expand = QPushButton(tr("timeline.expand_all"))
         self.btn_expand.clicked.connect(lambda: self.tree.expandAll())
         header_layout.addWidget(self.btn_expand)
 
-        self.btn_collapse = QPushButton("Свернуть все")
+        self.btn_collapse = QPushButton(tr("timeline.collapse_all"))
         self.btn_collapse.clicked.connect(lambda: self.tree.collapseAll())
         header_layout.addWidget(self.btn_collapse)
 
@@ -72,7 +74,7 @@ class TimelineView(QWidget):
 
         self.details = QTextBrowser()
         self.details.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px;")
-        self.details.setHtml("<p style='color:#888;'>Кликните на событие, чтобы увидеть детали.</p>")
+        self.details.setHtml(f"<p style='color:#888;'>{tr('timeline.no_selection')}</p>")
         self.details.setMinimumWidth(350)
         splitter.addWidget(self.details)
 
@@ -83,10 +85,10 @@ class TimelineView(QWidget):
         self.tree.clear()
         timeline = report.get("timeline", [])
         if not timeline:
-            self.lbl_info.setText("Хронология инцидента (событий не найдено)")
+            self.lbl_info.setText(tr("timeline.no_events"))
             return
 
-        self.lbl_info.setText(f"Хронология инцидента (Событий: {len(timeline)})")
+        self.lbl_info.setText(tr("timeline.events_count", count=len(timeline)))
 
         phases = {}
         for e in timeline:
@@ -163,34 +165,34 @@ class TimelineView(QWidget):
     def _on_item_clicked(self, item: QTreeWidgetItem, column: int):
         data = item.data(0, Qt.ItemDataRole.UserRole)
         if not data:
-            self.details.setHtml("<p style='color:#888;'>Выбрана фаза. Кликните на конкретное событие.</p>")
+            self.details.setHtml(f"<p style='color:#888;'>{tr('timeline.phase_selected')}</p>")
             return
 
         html = f"<h2 style='color:#44aaff; margin-bottom:5px;'>{data.get('type', '?')}</h2>"
-        html += f"<p><b>Фаза:</b> {data.get('phase', '?')}</p>"
+        html += f"<p><b>{tr('timeline.phase_label')}</b> {data.get('phase', '?')}</p>"
 
         mitre = data.get('mitre_id')
         html += f"<p><b>MITRE:</b> {mitre if mitre else '—'}</p>"
 
         conf = data.get("confidence", 0)
         conf_color = "#ff4444" if conf >= 0.85 else "#ffaa00" if conf >= 0.7 else "#44aaff"
-        html += f"<p><b>Confidence:</b> <span style='color:{conf_color}; font-weight:bold;'>{conf:.2f}</span></p>"
+        html += f"<p><b>{tr('timeline.confidence_label')}</b> <span style='color:{conf_color}; font-weight:bold;'>{conf:.2f}</span></p>"
 
         reasons = data.get("confidence_reasons") or []
         if reasons:
-            html += "<h4 style='color:#aaa;'>Почему детектор так решил:</h4><ul>"
+            html += f"<h4 style='color:#aaa;'>{tr('timeline.reasons_label')}</h4><ul>"
             for r in reasons:
                 html += f"<li>{r}</li>"
             html += "</ul>"
 
         ev = data.get("evidence") or {}
         if ev:
-            html += "<h4 style='color:#aaa;'>Дополнительные данные (Evidence):</h4><ul>"
+            html += f"<h4 style='color:#aaa;'>{tr('timeline.evidence_label')}</h4><ul>"
             for k, v in ev.items():
                 html += f"<li><b>{k}:</b> {v}</li>"
             html += "</ul>"
 
-        html += f"<hr><h4 style='color:#aaa;'>Полное описание:</h4><p style='line-height:1.4;'>{data.get('description', '')}</p>"
+        html += f"<hr><h4 style='color:#aaa;'>{tr('timeline.description_label')}</h4><p style='line-height:1.4;'>{data.get('description', '')}</p>"
 
         self.details.setHtml(html)
 

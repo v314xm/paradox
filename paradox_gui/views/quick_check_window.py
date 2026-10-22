@@ -18,11 +18,12 @@ from PySide6.QtWidgets import (
 
 from paradox.integrations.cache import EnrichmentCache
 from paradox.integrations.registry import REGISTRY
+from paradox_gui.i18n import tr
 from paradox_gui.ioc_utils import detect_ioc_type, provider_link
 from paradox_gui.widgets.provider_card import ProviderCard
 from paradox_gui.workers.quick_check_worker import QuickCheckWorker
 
-_AUTO = "Авто"
+_AUTO_KEY = "quick_check.auto"
 _TYPES = ("ip", "domain", "url", "hash")
 
 
@@ -57,14 +58,11 @@ class QuickCheckWindow(QWidget):
         outer.setContentsMargins(16, 16, 16, 16)
         outer.setSpacing(10)
 
-        title = QLabel("Проверить IOC")
+        title = QLabel(tr("quick_check.title"))
         title.setObjectName("h1")
         outer.addWidget(title)
 
-        subtitle = QLabel(
-            "Введите IP, домен, URL или SHA256. Тип определится "
-            "автоматически. Опрошены будут все включённые провайдеры."
-        )
+        subtitle = QLabel(tr("quick_check.subtitle"))
         subtitle.setObjectName("muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -74,22 +72,20 @@ class QuickCheckWindow(QWidget):
         input_row.setSpacing(8)
 
         self._type_combo = QComboBox()
-        self._type_combo.addItem(_AUTO)
+        self._type_combo.addItem(tr(_AUTO_KEY))
         for t in _TYPES:
             self._type_combo.addItem(t)
         self._type_combo.setFixedWidth(110)
         input_row.addWidget(self._type_combo)
 
         self._ioc_input = QLineEdit()
-        self._ioc_input.setPlaceholderText(
-            "8.8.8.8 · evil.com · https://evil.com/x · <sha256>"
-        )
+        self._ioc_input.setPlaceholderText(tr("quick_check.input_placeholder"))
         self._ioc_input.setMinimumHeight(30)
         self._ioc_input.returnPressed.connect(self._on_check)
         self._ioc_input.textChanged.connect(self._on_input_changed)
         input_row.addWidget(self._ioc_input, stretch=1)
 
-        self._check_btn = QPushButton("Проверить")
+        self._check_btn = QPushButton(tr("quick_check.check_button"))
         self._check_btn.setObjectName("primary")
         self._check_btn.setMinimumHeight(30)
         self._check_btn.setMinimumWidth(140)
@@ -101,13 +97,13 @@ class QuickCheckWindow(QWidget):
         # --- IOC из последнего прогона ---
         from_row = QHBoxLayout()
         from_row.setSpacing(8)
-        from_lbl = QLabel("Из последнего прогона:")
+        from_lbl = QLabel(tr("quick_check.from_last_run"))
         from_lbl.setObjectName("muted")
         from_row.addWidget(from_lbl)
 
         self._ioc_combo = QComboBox()
         self._ioc_combo.setMinimumWidth(420)
-        self._ioc_combo.addItem("— нет данных —")
+        self._ioc_combo.addItem(tr("quick_check.no_data"))
         self._ioc_combo.setEnabled(False)
         self._ioc_combo.currentIndexChanged.connect(
             self._on_ioc_combo_changed,
@@ -162,10 +158,10 @@ class QuickCheckWindow(QWidget):
     def _refresh_ioc_combo(self) -> None:
         self._ioc_combo.blockSignals(True)
         self._ioc_combo.clear()
-        self._ioc_combo.addItem("— выберите IOC —", userData=None)
+        self._ioc_combo.addItem(tr("quick_check.select_ioc"), userData=None)
 
         if not self._report or not isinstance(self._report, dict):
-            self._ioc_combo.addItem("— нет данных (запустите прогон) —")
+            self._ioc_combo.addItem(tr("quick_check.no_run"))
             self._ioc_combo.setEnabled(False)
             self._ioc_combo.blockSignals(False)
             return
@@ -180,7 +176,7 @@ class QuickCheckWindow(QWidget):
             iocs = []
 
         if not iocs:
-            self._ioc_combo.addItem("— в прогоне нет IOC —")
+            self._ioc_combo.addItem(tr("quick_check.no_iocs"))
             self._ioc_combo.setEnabled(False)
             self._ioc_combo.blockSignals(False)
             return
@@ -212,15 +208,15 @@ class QuickCheckWindow(QWidget):
     def _on_input_changed(self, text: str) -> None:
         t = detect_ioc_type(text)
         if t:
-            self._type_hint.setText(f"Определён тип: {t}")
+            self._type_hint.setText(tr("quick_check.type_detected", type=t))
         elif text.strip():
-            self._type_hint.setText("Тип не определён — выберите вручную")
+            self._type_hint.setText(tr("quick_check.type_unknown"))
         else:
             self._type_hint.setText("")
 
     def _resolve_type(self) -> str | None:
         cur = self._type_combo.currentText()
-        if cur != _AUTO:
+        if cur != tr(_AUTO_KEY):
             return cur
         return detect_ioc_type(self._ioc_input.text())
 
@@ -235,9 +231,8 @@ class QuickCheckWindow(QWidget):
         ioc_type = self._resolve_type()
         if ioc_type is None:
             QMessageBox.warning(
-                self, "Тип не определён",
-                "Не удалось автоматически определить тип IOC. "
-                "Выберите тип в выпадающем списке.",
+                self, tr("quick_check.warning_type"),
+                tr("quick_check.warning_type_body"),
             )
             return
 
@@ -259,9 +254,8 @@ class QuickCheckWindow(QWidget):
 
         if not providers:
             QMessageBox.information(
-                self, "Нет провайдеров",
-                f"Ни один провайдер не поддерживает тип «{ioc_type}». "
-                f"Проверьте Настройки → Threat Intel.",
+                self, tr("quick_check.no_providers"),
+                tr("quick_check.no_providers_body", type=ioc_type),
             )
             return
 
@@ -275,7 +269,8 @@ class QuickCheckWindow(QWidget):
         self._clear_results()
         self._set_busy(True)
         self._status.setText(
-            f"Опрос {len(providers)} провайдеров для {ioc} ({ioc_type})…"
+            tr("quick_check.querying",
+               count=len(providers), ioc=ioc, type=ioc_type)
         )
 
         self._worker = QuickCheckWorker(
@@ -291,7 +286,7 @@ class QuickCheckWindow(QWidget):
     def _on_done(self, results: dict, ioc: str, ioc_type: str) -> None:
         self._set_busy(False)
         if not results:
-            self._status.setText("Ни один провайдер не ответил.")
+            self._status.setText(tr("quick_check.no_results"))
             return
 
         # Сортировка: сначала «плохие», потом warn, info, clean, empty, error.
@@ -312,12 +307,12 @@ class QuickCheckWindow(QWidget):
             )
 
         self._status.setText(
-            f"Готово: {len(results)} провайдеров ответили для {ioc}."
+            tr("quick_check.done", count=len(results), ioc=ioc)
         )
 
     def _on_failed(self, msg: str) -> None:
         self._set_busy(False)
-        self._status.setText(f"Ошибка: {msg}")
+        self._status.setText(tr("quick_check.error", msg=msg))
 
     def _on_thread_done(self) -> None:
         w = self._worker
