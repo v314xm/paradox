@@ -314,7 +314,10 @@ class RunView(QWidget):
 
         # Компактный drop zone после успешного прогона.
         if len(self._current_paths) > 1:
-            self.drop_zone.set_compact(f"[multi] {len(self._current_paths)} файлов")
+            self.drop_zone.set_compact(
+                "",
+                display_name=f"[multi] {len(self._current_paths)} файлов",
+            )
         elif self._current_path:
             self.drop_zone.set_compact(self._current_path)
 

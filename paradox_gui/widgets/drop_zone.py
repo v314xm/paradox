@@ -97,14 +97,17 @@ class DropZone(QFrame):
 
     # ---------- компактный режим ----------
 
-    def set_compact(self, path: str) -> None:
+    def set_compact(self, path: str, display_name: str | None = None) -> None:
         """Схлопнуть зону в одну строку после успешного прогона.
 
         Освобождает ~120px по вертикали. Drag&drop и клик остаются
         рабочими: пользователь по-прежнему может перетащить новый файл
         или кликнуть, чтобы открыть диалог.
+
+        display_name — переопределяет отображаемое имя (для multi-pcap).
+        Если не задано, берётся basename из path.
         """
-        name = Path(path).name
+        name = display_name or Path(path).name
         self._icon.hide()
         self._title.setText(f"📄 {name}")
         self._title.setStyleSheet("font-size: 14px;")

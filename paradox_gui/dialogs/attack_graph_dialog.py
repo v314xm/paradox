@@ -554,12 +554,17 @@ class AttackGraphDialog(QDialog):
                 label = n["ip"]
                 if n.get("is_pivot"):
                     label += "\n(PIVOT)"
-                lines.append(f'  "{n["ip"]}" [fillcolor="{color}", label="{label}"];')
+                safe_label = label.replace('"', '\\"')
+                safe_ip = n["ip"].replace('"', '\\"')
+                lines.append(f'  "{safe_ip}" [fillcolor="{color}", label="{safe_label}"];')
 
             for e in self._edges:
                 color = _PHASE_COLOR.get(e.get("phase", "other"), "#5a5a6a")
                 label = ", ".join(e.get("finding_types", []))
-                lines.append(f'  "{e["src"]}" -> "{e["dst"]}" [label="{label}", color="{color}"];')
+                safe_label = label.replace('"', '\\"')
+                safe_src = e["src"].replace('"', '\\"')
+                safe_dst = e["dst"].replace('"', '\\"')
+                lines.append(f'  "{safe_src}" -> "{safe_dst}" [label="{safe_label}", color="{color}"];')
             lines.append("}")
             Path(path).write_text("\n".join(lines), encoding="utf-8")
             QMessageBox.information(self, "Экспорт DOT", f"Успешно сохранено:\n{path}")
