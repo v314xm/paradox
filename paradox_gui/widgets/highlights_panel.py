@@ -6,6 +6,8 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
+from paradox_gui.i18n import tr
+
 
 def _fmt_bytes(n: int) -> str:
     for unit in ("B", "KB", "MB", "GB", "TB"):
@@ -29,7 +31,7 @@ class HighlightsPanel(QFrame):
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(4)
 
-        title = QLabel("Что привлекло внимание")
+        title = QLabel(tr("high.title"))
         title.setStyleSheet(
             "color: #e0e0e0; font-size: 14px; font-weight: 600;"
         )

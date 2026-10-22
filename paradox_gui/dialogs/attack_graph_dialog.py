@@ -26,6 +26,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 _PHASE_COLOR = {
     "recon": "#5a7ab8", "initial_access": "#c060d0",
     "execution": "#e08040", "persistence": "#e08040",
@@ -78,7 +80,7 @@ class AttackGraphDialog(QDialog):
         self._selected_edges: set[tuple[str, str]] | None = None
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._on_play_tick)
-        self.setWindowTitle("Граф атаки")
+        self.setWindowTitle(tr("atk.title"))
         self._build()
         self._draw()
         if self._paths:
@@ -97,7 +99,7 @@ class AttackGraphDialog(QDialog):
         left = QWidget()
         lv = QVBoxLayout(left)
         lv.setContentsMargins(8, 8, 8, 8)
-        lbl = QLabel(f"Пути атаки ({len(self._paths)})")
+        lbl = QLabel(tr("atk.paths", count=len(self._paths)))
         lbl.setStyleSheet("font-weight: 600; font-size: 14px;")
         lv.addWidget(lbl)
         self._path_list = QListWidget()
@@ -124,18 +126,18 @@ class AttackGraphDialog(QDialog):
         legend_layout = QHBoxLayout()
         legend_layout.setContentsMargins(8, 4, 8, 4)
         legend_layout.setSpacing(16)
-        legend_layout.addWidget(QLabel("<b>Легенда:</b>"))
+        legend_layout.addWidget(QLabel(tr("atk.legend")))
 
         def _lbl(color, text):
             return QLabel(f"<span style='color:{color}; font-size:18px;'>●</span> {text}")
 
-        legend_layout.addWidget(_lbl("#40c040", "Вход / Жертва"))
-        legend_layout.addWidget(_lbl("#e0a040", "Pivot (Скомпрометирован)"))
-        legend_layout.addWidget(_lbl("#e04040", "Impact / C2 (Цель)"))
+        legend_layout.addWidget(_lbl("#40c040", tr("atk.legend_entry")))
+        legend_layout.addWidget(_lbl("#e0a040", tr("atk.legend_pivot")))
+        legend_layout.addWidget(_lbl("#e04040", tr("atk.legend_impact")))
         legend_layout.addSpacing(24)
-        legend_layout.addWidget(QLabel("<span style='color:#a0a0b0;'>Линии: цвет = фаза kill-chain</span>"))
+        legend_layout.addWidget(QLabel(f"<span style='color:#a0a0b0;'>{tr('atk.legend_lines')}</span>"))
         legend_layout.addStretch(1)
-        legend_layout.addWidget(QLabel("<i style='color:#808090; font-size:11px;'>Колесико мыши — масштаб | Зажать ЛКМ — перемещение</i>"))
+        legend_layout.addWidget(QLabel(f"<i style='color:#808090; font-size:11px;'>{tr('atk.legend_zoom')}</i>"))
 
         center_layout.addLayout(legend_layout)
         center_layout.addWidget(self._view, stretch=1)
@@ -144,7 +146,7 @@ class AttackGraphDialog(QDialog):
         timeline_row = QHBoxLayout()
         timeline_row.setContentsMargins(0, 10, 0, 10)
 
-        self._btn_play = QPushButton("\u25b6 \u0412\u043e\u0441\u043f\u0440\u043e\u0438\u0437\u0432\u0435\u0441\u0442\u0438")
+        self._btn_play = QPushButton(f"\u25b6 {tr('atk.play')}")
         self._btn_play.setFixedWidth(160)
         self._btn_play.clicked.connect(self._toggle_play)
         timeline_row.addWidget(self._btn_play)
@@ -167,7 +169,7 @@ class AttackGraphDialog(QDialog):
         right = QWidget()
         rv = QVBoxLayout(right)
         rv.setContentsMargins(8, 8, 8, 8)
-        r_lbl = QLabel("\u0414\u0435\u0442\u0430\u043b\u0438 \u043f\u0443\u0442\u0438")
+        r_lbl = QLabel(tr("atk.details"))
         r_lbl.setStyleSheet("font-weight: 600; font-size: 14px;")
         rv.addWidget(r_lbl)
         self._details = QTextBrowser()
@@ -184,7 +186,7 @@ class AttackGraphDialog(QDialog):
 
         # --- Кнопка закрыть ---
         btn_row = QHBoxLayout()
-        btn_row.addWidget(QLabel("<b>Экспорт:</b>"))
+        btn_row.addWidget(QLabel(tr("atk.export")))
         btn_png = QPushButton("PNG")
         btn_png.clicked.connect(self._export_png)
         btn_row.addWidget(btn_png)
@@ -195,7 +197,7 @@ class AttackGraphDialog(QDialog):
         btn_gml.clicked.connect(self._export_graphml)
         btn_row.addWidget(btn_gml)
         btn_row.addStretch(1)
-        btn = QPushButton("\u0417\u0430\u043a\u0440\u044b\u0442\u044c")
+        btn = QPushButton(tr("atk.close"))
         btn.setObjectName("primary")
         btn.clicked.connect(self.accept)
         btn_row.addWidget(btn)
@@ -212,7 +214,7 @@ class AttackGraphDialog(QDialog):
 
     def _draw(self):
         if not self._nodes:
-            text = QGraphicsTextItem("Нет данных об атаке — findings не образовали связей.")
+            text = QGraphicsTextItem(tr("atk.empty"))
             text.setDefaultTextColor(QColor("#a0a0b0"))
             self._scene.addItem(text)
             return
@@ -497,19 +499,19 @@ class AttackGraphDialog(QDialog):
     def _toggle_play(self):
         if self._play_timer.isActive():
             self._play_timer.stop()
-            self._btn_play.setText("▶ Воспроизвести")
+            self._btn_play.setText(f"▶ {tr('atk.play')}")
         else:
             if self._time_slider.value() >= 1000:
                 self._time_slider.setValue(0)
             self._play_timer.start(50)  # каждые 50 мс
-            self._btn_play.setText("⏸ Пауза")
+            self._btn_play.setText(f"⏸ {tr('atk.pause')}")
 
     def _on_play_tick(self):
         val = self._time_slider.value() + 5
         if val >= 1000:
             val = 1000
             self._play_timer.stop()
-            self._btn_play.setText("▶ Воспроизвести")
+            self._btn_play.setText(f"▶ {tr('atk.play')}")
         self._time_slider.setValue(val)
 
     def _export_png(self):

@@ -25,6 +25,7 @@ from paradox_gui.dialogs.contradiction_dialog import ContradictionDialog
 from paradox_gui.dialogs.finding_dialog import FindingDialog
 from paradox_gui.dialogs.graph_dialog import GraphDialog
 from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
+from paradox_gui.i18n import tr
 from paradox_gui.widgets.absence_panel import AbsencePanel
 from paradox_gui.widgets.contradictions_section import ContradictionsSection
 from paradox_gui.widgets.drop_zone import DropZone
@@ -102,7 +103,7 @@ class RunView(QWidget):
         from PySide6.QtWidgets import QPushButton as _QBtn
         multi_row = _QH()
         multi_row.setContentsMargins(0, 0, 0, 0)
-        self.btn_multi_pcap = _QBtn("Открыть несколько pcap для слияния…")
+        self.btn_multi_pcap = _QBtn(tr("run.multi_pcap"))
         self.btn_multi_pcap.setToolTip(
             "Выбрать 2+ pcap файла — они будут склеены в один датасет.\n"
             "Beaconing, DGA и slow-scan детекторы увидят длинный горизонт."
@@ -127,7 +128,7 @@ class RunView(QWidget):
         progress_row.addWidget(self.progress, stretch=1)
 
         # >>> ОСТАНОВКА <<<
-        self.stop_btn = QPushButton("Остановить")
+        self.stop_btn = QPushButton(tr("run.stop"))
         self.stop_btn.setObjectName("danger")
         self.stop_btn.setVisible(False)
         self.stop_btn.clicked.connect(self.stop_analysis)
@@ -155,31 +156,31 @@ class RunView(QWidget):
 
         # --- Findings ---
         findings_header = QHBoxLayout()
-        lbl_findings = QLabel("Находки (Findings)")
+        lbl_findings = QLabel(tr("run.findings"))
         lbl_findings.setObjectName("h1")
         findings_header.addWidget(lbl_findings)
         findings_header.addStretch(1)
 
-        self.btn_graph = QPushButton("Граф связей")
+        self.btn_graph = QPushButton(tr("run.graph"))
         self.btn_graph.setEnabled(False)
         self.btn_graph.clicked.connect(self._on_graph_clicked)
         findings_header.addWidget(self.btn_graph)
 
-        self.btn_attack_graph = QPushButton("Граф атаки")
+        self.btn_attack_graph = QPushButton(tr("run.attack_graph"))
         self.btn_attack_graph.setEnabled(False)
         self.btn_attack_graph.clicked.connect(self._on_attack_graph_clicked)
         findings_header.addWidget(self.btn_attack_graph)
 
-        self.btn_carved = QPushButton("Файлы")
+        self.btn_carved = QPushButton(tr("run.files"))
         self.btn_carved.setEnabled(False)
         self.btn_carved.clicked.connect(self._on_carved_clicked)
         findings_header.addWidget(self.btn_carved)
 
-        self.btn_what_if = QPushButton("What-If (Исключить)")
+        self.btn_what_if = QPushButton(tr("run.what_if"))
         self.btn_what_if.setEnabled(False)
         self.btn_what_if.clicked.connect(self._on_what_if_clicked)
 
-        self.btn_reset_filter = QPushButton("Сбросить фильтр")
+        self.btn_reset_filter = QPushButton(tr("run.reset_filter"))
         self.btn_reset_filter.setVisible(False)
         self.btn_reset_filter.clicked.connect(self._on_reset_what_if)
 
@@ -193,7 +194,7 @@ class RunView(QWidget):
         layout.addWidget(self.findings, stretch=1)
 
         # --- Статус-строка внизу ---
-        self.status_label = QLabel("Файл не выбран.")
+        self.status_label = QLabel(tr("run.no_file"))
         self.status_label.setObjectName("muted")
         layout.addWidget(self.status_label)
 
@@ -223,8 +224,8 @@ class RunView(QWidget):
         if len(paths) < 2:
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.information(
-                self, "Нужно 2+ файла",
-                "Выбран 1 файл. Для одиночного анализа — перетащите его в зону выше.",
+                self, tr("run.multi_warning_title"),
+                tr("run.multi_warning_body"),
             )
             return
         self._current_paths = list(paths)
@@ -300,11 +301,12 @@ class RunView(QWidget):
         self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
 
-        self.status_label.setText(
-            f"Готово · {s.get('findings', 0)} findings · "
-            f"{s.get('contradictions', 0)} противоречий · "
-            f"{s.get('duration_sec', 0):.1f} сек"
-        )
+        self.status_label.setText(tr(
+            "run.done",
+            findings=s.get('findings', 0),
+            contradictions=s.get('contradictions', 0),
+            duration=s.get('duration_sec', 0),
+        ))
         self.toasts.show(
             f"Готово: {s.get('findings', 0)} findings · "
             f"{s.get('contradictions', 0)} противоречий",
@@ -352,15 +354,16 @@ class RunView(QWidget):
         )
         self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
-        self.status_label.setText(
-            f"Загружено · {s.get('findings', 0)} findings · "
-            f"{s.get('contradictions', 0)} противоречий"
-        )
+        self.status_label.setText(tr(
+            "run.loaded",
+            findings=s.get('findings', 0),
+            contradictions=s.get('contradictions', 0),
+        ))
         self._set_busy(False)
 
     def _on_error(self, msg: str) -> None:
         self._stop_requested = False
-        self.status_label.setText(f"Ошибка: {msg}")
+        self.status_label.setText(tr("run.error", msg=msg))
         self.toasts.show(f"Ошибка: {msg}", "error")
         QMessageBox.critical(self, "Ошибка анализа", msg)
         self.analysis_failed.emit(msg)
@@ -397,10 +400,10 @@ class RunView(QWidget):
             speed_mbs = (bytes_read / elapsed) / (1024 * 1024)
             remaining = max(0.0, (total - bytes_read) / (bytes_read / elapsed))
             self.status_label.setText(
-                f"Извлечение · {pct}% · {speed_mbs:.1f} МБ/с · ~{remaining:.0f} с"
+                tr("run.extracting_speed", pct=pct, speed=speed_mbs, remaining=remaining)
             )
         else:
-            self.status_label.setText(f"Извлечение · {pct}%")
+            self.status_label.setText(tr("run.extracting", pct=pct))
 
     def _on_phase(self, name: str, done: int, total: int,
                   detail: str = "") -> None:
@@ -411,19 +414,19 @@ class RunView(QWidget):
         pct = self._map_phase(name, done, total)
         self.progress.setValue(pct)
         if name == "detect":
-            label = f"Детекторы · {done}/{total}"
             if detail:
-                label += f" · {detail}"
-            self.status_label.setText(label)
+                self.status_label.setText(tr("run.detecting_detail", done=done, total=total, detail=detail))
+            else:
+                self.status_label.setText(tr("run.detecting", done=done, total=total))
         elif name == "contradictions":
-            self.status_label.setText("Противоречия…")
+            self.status_label.setText(tr("run.contradictions"))
         elif name == "report":
-            self.status_label.setText("Отчёты…")
+            self.status_label.setText(tr("run.reports"))
 
     def _on_cancelled(self) -> None:
         """Пользователь остановил прогон. Не ошибка."""
         self._stop_requested = False
-        self.status_label.setText("Остановлено пользователем")
+        self.status_label.setText(tr("run.cancelled"))
         self.analysis_cancelled.emit()
 
     def _on_contra_details(self, contra: dict) -> None:

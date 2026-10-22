@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.i18n import tr
+
 # Иконки severity — Unicode, без внешних ресурсов. Прототип использует
 # те же цвета (красный/оранжевый/жёлтый/зелёный).
 _SEVERITY_ICON = {
@@ -117,7 +119,7 @@ class ContradictionCard(QFrame):
         v.setSpacing(3)
 
         if not facts:
-            empty = QLabel("Фактов нет.")
+            empty = QLabel(tr("contra.card_no_facts"))
             empty.setObjectName("muted")
             v.addWidget(empty)
         else:
@@ -162,7 +164,7 @@ class ContradictionCard(QFrame):
     def _build_footer(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.addStretch(1)
-        btn = QPushButton("Подробнее")
+        btn = QPushButton(tr("contra.card_details"))
         btn.setObjectName("small")
         btn.clicked.connect(lambda: self.details_requested.emit(self._contra))
         row.addWidget(btn)

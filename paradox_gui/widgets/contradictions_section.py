@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
 from paradox_gui.widgets.contradiction_card import ContradictionCard
 
 
@@ -42,7 +43,7 @@ class ContradictionsSection(QFrame):
         layout.setSpacing(8)
 
         header = QHBoxLayout()
-        title = QLabel("Противоречия")
+        title = QLabel(tr("contra.section_title"))
         title.setObjectName("h1")
         self._count_label = QLabel("")
         self._count_label.setObjectName("muted")

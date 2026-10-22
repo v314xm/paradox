@@ -10,6 +10,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 
 class AbsencePanel(QFrame):
     def __init__(self, parent=None):
@@ -23,7 +25,7 @@ class AbsencePanel(QFrame):
         layout.setContentsMargins(16, 14, 16, 14)
         layout.setSpacing(10)
 
-        title = QLabel("Аномалии / Оборванные сессии")
+        title = QLabel(tr("abs.title"))
         title.setObjectName("h1")
         layout.addWidget(title)
 
@@ -38,7 +40,7 @@ class AbsencePanel(QFrame):
         self.table_dns.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table_dns.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         vbox_dns.addWidget(self.table_dns)
-        self.tabs.addTab(self.tab_dns, "DNS без ответа")
+        self.tabs.addTab(self.tab_dns, tr("abs.dns"))
 
         # Вкладка 2: TCP без ответа
         self.tab_tcp = QWidget()
@@ -49,7 +51,7 @@ class AbsencePanel(QFrame):
         self.table_tcp.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table_tcp.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         vbox_tcp.addWidget(self.table_tcp)
-        self.tabs.addTab(self.tab_tcp, "TCP без ответа (SYN)")
+        self.tabs.addTab(self.tab_tcp, tr("abs.tcp"))
 
         layout.addWidget(self.tabs)
 

@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.i18n import tr
+
 
 class DropZone(QFrame):
     pcap_selected = Signal(str)  # абсолютный путь к файлу
@@ -44,10 +46,10 @@ class DropZone(QFrame):
             self._icon.setStyleSheet("font-size: 32px;")
             self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self._title = QLabel("Перетащите pcap сюда")
+        self._title = QLabel(tr("run.drop_title"))
         self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self._hint = QLabel("или нажмите, чтобы выбрать файл · Ctrl+O")
+        self._hint = QLabel(tr("run.drop_hint"))
         self._hint.setObjectName("muted")
         self._hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -66,9 +68,9 @@ class DropZone(QFrame):
         """Открыть QFileDialog. Публичный метод — дёргается из меню Ctrl+O."""
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Открыть pcap",
+            tr("run.open_pcap_dialog"),
             "",
-            "Packet captures (*.pcap *.pcapng *.cap);;Все файлы (*)",
+            "Packet captures (*.pcap *.pcapng *.cap);;All files (*)",
         )
         if path:
             self._emit_selected(path)

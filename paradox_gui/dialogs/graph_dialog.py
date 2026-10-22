@@ -24,6 +24,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 # Попытка импортировать диалог истории хоста
 try:
     from paradox.analyzers.story import build_host_story
@@ -123,7 +125,7 @@ class InteractiveEdge(QGraphicsPathItem):
 class GraphDialog(QDialog):
     def __init__(self, report: dict, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Граф связей (Pro)")
+        self.setWindowTitle(tr("graph.title"))
         self.resize(1300, 850)
         self.report = report or {}
 
@@ -146,11 +148,11 @@ class GraphDialog(QDialog):
 
         # Панель фильтров
         filter_layout = QHBoxLayout()
-        self.cb_only_findings = QCheckBox("Только сработки (Findings)")
+        self.cb_only_findings = QCheckBox(tr("graph.only_findings"))
         self.cb_only_findings.stateChanged.connect(self._redraw_graph)
         filter_layout.addWidget(self.cb_only_findings)
 
-        self.cb_hide_isolated = QCheckBox("Скрыть изолированные узлы")
+        self.cb_hide_isolated = QCheckBox(tr("graph.hide_isolated"))
         self.cb_hide_isolated.stateChanged.connect(self._redraw_graph)
         filter_layout.addWidget(self.cb_hide_isolated)
 
@@ -163,7 +165,7 @@ class GraphDialog(QDialog):
 
         # Панель времени
         time_layout = QHBoxLayout()
-        self.lbl_time = QLabel("Время: —")
+        self.lbl_time = QLabel(tr("graph.time"))
         self.lbl_time.setStyleSheet("color: #44aaff; font-weight: bold;")
         time_layout.addWidget(self.lbl_time)
 
@@ -183,25 +185,25 @@ class GraphDialog(QDialog):
 
         self.info_panel = QTextBrowser()
         self.info_panel.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px;")
-        self.info_panel.setHtml("<p style='color:#888;'>Кликните на узел, чтобы увидеть хронологию.<br>Двойной клик — открыть История хоста.</p>")
+        self.info_panel.setHtml(f"<p style='color:#888;'>{tr('graph.tip')}<br>Двойной клик — открыть {tr('story.title', ip='...')}.</p>")
         right_layout.addWidget(self.info_panel)
 
         legend = QLabel(
-            "<b>Легенда:</b><br>"
-            "<span style='color:#ff4444;'>●</span> Атакующий / Pivot<br>"
-            "<span style='color:#ffaa00;'>●</span> Жертва<br>"
-            "<span style='color:#44aaff;'>●</span> Внутренний<br>"
-            "<span style='color:#888888;'>●</span> Внешний<br>"
-            "<span style='color:#555555;'>●</span> Подсеть / Другие<br>"
-            "<span style='color:#ff4444;'>- - -</span> Finding (Сработка)<br>"
+            f"{tr('graph.legend_title')}<br>"
+            f"<span style='color:#ff4444;'>●</span> {tr('graph.legend_attacker')}<br>"
+            f"<span style='color:#ffaa00;'>●</span> {tr('graph.legend_victim')}<br>"
+            f"<span style='color:#44aaff;'>●</span> {tr('graph.legend_internal')}<br>"
+            f"<span style='color:#888888;'>●</span> {tr('graph.legend_external')}<br>"
+            f"<span style='color:#555555;'>●</span> {tr('graph.legend_subnet')}<br>"
+            f"<span style='color:#ff4444;'>- - -</span> {tr('graph.legend_finding')}<br>"
         )
         legend.setStyleSheet("color: #a0a0b0; font-size: 11px; margin-top: 10px;")
         right_layout.addWidget(legend)
 
         btn_row = QHBoxLayout()
-        btn_reset = QPushButton("Сброс")
+        btn_reset = QPushButton(tr("graph.reset"))
         btn_reset.clicked.connect(self.reset_highlight)
-        btn_close = QPushButton("Закрыть")
+        btn_close = QPushButton(tr("graph.close"))
         btn_close.setObjectName("primary")
         btn_close.clicked.connect(self.accept)
         btn_row.addWidget(btn_reset)

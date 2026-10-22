@@ -8,6 +8,8 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
+from paradox_gui.i18n import tr
+
 
 class _MetricRow(QFrame):
     def __init__(self, label: str):
@@ -47,7 +49,7 @@ class ObservationsPanel(QFrame):
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(2)
 
-        title = QLabel("Что видел инструмент")
+        title = QLabel(tr("obs.title"))
         title.setStyleSheet(
             "color: #e0e0e0; font-size: 14px; font-weight: 600;"
         )

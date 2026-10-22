@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.i18n import tr
+
 # Колонки: (заголовок, ширина по умолчанию в пикселях, растягивать?)
 _COLUMNS = (
     ("Тип",         180, False),
@@ -197,10 +199,10 @@ class FindingsTable(QFrame):
         dst = f.get("dst_ip")
 
         if src:
-            act_src = menu.addAction(f"История хоста (src): {src}")
+            act_src = menu.addAction(tr("find.host_story_src", ip=src))
             act_src.triggered.connect(lambda: self.host_story_requested.emit(src))
         if dst:
-            act_dst = menu.addAction(f"История хоста (dst): {dst}")
+            act_dst = menu.addAction(tr("find.host_story_dst", ip=dst))
             act_dst.triggered.connect(lambda: self.host_story_requested.emit(dst))
 
         if src or dst:
@@ -225,7 +227,7 @@ class FindingsTable(QFrame):
         bar.setSpacing(8)
 
         self._search = QLineEdit()
-        self._search.setPlaceholderText("Поиск по value / типу / MITRE…")
+        self._search.setPlaceholderText(tr("find.search_placeholder"))
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(lambda: self._search_timer.start())
         bar.addWidget(self._search, stretch=1)
@@ -237,7 +239,7 @@ class FindingsTable(QFrame):
 
         self._conf_filter = QComboBox()
         self._conf_filter.setMinimumWidth(100)
-        self._conf_filter.addItem("Conf: все", None)
+        self._conf_filter.addItem(tr("find.all_conf"), None)
         self._conf_filter.addItem("Conf ≥ 0.5", 0.5)
         self._conf_filter.addItem("Conf ≥ 0.7", 0.7)
         self._conf_filter.addItem("Conf ≥ 0.85", 0.85)
@@ -269,7 +271,7 @@ class FindingsTable(QFrame):
         current = self._type_filter.currentData()
         self._type_filter.blockSignals(True)
         self._type_filter.clear()
-        self._type_filter.addItem("Все типы", None)
+        self._type_filter.addItem(tr("find.all_types"), None)
         types = sorted({str(f.get("type", "")) for f in self._findings_cache if f.get("type")})
         for t in types:
             self._type_filter.addItem(t, t)

@@ -9,11 +9,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.i18n import tr
+
 
 class HostStoryDialog(QDialog):
     def __init__(self, ip: str, story: dict, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(f"История хоста: {ip}")
+        self.setWindowTitle(tr("story.title", ip=ip))
         self.resize(700, 600)
         self._build_ui(story)
 
@@ -26,13 +28,13 @@ class HostStoryDialog(QDialog):
         events = story.get("events", [])
         summary = story.get("summary", {})
 
-        html = f"<h2>Хронология для {story.get('target_ip', '?')}</h2>"
-        html += f"<p><b>Всего событий:</b> {summary.get('total_events', 0)} "
-        html += f"| <b>Находок:</b> {summary.get('findings_count', 0)} "
-        html += f"| <b>Потоков:</b> {summary.get('flows_count', 0)}</p><hr>"
+        html = f"<h2>{tr('story.timeline', ip=story.get('target_ip', '?'))}</h2>"
+        html += f"<p><b>{tr('story.total')}</b> {summary.get('total_events', 0)} "
+        html += f"| <b>{tr('story.findings')}</b> {summary.get('findings_count', 0)} "
+        html += f"| <b>{tr('story.flows')}</b> {summary.get('flows_count', 0)}</p><hr>"
 
         if not events:
-            html += "<p style='color:#a0a0b0;'>Событий для этого IP не найдено.</p>"
+            html += f"<p style='color:#a0a0b0;'>{tr('story.empty')}</p>"
         else:
             html += "<ul style='line-height: 1.6;'>"
             for ev in events:
@@ -62,7 +64,7 @@ class HostStoryDialog(QDialog):
 
         btn_row = QHBoxLayout()
         btn_row.addStretch()
-        btn_close = QPushButton("Закрыть")
+        btn_close = QPushButton(tr("story.close"))
         btn_close.setObjectName("primary")
         btn_close.clicked.connect(self.accept)
         btn_row.addWidget(btn_close)
