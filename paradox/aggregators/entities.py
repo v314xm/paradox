@@ -298,11 +298,17 @@ def build_entities(
 
             if ftype in ("brute_force", "vulnerable_path",
                          "ftp_brute_force", "ssh_brute_force",
-                         "command_injection",
-                         "port_scan", "web_scanner"):
+                         "command_injection"):
                 # src = атакующий, dst = цель
                 if side == "src":
                     tags.add("attacker_tag")
+                else:
+                    tags.add("victim_tag")
+            elif ftype in ("port_scan", "web_scanner"):
+                # Сканеры выделяем в отдельную роль: это разведка.
+                if side == "src":
+                    tags.add("attacker_tag")
+                    tags.add("scanner_tag")
                 else:
                     tags.add("victim_tag")
 
@@ -430,6 +436,10 @@ def build_entities(
                 ent.roles.append("attacker_candidate")
             if has_findings:
                 ent.roles.append("c2_candidate")
+
+        # Сканеры (port_scan, web_scanner) — метка поверх базовой роли.
+        if "scanner_tag" in tags:
+            ent.roles.append("scanner_candidate")
 
     # --- сортировка и разделение ---
     internal = sorted(

@@ -91,10 +91,11 @@ class AttackEdge:
     confidence: float = 0.5
     first_ts: float = 0.0
     last_ts: float = 0.0
+    weight: float = 1.0
 
     @property
     def score(self) -> float:
-        return SEVERITY_WEIGHT.get(self.severity, 0.5) * self.confidence
+        return SEVERITY_WEIGHT.get(self.severity, 0.5) * self.confidence * self.weight
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -103,6 +104,7 @@ class AttackEdge:
             "phase": self.phase, "phase_order": self.phase_order,
             "severity": self.severity, "confidence": round(self.confidence, 3),
             "first_ts": self.first_ts, "last_ts": self.last_ts,
+            "weight": round(self.weight, 2),
         }
 
 
@@ -179,12 +181,14 @@ def _build_edges(findings: list[Finding]) -> list[AttackEdge]:
 
     edges: list[AttackEdge] = []
     for (src, dst), b in buckets.items():
+        weight = 1.0 + 0.2 * (len(b["types"]) - 1)
         edges.append(AttackEdge(
             src=src, dst=dst,
             finding_types=sorted(b["types"]),
             phase=b["phase"], phase_order=b["phase_order"],
             severity=b["severity"], confidence=b["confidence"],
             first_ts=b["first_ts"] or 0.0, last_ts=b["last_ts"] or 0.0,
+            weight=weight,
         ))
     return edges
 

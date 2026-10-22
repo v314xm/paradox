@@ -344,6 +344,9 @@ class AttackGraphDialog(QDialog):
             width = 2.0
         else:
             width = 1.5
+        # Визуальный вес: ребро с несколькими типами находок рисуется толще.
+        edge_weight = float(e.get("weight", 1.0))
+        width *= min(2.0, edge_weight)
         style = Qt.PenStyle.SolidLine if conf >= 0.5 else Qt.PenStyle.DashLine
 
         # Обрезка линии по границам кругов-узлов (v1.2.1)
