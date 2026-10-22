@@ -76,6 +76,13 @@ class NXDOMAINBurstDetector:
 
             confidence = round(min(0.9, 0.4 + signal * 0.05), 3)
 
+            # timestamps для timeline
+            first_seen: float | None = None
+            last_seen: float | None = None
+            if ts_list:
+                first_seen = min(ts_list)
+                last_seen = max(ts_list)
+
             findings.append(Finding(
                 type="nxdomain_burst",
                 value=src_ip,
@@ -90,6 +97,8 @@ class NXDOMAINBurstDetector:
                     "ratio": round(ratio, 3),
                     "total_dns_queries": total_dns,
                 },
+                first_seen=first_seen,
+                last_seen=last_seen,
             ))
 
         return findings

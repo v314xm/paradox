@@ -25,14 +25,23 @@ class IPCheckServiceDetector:
         services = config.ip_check_services
         service_ips = config.ip_check_service_ips
 
-        # value (имя сервиса) -> {sources: set, extra: dict}
+        # value (имя сервиса) -> {sources: set, extra: dict, first, last}
         hits: dict[str, dict] = {}
 
-        def _touch(value: str, source: str, extra: dict | None = None) -> None:
-            h = hits.setdefault(value, {"sources": set(), "extra": {}})
+        def _touch(value: str, source: str, extra: dict | None = None,
+                   ts: float | None = None) -> None:
+            h = hits.setdefault(value, {
+                "sources": set(), "extra": {},
+                "first": None, "last": None,
+            })
             h["sources"].add(source)
             if extra:
                 h["extra"].update(extra)
+            if ts is not None:
+                if h["first"] is None or ts < h["first"]:
+                    h["first"] = ts
+                if h["last"] is None or ts > h["last"]:
+                    h["last"] = ts
 
         # 1. DNS
         for qname, count in state.dns_queries.items():
@@ -46,20 +55,23 @@ class IPCheckServiceDetector:
                 sni = flow.sni.lower().strip(".")
                 if sni in services:
                     _touch(sni, "sni",
-                           {"flow": f"{key.src_ip} -> {key.dst_ip}"})
+                           {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                           ts=flow.first_ts)
 
             if flow.http_host:
                 host = flow.http_host.split(":", 1)[0].lower().strip(".")
                 if host in services:
                     _touch(host, "http_host",
-                           {"flow": f"{key.src_ip} -> {key.dst_ip}"})
+                           {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                           ts=flow.first_ts)
 
-            # direct IP — используем каноническое имя сервиса как value,
+            # direct IP — каноническое имя сервиса как value,
             # чтобы finding слился с DNS/SNI-находками
             service_name = service_ips.get(key.dst_ip)
             if service_name:
                 _touch(service_name, "direct_ip",
-                       {"flow": f"{key.src_ip} -> {key.dst_ip}"})
+                       {"flow": f"{key.src_ip} -> {key.dst_ip}"},
+                       ts=flow.first_ts)
 
         findings: list[Finding] = []
         for value, h in hits.items():
@@ -71,6 +83,8 @@ class IPCheckServiceDetector:
                     "sources": sorted(h["sources"]),
                     **h["extra"],
                 },
+                first_seen=h["first"],
+                last_seen=h["last"],
             ))
 
         findings.sort(key=lambda f: f.value)

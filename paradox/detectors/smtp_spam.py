@@ -76,11 +76,19 @@ class SMTP_SpamDetector:
             from_addrs = sorted(state.smtp_from_by_src.get(src_ip, set()))
             from_sample = from_addrs[0] if from_addrs else ""
 
-            # v1.1: dst из flows SMTP-портов.
+            # v1.1: dst из flows SMTP-портов + timestamps.
             dst_counts = {}
-            for key in state.flows:
+            first_seen: float | None = None
+            last_seen: float | None = None
+            for key, flow in state.flows.items():
                 if key.src_ip == src_ip and key.dst_port in (25, 465, 587):
                     dst_counts[key.dst_ip] = dst_counts.get(key.dst_ip, 0) + 1
+                    if flow.first_ts is not None:
+                        if first_seen is None or flow.first_ts < first_seen:
+                            first_seen = flow.first_ts
+                    if flow.last_ts is not None:
+                        if last_seen is None or flow.last_ts > last_seen:
+                            last_seen = flow.last_ts
             top_dsts = sorted(
                 ({"ip": ip, "count": c} for ip, c in dst_counts.items()),
                 key=lambda d: -d["count"],
@@ -102,6 +110,8 @@ class SMTP_SpamDetector:
                 value=f"{src_ip} -> {count} recipients",
                 confidence=confidence,
                 evidence=evidence,
+                first_seen=first_seen,
+                last_seen=last_seen,
             ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))
