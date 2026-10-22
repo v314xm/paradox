@@ -124,9 +124,6 @@ class TimelineEvent:
     src_ip: str = ""
     dst_ip: str = ""
     dst_port: int | None = None
-    src_ip: str = ""
-    dst_ip: str = ""
-    dst_port: int | None = None
 
     def to_dict(self) -> dict:
         return {

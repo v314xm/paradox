@@ -103,3 +103,100 @@ def diff_reports(old: dict, new: dict) -> DiffResult:
         contradictions_removed=cr,
         summary_changes=sdiff,
     )
+
+
+def render_diff_markdown(d: DiffResult) -> str:
+    """Сформировать Markdown-отчёт о различиях."""
+    from pathlib import Path
+
+    old_name = Path(d.old_meta.get("pcap_path") or "?").name
+    new_name = Path(d.new_meta.get("pcap_path") or "?").name
+
+    lines: list[str] = []
+    lines.append(f"# Diff: `{old_name}` → `{new_name}`\n")
+    lines.append(
+        f"**Findings:** +{len(d.findings.added)} "
+        f"−{len(d.findings.removed)} "
+        f"~{len(d.findings.changed)}\n"
+    )
+    if d.contradictions_added or d.contradictions_removed:
+        lines.append(
+            f"**Противоречия:** +{len(d.contradictions_added)} "
+            f"−{len(d.contradictions_removed)}\n"
+        )
+
+    if d.summary_changes:
+        lines.append("## Изменения в сводке")
+        lines.append("| Поле | Было | Стало | Дельта |")
+        lines.append("|---|---|---|---|")
+        for f, (ov, nv) in d.summary_changes.items():
+            delta = ""
+            if isinstance(ov, (int, float)) and isinstance(nv, (int, float)):
+                diff = nv - ov
+                delta = f"+{diff}" if diff > 0 else str(diff)
+            lines.append(f"| {f} | {ov} | {nv} | {delta} |")
+        lines.append("")
+
+    if d.findings.added:
+        lines.append("## Новые findings")
+        lines.append("| Тип | Значение | Conf |")
+        lines.append("|---|---|---|")
+        for f in d.findings.added:
+            lines.append(
+                f"| `{f.get('type', '?')}` | {f.get('value', '')} "
+                f"| {f.get('confidence', 0):.2f} |"
+            )
+        lines.append("")
+
+    if d.findings.removed:
+        lines.append("## Исчезли findings")
+        lines.append("| Тип | Значение | Conf |")
+        lines.append("|---|---|---|")
+        for f in d.findings.removed:
+            lines.append(
+                f"| `{f.get('type', '?')}` | {f.get('value', '')} "
+                f"| {f.get('confidence', 0):.2f} |"
+            )
+        lines.append("")
+
+    if d.findings.changed:
+        lines.append("## Изменились findings")
+        lines.append("| Тип | Значение | Изменения |")
+        lines.append("|---|---|---|")
+        for c in d.findings.changed:
+            f = c["new"]
+            changes_str = ", ".join(
+                f"{k}: {o}→{n}" for k, (o, n) in c["changes"].items()
+            )
+            lines.append(
+                f"| `{f.get('type', '?')}` | {f.get('value', '')} "
+                f"| {changes_str} |"
+            )
+        lines.append("")
+
+    if d.contradictions_added:
+        lines.append("## Новые противоречия")
+        lines.append("| Rule | Subject | Severity |")
+        lines.append("|---|---|---|")
+        for c in d.contradictions_added:
+            lines.append(
+                f"| `{c.get('rule', '?')}` | `{c.get('subject', '')}` "
+                f"| {c.get('severity', '')} |"
+            )
+        lines.append("")
+
+    if d.contradictions_removed:
+        lines.append("## Исчезли противоречия")
+        lines.append("| Rule | Subject | Severity |")
+        lines.append("|---|---|---|")
+        for c in d.contradictions_removed:
+            lines.append(
+                f"| `{c.get('rule', '?')}` | `{c.get('subject', '')}` "
+                f"| {c.get('severity', '')} |"
+            )
+        lines.append("")
+
+    if not d.has_changes():
+        lines.append("_Изменений нет._\n")
+
+    return "\n".join(lines)

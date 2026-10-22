@@ -209,9 +209,10 @@ def _detect_entry_impact(edges: list[AttackEdge], config: Config) -> tuple[set[s
         src_int = is_internal_ip(e.src, config)
         if dst_int and not src_int and e.phase in _ENTRY_PHASES:
             entries.add(e.dst)
+        # Impact-target — только ВНЕШНИЙ хост в фазе c2/exfil/impact.
+        # Раньше сюда же добавлялся internal dst: любой внутренний
+        # сервер, к которому шёл C2-трафик, объявлялся «целью атаки».
         if not dst_int and e.phase in _IMPACT_PHASES:
-            impacts.add(e.dst)
-        if dst_int and e.phase in _IMPACT_PHASES:
             impacts.add(e.dst)
     return entries, impacts
 

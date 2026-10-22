@@ -360,6 +360,9 @@ class MainWindow(QMainWindow):
             self._on_enrichment_finished
         )
 
+        # Сравнение из Истории
+        self.history_view.compare_requested.connect(self._on_compare_history)
+
         self.tabs.addTab(self.run_view, tr("tab.run"))
         self.tabs.addTab(self.history_view, tr("tab.history"))
         self.tabs.addTab(self.enrich_view, tr("tab.enrich"))
@@ -644,6 +647,52 @@ class MainWindow(QMainWindow):
         """
         if hasattr(self, "history_view"):
             self.history_view.refresh_current()
+
+    def _on_compare_history(self, old_report: dict) -> None:
+        """Слот на сигнал compare_requested из HistoryView.
+
+        Пользователь выбрал в истории старый прогон и хочет сравнить
+        его с тем, что сейчас открыт в RunView.
+        """
+        current_report = self.run_view.last_report()
+        if not current_report:
+            QMessageBox.information(
+                self, "Нет текущего прогона",
+                "Сначала выполните анализ pcap во вкладке «Прогон», чтобы "
+                "было с чем сравнивать.",
+            )
+            return
+
+        # Настраиваем DiffView и переключаемся на него
+        self.diff_view.set_reports(old_report, current_report)
+
+        # Ищем индекс вкладки DiffView
+        idx = self.tabs.indexOf(self.diff_view)
+        if idx >= 0:
+            self.tabs.setCurrentIndex(idx)
+
+    def _on_compare_history(self, old_report: dict) -> None:
+        """Слот на сигнал compare_requested из HistoryView.
+
+        Пользователь выбрал в истории старый прогон и хочет сравнить
+        его с тем, что сейчас открыт в RunView.
+        """
+        current_report = self.run_view.last_report()
+        if not current_report:
+            QMessageBox.information(
+                self, "Нет текущего прогона",
+                "Сначала выполните анализ pcap во вкладке «Прогон», чтобы "
+                "было с чем сравнивать.",
+            )
+            return
+
+        # Настраиваем DiffView и переключаемся на него
+        self.diff_view.set_reports(old_report, current_report)
+
+        # Ищем индекс вкладки DiffView
+        idx = self.tabs.indexOf(self.diff_view)
+        if idx >= 0:
+            self.tabs.setCurrentIndex(idx)
 
     def _on_export_json(self) -> None:
         report = self.run_view.last_report()

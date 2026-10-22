@@ -28,12 +28,13 @@
 """
 from datetime import datetime
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QPushButton,
     QTextBrowser,
     QVBoxLayout,
@@ -51,6 +52,14 @@ class HistoryView(QWidget):
         refresh_current()  — перерисовать выбранную запись (после обогащения);
         clear()            — очистить историю, не трогая текущий прогон.
     """
+
+    # Сигнал для запроса сравнения выбранного прогона с текущим.
+    # Передаёт словарь report из истории.
+    compare_requested = Signal(object)
+
+    # Сигнал для запроса сравнения выбранного прогона с текущим.
+    # Передаёт словарь report из истории.
+    compare_requested = Signal(object)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -104,6 +113,11 @@ class HistoryView(QWidget):
         # добавлении первой записи сработает автоматически — не надо
         # вручную вызывать _on_row_changed.
         self._list.currentRowChanged.connect(self._on_row_changed)
+
+        # Контекстное меню для сравнения с текущим прогоном
+        self._list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self._list.customContextMenuRequested.connect(self._on_context_menu)
+
         columns.addWidget(self._list)
 
         # Справа — детали выбранного прогона. QTextBrowser, потому что
@@ -278,6 +292,40 @@ class HistoryView(QWidget):
             f"{s.get('findings', 0)} findings · "
             f"{s.get('contradictions', 0)} contra{suffix}"
         )
+
+    def _on_context_menu(self, pos) -> None:
+        """Правый клик по записи: меню действий."""
+        item = self._list.itemAt(pos)
+        if item is None:
+            return
+
+        row = self._list.row(item)
+        if row < 0 or row >= len(self._runs):
+            return
+
+        _, report, _ = self._runs[row]
+
+        menu = QMenu(self)
+        action_compare = menu.addAction("Сравнить с текущим прогоном…")
+        action_compare.triggered.connect(lambda: self.compare_requested.emit(report))
+        menu.exec(self._list.viewport().mapToGlobal(pos))
+
+    def _on_context_menu(self, pos) -> None:
+        """Правый клик по записи: меню действий."""
+        item = self._list.itemAt(pos)
+        if item is None:
+            return
+
+        row = self._list.row(item)
+        if row < 0 or row >= len(self._runs):
+            return
+
+        _, report, _ = self._runs[row]
+
+        menu = QMenu(self)
+        action_compare = menu.addAction("Сравнить с текущим прогоном…")
+        action_compare.triggered.connect(lambda: self.compare_requested.emit(report))
+        menu.exec(self._list.viewport().mapToGlobal(pos))
 
     def _on_row_changed(self, row: int) -> None:
         """Слот на currentRowChanged. Просто перерисовать HTML справа."""

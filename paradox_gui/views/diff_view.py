@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from paradox_gui.analyzers.run_diff import diff_reports
+from paradox_gui.analyzers.run_diff import diff_reports, render_diff_markdown
 
 
 class DiffView(QWidget):
@@ -65,6 +65,14 @@ class DiffView(QWidget):
         self._summary.setObjectName("muted")
         self._summary.setWordWrap(True)
         outer.addWidget(self._summary)
+
+        btn_row = QHBoxLayout()
+        btn_row.addStretch(1)
+        self._btn_export = QPushButton("Экспорт в Markdown…")
+        self._btn_export.setEnabled(False)
+        self._btn_export.clicked.connect(self._on_export_md)
+        btn_row.addWidget(self._btn_export)
+        outer.addLayout(btn_row)
 
         self._tree = QTreeWidget()
         self._tree.setHeaderLabels(["Категория", "Значение", "Детали"])
@@ -146,6 +154,10 @@ class DiffView(QWidget):
             self._tree.addTopLevelItem(
                 QTreeWidgetItem(["Изменений нет", "", ""])
             )
+
+        if hasattr(self, "_btn_export"):
+            self._btn_export.setEnabled(d.has_changes())
+
         self._tree.expandAll()
 
     def _group(self, title: str) -> QTreeWidgetItem:
@@ -182,6 +194,31 @@ class DiffView(QWidget):
         if parts:
             base += " · " + " · ".join(parts)
         return base
+
+    def _on_export_md(self) -> None:
+        """Сохранить текущий diff в Markdown."""
+        if not (self._old and self._new):
+            return
+
+        d = diff_reports(self._old, self._new)
+        if not d.has_changes():
+            return
+
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Сохранить Diff в Markdown", "diff.md",
+            "Markdown (*.md);;Все файлы (*)"
+        )
+        if not path:
+            return
+
+        try:
+            text = render_diff_markdown(d)
+            Path(path).write_text(text, encoding="utf-8")
+            QMessageBox.information(
+                self, "Успех", f"Diff успешно сохранён:\n{path}"
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", str(e))
 
     def dragEnterEvent(self, event) -> None:
         if event.mimeData().hasUrls():

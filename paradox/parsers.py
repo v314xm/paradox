@@ -103,12 +103,6 @@ class PacketRecord:
     # Метаданные IPv6 (extension chain, fragment info)
     ipv6_meta: dict | None = None
 
-    # Метаданные IPv6 (extension chain, fragment info)
-    ipv6_meta: dict | None = None
-
-    # Метаданные IPv6 (extension chain, fragment info)
-    ipv6_meta: dict | None = None
-
 
 def parse_packet(raw: bytes, ts: float) -> PacketRecord:
     """Разобрать сырые байты пакета в PacketRecord."""

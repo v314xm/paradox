@@ -72,6 +72,10 @@ class AttackGraphDialog(QDialog):
         self._edge_items: list[QGraphicsPathItem] = []
         self._t_min = 0.0
         self._t_max = 0.0
+        # State for combined visibility (see _apply_visibility).
+        self._current_cutoff: float = float("inf")
+        self._selected_nodes: set[str] | None = None
+        self._selected_edges: set[tuple[str, str]] | None = None
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._on_play_tick)
         self.setWindowTitle("Граф атаки")
@@ -452,25 +456,43 @@ class AttackGraphDialog(QDialog):
             self._time_label.setText(f"{ts:.0f}")
 
     def _on_time_changed(self, val: int):
-        """Плавно скрываем то, что ещё не произошло."""
+        """Установить момент времени — делегировать в _apply_visibility."""
         if self._t_max <= self._t_min:
             return
 
         frac = val / 1000.0
         current_t = self._t_min + (self._t_max - self._t_min) * frac
+        self._current_cutoff = current_t
         self._update_time_label(current_t)
+        self._apply_visibility()
+
+    def _apply_visibility(self) -> None:
+        """Единая точка применения видимости."""
+        cutoff = self._current_cutoff
+        path_nodes = self._selected_nodes
+        path_edges = self._selected_edges
 
         for n in self._nodes:
             item = self._node_items.get(n["ip"])
             if not item:
                 continue
-            # Узел виден, если его время наступило (или у него нет таймстампа)
-            visible = (not n.get("first_ts")) or (n["first_ts"] <= current_t + 1.0)
-            item.setOpacity(1.0 if visible else 0.05)
+            in_time = (not n.get("first_ts")) or (n["first_ts"] <= cutoff + 1.0)
+            if not in_time:
+                item.setOpacity(0.05)
+            elif path_nodes is not None:
+                item.setOpacity(1.0 if n["ip"] in path_nodes else 0.15)
+            else:
+                item.setOpacity(1.0)
 
         for item, e in zip(self._edge_items, self._edges, strict=False):
-            visible = (not e.get("first_ts")) or (e["first_ts"] <= current_t + 1.0)
-            item.setOpacity(1.0 if visible else 0.05)
+            in_time = (not e.get("first_ts")) or (e["first_ts"] <= cutoff + 1.0)
+            if not in_time:
+                item.setOpacity(0.05)
+            elif path_edges is not None:
+                key = (item.data(0), item.data(1))
+                item.setOpacity(1.0 if key in path_edges else 0.25)
+            else:
+                item.setOpacity(1.0)
 
     def _toggle_play(self):
         if self._play_timer.isActive():
@@ -584,17 +606,11 @@ class AttackGraphDialog(QDialog):
         if row < 0 or row >= len(self._paths):
             return
         path = self._paths[row]
-        nodes_in = set(path.get("nodes", []))
-        edges_in = {(e["src"], e["dst"]) for e in path.get("edges", [])}
-
-        for ip, item in self._node_items.items():
-            item.setOpacity(1.0 if ip in nodes_in else 0.15)
-        for item in self._edge_items:
-            _src, _dst = item.data(0), item.data(1)
-            if (_src, _dst) in edges_in:
-                item.setOpacity(1.0)
-            else:
-                item.setOpacity(0.25)
+        self._selected_nodes = set(path.get("nodes", []))
+        self._selected_edges = {
+            (e["src"], e["dst"]) for e in path.get("edges", [])
+        }
+        self._apply_visibility()
 
         html = f"<h3>Путь {row + 1}</h3>"
         html += f"<p><b>Severity:</b> {path.get('severity')}</p>"

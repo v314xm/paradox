@@ -43,7 +43,14 @@ def rehydrate(default: Any, raw: Any) -> Any:
             return tuple(raw)
         return (raw,)
     if isinstance(default, Mapping):
-        return default
+        # Mapping-поля пока не редактируются из GUI, но если в settings.json
+        # появятся их overrides — надо сохранить значение, а не вернуть дефолт.
+        if isinstance(raw, dict):
+            try:
+                return type(default)(raw)
+            except Exception:
+                return raw
+        return raw
     return raw
 
 
