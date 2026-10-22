@@ -4,7 +4,26 @@
 Используются в reporters и aggregators для классификации IP
 и направления трафика.
 """
+import ipaddress
+
 from paradox.config import Config
+
+
+def is_private_ip(ip: str) -> bool:
+    """Приватный / loopback / link-local / multicast / CGNAT."""
+    if not isinstance(ip, str) or not ip:
+        return False
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    if addr.is_private or addr.is_loopback or addr.is_link_local:
+        return True
+    if addr.is_multicast or addr.is_reserved or addr.is_unspecified:
+        return True
+    if isinstance(addr, ipaddress.IPv4Address) and addr in ipaddress.ip_network('100.64.0.0/10'):
+        return True
+    return False
 
 
 def is_internal_ip(ip: str, config: Config) -> bool:

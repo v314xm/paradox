@@ -1,6 +1,4 @@
 """Вкладка Kill-Chain Таймлайн (Умный парсинг v4)."""
-import re
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtWidgets import (
@@ -17,10 +15,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# Паттерн для поиска связи "IP -> IP" (с учетом возможных пробелов вокруг стрелки)
-ARROW_REGEX = re.compile(r'((?:\d{1,3}\.){3}\d{1,3})\s*->\s*((?:\d{1,3}\.){3}\d{1,3})')
-# Просто поиск IPv4 (для fallback)
-IP_REGEX = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
 
 class TimelineView(QWidget):
     def __init__(self, parent=None):
@@ -84,25 +78,6 @@ class TimelineView(QWidget):
 
         splitter.setSizes([850, 350])
 
-    def _extract_ips(self, text: str) -> tuple[str, str]:
-        """Извлекает Source и Destination из текста."""
-        # 1. Пытаемся найти четкий паттерн "IP -> IP"
-        match = ARROW_REGEX.search(text)
-        if match:
-            return match.group(1), match.group(2)
-
-        # 2. Если паттерна нет, берем первые два УНИКАЛЬНЫХ IP в тексте
-        ips = IP_REGEX.findall(text)
-        unique_ips = []
-        for ip in ips:
-            if ip not in unique_ips:
-                unique_ips.append(ip)
-
-        if len(unique_ips) >= 2:
-            return unique_ips[0], unique_ips[1]
-        elif len(unique_ips) == 1:
-            return unique_ips[0], "—"
-        return "—", "—"
 
     def update_data(self, report: dict):
         self.tree.clear()
@@ -159,9 +134,8 @@ class TimelineView(QWidget):
                 etype = e.get("type", "?")
                 child.setText(0, f"{etype} ({kind})")
 
-                # Пытаемся получить полный текст события
-                full_text = f"{e.get('subject', '')} {e.get('description', '')} {e.get('value', '')}"
-                src_ip, dst_ip = self._extract_ips(full_text)
+                src_ip = str(e.get("src_ip") or "—")
+                dst_ip = str(e.get("dst_ip") or "—")
 
                 child.setText(2, src_ip)
                 child.setText(3, dst_ip)

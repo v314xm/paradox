@@ -8,8 +8,6 @@
 Приватные IP (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16,
 224/4, 239/4) не собираются — Shodan про них ничего не знает.
 """
-import ipaddress
-
 from paradox.config import Config
 from paradox.integrations.base import EnrichmentResult
 from paradox.integrations.cache import EnrichmentCache
@@ -144,29 +142,9 @@ class EnricherOrchestrator:
         self.cache.close()
 
 
-_CGNAT_V4 = ipaddress.ip_network("100.64.0.0/10")
+from paradox.net_utils import is_private_ip as _is_private_ip
 
 
-def _is_private_ip(ip: str) -> bool:
-    """
-    Приватный / loopback / link-local / multicast / CGNAT / IPv6.
-
-    Python 3.13: is_private для 100.64/10 = False, поэтому CGNAT
-    проверяем явно.
-    """
-    if not isinstance(ip, str) or not ip:
-        return False
-    try:
-        addr = ipaddress.ip_address(ip)
-    except ValueError:
-        return False
-    if addr.is_private or addr.is_loopback or addr.is_link_local:
-        return True
-    if addr.is_multicast or addr.is_reserved or addr.is_unspecified:
-        return True
-    if isinstance(addr, ipaddress.IPv4Address) and addr in _CGNAT_V4:
-        return True
-    return False
 def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
     """
     Вытащить IP и домены из findings для обогащения.

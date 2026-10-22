@@ -121,6 +121,12 @@ class TimelineEvent:
     description: str
     mitre_id: str | None = None
     ref_id: int | None = None
+    src_ip: str = ""
+    dst_ip: str = ""
+    dst_port: int | None = None
+    src_ip: str = ""
+    dst_ip: str = ""
+    dst_port: int | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -135,6 +141,9 @@ class TimelineEvent:
             "description": self.description,
             "mitre_id": self.mitre_id,
             "ref_id": self.ref_id,
+            "src_ip": self.src_ip,
+            "dst_ip": self.dst_ip,
+            "dst_port": self.dst_port,
         }
 
 
@@ -209,6 +218,9 @@ def _event_from_finding(f: Finding, idx: int) -> TimelineEvent | None:
         description=_describe_finding(f),
         mitre_id=f.mitre_id,
         ref_id=idx,
+        src_ip=f.src_ip or "",
+        dst_ip=f.dst_ip or "",
+        dst_port=f.dst_port,
     )
 
 

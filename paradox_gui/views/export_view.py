@@ -1,7 +1,6 @@
 """Вкладка Экспорта (CSV и STIX) с копированием в буфер."""
 import csv
 import html
-import ipaddress
 import json
 import re
 import uuid
@@ -22,10 +21,8 @@ from PySide6.QtWidgets import (
 
 
 def _is_private_ip(ip_str: str) -> bool:
-    try:
-        return ipaddress.ip_address(ip_str).is_private
-    except ValueError:
-        return False
+    from paradox.net_utils import is_private_ip
+    return is_private_ip(ip_str)
 
 def _extract_stix_iocs(findings: list) -> list[dict]:
     indicators = []

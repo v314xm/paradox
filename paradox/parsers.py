@@ -100,6 +100,15 @@ class PacketRecord:
     # L4-payload (или сырые байты для не-первых IPv4-фрагментов)
     payload: bytes = b""
 
+    # Метаданные IPv6 (extension chain, fragment info)
+    ipv6_meta: dict | None = None
+
+    # Метаданные IPv6 (extension chain, fragment info)
+    ipv6_meta: dict | None = None
+
+    # Метаданные IPv6 (extension chain, fragment info)
+    ipv6_meta: dict | None = None
+
 
 def parse_packet(raw: bytes, ts: float) -> PacketRecord:
     """Разобрать сырые байты пакета в PacketRecord."""
@@ -153,8 +162,7 @@ def parse_packet(raw: bytes, ts: float) -> PacketRecord:
             rec.proto = "icmpv6"
         else:
             rec.proto = "other"
-        if hasattr(ipv6_rec, "ipv6_meta"):
-            object.__setattr__(rec, "ipv6_meta", ipv6_rec.ipv6_meta)
+        rec.ipv6_meta = getattr(ipv6_rec, "ipv6_meta", None)
     else:
         rec.proto = "other"
 

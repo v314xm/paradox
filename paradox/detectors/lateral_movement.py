@@ -140,4 +140,5 @@ class LateralMovementDetector:
         return findings
 
     def _is_internal(self, ip: str, config: Config) -> bool:
-        return any(ip.startswith(p) for p in config.private_networks)
+        from paradox.net_utils import is_internal_ip
+        return is_internal_ip(ip, config)
