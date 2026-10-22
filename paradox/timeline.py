@@ -54,6 +54,7 @@ _PHASE_BY_TYPE: dict[str, str] = {
     "command_injection": "execution",
     "script_download": "execution",
     "carved_file": "execution",
+    "yara_match": "execution",
 
     # Command and Control
     "beaconing": "c2",

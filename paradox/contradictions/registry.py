@@ -70,12 +70,33 @@ def run_all(
     state: CaptureState,
     findings: list[Finding],
     config: Config,
+    rules: list[ContradictionRule] | None = None,
 ) -> list[Contradiction]:
-    """Прогнать все правила. Возвращает отфильтрованные + отсортированные."""
+    """Прогнать все правила. Возвращает отфильтрованные + отсортированные.
+
+    rules — опциональный список правил (default — глобальный RULES).
+    Позволяет вызывающему коду отключать правила без monkey-patch.
+    Каждое правило обёрнуто в try/except: одно упавшее не валит
+    остальные. Ошибки считаются в state.extractor_errors с префиксом
+    "rule:<name>" — видны в summary отчёта.
+    """
+    active = list(rules) if rules is not None else RULES
     out: list[Contradiction] = []
-    for rule in RULES:
-        facts = rule.extract_facts(state, findings, config)
-        out.extend(rule.find_contradictions(facts))
+    for rule in active:
+        try:
+            facts = rule.extract_facts(state, findings, config)
+            out.extend(rule.find_contradictions(facts))
+        except Exception:
+            rule_name = type(rule).__name__
+            key = f"rule:{rule_name}"
+            prev = state.extractor_errors[key]
+            state.extractor_errors[key] = prev + 1
+            if getattr(config, "debug_log_extractor_errors", False) and prev == 0:
+                import logging
+                logging.exception(
+                    "contradiction rule %s failed (first occurrence)",
+                    rule_name,
+                )
 
     out.sort(key=lambda c: (
         SEVERITY_ORDER.get(c.severity, 99),

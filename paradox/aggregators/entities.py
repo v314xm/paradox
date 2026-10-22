@@ -94,7 +94,15 @@ class Entities:
 
 
 def _is_special_ip(ip: str) -> bool:
-    """Multicast, broadcast, loopback, link-local — не сущности."""
+    """Multicast, broadcast, loopback, link-local — не сущности.
+
+    v1.4: убрали эвристику «последний октет == 0 или 255». Для
+    сетей крупнее /24 она ошибочна: в 10.0.0.0/23 хост 10.0.1.255 —
+    валидный. Без маски подсети в руках гадать нельзя, поэтому
+    оставляем только то, что ipaddress знает про отдельный адрес:
+    is_multicast / is_loopback / is_link_local / is_unspecified /
+    is_reserved. Плюс явный broadcast-литерал 255.255.255.255.
+    """
     try:
         addr = ip_address(ip)
     except ValueError:
@@ -105,10 +113,6 @@ def _is_special_ip(ip: str) -> bool:
         return True
     if str(addr) == "255.255.255.255":
         return True
-    if addr.version == 4:
-        last_octet = int(str(addr).rsplit(".", 1)[1])
-        if last_octet == 0 or last_octet == 255:
-            return True
     return False
 
 

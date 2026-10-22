@@ -1,6 +1,15 @@
-"""Проверка слияния pcap вручную (без pipeline)."""
+"""Проверка слияния pcap вручную (без pipeline).
+
+Это НЕ pytest-файл: здесь нет `def test_*`, а `main()` запускается
+руками (`python tests/test_multi_pcap.py`). Маркер ниже — формальность
+на случай, если кто-то добавит сюда `test_*`.
+"""
 import sys
 from pathlib import Path
+
+import pytest
+
+pytestmark = pytest.mark.skip(reason="manual integration script, run directly")
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))

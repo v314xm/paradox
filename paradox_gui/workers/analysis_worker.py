@@ -72,9 +72,9 @@ class AnalysisWorker(QThread):
 
     def run(self) -> None:
         try:
-            import paradox.pipeline as core
-            from paradox.contradictions import registry as contra_registry
+            from paradox.contradictions.registry import RULES
             from paradox.pipeline import (
+                DETECTORS,
                 PipelineCancelled,
                 run_multi_pipeline,
                 run_pipeline,
@@ -83,20 +83,20 @@ class AnalysisWorker(QThread):
             self.error.emit(f"Не удалось импортировать ядро: {e}")
             return
 
-        # Monkey-patch: DETECTORS и RULES — модульные переменные,
-        # _detect() и run_all() читают их при каждом вызове.
-        # finally возвращает оригиналы даже при исключении.
-        original_detectors = core.DETECTORS
-        original_rules = contra_registry.RULES
-
+        # v1.4: активный список детекторов/правил передаётся параметром,
+        # без monkey-patch глобального DETECTORS/RULES. Thread-safe:
+        # два параллельных воркера не мутируют одно и то же состояние.
+        active_detectors: list | None = None
         if self._disabled_detectors:
-            core.DETECTORS = [
-                d for d in original_detectors
+            active_detectors = [
+                d for d in DETECTORS
                 if d.name not in self._disabled_detectors
             ]
+
+        active_rules: list | None = None
         if self._disabled_contradictions:
-            contra_registry.RULES = [
-                r for r in original_rules
+            active_rules = [
+                r for r in RULES
                 if type(r).__name__ not in self._disabled_contradictions
             ]
 
@@ -109,6 +109,8 @@ class AnalysisWorker(QThread):
                     should_stop=self.isInterruptionRequested,
                     on_progress=self._emit_progress,
                     on_phase=self._emit_phase,
+                    detectors=active_detectors,
+                    rules=active_rules,
                 )
             else:
                 report = run_pipeline(
@@ -117,6 +119,8 @@ class AnalysisWorker(QThread):
                     should_stop=self.isInterruptionRequested,
                     on_progress=self._emit_progress,
                     on_phase=self._emit_phase,
+                    detectors=active_detectors,
+                    rules=active_rules,
                 )
         except PipelineCancelled:
             self.cancelled.emit()
@@ -124,9 +128,6 @@ class AnalysisWorker(QThread):
         except Exception as e:
             self.error.emit(f"{type(e).__name__}: {e}")
             return
-        finally:
-            core.DETECTORS = original_detectors
-            contra_registry.RULES = original_rules
         elapsed = time.perf_counter() - t0
 
         summary = dict(report.get("summary", {}))

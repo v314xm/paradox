@@ -241,15 +241,32 @@ def _detect(
     config: Config,
     should_stop: Callable[[], bool] | None = None,
     on_phase: Callable[[str, int, int], None] | None = None,
+    detectors: list | None = None,
 ):
+    # v1.4: детекторы — параметром, без monkey-patch глобального
+    # DETECTORS (thread-safe для параллельных воркеров).
+    # Каждый детектор обёрнут в try/except: один упавший не валит
+    # остальные. Ошибки считаются в state.extractor_errors с префиксом
+    # "detector:<name>" — их видно в summary отчёта.
+    active = list(detectors) if detectors is not None else DETECTORS
     findings = []
-    total = len(DETECTORS)
-    for i, det in enumerate(DETECTORS):
+    total = len(active)
+    for i, det in enumerate(active):
         if should_stop is not None and should_stop():
             raise PipelineCancelled()
         if on_phase is not None:
             on_phase("detect", i, total, det.name)
-        findings.extend(det.run(state, config))
+        try:
+            findings.extend(det.run(state, config))
+        except Exception:
+            key = f"detector:{det.name}"
+            prev = state.extractor_errors[key]
+            state.extractor_errors[key] = prev + 1
+            if getattr(config, "debug_log_extractor_errors", False) and prev == 0:
+                import logging
+                logging.exception(
+                    "detector %s failed (first occurrence)", det.name,
+                )
         if on_phase is not None:
             on_phase("detect", i + 1, total, det.name)
 
@@ -311,11 +328,16 @@ def _build_report(
     provenance: dict,
     should_stop: Callable[[], bool] | None = None,
     on_phase: Callable[..., None] | None = None,
+    rules: list | None = None,
 ) -> dict:
-    """Общая часть сборки отчёта для run_pipeline и run_multi_pipeline."""
+    """Общая часть сборки отчёта для run_pipeline и run_multi_pipeline.
+
+    rules — опциональный список правил contradictions (default —
+    глобальный RULES). Позволяет GUI отключать правила без monkey-patch.
+    """
     if on_phase is not None:
         on_phase("contradictions", 0, 1)
-    contradictions = run_contradictions(state, findings, config)
+    contradictions = run_contradictions(state, findings, config, rules=rules)
     if on_phase is not None:
         on_phase("contradictions", 1, 1)
         on_phase("report", 0, 1)
@@ -427,6 +449,8 @@ def run_pipeline(    pcap_path: Path,
     should_stop: Callable[[], bool] | None = None,
     on_progress: Callable[[int, int], None] | None = None,
     on_phase: Callable[..., None] | None = None,
+    detectors: list | None = None,
+    rules: list | None = None,
 ) -> dict:
     state = CaptureState()
 
@@ -439,6 +463,7 @@ def run_pipeline(    pcap_path: Path,
         state, config,
         should_stop=should_stop,
         on_phase=on_phase,
+        detectors=detectors,
     )
 
     provenance = {
@@ -446,7 +471,10 @@ def run_pipeline(    pcap_path: Path,
         "pcap_path": str(pcap_path),
         "pcap_sha256": sha256_file(pcap_path),
     }
-    return _build_report(state, findings, config, provenance, should_stop, on_phase)
+    return _build_report(
+        state, findings, config, provenance,
+        should_stop, on_phase, rules=rules,
+    )
 
 
 def run_multi_pipeline(
@@ -455,6 +483,8 @@ def run_multi_pipeline(
     should_stop: Callable[[], bool] | None = None,
     on_progress: Callable[[int, int], None] | None = None,
     on_phase: Callable[..., None] | None = None,
+    detectors: list | None = None,
+    rules: list | None = None,
 ) -> dict:
     """Multi-pcap: прогон нескольких файлов со слиянием в один отчёт.
 
@@ -486,7 +516,11 @@ def run_multi_pipeline(
     state = merge_capture_states(states)
 
     # 3. Детекторы
-    findings = _detect(state, config, should_stop=should_stop, on_phase=on_phase)
+    findings = _detect(
+        state, config,
+        should_stop=should_stop, on_phase=on_phase,
+        detectors=detectors,
+    )
 
     provenance = {
         "tool_version": __version__,
@@ -494,4 +528,7 @@ def run_multi_pipeline(
         "pcap_sha256": "merged",
         "merged_files": [str(p) for p in pcap_paths],
     }
-    return _build_report(state, findings, config, provenance, should_stop, on_phase)
+    return _build_report(
+        state, findings, config, provenance,
+        should_stop, on_phase, rules=rules,
+    )

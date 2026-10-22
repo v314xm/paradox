@@ -48,11 +48,14 @@ class EnricherOrchestrator:
             "rate_limited": 0,
             "provider_calls": 0,
             # errors разбит по категориям — сетевые / авторизация /
-            # сервер 5xx. Сумма = общее число ошибок.
+            # сервер 5xx / провайдер вернул 429. Сумма = общее число
+            # ошибок (errors). rate_limited (локальный token bucket)
+            # считается отдельно и в errors НЕ входит.
             "errors": 0,
             "errors_network": 0,
             "errors_auth": 0,
             "errors_server": 0,
+            "errors_rate_limited": 0,
             # Провайдер не вызван: выключен в настройках, не поддерживает
             # тип, или у него нет ключа (enabled=False).
             "skipped_disabled": 0,
@@ -124,14 +127,19 @@ class EnricherOrchestrator:
         return out
 
     def _classify_error(self, error: str) -> None:
-        """Разложить ошибку по категориям для статистики."""
+        """Разложить ошибку по категориям.
+
+        Инвариант: errors_auth + errors_network + errors_server +
+        errors_rate_limited == errors. Локальный rate_limited
+        (наш token bucket) в errors НЕ входит — считается отдельно.
+        """
         e = error.lower()
         if ("401" in e or "403" in e or "unauthorized" in e
                 or "forbidden" in e or "key" in e and "not set" in e):
             self.stats["errors_auth"] += 1
         elif "429" in e or "rate limited" in e:
-            # Уже посчитано в rate_limited; не дублируем.
-            pass
+            # Провайдер вернул 429 — его rate limit, не наш.
+            self.stats["errors_rate_limited"] += 1
         elif ("500" in e or "502" in e or "503" in e or "504" in e
               or "server error" in e):
             self.stats["errors_server"] += 1

@@ -55,6 +55,7 @@ _MITRE_MAP: dict[str, str] = {
     "nxdomain_burst":     "T1568 (Dynamic Resolution)",
     "suspicious_port":    "T1571 (Non-Standard Port)",
     "carved_file":        "T1105 (Ingress Tool Transfer)",
+    "yara_match":         "T1204 (User Execution)",
 }
 
 
@@ -73,6 +74,7 @@ _CHAIN_ORDER: dict[str, int] = {
     "ftp_brute_force":   55,
     "script_download":   60,
     "carved_file":       65,
+    "yara_match":        67,
     "suspicious_port":   70,
     "ja3_malware":       75,
     "ja3_tool":          76,
