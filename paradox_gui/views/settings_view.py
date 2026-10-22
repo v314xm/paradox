@@ -588,13 +588,14 @@ class SettingsView(QWidget):
         scroll.setWidget(host)
         return scroll, form
 
-    def _make_header(self, title: str, subtitle: str) -> tuple[QLabel, QLabel]:
+    def _make_header(self, title: str, subtitle: str, section_key: str | None = None) -> tuple[QLabel, QLabel]:
         t = QLabel(title)
         t.setObjectName("h1")
         s = QLabel(subtitle)
         s.setObjectName("muted")
         s.setWordWrap(True)
-        section_key = SECTION_BY_TITLE.get(title)
+        if section_key is None:
+            section_key = SECTION_BY_TITLE.get(title)
         if section_key:
             help_text = get_section_help(section_key)
             if help_text:
@@ -784,9 +785,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Пороги",
-            "Пороги детекторов из Config ядра. Изменения применяются "
-            "к следующему прогону. Профиль — готовый набор значений.",
+            tr("settings.thresholds.title"),
+            tr("settings.thresholds.subtitle"),
+            "thresholds",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -921,9 +922,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Brute force",
-            "Как детектор отличает подбор пароля от обычного трафика. "
-            "Пороги «сколько flows» — в разделе Пороги.",
+            tr("settings.brute.title"),
+            tr("settings.brute.subtitle"),
+            "brute",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -943,11 +944,11 @@ class SettingsView(QWidget):
                              tr("settings.field.ftp_brute_force_min_unique_src_ports"), lo=1, hi=10000)
 
         self._bf_skip_tls = EditableListWidget(port_mode=True)
-        form.addRow("HTTP: порты, где brute force не ищем (TLS)", self._bf_skip_tls)
+        form.addRow(tr("settings.brute.skip_tls_label"), self._bf_skip_tls)
         self._brute_inputs["brute_force_skip_tls_ports"] = self._bf_skip_tls
 
         self._bf_login_hints = EditableListWidget(port_mode=False)
-        form.addRow("HTTP: подсказки login-endpoint", self._bf_login_hints)
+        form.addRow(tr("settings.brute.login_hints_label"), self._bf_login_hints)
         self._brute_inputs["login_endpoint_hints"] = self._bf_login_hints
 
         outer.addWidget(scroll, stretch=1)
@@ -1029,9 +1030,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Сеть",
-            "Списки портов и префиксов. Вводите через запятую или с новой строки. "
-            "Невалидные значения подсвечиваются и не сохраняются.",
+            tr("settings.network.title"),
+            tr("settings.network.subtitle"),
+            "network",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1040,12 +1041,12 @@ class SettingsView(QWidget):
         self._network_inputs: dict[str, object] = {}
         self._network_status: dict[str, QLabel] = {}
 
-        self._add_smart_net_row(form, "suspicious_ports", "Подозрительные порты", is_net=False)
-        self._add_smart_net_row(form, "port_scan_excluded_ports", "Исключения port scan", is_net=False)
-        self._add_smart_net_row(form, "dc_service_ports", "Порты domain controller", is_net=False)
-        self._add_smart_net_row(form, "lateral_movement_ports", "Порты lateral movement", is_net=False)
-        self._add_smart_net_row(form, "beaconing_mail_polling_ports", "Порты mail-polling (POP3/IMAP)", is_net=False)
-        self._add_smart_net_row(form, "private_networks", "Префиксы приватных сетей", is_net=True)
+        self._add_smart_net_row(form, "suspicious_ports", tr("settings.network.suspicious_ports"), is_net=False)
+        self._add_smart_net_row(form, "port_scan_excluded_ports", tr("settings.network.scan_excluded"), is_net=False)
+        self._add_smart_net_row(form, "dc_service_ports", tr("settings.network.dc_ports"), is_net=False)
+        self._add_smart_net_row(form, "lateral_movement_ports", tr("settings.network.lateral_ports"), is_net=False)
+        self._add_smart_net_row(form, "beaconing_mail_polling_ports", tr("settings.network.mail_ports"), is_net=False)
+        self._add_smart_net_row(form, "private_networks", tr("settings.network.private_nets"), is_net=True)
 
         outer.addWidget(scroll, stretch=1)
         outer.addLayout(self._make_buttons(self._load_network, self._apply_network))
@@ -1169,10 +1170,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Производительность",
-            "Компромисс между глубиной анализа и скоростью. "
-            "Технические лимиты (память, размеры) скрыты и работают "
-            "по умолчанию.",
+            tr("settings.perf.title"),
+            tr("settings.perf.subtitle"),
+            "perf",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1192,7 +1192,7 @@ class SettingsView(QWidget):
         self._perf_inputs: dict[str, object] = {}
 
         # --- TCP Reassembly ---
-        cb_reassembly = QCheckBox("Склеивать TCP-сегменты (TCP Reassembly)")
+        cb_reassembly = QCheckBox(tr("settings.perf.reassembly"))
         lbl_reassembly = QLabel(
             "<span style='color:#a0a0b0; font-size:11px;'>"
             "Собирает полные HTTP-запросы и TLS-хендшейки. "
@@ -1206,7 +1206,7 @@ class SettingsView(QWidget):
         self._field_hints["tcp_reassembly_enabled"] = lbl_reassembly
 
         # --- File Carve ---
-        cb_carve = QCheckBox("Извлекать метаданные файлов (File Carve)")
+        cb_carve = QCheckBox(tr("settings.perf.carve"))
         lbl_carve = QLabel(
             "<span style='color:#a0a0b0; font-size:11px;'>"
             "Находит скачанные скрипты и бинарники (SHA256, MIME). "
@@ -1219,7 +1219,7 @@ class SettingsView(QWidget):
         if not hasattr(self, "_field_hints"): self._field_hints = {}
         self._field_hints["file_carve_enabled"] = lbl_carve
 
-        cb_write = QCheckBox("Сохранять тела файлов на диск (ОПАСНО)")
+        cb_write = QCheckBox(tr("settings.perf.write_body"))
         lbl_write = QLabel(
             "<span style='color:#ff5555; font-size:11px;'>"
             "Создает файлы в reports/carved/. Включайте только "
@@ -1285,9 +1285,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Allowlist",
-            "Белые списки. Совпадение с элементом убирает кандидата из "
-            "findings. Один элемент на строку, # — комментарий.",
+            tr("settings.allowlist.title"),
+            tr("settings.allowlist.subtitle"),
+            "allowlist",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1296,22 +1296,22 @@ class SettingsView(QWidget):
         self._allowlist_inputs: dict[str, object] = {}
 
         self._add_list_row_al(form, "beaconing_allowlist_suffixes",
-                              "Beaconing: суффиксы SNI/Host (analytics, CDN)",
+                              tr("settings.allowlist.beaconing_suffixes"),
                               height=200)
         self._add_list_row_al(form, "beaconing_allowlist_ips",
-                              "Beaconing: точные IP (без SNI)",
+                              tr("settings.allowlist.beaconing_ips"),
                               height=80)
         self._add_list_row_al(form, "dns_tunneling_allowlist",
-                              "DNS tunneling: DoH-домены, не считать туннелем",
+                              tr("settings.allowlist.dns_tunneling"),
                               height=80)
         self._add_list_row_al(form, "sni_mismatch_allowlist",
-                              "SNI mismatch: известные проверочные домены",
+                              tr("settings.allowlist.sni_mismatch"),
                               height=140)
         self._add_list_row_al(form, "large_transfer_excluded_hosts",
-                              "Large transfer: хосты, для которых это норма",
+                              tr("settings.allowlist.large_transfer_hosts"),
                               height=120)
         self._add_list_row_al(form, "large_transfer_excluded_user_agents",
-                              "Large transfer: UA, для которых это норма",
+                              tr("settings.allowlist.large_transfer_uas"),
                               height=80)
 
         outer.addWidget(scroll, stretch=1)
@@ -1359,10 +1359,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "DGA",
-            "Итоговый allowlist детектора DGA. Сюда сливаются домены "
-            "cloud tunnel и IP-check сервисов из Config. Удаление "
-            "элемента означает, что DGA начнёт ругаться на него.",
+            tr("settings.dga.title"),
+            tr("settings.dga.subtitle"),
+            "dga",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1371,7 +1370,7 @@ class SettingsView(QWidget):
         self._dga_inputs: dict[str, object] = {}
 
         self._dga_allowlist = EditableListWidget(port_mode=False)
-        form.addRow("DGA allowlist (домены)", self._dga_allowlist)
+        form.addRow(tr("settings.dga.allowlist_label"), self._dga_allowlist)
         self._dga_inputs["dga_allowlist"] = self._dga_allowlist
 
         outer.addWidget(scroll, stretch=1)
@@ -1434,9 +1433,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Отчёты",
-            "Куда ядро складывает артефакты (кэш обогащения, carved files "
-            "при включённой записи). Путь создаётся при применении.",
+            tr("settings.reports.title"),
+            tr("settings.reports.subtitle"),
+            "reports",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1492,9 +1491,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "YARA",
-            "Пользовательские YARA-правила для поиска сигнатур в payload. "
-            "Если файл не выбран, используются стандартные правила из ядра.",
+            tr("settings.yara.title"),
+            tr("settings.yara.subtitle"),
+            "yara",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1506,10 +1505,10 @@ class SettingsView(QWidget):
         self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
         self._yara_path.setFixedWidth(420)
 
-        btn_browse = QPushButton("Обзор…")
+        btn_browse = QPushButton(tr("settings.yara.browse"))
         btn_browse.clicked.connect(self._browse_yara_file)
 
-        btn_validate = QPushButton("Проверить правила")
+        btn_validate = QPushButton(tr("settings.yara.validate"))
         btn_validate.clicked.connect(self._validate_yara_rules)
 
         row = QHBoxLayout()
@@ -1518,7 +1517,7 @@ class SettingsView(QWidget):
         row.addWidget(btn_validate)
         row.addStretch(1)
 
-        form.addRow("Путь к файлу правил (.yar):", row)
+        form.addRow(tr("settings.yara.path"), row)
         self._yara_inputs["yara_rules_path"] = self._yara_path
 
         outer.addWidget(scroll, stretch=1)
@@ -1560,10 +1559,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Threat Intel",
-            "Обогащение IOC из findings. Запускается отдельно (флаг "
-            "--enrich). API-ключи живут до перезапуска GUI — ядро читает "
-            "их из переменных окружения в момент запроса.",
+            tr("settings.threatintel.title"),
+            tr("settings.threatintel.subtitle"),
+            "threatintel",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1587,7 +1585,7 @@ class SettingsView(QWidget):
         te_prov = QPlainTextEdit()
         te_prov.setFixedHeight(80)
         te_prov.setMaximumWidth(500)
-        form.addRow("Активные провайдеры", te_prov)
+        form.addRow(tr("settings.threatintel.providers"), te_prov)
         self._ti_inputs["enrichment_enabled_providers"] = te_prov
 
         # --- API-ключи ---
@@ -1595,39 +1593,39 @@ class SettingsView(QWidget):
         self._ti_abuse_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_abuse_key.setPlaceholderText("ABUSEIPDB_API_KEY")
         self._ti_abuse_key.setMaximumWidth(420)
-        form.addRow("AbuseIPDB API key", self._ti_abuse_key)
+        form.addRow(tr("settings.threatintel.abuseipdb_key"), self._ti_abuse_key)
 
         self._ti_vt_key = QLineEdit()
         self._ti_vt_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_vt_key.setPlaceholderText("VIRUSTOTAL_API_KEY")
         self._ti_vt_key.setMaximumWidth(420)
-        form.addRow("VirusTotal API key", self._ti_vt_key)
+        form.addRow(tr("settings.threatintel.vt_key"), self._ti_vt_key)
 
         self._ti_abusech_key = QLineEdit()
         self._ti_abusech_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_abusech_key.setPlaceholderText("ABUSECH_AUTH_KEY (MalwareBazaar, ThreatFox, URLhaus)")
         self._ti_abusech_key.setMaximumWidth(420)
-        form.addRow("abuse.ch Auth-Key", self._ti_abusech_key)
+        form.addRow(tr("settings.threatintel.abusech_key"), self._ti_abusech_key)
 
         self._ti_otx_key = QLineEdit()
         self._ti_otx_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_otx_key.setPlaceholderText("OTX_API_KEY")
         self._ti_otx_key.setMaximumWidth(420)
-        form.addRow("AlienVault OTX API key", self._ti_otx_key)
+        form.addRow(tr("settings.threatintel.otx_key"), self._ti_otx_key)
 
         self._ti_greynoise_key = QLineEdit()
         self._ti_greynoise_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_greynoise_key.setPlaceholderText("GREYNOISE_API_KEY")
         self._ti_greynoise_key.setMaximumWidth(420)
-        form.addRow("GreyNoise API key", self._ti_greynoise_key)
+        form.addRow(tr("settings.threatintel.greynoise_key"), self._ti_greynoise_key)
 
         self._ti_urlscan_key = QLineEdit()
         self._ti_urlscan_key.setEchoMode(QLineEdit.EchoMode.Password)
         self._ti_urlscan_key.setPlaceholderText("URLSCAN_API_KEY")
         self._ti_urlscan_key.setMaximumWidth(420)
-        form.addRow("URLScan API key", self._ti_urlscan_key)
+        form.addRow(tr("settings.threatintel.urlscan_key"), self._ti_urlscan_key)
 
-        show_cb = QCheckBox("Показать ключи")
+        show_cb = QCheckBox(tr("settings.threatintel.show_keys"))
         show_cb.toggled.connect(self._toggle_api_keys_visibility)
         form.addRow("", show_cb)
 
@@ -1643,19 +1641,19 @@ class SettingsView(QWidget):
         sp_ttl = QSpinBox()
         sp_ttl.setRange(1, 365)
         sp_ttl.setFixedWidth(120)
-        form.addRow("Кэш: TTL (дней)", sp_ttl)
+        form.addRow(tr("settings.threatintel.cache_ttl"), sp_ttl)
         self._ti_inputs["enrichment_cache_ttl_days"] = sp_ttl
 
         le_cache = QLineEdit()
         le_cache.setMaximumWidth(420)
-        form.addRow("Кэш: путь к SQLite-файлу", le_cache)
+        form.addRow(tr("settings.threatintel.cache_path"), le_cache)
         self._ti_inputs["enrichment_cache_path"] = le_cache
 
         # --- Лимит IOC ---
         sp_max = QSpinBox()
         sp_max.setRange(1, 10000)
         sp_max.setFixedWidth(120)
-        form.addRow("Максимум IOC за прогон", sp_max)
+        form.addRow(tr("settings.threatintel.max_iocs"), sp_max)
         self._ti_inputs["enrichment_max_iocs"] = sp_max
 
         outer.addWidget(scroll, stretch=1)
@@ -1758,9 +1756,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "Детекторы",
-            "Снятая галочка отключает детектор в следующем прогоне. "
-            "Порядок совпадает с ядром.",
+            tr("settings.detectors.title"),
+            tr("settings.detectors.subtitle"),
+            "detectors",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1790,7 +1788,7 @@ class SettingsView(QWidget):
         buttons.addWidget(all_btn)
         buttons.addWidget(none_btn)
         buttons.addStretch(1)
-        apply_btn = QPushButton("Применить")
+        apply_btn = QPushButton(tr("settings.btn.apply"))
         apply_btn.setObjectName("primary")
         apply_btn.clicked.connect(self._apply_detectors)
         buttons.addWidget(apply_btn)
@@ -1842,9 +1840,9 @@ class SettingsView(QWidget):
         outer.setSpacing(12)
 
         t, s = self._make_header(
-            "ContradictionDetector",
-            "Правила проверяют согласованность между слоями данных. "
-            "Отключение правила убирает его из следующего прогона.",
+            tr("settings.contradictions.title"),
+            tr("settings.contradictions.subtitle"),
+            "contradictions",
         )
         outer.addWidget(t)
         outer.addWidget(s)
@@ -1867,14 +1865,14 @@ class SettingsView(QWidget):
         outer.addWidget(scroll, stretch=1)
 
         buttons = QHBoxLayout()
-        all_btn = QPushButton("Включить все")
+        all_btn = QPushButton(tr("settings.btn.enable_all"))
         all_btn.clicked.connect(lambda: self._set_all_contradictions(True))
-        none_btn = QPushButton("Отключить все")
+        none_btn = QPushButton(tr("settings.btn.disable_all"))
         none_btn.clicked.connect(lambda: self._set_all_contradictions(False))
         buttons.addWidget(all_btn)
         buttons.addWidget(none_btn)
         buttons.addStretch(1)
-        apply_btn = QPushButton("Применить")
+        apply_btn = QPushButton(tr("settings.btn.apply"))
         apply_btn.setObjectName("primary")
         apply_btn.clicked.connect(self._apply_contradictions)
         buttons.addWidget(apply_btn)
