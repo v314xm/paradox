@@ -121,3 +121,7 @@ desktop.ini
 *.zip
 Paradox.spec
 paradox.ico
+coverage.txt
+coverage_report.txt
+.coverage
+htmlcov/

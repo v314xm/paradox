@@ -93,7 +93,15 @@ class DNSExtractor:
                 # SOA/MX/TXT и др. могут не иметь rdata — читаем
                 # только для известных типов. Без этой проверки
                 # rr.rdata падает с AttributeError.
-                if rr.type not in (1, 28, 5):
+                #
+                # v1.3.1: rr.type тоже может падать — крафтовый
+                # DNS-ответ с битым RR бросает AttributeError или
+                # ValueError. try/except сохраняет остальные RR.
+                try:
+                    rr_type = rr.type
+                except (AttributeError, ValueError):
+                    continue
+                if rr_type not in (1, 28, 5):
                     continue
                 raw = getattr(rr, 'rdata', None)
                 if raw is None:
