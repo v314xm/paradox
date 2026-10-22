@@ -1,0 +1,44 @@
+# autofix report — 2026-10-19 16:35:07
+
+· skip    [fix_01] critical QuickCheck: распаковка ioc_type, ioc = data
+
+· skip    [fix_02] critical DGA: allowlist через matches_suffix
+
+· skip    [fix_03] high     Threat Intel: показать/скрыть все 6 API-ключей
+
+· skip    [fix_04] high     Settings: активный профиль читается до _build_ui
+
+· skip    [fix_05] high     ReverseAsymmetry: убрать свежий Config из find_contradictions
+
+· skip    [fix_05b] high     ReverseAsymmetry: сохранить config в extract_facts
+    note:  после fix_05: find_contradictions читает self._min_ratio
+
+· skip    [fix_06] high     PortServiceMismatch: не создавать свежий Config
+    note:  ослабленный anchor: не привязан к import выше
+
+· skip    [fix_06b] high     PortServiceMismatch: сохранить config в extract_facts
+    note:  после fix_06: find_contradictions читает self._allowed
+
+· skip    [fix_05c] high     ReverseAsymmetry: fallback Config в find_contradictions
+    note:  тесты вызывают find_contradictions без extract_facts
+
+· skip    [fix_06c] high     PortServiceMismatch: fallback Config в find_contradictions
+    note:  тесты вызывают find_contradictions без extract_facts
+
+· skip    [fix_07] medium   OTX: 404 = нет данных, не ошибка
+
+· skip    [fix_07b] medium   URLScan: 404 = нет данных, не ошибка
+
+· skip    [fix_08] medium   YARA: severity high в _SEVERITY_BY_TYPE
+
+· skip    [fix_09] low      timeline.py: убрать дубль _describe_carved_file
+
+· skip    [fix_10] low      settings_view: убрать дубли elif key == 'yara'
+
+· skip    [fix_11] low      findings_table: menu.exec_ → menu.exec
+
+· skip    [fix_12] low      detector_help: восстановить пропущенные пробелы
+
+· skip    [fix_13] low      empty_states: '17 детекторов' → len(DETECTORS)
+
+· skip    [fix_14] low      paradox_gui.__version__ = 1.0.0
