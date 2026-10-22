@@ -450,8 +450,28 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
+
+        p = Path(path)
+        # Защита от больших JSON: > 100 МБ — предупредить.
+        _JSON_LIMIT_MB = 100
         try:
-            data = json.loads(Path(path).read_text(encoding="utf-8"))
+            size_mb = p.stat().st_size / (1024 * 1024)
+        except OSError:
+            size_mb = 0
+        if size_mb > _JSON_LIMIT_MB:
+            answer = QMessageBox.question(
+                self,
+                tr("error.large_json_title"),
+                tr("error.large_json_body",
+                   size=size_mb, limit=_JSON_LIMIT_MB),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
         except Exception as e:
             QMessageBox.critical(
                 self,

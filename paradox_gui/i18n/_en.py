@@ -420,6 +420,11 @@ STRINGS: dict[str, str] = {
     "run.error": "Error: {msg}",
     "run.multi_warning_title": "2+ files required",
     "run.multi_warning_body": "1 file selected. For single analysis — drag it into the zone above.",
+    "run.large_pcap_title": "Large pcap",
+    "run.large_pcap_body": "File is {size:.0f} MB (warning threshold: {limit} MB).\nAnalysis may take several minutes and consume a lot of RAM. Continue?",
+    "run.large_multi_pcap_body": "{count} files selected, {size:.0f} MB total (threshold: {limit} MB).\nAnalysis may take a long time. Continue?",
+    "error.large_json_title": "Large JSON report",
+    "error.large_json_body": "File is {size:.0f} MB (warning threshold: {limit} MB).\nLoading may take several seconds. Continue?",
 
     # --- Findings Table ---
     "find.search_placeholder": "Search by value / type / MITRE…",

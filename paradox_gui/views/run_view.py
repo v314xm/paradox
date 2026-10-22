@@ -4,6 +4,7 @@
 summary grid + секция противоречий + таблица findings.
 """
 import time
+from pathlib import Path
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
@@ -228,6 +229,27 @@ class RunView(QWidget):
                 tr("run.multi_warning_body"),
             )
             return
+
+        # Защита от суммарно больших multi-pcap.
+        total_mb = 0.0
+        try:
+            for p in paths:
+                total_mb += Path(p).stat().st_size / (1024 * 1024)
+        except OSError:
+            pass
+        _LIMIT = 500
+        if total_mb > _LIMIT:
+            answer = QMessageBox.question(
+                self,
+                tr("run.large_pcap_title"),
+                tr("run.large_multi_pcap_body",
+                   count=len(paths), size=total_mb, limit=_LIMIT),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+
         self._current_paths = list(paths)
         self._current_path = paths[0]
         self._reset_results()

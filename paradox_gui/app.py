@@ -5,6 +5,7 @@
 логика вкладок появится по мере готовности views/*.
 """
 import sys
+import traceback
 
 from PySide6.QtWidgets import QApplication
 
@@ -14,6 +15,37 @@ from paradox_gui.theme import apply_theme
 
 def main() -> int:
     app = QApplication(sys.argv)
+
+    # >>> ГЛОБАЛЬНЫЙ ОБРАБОТЧИК ИСКЛЮЧЕНИЙ <<<
+    # _runtime_hook.py уже подменил sys.excepthook, чтобы писать в файл.
+    # Мы сохраняем его и оборачиваем: сначала показываем диалог, потом
+    # вызываем оригинал (чтобы лог всё равно записался).
+    _orig_hook = sys.excepthook
+
+    def _gui_excepthook(exc_type, exc_value, exc_tb):
+        tb_text = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        try:
+            from PySide6.QtWidgets import QMessageBox
+            if QApplication.instance():
+                box = QMessageBox()
+                box.setIcon(QMessageBox.Icon.Critical)
+                box.setWindowTitle("Критическая ошибка")
+                box.setText(
+                    "Произошла непредвиденная ошибка.<br>"
+                    "Подробности сохранены в <b>Paradox-error.log</b>."
+                )
+                box.setDetailedText(tb_text)
+                box.exec()
+        except Exception:
+            # Если GUI сам сломался — не мешаем оригинальному хуку.
+            pass
+
+        if _orig_hook:
+            _orig_hook(exc_type, exc_value, exc_tb)
+
+    sys.excepthook = _gui_excepthook
+    # >>> /ГЛОБАЛЬНЫЙ ОБРАБОТЧИК ИСКЛЮЧЕНИЙ <<<
+
     # Иконка приложения (taskbar + title bar)
     try:
         from paradox_gui.logo import get_app_icon

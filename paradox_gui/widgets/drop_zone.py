@@ -12,12 +12,14 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QFrame,
     QLabel,
+    QMessageBox,
     QVBoxLayout,
 )
 
 from paradox_gui.i18n import tr
 
-
+# Порог предупреждения о размере pcap (в МБ). Ниже порога — без диалога.
+_MAX_PCAP_WARN_MB = 500
 class DropZone(QFrame):
     pcap_selected = Signal(str)  # абсолютный путь к файлу
 
@@ -127,6 +129,24 @@ class DropZone(QFrame):
         # дело вызывающей стороны, а не зоны.
         if not p.exists() or not p.is_file():
             return
+
+        # Защита от больших pcap: > 500 МБ — предупредить.
+        try:
+            size_mb = p.stat().st_size / (1024 * 1024)
+        except OSError:
+            size_mb = 0
+        if size_mb > _MAX_PCAP_WARN_MB:
+            answer = QMessageBox.question(
+                self,
+                tr("run.large_pcap_title"),
+                tr("run.large_pcap_body",
+                   size=size_mb, limit=_MAX_PCAP_WARN_MB),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+
         self.pcap_selected.emit(str(p.resolve()))
 
     def _set_drag_active(self, active: bool) -> None:
