@@ -252,6 +252,6 @@ STRINGS: dict[str, str] = {
     "settings.help.enrichment_max_iocs": "How many IOCs to enrich per run.",
     "settings.placeholder.general": "<b>What's coming.</b> General settings: <b>UI language</b> (Russian / English), default reports path, startup behavior (open last pcap or empty tab), theme (currently dark-only).<br><br><b>Why empty.</b> Currently these values are either hardcoded in GUI or not critical. Will appear with the second locale or multiple work profiles.",
     "settings.placeholder.fallback": "Section in development.",
-    "settings.help.fallback": "Config field '{key}'. See paradox/config.py.",
+    "settings.help.fallback": "Config field '{field}'. See paradox/config.py.",
 
 }

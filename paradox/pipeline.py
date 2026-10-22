@@ -363,6 +363,10 @@ def run_pipeline(
         )
         _attack_graph_dict = _attack_graph.to_dict()
     except Exception:
+        import logging
+        logging.getLogger(__name__).exception(
+            "build_attack_graph failed; falling back to empty graph"
+        )
         _attack_graph_dict = {
             "nodes": [], "edges": [], "paths": [],
             "entry_points": [], "impact_targets": [],
@@ -381,7 +385,7 @@ def run_pipeline(
             ioc_report = build_ioc_report({
                 "findings": [f.to_dict() for f in findings],
                 "carved_files": carved_report,
-        "absence": absence_report,
+                "absence": absence_report,
             })
             ioc_files = {
                 k: str(v) for k, v in

@@ -50,6 +50,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+# >>> /ИМПОРТЫ VIEWS <<<
+from paradox_gui import __version__ as APP_VERSION
 from paradox_gui.i18n import DEFAULT_LANGUAGE, set_language, tr
 from paradox_gui.views.diff_view import DiffView
 from paradox_gui.views.enrich_view import EnrichView
@@ -62,10 +64,6 @@ from paradox_gui.views.run_view import RunView
 from paradox_gui.views.settings_view import SettingsView
 from paradox_gui.views.timeline_view import TimelineView
 
-# >>> /ИМПОРТЫ VIEWS <<<
-
-
-APP_VERSION = "1.0.0"
 
 class ClickableLabel(QLabel):
     from PySide6.QtCore import Signal

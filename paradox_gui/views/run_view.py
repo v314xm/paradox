@@ -344,7 +344,9 @@ class RunView(QWidget):
         self.btn_what_if.setEnabled(True)
         self.btn_graph.setEnabled(True)
         _ag = report.get('attack_graph') or {}
-        self.btn_attack_graph.setEnabled(bool(_ag.get('paths')))
+        self.btn_attack_graph.setEnabled(
+            bool(_ag.get('nodes') or _ag.get('paths'))
+        )
         self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
         self.btn_reset_filter.setVisible(False)
         self.status_label.setText(

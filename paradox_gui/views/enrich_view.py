@@ -53,6 +53,7 @@ class EnrichView(QWidget):
         self._report: dict | None = None
         self._config_overrides: dict = {}
         self._worker: EnrichmentWorker | None = None
+        self._base_status: str = ""
         # [(type, ioc), ...] — все кандидаты из последнего report.
         self._candidates: list[tuple[str, str]] = []
         # {(type, ioc): {source: data}} — накопленные результаты.
@@ -458,7 +459,14 @@ class EnrichView(QWidget):
     # =========================================================================
 
     def _update_status(self, text: str | None) -> None:
-        """Обновить строку статуса. text=None — только пересчёт счётчика."""
+        """Обновить строку статуса. text=None — только пересчёт счётчика.
+
+        Базовый текст хранится отдельно (self._base_status) — не
+        парсим собственный output, поэтому счётчик не накапливается.
+        """
+        if text is not None:
+            self._base_status = text
+
         total = len(self._candidates)
         selected = len(self._selected_iocs()) if total else 0
         already = sum(1 for k in self._candidates if k in self._enrichment)
@@ -470,20 +478,11 @@ class EnrichView(QWidget):
             counter_parts.append(f"обогащено: {already}")
         counter = " · ".join(counter_parts)
 
-        if text is None:
-            # Хотим только обновить счётчик, сохранив базовый текст.
-            current = self._status.text()
-            # Отрежем старый счётчик, если был.
-            base = current.split(" · Выбрано:")[0]
-            self._status.setText(
-                f"{base} · {counter}" if counter else base
-            )
-            return
-
+        base = self._base_status or ""
         if counter:
-            self._status.setText(f"{text} · {counter}")
+            self._status.setText(f"{base} · {counter}" if base else counter)
         else:
-            self._status.setText(text)
+            self._status.setText(base)
 
     def _set_busy(self, busy: bool) -> None:
         self._enrich_btn.setEnabled(

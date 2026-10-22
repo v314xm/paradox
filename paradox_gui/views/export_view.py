@@ -49,7 +49,9 @@ def _extract_stix_iocs(findings: list) -> list[dict]:
                 })
 
         val = str(f.get("value", ""))
-        domain_match = re.search(r'([a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,})', val)
+        domain_match = re.search(
+            r'\b((?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})\b', val,
+        )
         if domain_match:
             domain = domain_match.group(1)
             if domain not in seen_values:

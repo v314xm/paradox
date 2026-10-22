@@ -209,11 +209,10 @@ class SettingsView(QWidget):
         self._store = store
         self._secrets = SecretsStore()
         self._active_profile_key = self._read_active_profile()
+        self._status_timer = None
         self._build_ui()
         self._apply_help_tooltips()
         self.load_from_store()
-        self._wire_modified_signals()
-        self._check_modified()
         self._wire_modified_signals()
         self._check_modified()
         # Автосохранение при каждом Apply. Подписка на свои же сигналы:
@@ -359,11 +358,7 @@ class SettingsView(QWidget):
         карте SECTION_BY_TITLE. Поля: обход всех *_inputs-групп,
         tooltip из get_field_help.
         """
-        for group_name in (
-            "_threshold_inputs", "_brute_inputs", "_network_inputs",
-            "_perf_inputs", "_allowlist_inputs", "_dga_inputs",
-            "_reports_inputs", "_ti_inputs",
-        ):
+        for group_name in self._INPUT_GROUPS:
             group = getattr(self, group_name, None)
             if not isinstance(group, dict):
                 continue
@@ -384,7 +379,7 @@ class SettingsView(QWidget):
     _INPUT_GROUPS = (
         "_threshold_inputs", "_brute_inputs", "_network_inputs",
         "_perf_inputs", "_allowlist_inputs", "_dga_inputs",
-        "_reports_inputs", "_ti_inputs",
+        "_reports_inputs", "_ti_inputs", "_yara_inputs",
     )
 
     def _notify_status(self, msg: str, level: str = "info",
@@ -398,13 +393,21 @@ class SettingsView(QWidget):
 
         from PySide6.QtCore import QTimer
 
+        # Останавливаем предыдущий таймер: иначе старое сообщение
+        # сотрёт новое на своём сроке.
+        if self._status_timer is not None:
+            self._status_timer.stop()
+
         def _clear():
             try:
                 label.setText("")
             except RuntimeError:
                 pass
 
-        QTimer.singleShot(timeout_ms, _clear)
+        self._status_timer = QTimer(self)
+        self._status_timer.setSingleShot(True)
+        self._status_timer.timeout.connect(_clear)
+        self._status_timer.start(timeout_ms)
 
     def _wire_modified_signals(self) -> None:
         for group_name in self._INPUT_GROUPS:
@@ -420,11 +423,16 @@ class SettingsView(QWidget):
                     widget.textChanged.connect(self._check_modified)
 
     def _check_modified(self, *args) -> None:
-        try:
-            from paradox.config import Config
-            self._defaults = Config()
-        except ImportError:
-            self._defaults = None
+        # Кэшируем Config(): _validate() + output_dir.mkdir() в
+        # __post_init__ — дорого дёргать на каждое нажатие клавиши.
+        # OSError тоже ловим: недоступный output_dir не должен
+        # обрушивать слот по textChanged.
+        if getattr(self, "_defaults", None) is None:
+            try:
+                from paradox.config import Config
+                self._defaults = Config()
+            except Exception:
+                self._defaults = None
         for group_name in self._INPUT_GROUPS:
             group = getattr(self, group_name, None)
             if not isinstance(group, dict):
@@ -1474,22 +1482,6 @@ class SettingsView(QWidget):
         self.config_applied.emit({"output_dir": path})
 
     # =========================================================================
-    # СЕКЦИЯ: Threat Intel
-    # =========================================================================
-
-    # =========================================================================
-    # СЕКЦИЯ: YARA
-    # =========================================================================
-
-
-
-
-
-    # =========================================================================
-    # СЕКЦИЯ: Threat Intel
-    # =========================================================================
-
-    # =========================================================================
     # СЕКЦИЯ: YARA
     # =========================================================================
 
@@ -1759,10 +1751,6 @@ class SettingsView(QWidget):
     # СЕКЦИЯ: Детекторы
     # =========================================================================
 
-    # =========================================================================
-    # СЕКЦИЯ: Детекторы
-    # =========================================================================
-
     def _build_detectors_page(self) -> QWidget:
         w = QWidget()
         outer = QVBoxLayout(w)
@@ -1955,6 +1943,7 @@ class SettingsView(QWidget):
             self._dga_inputs,
             self._reports_inputs,
             self._ti_inputs,
+            self._yara_inputs,
         ):
             for key, widget in group.items():
                 if key not in overrides:
@@ -2002,7 +1991,7 @@ class SettingsView(QWidget):
         elif isinstance(widget, QCheckBox):
             widget.setChecked(bool(value))
         elif isinstance(widget, QLineEdit):
-            widget.setText(str(value))
+            widget.setText("" if value is None else str(value))
         elif isinstance(widget, QPlainTextEdit):
             if key == "private_networks" and isinstance(value, (tuple, list)):
                 widget.setPlainText("\n".join(str(x) for x in value))

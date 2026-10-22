@@ -66,10 +66,16 @@ class BaseEnricher:
             return self._error(ioc, ioc_type, self.disabled_reason())
 
         data, error = self._fetch(ioc, ioc_type)
+        if error == "__not_found__":
+            # 404 от _http_error_message: провайдер не знает такой
+            # IOC. Это не ошибка — negative caching. Раньше
+            # провайдеры, не зовущие _resolve_not_found
+            # (malwarebazaar, threatfox, urlhaus), получали это
+            # значение как обычный error.
+            return self._ok(ioc, ioc_type, {}, ttl=self.ttl_days_negative)
         if error is not None:
             return self._error(ioc, ioc_type, error)
         if data is None:
-            # 404 — нет в базе. Не ошибка, просто нет данных.
             return self._ok(ioc, ioc_type, {}, ttl=self.ttl_days_negative)
         return self._ok(ioc, ioc_type, data, ttl=self.ttl_days)
 

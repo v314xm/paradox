@@ -23,9 +23,17 @@ from pathlib import Path
 
 
 def _db_dir() -> Path:
-    base = os.getenv("APPDATA")
-    if not base:
-        base = os.getenv("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
+    import sys
+    if sys.platform == "win32":
+        base = os.getenv("APPDATA") or str(
+            Path.home() / "AppData" / "Roaming"
+        )
+    elif sys.platform == "darwin":
+        base = str(Path.home() / "Library" / "Application Support")
+    else:
+        base = os.getenv("XDG_DATA_HOME") or str(
+            Path.home() / ".local" / "share"
+        )
     return Path(base) / "Paradox"
 
 

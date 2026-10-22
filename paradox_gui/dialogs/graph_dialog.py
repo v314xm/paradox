@@ -237,7 +237,6 @@ class GraphDialog(QDialog):
 
     def _draw_graph(self):
         try:
-            self.cb_only_findings.isChecked()
             hide_isolated = self.cb_hide_isolated.isChecked()
 
             entities = self.report.get("entities") or {}

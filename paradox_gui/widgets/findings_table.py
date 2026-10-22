@@ -34,6 +34,24 @@ _COLUMNS = (
 _ROW_DATA_ROLE = Qt.ItemDataRole.UserRole + 1
 
 
+class _ConfItem(QTableWidgetItem):
+    """QTableWidgetItem с числовым сравнением для сортировки по confidence.
+
+    Стандартный QTableWidgetItem.sortItems() сравнивает DisplayRole —
+    если туда положена строка "0.85", сортировка лексикографическая.
+    Кладём float в отдельный атрибут и переопределяем __lt__.
+    """
+
+    def __init__(self, conf: float) -> None:
+        super().__init__(f"{conf:.2f}")
+        self._conf = conf
+
+    def __lt__(self, other) -> bool:
+        if isinstance(other, _ConfItem):
+            return self._conf < other._conf
+        return super().__lt__(other)
+
+
 class FindingsTable(QFrame):
     # object, а не dict — стабильнее в PySide6.
     row_activated = Signal(object)
@@ -72,7 +90,6 @@ class FindingsTable(QFrame):
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
         )
-        self._table.setHorizontalHeaderLabels([c[0] for c in _COLUMNS])
         self._table.setHorizontalHeaderLabels([c[0] for c in _COLUMNS])
         self._table.verticalHeader().setVisible(False)
         self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
@@ -133,13 +150,10 @@ class FindingsTable(QFrame):
         value_item = QTableWidgetItem(str(f.get("value", "")))
 
         conf = f.get("confidence")
-        conf_item = QTableWidgetItem()
-        if isinstance(conf, (int, float)):
-            # Сортировка должна идти по числу, а показывать — 2 знака.
-            conf_item.setData(Qt.ItemDataRole.DisplayRole, float(conf))
-            conf_item.setText(f"{conf:.2f}")
-        else:
-            conf_item.setText("")
+        conf_item = (
+            _ConfItem(float(conf)) if isinstance(conf, (int, float))
+            else QTableWidgetItem("")
+        )
 
         mitre = f.get("mitre_techniques") or ()
         if isinstance(mitre, str):

@@ -220,7 +220,7 @@ def get_field_help(key: str) -> str:
     text = FIELD_HELP.get(key)
     if text:
         return text
-    return tr("settings.help.fallback", key=key)
+    return tr("settings.help.fallback", field=key)
 
 
 def get_section_help(key: str) -> str:
