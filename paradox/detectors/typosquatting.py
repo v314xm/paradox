@@ -125,6 +125,9 @@ class TyposquattingDetector:
 
             brand, kind = match
             confidence = 0.75 if kind == "levenshtein" else 0.65
+            ts_list = state.dns_query_ts_by_name.get(domain)
+            first_seen = min(ts_list) if ts_list else None
+            last_seen = max(ts_list) if ts_list else None
             findings.append(Finding(
                 type="typosquatting",
                 value=domain,
@@ -135,6 +138,8 @@ class TyposquattingDetector:
                     "label": sld,
                     "queries": count,
                 },
+                first_seen=first_seen,
+                last_seen=last_seen,
             ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))

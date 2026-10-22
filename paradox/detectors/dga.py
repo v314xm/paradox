@@ -43,6 +43,10 @@ class DGADetector:
                 0.5 + (entropy - config.dga_entropy_threshold) / 2.0,
             )
 
+            ts_list = state.dns_query_ts_by_name.get(name)
+            first_seen = min(ts_list) if ts_list else None
+            last_seen = max(ts_list) if ts_list else None
+
             findings.append(Finding(
                 type="dga_domain",
                 value=name,
@@ -52,6 +56,8 @@ class DGADetector:
                     "entropy": round(entropy, 3),
                     "queries": count,
                 },
+                first_seen=first_seen,
+                last_seen=last_seen,
             ))
 
         return findings
