@@ -66,6 +66,14 @@ class FindingsTable(QFrame):
         )
         self.setMinimumHeight(280)  # ← ЭТА СТРОКА
         self._findings_cache: list[dict] = []
+
+        # Дебаунсер для поиска (защита от лагов при вводе)
+        from PySide6.QtCore import QTimer
+        self._search_timer = QTimer(self)
+        self._search_timer.setSingleShot(True)
+        self._search_timer.setInterval(200)
+        self._search_timer.timeout.connect(self._apply_filters)
+
         self._build_ui()
         self.setVisible(False)
 
@@ -219,7 +227,7 @@ class FindingsTable(QFrame):
         self._search = QLineEdit()
         self._search.setPlaceholderText("Поиск по value / типу / MITRE…")
         self._search.setClearButtonEnabled(True)
-        self._search.textChanged.connect(self._apply_filters)
+        self._search.textChanged.connect(lambda: self._search_timer.start())
         bar.addWidget(self._search, stretch=1)
 
         self._type_filter = QComboBox()
@@ -254,6 +262,7 @@ class FindingsTable(QFrame):
         self._search.blockSignals(False)
         self._type_filter.blockSignals(False)
         self._conf_filter.blockSignals(False)
+        self._search_timer.stop()
         self._apply_filters()
 
     def _rebuild_type_filter(self) -> None:

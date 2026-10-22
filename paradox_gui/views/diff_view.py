@@ -24,6 +24,7 @@ class DiffView(QWidget):
         super().__init__(parent)
         self._old: dict | None = None
         self._new: dict | None = None
+        self.setAcceptDrops(True)
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -181,6 +182,45 @@ class DiffView(QWidget):
         if parts:
             base += " · " + " · ".join(parts)
         return base
+
+    def dragEnterEvent(self, event) -> None:
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
+    def dropEvent(self, event) -> None:
+        urls = event.mimeData().urls()
+        if not urls:
+            return
+        path = urls[0].toLocalFile()
+        if not path.lower().endswith('.json'):
+            QMessageBox.warning(self, 'Ошибка', 'Ожидается JSON-отчёт.')
+            return
+
+        try:
+            data = json.loads(Path(path).read_text(encoding='utf-8'))
+        except Exception as e:
+            QMessageBox.critical(self, 'Ошибка', f'Ошибка чтения: {e}')
+            return
+
+        if not isinstance(data, dict) or 'findings' not in data:
+            QMessageBox.critical(self, 'Не тот файл', 'Это не JSON-отчёт Paradox.')
+            return
+
+        # Логика распределения: сначала заполняем старый, потом новый.
+        # Если оба заполнены — сдвигаем: старый <- новый, новый <- загруженный.
+        if self._old is None:
+            self._old = data
+            self._lbl_old.setText(Path(path).name)
+        elif self._new is None:
+            self._new = data
+            self._lbl_new.setText(Path(path).name)
+        else:
+            self._old = self._new
+            self._lbl_old.setText(self._lbl_new.text())
+            self._new = data
+            self._lbl_new.setText(Path(path).name)
+
+        self._refresh()
 
     def set_reports(self, old: dict | None, new: dict | None) -> None:
         self._old = old

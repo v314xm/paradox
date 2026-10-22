@@ -62,7 +62,8 @@ class _Zoomable(QGraphicsView):
 class AttackGraphDialog(QDialog):
     def __init__(self, report: dict, parent=None) -> None:
         super().__init__(parent)
-        self._graph = (report or {}).get("attack_graph", {}) or {}
+        self._report = report or {}
+        self._graph = self._report.get("attack_graph", {}) or {}
         self._nodes = self._graph.get("nodes", [])
         self._edges = self._graph.get("edges", [])
         self._paths = self._graph.get("paths", [])
@@ -397,44 +398,14 @@ class AttackGraphDialog(QDialog):
     def _open_host_story(self, ip: str):
         """Двойной клик на узле — история хоста."""
         try:
-            from paradox.analyzers.story import build_host_story  # noqa: F401
-            from paradox_gui.dialogs.host_story_dialog import HostStoryDialog  # noqa: F401
+            from paradox.analyzers.story import build_host_story
+            from paradox_gui.dialogs.host_story_dialog import HostStoryDialog
         except ImportError:
             return
-        # Восстанавливаем отчёт из того, что есть в диалоге
-        # (в графе только nodes/edges/paths — историю построить не из чего,
-        # поэтому показываем просто findings этого узла)
-        findings = []
-        for e in self._edges:
-            if ip in (e.get("src"), e.get("dst")):
-                findings.append(e)
-        if not findings:
-            return
-        html_parts = [f"<h3>{ip}</h3>", "<p><b>Связанные события:</b></p><ul>"]
-        for e in findings:
-            types = ", ".join(e.get("finding_types", []))
-            direction = "→" if e.get("src") == ip else "←"
-            other = e.get("dst") if e.get("src") == ip else e.get("src")
-            html_parts.append(
-                f"<li>{direction} <code>{other}</code>: {types} "
-                f"({e.get('phase')}, {e.get('severity')})</li>"
-            )
-        html_parts.append("</ul>")
-        try:
-            from PySide6.QtWidgets import QDialog, QPushButton, QTextBrowser, QVBoxLayout
-            dlg = QDialog(self)
-            dlg.setWindowTitle(f"Хост: {ip}")
-            dlg.resize(600, 500)
-            v = QVBoxLayout(dlg)
-            tb = QTextBrowser()
-            tb.setHtml("".join(html_parts))
-            v.addWidget(tb)
-            btn = QPushButton("Закрыть")
-            btn.clicked.connect(dlg.accept)
-            v.addWidget(btn)
-            dlg.exec()
-        except Exception:
-            pass
+
+        story = build_host_story(self._report, ip)
+        dialog = HostStoryDialog(ip, story, self)
+        dialog.exec()
 
     def _setup_timeline(self):
         """Найти границы времени и настроить слайдер."""
