@@ -358,8 +358,8 @@ def build_entities(
 
             elif ftype in ("ja3_malware", "sni_without_dns",
                            "dga_domain", "typosquatting",
-                           "cloud_tunnel", "ip_check_service",
-                           "smtp_spam"):
+                           "cloud_tunnel", "cloud_tunnel_domain",
+                           "ip_check_service", "smtp_spam"):
                 # Внешние индикаторы, src = инициатор
                 if side == "src":
                     tags.add("victim_tag")

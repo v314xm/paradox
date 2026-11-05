@@ -76,6 +76,10 @@ class YARADetector:
                         "filename": cf.uri or cf.sha256[:12],
                         "sha256": cf.sha256,
                         "saved_path": cf.saved_path,
-                    }
+                    },
+                    # Единственная метка времени payload'а; без неё
+                    # timeline выбрасывает YARA-находку.
+                    first_seen=cf.first_ts,
+                    last_seen=cf.first_ts,
                 ))
         return findings

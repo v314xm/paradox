@@ -52,9 +52,15 @@ class SniHostMismatchRule:
     def find_contradictions(
         self, facts: list[Fact],
     ) -> list[Contradiction]:
-        # Группировка: (src_ip, dst_ip, dst_port) → {sni: [...], http_host: [...]}
+        # Группировка: (src_ip, dst_ip) → {sni: [...], http_host: [...]}.
+        # Порт намеренно НЕ в ключе: SNI приходит из TLS (обычно 443),
+        # HTTP Host — из plaintext HTTP (обычно 80). Группировка по
+        # порту делала правило структурно недостижимым: ключи
+        # никогда не совпадали. Цена — «один узел dst, возможно
+        # разные соединения»; confidence уже умножен на 0.9 за эту
+        # эвристику, а hint просит проверить назначение соединения.
         groups: dict[
-            tuple[str, str, int | None],
+            tuple[str, str],
             dict[str, list[Fact]],
         ] = defaultdict(lambda: {"sni": [], "http_host": []})
 
@@ -64,12 +70,11 @@ class SniHostMismatchRule:
             dst_ip = f.evidence.get("dst_ip")
             if not dst_ip:
                 continue
-            dst_port = f.evidence.get("dst_port")
-            key = (f.subject, dst_ip, dst_port)
+            key = (f.subject, dst_ip)
             groups[key][f.predicate].append(f)
 
         out: list[Contradiction] = []
-        for (src, dst, dport), bucket in groups.items():
+        for (src, dst), bucket in groups.items():
             if not bucket["sni"] or not bucket["http_host"]:
                 continue
 
@@ -101,10 +106,9 @@ class SniHostMismatchRule:
                 3,
             )
 
-            port_str = f":{dport}" if dport else ""
             hint = (
-                f"SNI=`{sni}` ≠ HTTP Host=`{host}` на одном соединении "
-                f"{src} → {dst}{port_str}. Domain fronting / VPN / "
+                f"SNI=`{sni}` ≠ HTTP Host=`{host}` на одном узле "
+                f"{src} → {dst}. Domain fronting / VPN / "
                 f"корпоративный MITM-прокси — проверить назначение "
                 f"соединения и ASN получателя."
             )

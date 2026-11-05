@@ -46,7 +46,13 @@ class DNSTunnelingDetector:
         # Группируем по (src_ip, base_domain)
         # value: set[qname] и total_queries
         groups: dict[tuple[str, str], dict] = defaultdict(
-            lambda: {"qnames": set(), "total_queries": 0, "long_qnames": set()}
+            lambda: {
+                "qnames": set(),
+                "total_queries": 0,
+                "long_qnames": set(),
+                "first_seen": None,
+                "last_seen": None,
+            }
         )
 
         for src_ip, queries in state.dns_queries_by_src.items():
@@ -64,10 +70,21 @@ class DNSTunnelingDetector:
                     continue
 
                 key = (src_ip, base)
-                groups[key]["qnames"].add(qname_lc)
-                groups[key]["total_queries"] += count
+                group = groups[key]
+                group["qnames"].add(qname_lc)
+                group["total_queries"] += count
                 if len(qname_lc) >= min_len:
-                    groups[key]["long_qnames"].add(qname_lc)
+                    group["long_qnames"].add(qname_lc)
+
+                # Временные границы — из ts запросов: без них
+                # timeline отбрасывает finding (first_seen is None).
+                ts_list = state.dns_query_ts_by_name.get(qname_lc)
+                if ts_list:
+                    lo, hi = min(ts_list), max(ts_list)
+                    if group["first_seen"] is None or lo < group["first_seen"]:
+                        group["first_seen"] = lo
+                    if group["last_seen"] is None or hi > group["last_seen"]:
+                        group["last_seen"] = hi
 
         for (src_ip, base), data in groups.items():
             if data["total_queries"] < min_queries:
@@ -96,8 +113,8 @@ class DNSTunnelingDetector:
                     "min_qname_length": min_len,
                     "samples": samples,
                 },
-                first_seen=None,
-                last_seen=None,
+                first_seen=data["first_seen"],
+                last_seen=data["last_seen"],
             ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))

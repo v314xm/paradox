@@ -51,12 +51,6 @@ class DNSExtractor:
         if not all(c.isalnum() or c in ".-" for c in name):
             return
 
-        state.dns_queries[name] += 1
-
-        # v1.3.1: timestamps запросов по имени — для dga/cloud_tunnel/
-        # typosquatting, чтобы timeline их видел.
-        state.dns_query_ts_by_name.setdefault(name, []).append(record.ts)
-
         # DNS по источнику: клиент — тот, кто спрашивал.
         # Если src_port == 53 — это ответ, клиент = dst_ip.
         # Иначе клиент = src_ip.
@@ -65,13 +59,9 @@ class DNSExtractor:
         else:
             client_ip = record.src_ip
 
-        if client_ip:
-            bucket = state.dns_queries_by_src.get(client_ip)
-            if bucket is None:
-                bucket = Counter()
-                state.dns_queries_by_src[client_ip] = bucket
-            bucket[name] += 1
-
+        # NXDOMAIN — свойство ответа, но считаем до разделения по qr:
+        # исторически rcode=3 учитывался независимо от qr, и менять
+        # это поведение в рамках фикса двойного счёта не нужно.
         if dns.rcode == 3:  # NXDOMAIN
             state.dns_nxdomain[name] += 1
             if client_ip:
@@ -82,13 +72,32 @@ class DNSExtractor:
                     client_ip, [],
                 ).append(record.ts)
 
+        # qr=0 — запрос, qr=1 — ответ. Ответ нельзя учитывать как
+        # запрос: раньше учитывался, из-за чего dns_queries был
+        # удвоен, а ratio в nxdomain_burst получал завышенный
+        # знаменатель и глушил детект.
+        if dns.qr != 1:
+            state.dns_queries[name] += 1
+
+            # v1.3.1: timestamps запросов по имени — для dga/cloud_tunnel/
+            # typosquatting, чтобы timeline их видел.
+            state.dns_query_ts_by_name.setdefault(name, []).append(record.ts)
+
+            if client_ip:
+                bucket = state.dns_queries_by_src.get(client_ip)
+                if bucket is None:
+                    bucket = Counter()
+                    state.dns_queries_by_src[client_ip] = bucket
+                bucket[name] += 1
+            return
+
         # DNS-ответы: A / AAAA / CNAME. Только для ответов (qr=1),
         # только для поддерживаемых типов. Ключ — qname из вопроса,
         # не rrname каждого ответа: так CNAME-цепочка
         # www.foo.com → foo.cdn.com → 1.2.3.4 собирается в один
         # набор {foo.cdn.com, 1.2.3.4} под именем www.foo.com,
         # как его видит клиент.
-        if dns.qr == 1 and dns.an:
+        if dns.an:
             for rr in dns.an:
                 # SOA/MX/TXT и др. могут не иметь rdata — читаем
                 # только для известных типов. Без этой проверки

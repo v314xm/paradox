@@ -133,7 +133,8 @@ def test_unsupported_answer_type_ignored():
     DNSExtractor().process(
         _record(payload, "10.0.0.5", "8.8.8.8", 40000, 53), state,
     )
-    assert "example.com" in state.dns_queries
+    # qr=1 — это ответ; в счётчик запросов он попадать не должен.
+    assert "example.com" not in state.dns_queries
     assert "example.com" not in state.dns_answers_by_name
 
 

@@ -65,7 +65,12 @@ _VICTIM_SIGNAL_TYPES: frozenset[str] = frozenset({
     "ja3_malware",
     "sni_without_dns",
     "dga_domain",
+    # cloud_tunnel_domain — фактический type CloudTunnelDetector
+    # (детектор name="cloud_tunnel"). Без псевдонима жертва
+    # cloud-tunnel не попадала в victim_of → victim_makes_attack
+    # её не видел, а ветка в entities.py была мёртвой.
     "cloud_tunnel",
+    "cloud_tunnel_domain",
     "ip_check_service",
     "typosquatting",
     "suspicious_port",
@@ -567,9 +572,13 @@ def extract_asymmetry_facts(
             "first": None, "last": None,
         })
         entry["bytes"] += flow.bytes_sent
+        # first_ts и last_ts независимы: flow может иметь одно и не
+        # иметь другого. Раньше last_ts сравнивался внутри проверки
+        # first_ts и None ронял правило reverse_asymmetry целиком.
         if flow.first_ts is not None:
             if entry["first"] is None or flow.first_ts < entry["first"]:
                 entry["first"] = flow.first_ts
+        if flow.last_ts is not None:
             if entry["last"] is None or flow.last_ts > entry["last"]:
                 entry["last"] = flow.last_ts
 

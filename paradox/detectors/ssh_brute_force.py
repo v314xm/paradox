@@ -30,6 +30,23 @@ class SSHBruteForceDetector:
         findings: list[Finding] = []
         threshold = config.ssh_brute_force_min_flows
 
+        # Временные границы попыток. ssh_client_attempts — счётчик
+        # баннеров без ts, поэтому берём их из flows: без первой
+        # метки timeline отбрасывает finding.
+        spans: dict[tuple[str, str, int], tuple[float | None, float | None]] = {}
+        for key, flow in state.flows.items():
+            if key.dst_port is None:
+                continue
+            span_key = (key.src_ip, key.dst_ip, key.dst_port)
+            if span_key not in state.ssh_client_attempts:
+                continue
+            first, last = spans.get(span_key, (None, None))
+            if flow.first_ts is not None and (first is None or flow.first_ts < first):
+                first = flow.first_ts
+            if flow.last_ts is not None and (last is None or flow.last_ts > last):
+                last = flow.last_ts
+            spans[span_key] = (first, last)
+
         for (src, dst, port), count in state.ssh_client_attempts.items():
             if count < threshold:
                 continue
@@ -40,6 +57,8 @@ class SSHBruteForceDetector:
                 confidence = 0.85
             else:
                 confidence = 0.75
+
+            first_seen, last_seen = spans.get((src, dst, port), (None, None))
 
             findings.append(Finding(
                 type="ssh_brute_force",
@@ -52,6 +71,8 @@ class SSHBruteForceDetector:
                     "attempts": count,
                     "threshold": threshold,
                 },
+                first_seen=first_seen,
+                last_seen=last_seen,
             ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))

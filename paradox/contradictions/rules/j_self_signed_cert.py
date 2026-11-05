@@ -29,7 +29,14 @@ class SelfSignedCertRule:
         config: Config,
     ) -> list[Fact]:
         from paradox.contradictions.facts import extract_tls_cert_facts
-        return extract_tls_cert_facts(state)
+        from paradox.net_utils import is_internal_ip
+        # Фильтр external dst — как обещано в докстринге выше.
+        # Внутренние self-signed (dev-стенды, IoT, тестовые стенды) —
+        # норма, и раньше каждый такой хост давал contradiction.
+        return [
+            f for f in extract_tls_cert_facts(state)
+            if not is_internal_ip(f.evidence.get("dst_ip", ""), config)
+        ]
 
     def find_contradictions(
         self, facts: list[Fact],
