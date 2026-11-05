@@ -53,9 +53,13 @@ class TCPReassembler:
         self._finalized: dict[FlowKey, bytes] = {}
         # потоки, которые не влезли в лимит
         self._truncated: set[FlowKey] = set()
-        # Текущий объём буферов (для проверки лимита).
-        # Уменьшается в _finalize при склейке потока.
+        # Текущий объём незакрытых буферов (открытые потоки).
         self._total_bytes = 0
+        # Объём уже финализированных потоков. Лимит max_total_bytes
+        # считается по сумме открытого + финализированного, иначе
+        # на длинном захвате финализированные потоки копились бы
+        # без ограничения.
+        self._finalized_bytes = 0
         # Монотонный счётчик «сколько всего прошло» — для stats().
         # Не уменьшается при финализации: пользователь видит
         # суммарный объём, а не текущее заполнение буферов.
@@ -104,8 +108,8 @@ class TCPReassembler:
         if key in self._finalized:
             return
 
-        # Общий лимит памяти
-        if self._total_bytes >= self.max_total_bytes:
+        # Общий лимит памяти: открытые + финализированные потоки.
+        if self._total_bytes + self._finalized_bytes + len(data) > self.max_total_bytes:
             self._truncated.add(key)
             return
 
@@ -135,10 +139,21 @@ class TCPReassembler:
         if not buf:
             return
         offsets = sorted(buf.keys())
+
+        # Детекция разрывов: дыра между сегментами (drop / снаплен)
+        # при наивной склейке сдвигает все последующие байты и отдаёт
+        # «валидный на вид» мусор. Помечаем поток truncated, но данные
+        # всё равно склеиваем — потребитель решит, нужны ли они.
+        for prev, nxt in zip(offsets, offsets[1:], strict=False):
+            if prev + len(buf[prev]) < nxt:
+                self._truncated.add(key)
+                break
+
         data = b"".join(buf[o] for o in offsets)
         self._finalized[key] = data
-        # v1.1: освобождаем учтённые байты — лимит должен
-        # ограничивать текущий объём буферов, а не сумму за захват.
+        self._finalized_bytes += len(data)
+        # v1.1: освобождаем учтённые байты открытого буфера — они
+        # переехали в _finalized_bytes.
         self._total_bytes = max(
             0, self._total_bytes - sum(len(v) for v in buf.values())
         )

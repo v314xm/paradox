@@ -63,6 +63,9 @@ def merge_capture_states(
         for name, ts_list in st.dns_query_ts_by_name.items():
             merged.dns_query_ts_by_name.setdefault(name, []).extend(ts_list)
 
+        for src, ts_list in st.dns_query_ts_by_src.items():
+            merged.dns_query_ts_by_src.setdefault(src, []).extend(ts_list)
+
         # --- Flows ---
         for key, flow in st.flows.items():
             existing = merged.flows.get(key)

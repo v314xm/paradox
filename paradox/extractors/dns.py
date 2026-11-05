@@ -83,6 +83,13 @@ class DNSExtractor:
             # typosquatting, чтобы timeline их видел.
             state.dns_query_ts_by_name.setdefault(name, []).append(record.ts)
 
+            # v1.3.x: ts запросов по src — для windowed ratio в
+            # nxdomain_burst.
+            if client_ip:
+                state.dns_query_ts_by_src.setdefault(
+                    client_ip, [],
+                ).append(record.ts)
+
             if client_ip:
                 bucket = state.dns_queries_by_src.get(client_ip)
                 if bucket is None:

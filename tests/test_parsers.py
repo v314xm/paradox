@@ -93,7 +93,13 @@ def test_parse_tcp_syn():
 
 
 def test_parse_tcp_with_payload():
-    raw = ETHERNET_HEADER + IPV4_HEADER_TCP + TCP_DATA
+    # total_length = 20 (IP) + 20 (TCP) + 5 ("GET /") = 45 = 0x002d.
+    # Раньше тут стоял total_length=40, а "GET /" молча попадал в payload
+    # из-за того, что парсер игнорировал total length.
+    ipv4_data = bytes.fromhex(
+        "45 00 002d 0000 4000 40 06 0000 c0a80164 cb007142"
+    )
+    raw = ETHERNET_HEADER + ipv4_data + TCP_DATA
     rec = parse_packet(raw, ts=2.0)
 
     assert rec.proto == "tcp"
@@ -105,10 +111,11 @@ def test_parse_tcp_with_payload():
 # ---------- UDP ----------
 
 def test_parse_udp():
+    # total_length = 20 + 8 + 5 = 33 (0x0021), UDP length = 8 + 5 = 13.
     ipv4 = bytes.fromhex(
-        "45 00 001c 0000 0000 40 11 0000 c0a80164 01010101"
+        "45 00 0021 0000 0000 40 11 0000 c0a80164 01010101"
     )
-    udp = bytes.fromhex("3039 007b 0008 0000")
+    udp = bytes.fromhex("3039 007b 000d 0000")
     raw = ETHERNET_HEADER + ipv4 + udp + b"hello"
 
     rec = parse_packet(raw, ts=3.0)
@@ -205,8 +212,9 @@ def test_parse_ipv4_first_fragment():
 
 def test_parse_ipv4_later_fragment():
     """Не-первый фрагмент — L4-заголовок не виден."""
+    # total_length = 20 (IP) + 4 (данные фрагмента) = 24 = 0x0018.
     ipv4 = bytes.fromhex(
-        "45 00 0014 1234 2001 40 06 0000 c0a80164 cb007142"
+        "45 00 0018 1234 2001 40 06 0000 c0a80164 cb007142"
     )
     raw = ETHERNET_HEADER + ipv4 + b"\xde\xad\xbe\xef"
 

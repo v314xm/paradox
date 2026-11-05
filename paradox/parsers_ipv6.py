@@ -147,16 +147,34 @@ def parse_ipv6_packet(
 
     src_port: int | None = None
     dst_port: int | None = None
+    tcp_seq: int | None = None
+    tcp_ack: int | None = None
+    tcp_flags: int | None = None
+    l4_payload = l4
 
-    if nh == PROTO_TCP and len(l4) >= 4 or nh == PROTO_UDP and len(l4) >= 4:
-        src_port, dst_port = struct.unpack("!HH", l4[:4])
+    # L4-заголовок есть только в первом фрагменте. Не-первые фрагменты
+    # (offset>0) не несут портов — иначе получаются фантомные flow с
+    # мусорными портами. Для TCP снимаем seq/ack/flags: без них
+    # reassembler отбрасывает IPv6-потоки.
+    if not (is_fragment and fragment_offset > 0):
+        if nh == PROTO_TCP and len(l4) >= 20:
+            src_port, dst_port, tcp_seq, tcp_ack = struct.unpack(
+                "!HHII", l4[:12],
+            )
+            data_offset = max((l4[12] >> 4) * 4, 20)
+            tcp_flags = l4[13]
+            l4_payload = l4[data_offset:]
+        elif nh == PROTO_UDP and len(l4) >= 8:
+            src_port, dst_port = struct.unpack("!HH", l4[:4])
+            l4_payload = l4[8:]
 
     record = _make_record(
         PacketRecord, ts, eth_src, eth_dst, ethertype, vlan_id,
         src_ip=src_ip, dst_ip=dst_ip,
         src_port=src_port, dst_port=dst_port,
         ip_proto=nh,
-        payload=l4,
+        payload=l4_payload,
+        tcp_seq=tcp_seq, tcp_ack=tcp_ack, tcp_flags=tcp_flags,
         length=total_length, raw=total_raw,
     )
 
@@ -182,7 +200,8 @@ def parse_ipv6_packet(
 
 def _make_record(cls, ts, eth_src, eth_dst, ethertype, vlan_id,
                  src_ip, dst_ip, src_port=None, dst_port=None,
-                 ip_proto=0, payload=b"", length=0, raw=b""):
+                 ip_proto=0, payload=b"", tcp_seq=None, tcp_ack=None,
+                 tcp_flags=None, length=0, raw=b""):
     """Создать PacketRecord, устойчиво к отсутствию полей."""
     import dataclasses
     if dataclasses.is_dataclass(cls):
@@ -201,6 +220,9 @@ def _make_record(cls, ts, eth_src, eth_dst, ethertype, vlan_id,
             "dst_port": dst_port,
             "ip_proto": ip_proto,
             "payload": payload,
+            "tcp_seq": tcp_seq,
+            "tcp_ack": tcp_ack,
+            "tcp_flags": tcp_flags,
         }
         filtered = {k: v for k, v in kwargs.items() if k in fields}
         return cls(**filtered)

@@ -148,6 +148,9 @@ def parse_packet(raw: bytes, ts: float) -> PacketRecord:
         rec.src_port = ipv6_rec.src_port
         rec.dst_port = ipv6_rec.dst_port
         rec.payload = ipv6_rec.payload
+        rec.tcp_seq = ipv6_rec.tcp_seq
+        rec.tcp_ack = ipv6_rec.tcp_ack
+        rec.tcp_flags = ipv6_rec.tcp_flags
         if ipv6_rec.ip_proto == 6:
             rec.proto = "tcp"
         elif ipv6_rec.ip_proto == 17:
@@ -182,28 +185,38 @@ def _parse_ipv4(raw: bytes, rec: PacketRecord, offset: int) -> None:
     rec.src_ip = socket.inet_ntoa(raw[offset + 12:offset + 16])
     rec.dst_ip = socket.inet_ntoa(raw[offset + 16:offset + 20])
 
+    # total length определяет реальный конец IP-пакета. Без него
+    # Ethernet-padding (кадры меньше 60 байт) попадает в payload и
+    # в reassembler'е занимает offset реального сегмента.
+    total_len = struct.unpack_from("!H", raw, offset + 2)[0]
+    if total_len >= IPV4_MIN_HEADER_LEN and offset + total_len <= length:
+        ip_end = offset + total_len
+    else:
+        # TSO/jumbo-кадры: total length бывает 0 или больше caplen —
+        # берём весь кадр, чтобы не резать настоящие данные.
+        ip_end = length
+
     l4_offset = offset + ihl
 
     # Не-первый фрагмент: L4-заголовок был в первом фрагменте
     if rec.ip_frag_offset > 0:
         rec.proto = "ipv4_fragment"
-        rec.payload = raw[l4_offset:]
+        rec.payload = raw[l4_offset:ip_end]
         return
 
     if rec.ip_proto == IP_PROTO_TCP:
-        _parse_tcp(raw, rec, l4_offset)
+        _parse_tcp(raw, rec, l4_offset, ip_end)
     elif rec.ip_proto == IP_PROTO_UDP:
-        _parse_udp(raw, rec, l4_offset)
+        _parse_udp(raw, rec, l4_offset, ip_end)
     elif rec.ip_proto == IP_PROTO_ICMP:
         _parse_icmp(raw, rec, l4_offset)
     else:
         rec.proto = "other"
-        rec.payload = raw[l4_offset:]
+        rec.payload = raw[l4_offset:ip_end]
 
 
-def _parse_tcp(raw: bytes, rec: PacketRecord, offset: int) -> None:
-    length = len(raw)
-    if length < offset + TCP_MIN_HEADER_LEN:
+def _parse_tcp(raw: bytes, rec: PacketRecord, offset: int, end: int) -> None:
+    if end < offset + TCP_MIN_HEADER_LEN:
         rec.proto = "tcp"
         return
 
@@ -217,13 +230,12 @@ def _parse_tcp(raw: bytes, rec: PacketRecord, offset: int) -> None:
     rec.tcp_flags = raw[offset + 13]
 
     payload_start = offset + data_offset
-    rec.payload = raw[payload_start:] if payload_start < length else b""
+    rec.payload = raw[payload_start:end] if payload_start < end else b""
     rec.proto = "tcp"
 
 
-def _parse_udp(raw: bytes, rec: PacketRecord, offset: int) -> None:
-    length = len(raw)
-    if length < offset + UDP_HEADER_LEN:
+def _parse_udp(raw: bytes, rec: PacketRecord, offset: int, end: int) -> None:
+    if end < offset + UDP_HEADER_LEN:
         rec.proto = "udp"
         return
 
@@ -231,7 +243,7 @@ def _parse_udp(raw: bytes, rec: PacketRecord, offset: int) -> None:
     rec.dst_port = struct.unpack_from("!H", raw, offset + 2)[0]
 
     payload_start = offset + UDP_HEADER_LEN
-    rec.payload = raw[payload_start:] if payload_start < length else b""
+    rec.payload = raw[payload_start:end] if payload_start < end else b""
     rec.proto = "udp"
 
 

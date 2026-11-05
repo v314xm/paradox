@@ -271,6 +271,13 @@ class CaptureState:
         default_factory=dict,
     )
 
+    # v1.3.x: timestamps DNS-запросов по src_ip.
+    # Нужно nxdomain_burst для windowed ratio-знаменателя: доля
+    # NXDOMAIN в том же окне, а не за весь захват.
+    dns_query_ts_by_src: dict[str, list[float]] = field(
+        default_factory=dict,
+    )
+
     # flows
     flows: dict[FlowKey, FlowStats] = field(default_factory=dict)
 

@@ -156,7 +156,12 @@ def _extract(
 
             bytes_read = reader.f.tell()
 
-            ts = metadata.sec + metadata.usec / 1_000_000
+            # nanosecond-pcap хранит в usec наносекунды — знаменатель
+            # разный, иначе время уезжает до +1000 с и ломает окна.
+            frac_denom = (
+                1_000_000_000 if getattr(reader, "nano", False) else 1_000_000
+            )
+            ts = metadata.sec + metadata.usec / frac_denom
             record = parse_packet(raw_data, ts)
 
             # Reassembly до экстракторов
@@ -196,36 +201,41 @@ def _extract(
     finally:
         reader.close()
 
-    # Финализация потоков + HTTP-объекты
+    # Финализация потоков
     if reassembler is not None:
         reassembler.finalize_all()
         state.tcp_streams = reassembler.all_streams()
         state.tcp_streams_truncated = reassembler.truncated_flows()
 
-        try:
-            HTTPObjectExtractor().run_post_extract(state, config)
-        except Exception:
-            state.extractor_errors["http_object"] += 1
+    # Post-extract: HTTP-объекты, X.509, carve. Не зависят от флага
+    # reassembly напрямую: если reassembly выключен, streams пусты и
+    # экстракторы ничего не найдут. Раньше они были вложены в
+    # `if reassembler is not None` и молча выпадали при выключенной
+    # reassembly, хотя их собственные флаги ничего не отключали.
+    try:
+        HTTPObjectExtractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["http_object"] += 1
 
-        # X.509 сертификаты из TLS-хендшейков. Требуют reassembly,
-        # потому что сертификат часто больше одного TCP-сегмента.
+    # X.509 сертификаты из TLS-хендшейков. Требуют reassembly,
+    # потому что сертификат часто больше одного TCP-сегмента.
+    try:
+        from paradox.extractors.tls_cert import (
+            TlsCertificateExtractor,
+        )
+        TlsCertificateExtractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["tls_cert"] += 1
+
+    # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
+    if config.file_carve_enabled:
         try:
-            from paradox.extractors.tls_cert import (
-                TlsCertificateExtractor,
+            _carved_dir = config.output_dir / "carved"
+            state.carved_files = carve_files(
+                state, config, output_dir=_carved_dir,
             )
-            TlsCertificateExtractor().run_post_extract(state, config)
         except Exception:
-            state.extractor_errors["tls_cert"] += 1
-
-        # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
-        if config.file_carve_enabled:
-            try:
-                _carved_dir = config.output_dir / "carved"
-                state.carved_files = carve_files(
-                    state, config, output_dir=_carved_dir,
-                )
-            except Exception:
-                state.extractor_errors["file_carve"] += 1
+            state.extractor_errors["file_carve"] += 1
 
     if on_progress is not None:
         on_progress(file_size, file_size)

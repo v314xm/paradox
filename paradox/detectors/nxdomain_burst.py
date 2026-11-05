@@ -64,12 +64,24 @@ class NXDOMAINBurstDetector:
             if signal < threshold:
                 continue
 
-            # v0.9.0: ratio-фильтр. Сколько всего DNS-запросов от
-            # этого src (включая успешные). Если доля NXDOMAIN низка —
-            # это шум от браузера с историей.
+            # ratio-фильтр. Знаменатель — DNS-запросы в ТОМ ЖЕ окне,
+            # что и всплеск NXDOMAIN. Раньше делили на total за весь
+            # захват: при 6 NXDOMAIN в минуту и 100 запросах за час
+            # ratio=0.057 < порога, т.е. «5 в минуту» фактически
+            # превращался в десятки.
             all_q = state.dns_queries_by_src.get(src_ip)
             total_dns = sum(all_q.values()) if all_q else signal
-            ratio = signal / total_dns if total_dns > 0 else 1.0
+
+            query_ts = state.dns_query_ts_by_src.get(src_ip) or []
+            dns_in_window: int | None = (
+                _max_in_window(sorted(query_ts), window) if query_ts else None
+            )
+
+            if dns_in_window is not None and windowed:
+                ratio = signal / dns_in_window if dns_in_window > 0 else 1.0
+            else:
+                # Backward compat: нет ts запросов — падаем на total.
+                ratio = signal / total_dns if total_dns > 0 else 1.0
 
             if ratio < min_ratio:
                 continue
@@ -96,6 +108,7 @@ class NXDOMAINBurstDetector:
                     "windowed": windowed,
                     "ratio": round(ratio, 3),
                     "total_dns_queries": total_dns,
+                    "dns_in_window": dns_in_window,
                 },
                 first_seen=first_seen,
                 last_seen=last_seen,
