@@ -22,15 +22,6 @@ from PySide6.QtWidgets import (
 
 from paradox_gui.i18n import tr
 
-# Иконки severity — Unicode, без внешних ресурсов. Прототип использует
-# те же цвета (красный/оранжевый/жёлтый/зелёный).
-_SEVERITY_ICON = {
-    "critical": "🔴",
-    "high":     "🟠",
-    "medium":   "🟡",
-    "low":      "🟢",
-}
-
 
 class ContradictionCard(QFrame):
     # object, а не dict — Signal(dict) в PySide6 работает через раз.
@@ -66,16 +57,14 @@ class ContradictionCard(QFrame):
         row.setSpacing(10)
 
         severity = self._contra.get("severity", "low")
-        badge = QLabel(f"{_SEVERITY_ICON.get(severity, '')} {severity}".strip())
+        badge = QLabel(severity)
         badge.setObjectName(f"severityBadge_{severity}")
 
         rule = QLabel(self._contra.get("rule", "?"))
-        rule.setObjectName("mono")
-        rule.setStyleSheet("font-weight: 600;")
+        rule.setObjectName("contraRule")
 
         subject = QLabel(self._contra.get("subject", "—"))
-        subject.setObjectName("mono")
-        subject.setStyleSheet("color: #5b8cff;")  # accent
+        subject.setObjectName("contraSubject")
 
         conf = self._contra.get("confidence")
         conf_text = f"conf {conf:.2f}" if isinstance(conf, (int, float)) else ""
@@ -115,8 +104,8 @@ class ContradictionCard(QFrame):
         container.setVisible(False)  # изначально свёрнуто
 
         v = QVBoxLayout(container)
-        v.setContentsMargins(10, 8, 10, 8)
-        v.setSpacing(3)
+        v.setContentsMargins(10, 10, 10, 10)
+        v.setSpacing(4)
 
         if not facts:
             empty = QLabel(tr("contra.card_no_facts"))

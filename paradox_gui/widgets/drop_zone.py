@@ -45,14 +45,15 @@ class DropZone(QFrame):
             self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         except Exception:
             self._icon = QLabel("📁")
-            self._icon.setStyleSheet("font-size: 32px;")
+            self._icon.setObjectName("dropIcon")
             self._icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._title = QLabel(tr("run.drop_title"))
+        self._title.setObjectName("dropTitle")
         self._title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._hint = QLabel(tr("run.drop_hint"))
-        self._hint.setObjectName("muted")
+        self._hint.setObjectName("dropHint")
         self._hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         layout.addWidget(self._icon)
@@ -114,7 +115,6 @@ class DropZone(QFrame):
         name = display_name or Path(path).name
         self._icon.hide()
         self._title.setText(f"📄 {name}")
-        self._title.setStyleSheet("font-size: 14px;")
         self._hint.setText("Перетащите другой pcap или нажмите, чтобы сменить")
 
         # Паддинги — через layout. Иначе sizeHint останется прежним.

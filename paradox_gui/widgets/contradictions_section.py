@@ -39,14 +39,14 @@ class ContradictionsSection(QFrame):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(8)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
 
         header = QHBoxLayout()
         title = QLabel(tr("contra.section_title"))
-        title.setObjectName("h1")
+        title.setObjectName("sectionTitle")
         self._count_label = QLabel("")
-        self._count_label.setObjectName("muted")
+        self._count_label.setObjectName("panelCount")
         header.addWidget(title)
         header.addWidget(self._count_label)
         header.addStretch(1)
@@ -55,7 +55,7 @@ class ContradictionsSection(QFrame):
         self._list_container = QWidget()
         self._list_layout = QVBoxLayout(self._list_container)
         self._list_layout.setContentsMargins(0, 0, 0, 0)
-        self._list_layout.setSpacing(8)
+        self._list_layout.setSpacing(6)
         # БЕЗ addStretch — он раздувает sizeHint контейнера.
 
         scroll = QScrollArea()
@@ -70,7 +70,7 @@ class ContradictionsSection(QFrame):
         if not contradictions:
             self.setVisible(False)
             return
-        self._count_label.setText(f"({len(contradictions)})")
+        self._count_label.setText(str(len(contradictions)))
         for contra in contradictions:
             card = ContradictionCard(contra)
             card.details_requested.connect(self.details_requested)

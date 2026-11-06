@@ -48,7 +48,10 @@ def test_theme_covers_shared_controls():
         assert selector in QSS, selector
 
 
-def test_dialog_h1_rule_is_not_duplicated():
+def test_dialog_typography_uses_dedicated_roles():
     from paradox_gui.theme import QSS
 
-    assert QSS.count("QDialog QLabel#h1") == 1
+    assert "QDialog QLabel#h1" not in QSS
+    assert "QLabel#dialogTitle" in QSS
+    assert "QLabel#sectionTitle" in QSS
+    assert "QLabel#sectionLabel" in QSS

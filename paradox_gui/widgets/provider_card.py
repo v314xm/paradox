@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QFrame,
@@ -13,14 +14,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-_VERDICT_COLORS = {
-    "clean": "#5a9a5a",     # зелёный
-    "info": "#5a7ab8",      # синий
-    "warn": "#d0a060",      # жёлтый
-    "bad": "#c05050",       # красный
-    "error": "#806060",     # тускло-красный
-    "empty": "#6a6a7a",     # серый
-}
+from paradox_gui.i18n import tr
 
 
 def _verdict(provider_name: str, data: dict | None, error: str | None) -> str:
@@ -142,39 +136,36 @@ class ProviderCard(QFrame):
                  link: str | None = None, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName("providerCard")
-        self.setFrameShape(QFrame.Shape.StyledPanel)
 
         self._build_ui(provider_name, result, ioc, ioc_type, link)
 
     def _build_ui(self, provider_name, result, ioc, ioc_type, link) -> None:
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(12, 10, 12, 10)
+        outer.setContentsMargins(14, 12, 14, 12)
         outer.setSpacing(6)
 
         data = result.data if result.ok else None
         error = None if result.ok else (result.error or "ошибка")
         verdict = _verdict(provider_name, data, error)
-        color = _VERDICT_COLORS.get(verdict, "#5a7ab8")
 
         # --- header row: [имя провайдера] [вердикт-точка] [кнопка] ---
         header = QHBoxLayout()
         header.setSpacing(8)
 
         name_lbl = QLabel(provider_name)
-        name_lbl.setStyleSheet("font-weight: 600; font-size: 12px;")
+        name_lbl.setObjectName("providerName")
         header.addWidget(name_lbl)
 
-        verdict_lbl = QLabel(verdict)
-        verdict_lbl.setStyleSheet(
-            f"color: {color}; font-size: 11px; font-weight: 600;"
-        )
+        verdict_lbl = QLabel(tr(f"provider.verdict.{verdict}"))
+        verdict_lbl.setObjectName("verdict")
+        verdict_lbl.setProperty("verdict", verdict)
         header.addWidget(verdict_lbl)
 
         header.addStretch(1)
 
         if link:
-            open_btn = QPushButton("Открыть →")
-            open_btn.setFixedHeight(22)
+            open_btn = QPushButton(tr("provider.open"))
+            open_btn.setObjectName("small")
             open_btn.clicked.connect(
                 lambda: QDesktopServices.openUrl(_qurl(link))
             )
@@ -186,7 +177,7 @@ class ProviderCard(QFrame):
         summary = _short_summary(provider_name, data, error, ioc_type)
         s_lbl = QLabel(summary)
         s_lbl.setWordWrap(True)
-        s_lbl.setStyleSheet("color: #b0b0c0; font-size: 12px;")
+        s_lbl.setObjectName("providerSummary")
         outer.addWidget(s_lbl)
 
         # --- details (свёрнуто по умолчанию) ---
@@ -200,16 +191,17 @@ class ProviderCard(QFrame):
             self._details.setVisible(False)
             outer.addWidget(self._details)
 
-            toggle = QPushButton("Показать детали")
-            toggle.setFixedHeight(22)
+            toggle = QPushButton(tr("provider.show_details"))
+            toggle.setObjectName("small")
             toggle.setCheckable(True)
             toggle.toggled.connect(self._details.setVisible)
             toggle.toggled.connect(
                 lambda c: toggle.setText(
-                    "Скрыть детали" if c else "Показать детали"
+                    tr("provider.hide_details") if c
+                    else tr("provider.show_details")
                 )
             )
-            outer.addWidget(toggle)
+            outer.addWidget(toggle, 0, Qt.AlignmentFlag.AlignLeft)
 
 
 def _qurl(url: str):

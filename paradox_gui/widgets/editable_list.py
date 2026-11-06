@@ -39,8 +39,6 @@ PORT_FIELDS = frozenset({
     "brute_force_skip_tls_ports",
 })
 
-_INPUT_W = 320
-_BTN_W = 130
 _LIST_MIN_H = 100
 _LIST_MAX_H = 240
 _FILTER_AFTER_N = 8
@@ -76,26 +74,22 @@ class EditableListWidget(QWidget):
         row.setSpacing(6)
 
         self._input = QLineEdit()
+        self._input.setObjectName("listInput")
         self._input.setPlaceholderText(
             "Порт (1–65535) и Enter…" if self._port_mode
             else "Значение и Enter…"
         )
-        self._input.setFixedWidth(_INPUT_W)
-        self._input.setMinimumHeight(28)
         self._input.returnPressed.connect(self._add_from_input)
         row.addWidget(self._input)
 
         self._add_btn = QPushButton("Добавить")
         self._add_btn.setObjectName("primary")
-        self._add_btn.setFixedWidth(_BTN_W)
-        self._add_btn.setMinimumHeight(28)
         self._add_btn.setToolTip("Добавить значение (Enter)")
         self._add_btn.clicked.connect(self._add_from_input)
         row.addWidget(self._add_btn)
 
         self._import_btn = QPushButton("Загрузить…")
-        self._import_btn.setFixedWidth(_BTN_W)
-        self._import_btn.setMinimumHeight(28)
+        self._import_btn.setObjectName("secondary")
         self._import_btn.setToolTip(
             "Загрузить список из файла (построчно, # — комментарий)"
         )
@@ -103,8 +97,7 @@ class EditableListWidget(QWidget):
         row.addWidget(self._import_btn)
 
         self._export_btn = QPushButton("Экспорт…")
-        self._export_btn.setFixedWidth(_BTN_W)
-        self._export_btn.setMinimumHeight(28)
+        self._export_btn.setObjectName("secondary")
         self._export_btn.setToolTip("Сохранить список в файл")
         self._export_btn.clicked.connect(self._on_export_clicked)
         row.addWidget(self._export_btn)
@@ -127,8 +120,7 @@ class EditableListWidget(QWidget):
         del_row.setSpacing(6)
 
         self._del_btn = QPushButton("Удалить выбранное")
-        self._del_btn.setFixedWidth(_BTN_W + 40)
-        self._del_btn.setMinimumHeight(26)
+        self._del_btn.setObjectName("dangerOutline")
         self._del_btn.setToolTip("Удалить выделенные элементы (Del)")
         self._del_btn.setEnabled(False)
         self._del_btn.clicked.connect(self._remove_selected)
@@ -138,17 +130,16 @@ class EditableListWidget(QWidget):
 
         # --- фильтр (>8 элементов) ---
         self._search = QLineEdit()
+        self._search.setObjectName("listFilter")
         self._search.setPlaceholderText("Фильтр…")
         self._search.setClearButtonEnabled(True)
-        self._search.setFixedWidth(_INPUT_W)
-        self._search.setMinimumHeight(24)
         self._search.textChanged.connect(self._apply_filter)
         outer.addWidget(self._search)
 
         # --- hint ---
         self._hint = QLabel(self._help_text)
+        self._hint.setObjectName("hint")
         self._hint.setWordWrap(True)
-        self._hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
         self._hint.setVisible(bool(self._help_text))
         outer.addWidget(self._hint)
 
@@ -347,19 +338,24 @@ class EditableListWidget(QWidget):
         self._update_delete_btn()
 
     def _flash_error(self, msg: str) -> None:
-        self._input.setStyleSheet("background-color: #6a2020;")
+        self._set_input_invalid(True)
         self._input.setToolTip(msg)
 
         from PySide6.QtCore import QTimer
 
         def _reset():
             try:
-                self._input.setStyleSheet("")
+                self._set_input_invalid(False)
                 self._input.setToolTip("")
             except RuntimeError:
                 pass
 
         QTimer.singleShot(1500, _reset)
+
+    def _set_input_invalid(self, invalid: bool) -> None:
+        self._input.setProperty("invalid", invalid)
+        self._input.style().unpolish(self._input)
+        self._input.style().polish(self._input)
 
     def keyPressEvent(self, event) -> None:
         if event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):

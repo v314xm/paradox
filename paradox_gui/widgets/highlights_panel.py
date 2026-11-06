@@ -154,13 +154,12 @@ class _HighlightCard(QFrame):
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 8, 12, 8)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
 
         badge = QLabel(_KIND_TITLES.get(kind, kind.upper()))
         badge.setObjectName("highlightBadge")
         badge.setProperty("kind", kind)
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        badge.setFixedWidth(46)
         layout.addWidget(badge, 0, Qt.AlignmentFlag.AlignTop)
 
         text_col = QVBoxLayout()

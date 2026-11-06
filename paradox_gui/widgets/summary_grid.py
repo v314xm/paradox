@@ -37,7 +37,7 @@ class SummaryGrid(QWidget):
         # это GUI на 1280px — перенос не нужен.
         grid = QGridLayout(self)
         grid.setContentsMargins(0, 0, 0, 0)
-        grid.setSpacing(12)
+        grid.setSpacing(8)
 
         for idx, (key, title, accent) in enumerate(_TILES):
             tile = self._make_tile(key, title, accent)
@@ -50,8 +50,8 @@ class SummaryGrid(QWidget):
         frame.setObjectName("summaryTile")
 
         layout = QVBoxLayout(frame)
-        layout.setContentsMargins(14, 14, 14, 14)
-        layout.setSpacing(4)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         value = QLabel("—")
@@ -60,7 +60,7 @@ class SummaryGrid(QWidget):
         value.setProperty("empty", True)
 
         label = QLabel(title)
-        label.setObjectName("muted")
+        label.setObjectName("metricLabel")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         layout.addWidget(value)

@@ -1,4 +1,5 @@
 """Панель аномалий (оборванные сессии)."""
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFrame,
     QHeaderView,
@@ -22,23 +23,23 @@ class AbsencePanel(QFrame):
 
     def _build_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
 
         title = QLabel(tr("abs.title"))
-        title.setObjectName("h1")
+        title.setObjectName("sectionTitle")
         layout.addWidget(title)
 
         self.tabs = QTabWidget()
+        self.tabs.setObjectName("cardTabs")
 
         # Вкладка 1: DNS без ответа
         self.tab_dns = QWidget()
         vbox_dns = QVBoxLayout(self.tab_dns)
         vbox_dns.setContentsMargins(0, 0, 0, 0)
-        self.table_dns = QTableWidget(0, 2)
-        self.table_dns.setHorizontalHeaderLabels(["Домен (QNAME)", "Кол-во запросов"])
-        self.table_dns.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table_dns.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_dns = self._make_table(
+            ["Домен (QNAME)", "Кол-во запросов"]
+        )
         vbox_dns.addWidget(self.table_dns)
         self.tabs.addTab(self.tab_dns, tr("abs.dns"))
 
@@ -46,14 +47,29 @@ class AbsencePanel(QFrame):
         self.tab_tcp = QWidget()
         vbox_tcp = QVBoxLayout(self.tab_tcp)
         vbox_tcp.setContentsMargins(0, 0, 0, 0)
-        self.table_tcp = QTableWidget(0, 4)
-        self.table_tcp.setHorizontalHeaderLabels(["Src IP", "Dst IP", "Порт", "Пакеты"])
-        self.table_tcp.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table_tcp.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_tcp = self._make_table(
+            ["Src IP", "Dst IP", "Порт", "Пакеты"]
+        )
         vbox_tcp.addWidget(self.table_tcp)
         self.tabs.addTab(self.tab_tcp, tr("abs.tcp"))
 
         layout.addWidget(self.tabs)
+
+    @staticmethod
+    def _make_table(headers: list[str]) -> QTableWidget:
+        table = QTableWidget(0, len(headers))
+        table.setObjectName("absTable")
+        table.setHorizontalHeaderLabels(headers)
+        table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch
+        )
+        table.horizontalHeader().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        table.setAlternatingRowColors(True)
+        table.verticalHeader().setVisible(False)
+        return table
 
     def update_report(self, report: dict):
         absence = report.get("absence", {})

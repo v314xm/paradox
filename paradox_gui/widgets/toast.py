@@ -40,8 +40,9 @@ class Toast(QWidget):
         lbl.setObjectName("toastText")
         layout.addWidget(lbl)
 
-        # objectName несёт kind — QSS красит по нему левую полосу.
-        self.setObjectName(f"toast_{self._kind}")
+        # objectName + kind — QSS красит левую полосу по свойству.
+        self.setObjectName("toast")
+        self.setProperty("kind", self._kind)
 
     def _schedule_close(self) -> None:
         # Instance QTimer (child of toast) — удаляется вместе

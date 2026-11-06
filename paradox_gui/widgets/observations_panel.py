@@ -16,7 +16,7 @@ class _MetricRow(QFrame):
         super().__init__()
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 2, 0, 2)
-        layout.setSpacing(8)
+        layout.setSpacing(6)
 
         # Цветная точка связывает строку с категорией хайлайта,
         # чтобы панели читались как один набор, а не как два списка.
@@ -28,7 +28,6 @@ class _MetricRow(QFrame):
 
         self._label = QLabel(label)
         self._label.setObjectName("metricLabel")
-        self._label.setFixedWidth(64)
         layout.addWidget(self._label)
 
         self._value = QLabel("—")

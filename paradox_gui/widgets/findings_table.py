@@ -81,18 +81,9 @@ class FindingsTable(QFrame):
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(10)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
 
-        header = QHBoxLayout()
-        title = QLabel("Findings")
-        title.setObjectName("h1")
-        self._count_label = QLabel("")
-        self._count_label.setObjectName("muted")
-        header.addWidget(title)
-        header.addWidget(self._count_label)
-        header.addStretch(1)
-        layout.addLayout(header)
         layout.addLayout(self._build_filter_bar())
 
         self._table = QTableWidget(0, len(_COLUMNS))
@@ -109,6 +100,9 @@ class FindingsTable(QFrame):
         self._table.setSortingEnabled(True)
 
         hh = self._table.horizontalHeader()
+        hh.setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         for i, (_, width, stretch) in enumerate(_COLUMNS):
             if stretch:
                 hh.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
@@ -224,7 +218,7 @@ class FindingsTable(QFrame):
 
     def _build_filter_bar(self) -> QHBoxLayout:
         bar = QHBoxLayout()
-        bar.setSpacing(8)
+        bar.setSpacing(6)
 
         self._search = QLineEdit()
         self._search.setPlaceholderText(tr("find.search_placeholder"))
@@ -233,12 +227,12 @@ class FindingsTable(QFrame):
         bar.addWidget(self._search, stretch=1)
 
         self._type_filter = QComboBox()
-        self._type_filter.setMinimumWidth(160)
+        self._type_filter.setObjectName("filterType")
         self._type_filter.currentIndexChanged.connect(self._apply_filters)
         bar.addWidget(self._type_filter)
 
         self._conf_filter = QComboBox()
-        self._conf_filter.setMinimumWidth(100)
+        self._conf_filter.setObjectName("filterConf")
         self._conf_filter.addItem(tr("find.all_conf"), None)
         self._conf_filter.addItem("Conf ≥ 0.5", 0.5)
         self._conf_filter.addItem("Conf ≥ 0.7", 0.7)
@@ -246,11 +240,15 @@ class FindingsTable(QFrame):
         self._conf_filter.currentIndexChanged.connect(self._apply_filters)
         bar.addWidget(self._conf_filter)
 
-        reset = QPushButton("✕")
-        reset.setToolTip("Сбросить фильтры")
-        reset.setFixedWidth(32)
+        reset = QPushButton("×")
+        reset.setObjectName("iconButton")
+        reset.setToolTip(tr("run.reset_filter"))
         reset.clicked.connect(self._reset_filters)
         bar.addWidget(reset)
+
+        self._count_label = QLabel("")
+        self._count_label.setObjectName("hint")
+        bar.addWidget(self._count_label)
 
         return bar
 
