@@ -38,7 +38,7 @@ class AbsencePanel(QFrame):
         vbox_dns = QVBoxLayout(self.tab_dns)
         vbox_dns.setContentsMargins(0, 0, 0, 0)
         self.table_dns = self._make_table(
-            ["Домен (QNAME)", "Кол-во запросов"]
+            [tr("abs.col.qname"), tr("abs.col.requests")]
         )
         vbox_dns.addWidget(self.table_dns)
         self.tabs.addTab(self.tab_dns, tr("abs.dns"))
@@ -48,7 +48,8 @@ class AbsencePanel(QFrame):
         vbox_tcp = QVBoxLayout(self.tab_tcp)
         vbox_tcp.setContentsMargins(0, 0, 0, 0)
         self.table_tcp = self._make_table(
-            ["Src IP", "Dst IP", "Порт", "Пакеты"]
+            [tr("abs.col.src"), tr("abs.col.dst"),
+             tr("abs.col.port"), tr("abs.col.packets")]
         )
         vbox_tcp.addWidget(self.table_tcp)
         self.tabs.addTab(self.tab_tcp, tr("abs.tcp"))

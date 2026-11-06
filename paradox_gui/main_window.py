@@ -269,7 +269,9 @@ class MainWindow(QMainWindow):
             )
         except ImportError as e:
             QMessageBox.critical(
-                self, "Ошибка", f"Не удалось загрузить окно: {e}",
+                self,
+                tr("error.title"),
+                tr("error.load_window.body", message=e),
             )
             return
 
@@ -286,7 +288,7 @@ class MainWindow(QMainWindow):
                 config = build_config_with_overrides(overrides)
             except (ValueError, OSError) as e:
                 QMessageBox.critical(
-                    self, "Некорректные настройки", str(e),
+                    self, tr("error.config.title"), str(e),
                 )
                 return
             self._quick_check = QuickCheckWindow(config=config, parent=self)
@@ -406,7 +408,7 @@ class MainWindow(QMainWindow):
     def _placeholder_page(self, title: str) -> QWidget:
         w = QWidget()
         layout = QVBoxLayout(w)
-        lbl = QLabel(f"«{title}» — будет реализовано позже.")
+        lbl = QLabel(tr("placeholder.coming_soon", title=title))
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lbl.setObjectName("muted")
         layout.addWidget(lbl)
@@ -440,7 +442,15 @@ class MainWindow(QMainWindow):
         except Exception as e:
             import traceback
             traceback.print_exc()
-            QMessageBox.critical(self, "Ошибка", f"{type(e).__name__}: {e}")
+            QMessageBox.critical(
+                self,
+                tr("error.title"),
+                tr(
+                    "error.read.body",
+                    type=type(e).__name__,
+                    message=e,
+                ),
+            )
 
     def _on_open_report(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
@@ -498,7 +508,9 @@ class MainWindow(QMainWindow):
         self.run_view.reanalyze()
 
     def _on_analyze_with_config(self) -> None:
-        self.statusBar().showMessage("Анализ с настройками — после шага 12", 3000)
+        self.statusBar().showMessage(
+            tr("status.analyze_with_config_wip"), 3000
+        )
 
     def _on_stop(self) -> None:
         # >>> ОСТАНОВКА <<<
@@ -680,9 +692,9 @@ class MainWindow(QMainWindow):
         current_report = self.run_view.last_report()
         if not current_report:
             QMessageBox.information(
-                self, "Нет текущего прогона",
-                "Сначала выполните анализ pcap во вкладке «Прогон», чтобы "
-                "было с чем сравнивать.",
+                self,
+                tr("error.no_current_run.title"),
+                tr("error.no_current_run.body"),
             )
             return
 
@@ -798,9 +810,8 @@ class MainWindow(QMainWindow):
         if busy:
             answer = QMessageBox.question(
                 self,
-                "Идёт работа",
-                "Анализ или обогащение ещё выполняется. "
-                "Остановить и закрыть?",
+                tr("dialog.busy.title"),
+                tr("dialog.busy.body"),
                 QMessageBox.StandardButton.Yes
                 | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
@@ -819,9 +830,8 @@ class MainWindow(QMainWindow):
             if not stopped:
                 QMessageBox.warning(
                     self,
-                    "Не удалось остановить",
-                    "Поток ещё работает. Дождитесь завершения "
-                    "и закройте окно снова.",
+                    tr("error.stop_failed.title"),
+                    tr("error.stop_failed.body"),
                 )
                 event.ignore()
                 return

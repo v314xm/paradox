@@ -75,25 +75,33 @@ def _short_summary(provider_name: str, data: dict | None,
     if error:
         return error
     if not data:
-        return "Нет данных у провайдера."
+        return tr("provider.no_data")
     if provider_name == "shodan_internetdb":
         ports = data.get("ports") or []
         hosts = data.get("hostnames") or []
         vulns = data.get("vulns") or []
         parts = []
         if ports:
-            parts.append(f"Порты: {', '.join(map(str, ports[:10]))}")
+            parts.append(
+                tr("provider.ports", value=", ".join(map(str, ports[:10])))
+            )
         if hosts:
-            parts.append(f"Хосты: {', '.join(hosts[:3])}")
+            parts.append(
+                tr("provider.hosts", value=", ".join(hosts[:3]))
+            )
         if vulns:
-            parts.append(f"Уязвимости: {', '.join(vulns[:5])}")
-        return " · ".join(parts) or "IP в базе Shodan, деталей нет."
+            parts.append(
+                tr("provider.vulns", value=", ".join(vulns[:5]))
+            )
+        return " · ".join(parts) or tr("provider.shodan_no_details")
     if provider_name == "abuseipdb":
         score = data.get("abuseConfidenceScore", 0)
-        return (
-            f"Score {score}/100 · ISP: {data.get('isp', '?')} · "
-            f"Страна: {data.get('countryCode', '?')} · "
-            f"Отчётов: {data.get('totalReports', 0)}"
+        return tr(
+            "provider.score",
+            score=score,
+            isp=data.get('isp', '?'),
+            country=data.get('countryCode', '?'),
+            reports=data.get('totalReports', 0),
         )
     if provider_name == "virustotal":
         stats = (data.get("data") or {}).get("attributes", {}).get(
@@ -106,7 +114,7 @@ def _short_summary(provider_name: str, data: dict | None,
                 f"harmless: {stats.get('harmless', 0)}, "
                 f"undetected: {stats.get('undetected', 0)}"
             )
-        return "Есть запись, но без анализа."
+        return tr("provider.record_no_analysis")
     if provider_name == "greynoise":
         return (
             f"noise: {data.get('noise')}, riot: {data.get('riot')}, "
@@ -114,18 +122,23 @@ def _short_summary(provider_name: str, data: dict | None,
         )
     if provider_name == "alienvault_otx":
         pulses = (data.get("pulse_info") or {})
-        return (
-            f"Пульсов: {pulses.get('count', 0)} · "
-            f"первый: {pulses.get('pulses', [{}])[0].get('name', '?')[:60] if pulses.get('pulses') else '—'}"
+        first = (
+            pulses.get('pulses', [{}])[0].get('name', '?')[:60]
+            if pulses.get('pulses') else '—'
+        )
+        return tr(
+            "provider.pulses",
+            count=pulses.get('count', 0),
+            first=first,
         )
     if provider_name in ("urlhaus", "threatfox", "malwarebazaar"):
         if data.get("query_status") == "ok":
             n = len(data.get("data") or data.get("urls") or [])
-            return f"Найдено: {n} записей"
-        return "Нет данных."
+            return tr("provider.found_records", count=n)
+        return tr("provider.no_data_short")
     if provider_name == "urlscan":
         results = data.get("results") or []
-        return f"Сканов: {len(results)}"
+        return tr("provider.scans", count=len(results))
     return json.dumps(data, ensure_ascii=False)[:200]
 
 

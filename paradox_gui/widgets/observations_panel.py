@@ -87,17 +87,21 @@ class ObservationsPanel(QFrame):
         uq = summary.get("unique_dns_queries", 0)
         nx = summary.get("nxdomain_count", 0)
         if uq == 0 and nx == 0:
-            self._row_dns.set_value("— запросов не было")
+            self._row_dns.set_value(tr("obs.dns.none"))
         else:
-            self._row_dns.set_value(f"{uq} запросов · {nx} NXDOMAIN")
+            self._row_dns.set_value(
+                tr("obs.dns.count", count=uq, nx=nx)
+            )
 
         total = summary.get("flows", 0)
-        self._row_flows.set_value(f"{total} total", empty=(total == 0))
+        self._row_flows.set_value(
+            tr("obs.flows_total", count=total), empty=(total == 0)
+        )
 
         n_int = len(entities.get("internal", []) or [])
         n_ext = len(entities.get("external", []) or [])
         self._row_hosts.set_value(
-            f"{n_int} internal · {n_ext} external",
+            tr("obs.hosts", internal=n_int, external=n_ext),
             empty=(n_int == 0 and n_ext == 0),
         )
 
@@ -106,12 +110,16 @@ class ObservationsPanel(QFrame):
         if total == 0:
             self._row_tcp.set_value("—")
         else:
-            extra = f" · {trunc} truncated" if trunc else ""
-            self._row_tcp.set_value(f"{tcp_s} streams{extra}")
+            extra = (
+                tr("obs.tcp_truncated", count=trunc) if trunc else ""
+            )
+            self._row_tcp.set_value(
+                tr("obs.tcp", count=tcp_s, truncated=extra)
+            )
 
         n_carved = summary.get("carved_files", 0)
         self._row_carved.set_value(
-            "—" if n_carved == 0 else f"{n_carved} файлов"
+            "—" if n_carved == 0 else tr("obs.carved", count=n_carved)
         )
 
 # AUTO-COMPACTED-OBSERVATIONS

@@ -17,6 +17,8 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QSplashScreen
 
+from paradox_gui.i18n import tr
+
 try:
     from paradox_gui import __version__ as GUI_VERSION
 except ImportError:
@@ -36,7 +38,7 @@ class ParadoxSplash(QSplashScreen):
             Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.FramelessWindowHint,
         )
-        self._status = "Загрузка…"
+        self._status = tr("splash.loading")
         self._progress = 0.0
 
     def _render_static(self) -> QPixmap:

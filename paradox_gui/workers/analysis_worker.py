@@ -11,6 +11,8 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
+from paradox_gui.i18n import tr
+
 
 class AnalysisWorker(QThread):
     # object, а не dict — PySide6 не всегда корректно конвертирует
@@ -80,7 +82,9 @@ class AnalysisWorker(QThread):
                 run_pipeline,
             )
         except ImportError as e:
-            self.error.emit(f"Не удалось импортировать ядро: {e}")
+            self.error.emit(
+                tr("error.import_core.body", message=e)
+            )
             return
 
         # v1.4: активный список детекторов/правил передаётся параметром,

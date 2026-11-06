@@ -25,11 +25,11 @@ from paradox_gui.i18n import tr
 
 # Колонки: (заголовок, ширина по умолчанию в пикселях, растягивать?)
 _COLUMNS = (
-    ("Тип",         180, False),
-    ("Значение",    0,   True),    # тянется
-    ("Conf",        70,  False),
-    ("MITRE",       110, False),
-    ("First seen",  140, False),
+    ("find.col.type",        180, False),
+    ("find.col.value",       0,   True),    # тянется
+    ("find.col.conf",        70,  False),
+    ("find.col.mitre",       110, False),
+    ("find.col.first_seen",  140, False),
 )
 
 # Роль для хранения исходного dict'а finding'а в строке таблицы.
@@ -91,7 +91,7 @@ class FindingsTable(QFrame):
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
         )
-        self._table.setHorizontalHeaderLabels([c[0] for c in _COLUMNS])
+        self._table.setHorizontalHeaderLabels([tr(c[0]) for c in _COLUMNS])
         self._table.verticalHeader().setVisible(False)
         self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -327,7 +327,9 @@ class FindingsTable(QFrame):
         if shown == total:
             self._count_label.setText(f"({total})")
         else:
-            self._count_label.setText(f"({shown} из {total})")
+            self._count_label.setText(
+                tr("find.count_filtered", shown=shown, total=total)
+            )
 
     @staticmethod
     def _format_ts(ts) -> str:

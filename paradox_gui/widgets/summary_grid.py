@@ -13,15 +13,17 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# Порядок плиток: (ключ, подпись, акцентная?).
+from paradox_gui.i18n import tr
+
+# Порядок плиток: (ключ, i18n-ключ подписи, акцентная?).
 # Ключи совпадают с report["summary"] из run_pipeline.
 _TILES = (
-    ("packets",         "Пакеты",        False),
-    ("flows",           "Flows",         False),
-    ("findings",        "Findings",      False),
-    ("contradictions",  "Противоречия",  True),   # акцентная
-    ("size_bytes",      "Размер",        False),
-    ("duration_sec",    "Время",         False),
+    ("packets",         "summary.packets",        False),
+    ("flows",           "summary.flows",          False),
+    ("findings",        "summary.findings",       False),
+    ("contradictions",  "summary.contradictions", True),   # акцентная
+    ("size_bytes",      "summary.size",           False),
+    ("duration_sec",    "summary.time",           False),
 )
 
 
@@ -39,8 +41,8 @@ class SummaryGrid(QWidget):
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(8)
 
-        for idx, (key, title, accent) in enumerate(_TILES):
-            tile = self._make_tile(key, title, accent)
+        for idx, (key, title_key, accent) in enumerate(_TILES):
+            tile = self._make_tile(key, tr(title_key), accent)
             self._tile_frames[key] = tile
             row, col = divmod(idx, 3)
             grid.addWidget(tile, row, col)

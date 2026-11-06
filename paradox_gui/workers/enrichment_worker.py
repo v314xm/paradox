@@ -14,6 +14,8 @@ import time
 
 from PySide6.QtCore import QThread, Signal
 
+from paradox_gui.i18n import tr
+
 
 class EnrichmentWorker(QThread):
     finished_ok = Signal(object)   # {"stats": {...}, "enrichment": {(type, ioc): {source: data}}}
@@ -33,11 +35,13 @@ class EnrichmentWorker(QThread):
                 build_default_orchestrator,
             )
         except ImportError as e:
-            self.error.emit(f"Не удалось импортировать обогащение: {e}")
+            self.error.emit(
+                tr("error.import_enrich.body", message=e)
+            )
             return
 
         if not self._iocs:
-            self.error.emit("Не выбрано ни одного IOC.")
+            self.error.emit(tr("enrich.worker_no_iocs"))
             return
 
         t0 = time.perf_counter()

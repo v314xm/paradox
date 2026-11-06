@@ -30,6 +30,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 PORT_FIELDS = frozenset({
     "suspicious_ports",
     "port_scan_excluded_ports",
@@ -76,29 +78,27 @@ class EditableListWidget(QWidget):
         self._input = QLineEdit()
         self._input.setObjectName("listInput")
         self._input.setPlaceholderText(
-            "Порт (1–65535) и Enter…" if self._port_mode
-            else "Значение и Enter…"
+            tr("list.placeholder.port") if self._port_mode
+            else tr("list.placeholder.value")
         )
         self._input.returnPressed.connect(self._add_from_input)
         row.addWidget(self._input)
 
-        self._add_btn = QPushButton("Добавить")
+        self._add_btn = QPushButton(tr("list.add"))
         self._add_btn.setObjectName("primary")
-        self._add_btn.setToolTip("Добавить значение (Enter)")
+        self._add_btn.setToolTip(tr("list.add_tip"))
         self._add_btn.clicked.connect(self._add_from_input)
         row.addWidget(self._add_btn)
 
-        self._import_btn = QPushButton("Загрузить…")
+        self._import_btn = QPushButton(tr("list.load"))
         self._import_btn.setObjectName("secondary")
-        self._import_btn.setToolTip(
-            "Загрузить список из файла (построчно, # — комментарий)"
-        )
+        self._import_btn.setToolTip(tr("list.load_tip"))
         self._import_btn.clicked.connect(self._on_import_clicked)
         row.addWidget(self._import_btn)
 
-        self._export_btn = QPushButton("Экспорт…")
+        self._export_btn = QPushButton(tr("list.export"))
         self._export_btn.setObjectName("secondary")
-        self._export_btn.setToolTip("Сохранить список в файл")
+        self._export_btn.setToolTip(tr("list.export_tip"))
         self._export_btn.clicked.connect(self._on_export_clicked)
         row.addWidget(self._export_btn)
 
@@ -119,9 +119,9 @@ class EditableListWidget(QWidget):
         del_row.setContentsMargins(0, 0, 0, 0)
         del_row.setSpacing(6)
 
-        self._del_btn = QPushButton("Удалить выбранное")
+        self._del_btn = QPushButton(tr("list.delete"))
         self._del_btn.setObjectName("dangerOutline")
-        self._del_btn.setToolTip("Удалить выделенные элементы (Del)")
+        self._del_btn.setToolTip(tr("list.delete_tip"))
         self._del_btn.setEnabled(False)
         self._del_btn.clicked.connect(self._remove_selected)
         del_row.addWidget(self._del_btn)
@@ -131,7 +131,7 @@ class EditableListWidget(QWidget):
         # --- фильтр (>8 элементов) ---
         self._search = QLineEdit()
         self._search.setObjectName("listFilter")
-        self._search.setPlaceholderText("Фильтр…")
+        self._search.setPlaceholderText(tr("list.placeholder.filter"))
         self._search.setClearButtonEnabled(True)
         self._search.textChanged.connect(self._apply_filter)
         outer.addWidget(self._search)
@@ -189,11 +189,11 @@ class EditableListWidget(QWidget):
         if not text:
             return
         if not self._is_valid(text):
-            self._flash_error("Невалидное значение (порт 1–65535)")
+            self._flash_error(tr("list.invalid_port"))
             return
         if text in self.items():
             self._input.clear()
-            self._flash_error("Уже есть в списке")
+            self._flash_error(tr("list.duplicate"))
             return
         self._list.blockSignals(True)
         self._list.addItem(QListWidgetItem(text))
@@ -217,8 +217,8 @@ class EditableListWidget(QWidget):
 
     def _on_import_clicked(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Загрузить список", "",
-            "Текстовые файлы (*.txt *.list *.csv);;Все файлы (*)",
+            self, tr("list.load_title"), "",
+            tr("list.load_filter"),
         )
         if not path:
             return
@@ -226,14 +226,15 @@ class EditableListWidget(QWidget):
             text = Path(path).read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as e:
             QMessageBox.critical(
-                self, "Ошибка чтения", f"{type(e).__name__}: {e}",
+                self, tr("list.read_error_title"),
+                f"{type(e).__name__}: {e}",
             )
             return
 
         parsed, skipped = self._parse_import_text(text)
         if not parsed and not skipped:
             QMessageBox.information(
-                self, "Пусто", "В файле нет подходящих значений.",
+                self, tr("list.empty_title"), tr("list.empty_body"),
             )
             return
 
@@ -242,17 +243,19 @@ class EditableListWidget(QWidget):
         dupes = len(parsed) - len(non_dupes)
         if not non_dupes:
             QMessageBox.information(
-                self, "Уже всё есть",
-                f"Все {len(parsed)} значений из файла уже в списке.",
+                self, tr("list.all_present_title"),
+                tr("list.all_present_body", count=len(parsed)),
             )
             return
 
+        body = tr("list.import_found", count=len(parsed))
+        if dupes:
+            body += tr("list.import_dupes", count=dupes)
+        if skipped:
+            body += tr("list.import_skipped", count=skipped)
+        body += tr("list.import_body")
         answer = QMessageBox.question(
-            self, "Импорт списка",
-            f"В файле найдено {len(parsed)} значений."
-            + (f"\nУже есть в списке: {dupes}." if dupes else "")
-            + (f"\nОтфильтровано как невалидные: {skipped}." if skipped else "")
-            + "\n\nЗаменить текущий список или дополнить?",
+            self, tr("list.import_title"), body,
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             | QMessageBox.StandardButton.Cancel,
         )
@@ -267,12 +270,12 @@ class EditableListWidget(QWidget):
         items = self.items()
         if not items:
             QMessageBox.information(
-                self, "Пусто", "Список пуст — нечего сохранять.",
+                self, tr("list.empty_title"), tr("list.nothing_to_save"),
             )
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Экспорт списка", "list.txt",
-            "Текстовые файлы (*.txt *.list);;Все файлы (*)",
+            self, tr("list.save_title"), "list.txt",
+            tr("list.load_filter"),
         )
         if not path:
             return
@@ -282,7 +285,8 @@ class EditableListWidget(QWidget):
             )
         except OSError as e:
             QMessageBox.critical(
-                self, "Ошибка записи", f"{type(e).__name__}: {e}",
+                self, tr("list.write_error_title"),
+                f"{type(e).__name__}: {e}",
             )
             return
 
@@ -331,7 +335,7 @@ class EditableListWidget(QWidget):
         self._search.setVisible(show_filter)
         if show_filter:
             self._search.setPlaceholderText(
-                f"Фильтр ({n} элементов)…"
+                tr("list.placeholder.filter_n", n=n)
             )
         else:
             self._search.clear()

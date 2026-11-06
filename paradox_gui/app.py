@@ -9,6 +9,7 @@ import traceback
 
 from PySide6.QtWidgets import QApplication
 
+from paradox_gui.i18n import tr
 from paradox_gui.splash import ParadoxSplash
 from paradox_gui.theme import apply_theme
 
@@ -29,11 +30,8 @@ def main() -> int:
             if QApplication.instance():
                 box = QMessageBox()
                 box.setIcon(QMessageBox.Icon.Critical)
-                box.setWindowTitle("Критическая ошибка")
-                box.setText(
-                    "Произошла непредвиденная ошибка.<br>"
-                    "Подробности сохранены в <b>Paradox-error.log</b>."
-                )
+                box.setWindowTitle(tr("error.critical.title"))
+                box.setText(tr("error.critical.body"))
                 box.setDetailedText(tb_text)
                 box.exec()
         except Exception:
@@ -59,7 +57,7 @@ def main() -> int:
     app.processEvents()
 
     # 1. Ключи Threat Intel из keyring -> os.environ
-    splash.set_status("Загрузка ключей Threat Intel…")
+    splash.set_status(tr("splash.keys"))
     splash.set_progress(0.15)
     app.processEvents()
     try:
@@ -69,20 +67,20 @@ def main() -> int:
         pass
 
     # 2. Тема
-    splash.set_status("Применение тёмной темы…")
+    splash.set_status(tr("splash.theme"))
     splash.set_progress(0.35)
     app.processEvents()
     apply_theme(app)
 
     # 3. Тяжёлый импорт + сборка главного окна
-    splash.set_status("Инициализация ядра и модулей…")
+    splash.set_status(tr("splash.core"))
     splash.set_progress(0.55)
     app.processEvents()
     from paradox_gui.main_window import MainWindow
     w = MainWindow()
 
     # 4. Показ
-    splash.set_status("Готово")
+    splash.set_status(tr("splash.ready"))
     splash.set_progress(1.0)
     app.processEvents()
     w.showMaximized()
