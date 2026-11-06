@@ -24,6 +24,13 @@
       таблицы → служебные → виджет-специфичные.
 =============================================================================
 """
+from __future__ import annotations
+
+import tempfile
+from pathlib import Path
+
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QImage, QPainter, QPen
 from PySide6.QtWidgets import QApplication
 
 # Значения выдернуты из HTML-прототипа, но без пиксельной точности —
@@ -58,7 +65,7 @@ MONO_FAMILY = "'Cascadia Code', 'Consolas', 'Courier New', monospace"
 UI_FAMILY   = "'Segoe UI', system-ui, sans-serif"
 
 
-QSS = """
+_QSS_TEMPLATE = """
 /* =========================================================================
    ГЛОБАЛЬНО
    ========================================================================= */
@@ -219,18 +226,84 @@ QLineEdit, QPlainTextEdit, QTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
     color: {text};
     padding: 5px 9px;
     selection-background-color: {accent};
+    selection-color: #ffffff;
 }}
+QLineEdit {{ placeholder-text-color: {text_muted}; }}
 QLineEdit:hover, QComboBox:hover, QSpinBox:hover,
 QDoubleSpinBox:hover {{ border-color: {bg_hover}; }}
 QLineEdit:focus, QPlainTextEdit:focus, QComboBox:focus,
 QSpinBox:focus, QDoubleSpinBox:focus {{
     border-color: {accent};
 }}
-QComboBox::drop-down {{ border: none; width: 20px; }}
+QLineEdit:disabled, QPlainTextEdit:disabled, QTextEdit:disabled,
+QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {{
+    color: {text_muted};
+    background-color: {bg_light};
+    border-color: {border};
+}}
+QComboBox {{ padding-right: 22px; }}
+QComboBox::drop-down {{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 22px;
+    border: none;
+}}
+/* Стрелку рисуем PNG-шевроном: QSS не умеет треугольники из рамок,
+   а внешних SVG/PNG в пакете нет — файл создаётся в temp при старте. */
+QComboBox::down-arrow {{
+    image: {arrow_down};
+    width: 9px;
+    height: 6px;
+}}
+QComboBox::down-arrow:disabled {{
+    image: {arrow_down_disabled};
+    width: 9px;
+    height: 6px;
+}}
 QComboBox QAbstractItemView {{
     background: {bg_light};
     border: 1px solid {border};
+    padding: 4px;
+    outline: none;
     selection-background-color: {bg_hover};
+    selection-color: {text};
+}}
+QComboBox QAbstractItemView::item {{
+    padding: 5px 8px;
+    border-radius: 4px;
+}}
+
+QSpinBox, QDoubleSpinBox {{ padding-right: 22px; }}
+QSpinBox::up-button, QDoubleSpinBox::up-button {{
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+    background: {bg_lighter};
+    border-left: 1px solid {border};
+    border-bottom: 1px solid {border};
+    border-top-right-radius: 5px;
+}}
+QSpinBox::down-button, QDoubleSpinBox::down-button {{
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
+    background: {bg_lighter};
+    border-left: 1px solid {border};
+    border-bottom-right-radius: 5px;
+}}
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{
+    background: {bg_hover};
+}}
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {{
+    image: {arrow_up};
+    width: 7px;
+    height: 5px;
+}}
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{
+    image: {arrow_down};
+    width: 7px;
+    height: 5px;
 }}
 
 QCheckBox {{ spacing: 8px; }}
@@ -244,6 +317,68 @@ QCheckBox::indicator:checked {{
     background: {accent};
     border-color: {accent};
 }}
+
+QRadioButton {{ spacing: 8px; }}
+QRadioButton::indicator {{
+    width: 14px; height: 14px;
+    border: 1px solid {border};
+    border-radius: 8px;
+    background: {bg};
+}}
+QRadioButton::indicator:checked {{
+    background: {accent};
+    border: 4px solid {bg_lighter};
+}}
+QCheckBox:disabled, QRadioButton:disabled {{ color: {text_muted}; }}
+
+QToolButton {{
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: {text_muted};
+}}
+QToolButton:hover {{
+    background: {bg_lighter};
+    border-color: {border};
+    color: {text};
+}}
+QToolButton:pressed {{ background: {bg_light}; }}
+QToolButton:disabled {{ color: {text_muted}; }}
+
+QSlider {{ min-height: 20px; }}
+QSlider::groove:horizontal {{
+    height: 4px;
+    background: {bg_lighter};
+    border-radius: 2px;
+}}
+QSlider::sub-page:horizontal {{
+    background: {accent};
+    border-radius: 2px;
+}}
+QSlider::handle:horizontal {{
+    width: 12px;
+    margin: -5px 0;
+    border-radius: 6px;
+    background: {text_muted};
+}}
+QSlider::handle:horizontal:hover {{ background: {accent}; }}
+QSlider::groove:vertical {{
+    width: 4px;
+    background: {bg_lighter};
+    border-radius: 2px;
+}}
+QSlider::add-page:vertical {{
+    background: {accent};
+    border-radius: 2px;
+}}
+QSlider::handle:vertical {{
+    height: 12px;
+    margin: 0 -5px;
+    border-radius: 6px;
+    background: {text_muted};
+}}
+QSlider::handle:vertical:hover {{ background: {accent}; }}
 
 /* =========================================================================
    ТАБЛИЦЫ
@@ -266,6 +401,7 @@ QTreeWidget::item:selected, QTreeView::item:selected {{
 QTreeView::branch {{
     background: transparent;
 }}
+QHeaderView {{ background-color: {bg_light}; }}
 QHeaderView::section {{
     background-color: {bg_light};
     color: {text_muted};
@@ -276,12 +412,43 @@ QHeaderView::section {{
     font-weight: 600;
     letter-spacing: 0.04em;
 }}
+QHeaderView::section:vertical {{
+    padding: 4px 8px;
+    border-right: 1px solid {border};
+    color: {text_muted};
+    font-weight: 400;
+}}
 QTableWidget::item {{ padding: 6px 10px; }}
 QTableWidget::item:hover {{ background: {bg_lighter}; }}
 QTableWidget::item:selected {{
     background: rgba(91, 140, 255, 0.20);
     color: {text};
 }}
+QTableCornerButton::section {{
+    background-color: {bg_light};
+    border: none;
+    border-bottom: 1px solid {border};
+}}
+
+QListWidget {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 6px;
+    padding: 4px;
+    outline: none;
+    selection-background-color: {bg_hover};
+    selection-color: {text};
+}}
+QListWidget::item {{
+    padding: 6px 10px;
+    border-radius: 4px;
+    color: {text};
+}}
+QListWidget::item:hover {{ background: {bg_lighter}; }}
+QListWidget::item:selected {{ background: {bg_hover}; color: {text}; }}
+
+QDialogButtonBox {{ spacing: 8px; }}
+QDialogButtonBox QPushButton {{ min-width: 84px; }}
 
 /* =========================================================================
    ПРОГРЕСС-БАР / СТАТУС-БАР / СКРОЛЛБАРЫ
@@ -662,12 +829,6 @@ QDialog QLabel#mono {{
 /* =========================================================================
    ВИДЖЕТ: ContradictionDialog
    ========================================================================= */
-QDialog QLabel#h1 {{
-    font-size: 14px;
-    font-weight: 600;
-    color: {text_muted};
-    margin-top: 6px;
-}}
 QDialog QFrame#contraFacts {{
     background-color: {bg};
     border: 1px solid {border};
@@ -755,7 +916,8 @@ QFrame#contraFacts QLabel {{
     font-size: 11px;
 }}
 QPushButton#small {{
-    padding: 3px 10px;
+    padding: 2px 9px;
+    min-height: 20px;
     font-size: 12px;
 }}
 
@@ -789,18 +951,83 @@ QTextBrowser {{
 }}
 
 
-""".format(
-    ui=UI_FAMILY,
-    mono=MONO_FAMILY,
-    critical=SEVERITY["critical"],
-    high=SEVERITY["high"],
-    medium=SEVERITY["medium"],
-    low=SEVERITY["low"],
-    info=SEVERITY["info"],
-    **PALETTE,
-)
+"""
+
+
+def _url(path: Path | str | None) -> str:
+    return f'url("{Path(path).as_posix()}")' if path else "none"
+
+
+def build_qss(
+    arrow_down: Path | str | None = None,
+    arrow_up: Path | str | None = None,
+    arrow_down_disabled: Path | str | None = None,
+) -> str:
+    """Собрать QSS. Пути к стрелкам подставляются при старте приложения."""
+    return _QSS_TEMPLATE.format(
+        arrow_down=_url(arrow_down),
+        arrow_up=_url(arrow_up),
+        arrow_down_disabled=_url(arrow_down_disabled or arrow_down),
+        ui=UI_FAMILY,
+        mono=MONO_FAMILY,
+        critical=SEVERITY["critical"],
+        high=SEVERITY["high"],
+        medium=SEVERITY["medium"],
+        low=SEVERITY["low"],
+        info=SEVERITY["info"],
+        **PALETTE,
+    )
+
+
+#: QSS без сгенерированных стрелок — для тестов и как fallback.
+QSS = build_qss()
+
+
+def _chevron_png(path: Path, up: bool, color: str) -> None:
+    """Нарисовать шеврон 2x: QSS уменьшает его до 9x6 (7x5 в спинбоксе)."""
+    image = QImage(18, 12, QImage.Format.Format_ARGB32)
+    image.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    pen = QPen(QColor(color), 2.6)
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+    painter.setPen(pen)
+    if up:
+        painter.drawLine(4, 8, 9, 4)
+        painter.drawLine(9, 4, 14, 8)
+    else:
+        painter.drawLine(4, 4, 9, 8)
+        painter.drawLine(9, 8, 14, 4)
+    painter.end()
+    image.save(str(path), "PNG")
+
+
+def _arrow_assets() -> dict[str, str]:
+    """PNG-шевроны в temp: QSS не рисует треугольники без картинки."""
+    directory = Path(tempfile.gettempdir()) / "paradox_theme"
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        down_path = directory / "chevron-down-v1.png"
+        up_path = directory / "chevron-up-v1.png"
+        disabled_path = directory / "chevron-down-disabled-v1.png"
+        if not down_path.exists():
+            _chevron_png(down_path, up=False, color=PALETTE["text_muted"])
+        if not up_path.exists():
+            _chevron_png(up_path, up=True, color=PALETTE["text_muted"])
+        if not disabled_path.exists():
+            _chevron_png(
+                disabled_path, up=False, color=PALETTE["border"]
+            )
+    except OSError:
+        return {}
+    return {
+        "arrow_down": str(down_path),
+        "arrow_up": str(up_path),
+        "arrow_down_disabled": str(disabled_path),
+    }
 
 
 def apply_theme(app: QApplication) -> None:
     """Накладывает QSS на QApplication. Вызывать один раз при старте."""
-    app.setStyleSheet(QSS)
+    app.setStyleSheet(build_qss(**_arrow_assets()))
