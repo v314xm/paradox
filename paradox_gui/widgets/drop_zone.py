@@ -115,7 +115,7 @@ class DropZone(QFrame):
         name = display_name or Path(path).name
         self._icon.hide()
         self._title.setText(f"📄 {name}")
-        self._hint.setText("Перетащите другой pcap или нажмите, чтобы сменить")
+        self._hint.setText(tr("run.drop_compact_hint"))
 
         # Паддинги — через layout. Иначе sizeHint останется прежним.
         self.layout().setContentsMargins(20, 10, 20, 10)

@@ -79,7 +79,11 @@ class DiffView(QWidget):
 
         self._tree = QTreeWidget()
         self._tree.setObjectName("diffTree")
-        self._tree.setHeaderLabels(["Категория", "Значение", "Детали"])
+        self._tree.setHeaderLabels([
+            tr("diff.col.category"),
+            tr("diff.col.value"),
+            tr("diff.col.details"),
+        ])
         self._tree.setAlternatingRowColors(True)
         self._tree.header().setDefaultAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
@@ -90,8 +94,10 @@ class DiffView(QWidget):
 
     def _load(self, which: str) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Открыть JSON-отчёт", "",
-            "JSON (*.json);;Все файлы (*)",
+            self,
+            tr("diff.open_title"),
+            "",
+            tr("diff.open_filter"),
         )
         if not path:
             return
@@ -123,15 +129,21 @@ class DiffView(QWidget):
         self._summary.setText(self._render_summary(d))
 
         if d.findings.added:
-            top = self._group(f"Новые findings ({len(d.findings.added)})")
+            top = self._group(tr(
+                "diff.group.new_findings", count=len(d.findings.added)
+            ))
             for f in d.findings.added:
                 self._leaf(top, f)
         if d.findings.removed:
-            top = self._group(f"Исчезли findings ({len(d.findings.removed)})")
+            top = self._group(tr(
+                "diff.group.gone_findings", count=len(d.findings.removed)
+            ))
             for f in d.findings.removed:
                 self._leaf(top, f)
         if d.findings.changed:
-            top = self._group(f"Изменились findings ({len(d.findings.changed)})")
+            top = self._group(tr(
+                "diff.group.changed_findings", count=len(d.findings.changed)
+            ))
             for c in d.findings.changed:
                 f = c["new"]
                 it = QTreeWidgetItem(top, [
@@ -141,7 +153,10 @@ class DiffView(QWidget):
                 ])
                 it.setToolTip(1, str(f.get("value", "")))
         if d.contradictions_added:
-            top = self._group(f"Новые противоречия ({len(d.contradictions_added)})")
+            top = self._group(tr(
+                "diff.group.new_contra",
+                count=len(d.contradictions_added),
+            ))
             for c in d.contradictions_added:
                 QTreeWidgetItem(top, [
                     str(c.get("rule", "?")),
@@ -149,7 +164,10 @@ class DiffView(QWidget):
                     str(c.get("severity", "")),
                 ])
         if d.contradictions_removed:
-            top = self._group(f"Исчезли противоречия ({len(d.contradictions_removed)})")
+            top = self._group(tr(
+                "diff.group.gone_contra",
+                count=len(d.contradictions_removed),
+            ))
             for c in d.contradictions_removed:
                 QTreeWidgetItem(top, [
                     str(c.get("rule", "?")),
@@ -191,12 +209,13 @@ class DiffView(QWidget):
                 parts.append(f"{field}: {ov}→{nv} ({sign}{delta})")
             else:
                 parts.append(f"{field}: {ov}→{nv}")
-        base = (
-            f"Findings: +{len(d.findings.added)} "
-            f"−{len(d.findings.removed)} "
-            f"~{len(d.findings.changed)} · "
-            f"Противоречий: +{len(d.contradictions_added)} "
-            f"−{len(d.contradictions_removed)}"
+        base = tr(
+            "diff.summary",
+            f_added=len(d.findings.added),
+            f_removed=len(d.findings.removed),
+            f_changed=len(d.findings.changed),
+            c_added=len(d.contradictions_added),
+            c_removed=len(d.contradictions_removed),
         )
         if parts:
             base += " · " + " · ".join(parts)
@@ -212,8 +231,10 @@ class DiffView(QWidget):
             return
 
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить Diff в Markdown", "diff.md",
-            "Markdown (*.md);;Все файлы (*)"
+            self,
+            tr("diff.save_title"),
+            "diff.md",
+            tr("diff.save_filter"),
         )
         if not path:
             return
@@ -222,10 +243,12 @@ class DiffView(QWidget):
             text = render_diff_markdown(d)
             Path(path).write_text(text, encoding="utf-8")
             QMessageBox.information(
-                self, "Успех", f"Diff успешно сохранён:\n{path}"
+                self,
+                tr("diff.success_title"),
+                tr("diff.saved", path=path),
             )
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка", str(e))
+            QMessageBox.critical(self, tr("error.title"), str(e))
 
     def dragEnterEvent(self, event) -> None:
         if event.mimeData().hasUrls():

@@ -68,8 +68,8 @@ class HostStoryDialog(QDialog):
                     dst = f"{d.get('dst_ip')}:{d.get('dst_port', '')}"
                     byt = d.get('bytes', 0)
                     html += (
-                        f"<li><b class='mono'>[{time_str}]</b> Поток: "
-                        f"{src} &rarr; {dst} ({byt} байт)</li>"
+                        f"<li><b class='mono'>[{time_str}]</b> "
+                        f"{tr('story.flow', src=src, dst=dst, nbytes=byt)}</li>"
                     )
                 elif ev["type"] == "finding":
                     d = ev["data"]
@@ -77,7 +77,9 @@ class HostStoryDialog(QDialog):
                     val = d.get('value', '')
                     html += (
                         f"<li><b class='mono'>[{time_str}]</b> "
-                        f"<span class='danger'>Сработка: {ftype} ({val})</span></li>"
+                        f"<span class='danger'>"
+                        f"{tr('story.finding', ftype=ftype, value=val)}"
+                        f"</span></li>"
                     )
             html += "</ul>"
 

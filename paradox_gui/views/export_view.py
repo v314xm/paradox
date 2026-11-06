@@ -117,14 +117,16 @@ class ExportView(QWidget):
         display_text = html.escape(self._current_export_data)
 
         # Показываем полностью, без обрезки
-        self.preview.setHtml(f"<pre style='color:#d4d4d4;'>{display_text}</pre>")
+        self.preview.setHtml(f"<pre>{display_text}</pre>")
 
     def _on_copy_clicked(self):
         if not self._current_export_data:
             return
         clipboard = QApplication.clipboard()
         clipboard.setText(self._current_export_data)
-        QMessageBox.information(self, "Success", tr("export.copied"))
+        QMessageBox.information(
+            self, tr("export.success_title"), tr("export.copied")
+        )
 
     def _on_export_clicked(self):
         if not self._report: return
@@ -132,16 +134,16 @@ class ExportView(QWidget):
 
         specs = {
             "csv": (
-                "Сохранить CSV", "findings.csv", "CSV (*.csv)",
-                "export.csv_saved",
+                tr("export.save_csv"), "findings.csv",
+                tr("export.filter_csv"), "export.csv_saved",
             ),
             "stix": (
-                "Сохранить STIX", "bundle.json", "JSON (*.json)",
-                "export.stix_saved",
+                tr("export.save_stix"), "bundle.json",
+                tr("export.filter_json"), "export.stix_saved",
             ),
             "html": (
-                "Сохранить HTML", "report.html", "HTML (*.html)",
-                "export.html_saved",
+                tr("export.save_html"), "report.html",
+                tr("export.filter_html"), "export.html_saved",
             ),
         }
         title, default_name, file_filter, ok_key = specs[fmt]
@@ -152,6 +154,10 @@ class ExportView(QWidget):
             return
         try:
             Path(path).write_text(self._current_export_data, encoding="utf-8")
-            QMessageBox.information(self, "Success", tr(ok_key))
+            QMessageBox.information(
+                self, tr("export.success_title"), tr(ok_key)
+            )
         except Exception as e:
-            QMessageBox.critical(self, tr("export.err_save"), str(e))
+            QMessageBox.critical(
+                self, tr("error.title"), f"{tr('export.err_save')}: {e}"
+            )

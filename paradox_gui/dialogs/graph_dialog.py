@@ -81,7 +81,12 @@ class InteractiveNode(QGraphicsEllipseItem):
         self.setPen(QPen(QColor(PALETTE["text"]), 1.5))
 
         roles_str = ", ".join(roles) if roles else "—"
-        self.setToolTip(f"<b>IP:</b> {ip}<br><b>Роль:</b> {roles_str}<br><b>Трафик:</b> {total_bytes:,} байт")
+        self.setToolTip(tr(
+            "graph.node_tip",
+            ip=ip,
+            roles=roles_str,
+            nbytes=f"{total_bytes:,}",
+        ))
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, True)
 
     def mousePressEvent(self, event):
@@ -125,7 +130,12 @@ class InteractiveEdge(QGraphicsPathItem):
         self.setPen(self.default_pen)
 
         port_str = f":{port}" if port else ""
-        self.setToolTip(f"<b>Протокол:</b> {proto}{port_str}<br><b>Байт:</b> {bytes_count:,}")
+        self.setToolTip(tr(
+            "graph.edge_tip",
+            proto=proto,
+            port=port_str,
+            nbytes=f"{bytes_count:,}",
+        ))
 
 
 class GraphDialog(QDialog):
@@ -197,8 +207,9 @@ class GraphDialog(QDialog):
         self.info_panel.setObjectName("graphInfo")
         self.info_panel.setHtml(
             f"<p style='color:{PALETTE['text_muted']};'>"
-            f"{tr('graph.tip')}<br>Двойной клик — открыть "
-            f"{tr('story.title', ip='...')}.</p>"
+            f"{tr('graph.tip')}<br>"
+            f"{tr('graph.tip_dblclick')}"
+            f"</p>"
         )
         right_layout.addWidget(self.info_panel)
 
@@ -423,7 +434,7 @@ class GraphDialog(QDialog):
             err = traceback.format_exc()
             self.info_panel.setHtml(
                 f"<h3 style='color:{PALETTE['danger']};'>"
-                f"Ошибка отрисовки графа</h3><pre>{err}</pre>"
+                f"{tr('graph.render_error')}</h3><pre>{err}</pre>"
             )
 
     def open_host_story(self, ip: str):
@@ -440,7 +451,7 @@ class GraphDialog(QDialog):
             time_str = dt.fromtimestamp(current_t).strftime("%Y-%m-%d %H:%M:%S")
         except (OSError, ValueError, OverflowError):
             time_str = f"{current_t:.1f}"
-        self.lbl_time.setText(f"Время: {time_str}")
+        self.lbl_time.setText(tr("graph.time_value", time=time_str))
 
         for ip, node in self.nodes.items():
             node_t = self.node_times.get(ip, self.t_min)
@@ -480,14 +491,17 @@ class GraphDialog(QDialog):
                     self.nodes[neighbor].setOpacity(1.0)
 
         if ip_findings:
-            html += "<b>Хронология событий:</b><ul style='line-height: 1.4;'>"
+            html += f"{tr('graph.events')}<ul style='line-height: 1.4;'>"
             for f in ip_findings:
                 ts = f.get("first_seen")
                 t_str = dt.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "??:??"
                 html += f"<li><span style='color:{SEVERITY['high']};'>[{t_str}]</span> {f.get('type')}</li>"
             html += "</ul>"
         else:
-            html += f"<p style='color:{PALETTE['text_muted']};'>Нет сработок детекторов.</p>"
+            html += (
+                f"<p style='color:{PALETTE['text_muted']};'>"
+                f"{tr('graph.no_findings')}</p>"
+            )
 
         self.info_panel.setHtml(html)
 
@@ -499,5 +513,5 @@ class GraphDialog(QDialog):
             node.setBrush(node.default_brush)
         self.info_panel.setHtml(
             f"<p style='color:{PALETTE['text_muted']};'>"
-            f"Кликните на узел, чтобы увидеть детали.</p>"
+            f"{tr('graph.click_node')}</p>"
         )

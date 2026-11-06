@@ -373,7 +373,7 @@ class HistoryView(QWidget):
         # Короткий блок «откуда данные»: путь + усечённый SHA256.
         # Полный хеш не показываем — 64 символа вылезут за экран,
         # для идентификации достаточно 32.
-        parts.append("<h2>Файл</h2>")
+        parts.append(f"<h2>{tr('history.file')}</h2>")
         parts.append(f'<div class="muted">{esc(prov.get("pcap_path", "—"))}</div>')
         sha = prov.get("pcap_sha256", "")
         if sha:
@@ -381,22 +381,24 @@ class HistoryView(QWidget):
 
         # --- Summary ---
         # Таблица 3×4. :, — разделитель тысяч в f-string.
-        parts.append("<h2>Сводка</h2>")
+        parts.append(f"<h2>{tr('history.summary')}</h2>")
         parts.append(
             "<table>"
-            f"<tr><th>Пакеты</th><td>{s.get('packets', 0):,}</td>"
-            f"<th>Flows</th><td>{s.get('flows', 0):,}</td></tr>"
-            f"<tr><th>Findings</th><td>{s.get('findings', 0)}</td>"
-            f"<th>Противоречий</th><td>{s.get('contradictions', 0)}</td></tr>"
-            f"<tr><th>Размер</th><td>{s.get('size_bytes', 0) / 1024 / 1024:.1f} МБ</td>"
-            f"<th>Время</th><td>{s.get('duration_sec', 0):.1f} сек</td></tr>"
+            f"<tr><th>{tr('history.packets')}</th><td>{s.get('packets', 0):,}</td>"
+            f"<th>{tr('history.flows')}</th><td>{s.get('flows', 0):,}</td></tr>"
+            f"<tr><th>{tr('history.findings')}</th><td>{s.get('findings', 0)}</td>"
+            f"<th>{tr('history.contradictions')}</th><td>{s.get('contradictions', 0)}</td></tr>"
+            f"<tr><th>{tr('history.size')}</th><td>{s.get('size_bytes', 0) / 1024 / 1024:.1f} {tr('history.mb')}</td>"
+            f"<th>{tr('history.time')}</th><td>{s.get('duration_sec', 0):.1f} {tr('history.sec')}</td></tr>"
             "</table>"
         )
 
         # --- Contradictions ---
         # Секция опциональна: нет противоречий — нет заголовка.
         if contradictions:
-            parts.append(f"<h2>Противоречия ({len(contradictions)})</h2>")
+            parts.append(
+                f"<h2>{tr('history.contradictions_count', count=len(contradictions))}</h2>"
+            )
             parts.append(
                 "<table><tr><th>Severity</th><th>Rule</th>"
                 "<th>Subject</th><th>Conf</th></tr>"
@@ -417,10 +419,14 @@ class HistoryView(QWidget):
         # Ограничение 50 строк: HTML из 500 findings весит сотни КБ,
         # QTextBrowser рендерит его заметно дольше. Остальное — счётчик.
         if findings:
-            parts.append(f"<h2>Findings ({len(findings)})</h2>")
             parts.append(
-                "<table><tr><th>Тип</th><th>Значение</th>"
-                "<th>Conf</th><th>MITRE</th></tr>"
+                f"<h2>{tr('history.findings')} ({len(findings)})</h2>"
+            )
+            parts.append(
+                f"<table><tr><th>{tr('history.col.type')}</th>"
+                f"<th>{tr('history.col.value')}</th>"
+                f"<th>{tr('history.col.conf')}</th>"
+                f"<th>{tr('history.col.mitre')}</th></tr>"
             )
             for f in findings[:50]:
                 # mitre_techniques бывает list или строка. Приводим оба
@@ -436,7 +442,8 @@ class HistoryView(QWidget):
             if len(findings) > 50:
                 parts.append(
                     f'<tr><td colspan="4" class="muted">'
-                    f'… ещё {len(findings) - 50}</td></tr>'
+                    f'{tr("history.more_rows", count=len(findings) - 50)}'
+                    f'</td></tr>'
                 )
             parts.append("</table>")
 
@@ -448,11 +455,12 @@ class HistoryView(QWidget):
         enriched_rows = _collect_enrichment_rows(report)
         if enriched_rows:
             parts.append(
-                f"<h2>Обогащение ({len(enriched_rows)} строк)</h2>"
+                f"<h2>{tr('history.enrichment_count', count=len(enriched_rows))}</h2>"
             )
             parts.append(
-                "<table><tr><th>IOC</th><th>Провайдер</th>"
-                "<th>Данные</th></tr>"
+                f"<table><tr><th>{tr('history.col.ioc')}</th>"
+                f"<th>{tr('history.col.provider')}</th>"
+                f"<th>{tr('history.col.data')}</th></tr>"
             )
             for ioc, source, summary in enriched_rows:
                 # IOC — моно-шрифтом (.mono), провайдер — зелёным (.ok):

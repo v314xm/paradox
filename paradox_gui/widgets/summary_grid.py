@@ -127,14 +127,18 @@ class SummaryGrid(QWidget):
         if v is None:
             return "—"
         size = float(v)
-        for unit in ("Б", "КБ", "МБ", "ГБ", "ТБ"):
+        for key, decimals in (
+            ("unit.byte", 0), ("unit.kb", 0), ("unit.mb", 1),
+            ("unit.gb", 1), ("unit.tb", 1),
+        ):
             if size < 1024:
                 # Без дробной части для байт и КБ, одна для МБ+.
-                if unit in ("Б", "КБ"):
+                unit = tr(key)
+                if decimals == 0:
                     return f"{int(size)} {unit}"
                 return f"{size:.1f} {unit}"
             size /= 1024
-        return f"{size:.1f} ПБ"
+        return f"{size:.1f} {tr('unit.pb')}"
 
     @staticmethod
     def _fmt_duration(v) -> str:
@@ -142,6 +146,6 @@ class SummaryGrid(QWidget):
             return "—"
         sec = float(v)
         if sec < 60:
-            return f"{sec:.1f} сек"
+            return f"{sec:.1f} {tr('unit.sec')}"
         m, s = divmod(int(sec), 60)
-        return f"{m} мин {s} сек"
+        return f"{m} {tr('unit.min')} {s} {tr('unit.sec')}"

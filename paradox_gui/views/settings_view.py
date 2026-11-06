@@ -498,7 +498,7 @@ class SettingsView(QWidget):
             for k, w in getattr(self, g, {}).items()
             if self._is_search_match(w, k)
         )
-        msg = f"Найдено полей: {count}"
+        msg = tr("settings.search.found", count=count)
         if hint is not None:
             hint.setText(msg)
         self._notify_status(msg)
@@ -600,6 +600,13 @@ class SettingsView(QWidget):
         s.setWordWrap(True)
         if section_key is None:
             section_key = SECTION_BY_TITLE.get(title)
+        if section_key is None:
+            # Заголовки секций переводятся, поэтому карта по русским
+            # подписям в EN не срабатывает — сверяемся с tr().
+            for key, _label in _SECTIONS:
+                if title == tr(f"settings.{key}.title"):
+                    section_key = key
+                    break
         if section_key:
             help_text = get_section_help(section_key)
             if help_text:

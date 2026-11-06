@@ -77,7 +77,13 @@ class TimelineView(QWidget):
         self.tree = QTreeWidget()
         self.tree.setObjectName("timelineTree")
         self.tree.setHeaderLabels([
-            "Событие", "Время", "Источник", "Назначение", "Детали", "Conf", "MITRE"
+            tr("timeline.col.event"),
+            tr("timeline.col.time"),
+            tr("timeline.col.src"),
+            tr("timeline.col.dst"),
+            tr("timeline.col.details"),
+            tr("timeline.col.conf"),
+            tr("timeline.col.mitre"),
         ])
         self.tree.setAlternatingRowColors(True)
         self.tree.setSortingEnabled(False)

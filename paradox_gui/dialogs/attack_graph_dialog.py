@@ -317,19 +317,19 @@ class AttackGraphDialog(QDialog):
                 return str(t)
         tip_parts = [
             f"<b>{n['ip']}</b>",
-            ("Внутренний" if n.get("is_internal") else "Внешний"),
-            f"Роль: {roles_str}",
-            f"Фаза: {n.get('phase_reached', '?')}",
-            f"Findings: {n.get('findings_count', 0)}",
+            tr("atk.node_internal") if n.get("is_internal") else tr("atk.node_external"),
+            tr("atk.node_role", roles=roles_str),
+            tr("atk.node_phase", phase=n.get("phase_reached", "?")),
+            tr("atk.node_findings", count=n.get("findings_count", 0)),
         ]
         if n.get("is_pivot"):
             tip_parts.append("<b>⚠ PIVOT</b>")
         if n.get("is_entry"):
-            tip_parts.append("<b>ВХОД</b>")
+            tip_parts.append(f"<b>{tr('atk.node_entry')}</b>")
         if n.get("is_impact"):
-            tip_parts.append("<b>ЦЕЛЬ АТАКИ</b>")
-        tip_parts.append(f"First seen: {_fmt_ts(n.get('first_ts'))}")
-        tip_parts.append(f"Last seen: {_fmt_ts(n.get('last_ts'))}")
+            tip_parts.append(f"<b>{tr('atk.node_impact')}</b>")
+        tip_parts.append(tr("atk.node_first_seen", ts=_fmt_ts(n.get("first_ts"))))
+        tip_parts.append(tr("atk.node_last_seen", ts=_fmt_ts(n.get("last_ts"))))
         item.setToolTip("<br>".join(tip_parts))
 
         # Двойной клик → история хоста
@@ -546,10 +546,14 @@ class AttackGraphDialog(QDialog):
 
     def _export_png(self):
         if not self._nodes:
-            QMessageBox.warning(self, "Экспорт PNG", "Граф пуст — нечего сохранять.")
+            QMessageBox.warning(
+                self,
+                tr("atk.export_png"),
+                tr("atk.graph_empty"),
+            )
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить граф как PNG", "attack_graph.png", "PNG (*.png)"
+            self, tr("atk.save_as", fmt="PNG"), "attack_graph.png", "PNG (*.png)"
         )
         if not path:
             return
@@ -566,16 +570,22 @@ class AttackGraphDialog(QDialog):
             self._scene.render(painter, target=image.rect(), source=rect)
             painter.end()
             image.save(path, "PNG")
-            QMessageBox.information(self, "Экспорт PNG", f"Успешно сохранено:\n{path}")
+            QMessageBox.information(
+                self, tr("atk.export_png"), tr("atk.export_ok", path=path)
+            )
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка экспорта PNG", str(e))
+            QMessageBox.critical(
+                self, tr("atk.export_fail", fmt="PNG"), str(e)
+            )
 
     def _export_dot(self):
         if not self._nodes:
-            QMessageBox.warning(self, "Экспорт DOT", "Граф пуст.")
+            QMessageBox.warning(
+                self, tr("atk.export_dot"), tr("atk.graph_empty_short")
+            )
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить граф как DOT", "attack_graph.dot", "DOT (*.dot)"
+            self, tr("atk.save_as", fmt="DOT"), "attack_graph.dot", "DOT (*.dot)"
         )
         if not path:
             return
@@ -606,16 +616,23 @@ class AttackGraphDialog(QDialog):
                 lines.append(f'  "{safe_src}" -> "{safe_dst}" [label="{safe_label}", color="{color}"];')
             lines.append("}")
             Path(path).write_text("\n".join(lines), encoding="utf-8")
-            QMessageBox.information(self, "Экспорт DOT", f"Успешно сохранено:\n{path}")
+            QMessageBox.information(
+                self, tr("atk.export_dot"), tr("atk.export_ok", path=path)
+            )
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка экспорта DOT", str(e))
+            QMessageBox.critical(
+                self, tr("atk.export_fail", fmt="DOT"), str(e)
+            )
 
     def _export_graphml(self):
         if not self._nodes:
-            QMessageBox.warning(self, "Экспорт GraphML", "Граф пуст.")
+            QMessageBox.warning(
+                self, tr("atk.export_graphml"), tr("atk.graph_empty_short")
+            )
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить граф как GraphML", "attack_graph.graphml", "GraphML (*.graphml)"
+            self, tr("atk.save_as", fmt="GraphML"),
+            "attack_graph.graphml", "GraphML (*.graphml)"
         )
         if not path:
             return
@@ -642,9 +659,13 @@ class AttackGraphDialog(QDialog):
             tree = ET.ElementTree(root)
             ET.indent(tree, space="  ")
             tree.write(path, encoding="utf-8", xml_declaration=True)
-            QMessageBox.information(self, "Экспорт GraphML", f"Успешно сохранено:\n{path}")
+            QMessageBox.information(
+                self, tr("atk.export_graphml"), tr("atk.export_ok", path=path)
+            )
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка экспорта GraphML", str(e))
+            QMessageBox.critical(
+                self, tr("atk.export_fail", fmt="GraphML"), str(e)
+            )
 
     def _on_select(self, row: int):
         if row < 0 or row >= len(self._paths):
@@ -656,12 +677,12 @@ class AttackGraphDialog(QDialog):
         }
         self._apply_visibility()
 
-        html = f"<h3>Путь {row + 1}</h3>"
+        html = f"<h3>{tr('atk.path_title', n=row + 1)}</h3>"
         html += f"<p><b>Severity:</b> {path.get('severity')}</p>"
         html += f"<p><b>Confidence:</b> {path.get('confidence', 0):.2f}</p>"
         html += f"<p><b>Score:</b> {path.get('score', 0):.2f}</p>"
         html += f"<p><b>Hop count:</b> {len(path.get('edges', []))}</p>"
-        html += "<h4>Фазы:</h4><ol>"
+        html += f"<h4>{tr('atk.phases')}</h4><ol>"
         for ph in path.get("phases", []):
             html += f"<li><code>{ph}</code></li>"
         html += "</ol>"
@@ -671,7 +692,7 @@ class AttackGraphDialog(QDialog):
             for t in mitre:
                 html += f"<li><code>{t}</code></li>"
             html += "</ul>"
-        html += "<h4>Рёбра:</h4><ul>"
+        html += f"<h4>{tr('atk.edges')}</h4><ul>"
         for edge in path.get("edges", []):
             html += (
                 f"<li><code>{edge['src']} → {edge['dst']}</code><br>"
