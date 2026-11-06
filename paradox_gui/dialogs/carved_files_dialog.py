@@ -7,43 +7,42 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor, QDesktopServices
 from PySide6.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QFrame,
-    QHBoxLayout,
     QHeaderView,
     QLabel,
     QMessageBox,
-    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
 )
 
 from paradox_gui.i18n import tr
+from paradox_gui.theme import PALETTE
 
 
 class CarvedFilesDialog(QDialog):
     def __init__(self, report: dict, parent=None) -> None:
         super().__init__(parent)
         self._report = report
+        self.setObjectName("carvedFilesDialog")
         self.setWindowTitle(tr("carved.title"))
-        self.resize(900, 500)
+        self.resize(900, 520)
+        self.setMinimumSize(720, 400)
         self._build_ui()
 
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(12)
 
         # --- Баннер предупреждения ---
         warn = QFrame()
-        warn.setStyleSheet(
-            "QFrame { background: #3a1c1c; border: 1px solid #ff5555; "
-            "border-radius: 6px; }"
-        )
+        warn.setObjectName("warnBanner")
         w_layout = QVBoxLayout(warn)
         w_layout.setContentsMargins(12, 10, 12, 10)
         lbl_warn = QLabel(tr("carved.warning"))
-        lbl_warn.setStyleSheet("color: #ff8888; font-size: 13px;")
+        lbl_warn.setObjectName("warnText")
         lbl_warn.setWordWrap(True)
         w_layout.addWidget(lbl_warn)
         layout.addWidget(warn)
@@ -51,13 +50,15 @@ class CarvedFilesDialog(QDialog):
         files = (self._report.get("carved_files") or {}).get("files", [])
         if not files:
             empty = QLabel(tr("carved.empty"))
-            empty.setStyleSheet("color: #a0a0b0;")
+            empty.setObjectName("muted")
             layout.addWidget(empty)
             layout.addStretch(1)
+            self._add_footer(layout, any_saved=False)
             return
 
         # --- Таблица файлов ---
         self.table = QTableWidget(len(files), 5)
+        self.table.setObjectName("carvedTable")
         self.table.setHorizontalHeaderLabels([
             tr("carved.col_sha"), tr("carved.col_ext"),
             tr("carved.col_size"), tr("carved.col_uri"),
@@ -66,7 +67,11 @@ class CarvedFilesDialog(QDialog):
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setAlternatingRowColors(True)
         hh = self.table.horizontalHeader()
+        hh.setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         hh.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         hh.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         hh.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
@@ -87,11 +92,11 @@ class CarvedFilesDialog(QDialog):
 
             if saved and Path(saved).exists():
                 st_item = QTableWidgetItem(tr("carved.status_saved"))
-                st_item.setForeground(QBrush(QColor("#50fa7b")))
+                st_item.setForeground(QBrush(QColor(PALETTE["success"])))
                 self.table.setItem(row, 4, st_item)
             else:
                 st_item = QTableWidgetItem(tr("carved.status_meta"))
-                st_item.setForeground(QBrush(QColor("#a0a0b0")))
+                st_item.setForeground(QBrush(QColor(PALETTE["text_muted"])))
                 self.table.setItem(row, 4, st_item)
 
             self.table.item(row, 0).setData(Qt.ItemDataRole.UserRole, f)
@@ -99,24 +104,27 @@ class CarvedFilesDialog(QDialog):
         self.table.doubleClicked.connect(self._on_double_click)
         layout.addWidget(self.table, stretch=1)
 
-        # --- Кнопки ---
-        btn_row = QHBoxLayout()
-        btn_row.addStretch(1)
-
         any_saved = any(
             f.get("saved_path") and Path(f["saved_path"]).exists()
             for f in files
         )
-        if any_saved:
-            open_dir = QPushButton(tr("carved.open_dir"))
-            open_dir.clicked.connect(self._open_dir)
-            btn_row.addWidget(open_dir)
+        self._add_footer(layout, any_saved=any_saved)
 
-        close_btn = QPushButton(tr("carved.close"))
-        close_btn.setObjectName("primary")
-        close_btn.clicked.connect(self.accept)
-        btn_row.addWidget(close_btn)
-        layout.addLayout(btn_row)
+    def _add_footer(self, layout: QVBoxLayout, any_saved: bool) -> None:
+        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box.setObjectName("dialogButtons")
+        open_dir = box.addButton(
+            tr("carved.open_dir"), QDialogButtonBox.ButtonRole.ActionRole
+        )
+        open_dir.setObjectName("secondary")
+        open_dir.setEnabled(any_saved)
+        open_dir.clicked.connect(self._open_dir)
+
+        close = box.button(QDialogButtonBox.StandardButton.Close)
+        close.setText(tr("carved.close"))
+        close.setDefault(True)
+        box.rejected.connect(self.accept)
+        layout.addWidget(box)
 
     def _on_double_click(self, index) -> None:
         item = self.table.item(index.row(), 0)

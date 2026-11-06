@@ -3,38 +3,54 @@ from datetime import datetime
 
 from PySide6.QtWidgets import (
     QDialog,
-    QHBoxLayout,
-    QPushButton,
+    QDialogButtonBox,
     QTextBrowser,
     QVBoxLayout,
 )
 
 from paradox_gui.i18n import tr
+from paradox_gui.theme import MONO_FAMILY, PALETTE
+
+_DOC_CSS = (
+    "<style>"
+    f"h2{{color:{PALETTE['accent']};}}"
+    f".muted{{color:{PALETTE['text_muted']};}}"
+    f".danger{{color:{PALETTE['danger']};}}"
+    f".mono{{font-family:{MONO_FAMILY};}}"
+    "</style>"
+)
 
 
 class HostStoryDialog(QDialog):
     def __init__(self, ip: str, story: dict, parent=None):
         super().__init__(parent)
+        self.setObjectName("hostStoryDialog")
         self.setWindowTitle(tr("story.title", ip=ip))
-        self.resize(700, 600)
+        self.resize(760, 620)
+        self.setMinimumSize(600, 460)
         self._build_ui(story)
 
     def _build_ui(self, story: dict):
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(12)
 
         browser = QTextBrowser()
+        browser.setObjectName("storyBrowser")
         browser.setOpenExternalLinks(False)
+        browser.document().setDefaultStyleSheet(_DOC_CSS)
 
         events = story.get("events", [])
         summary = story.get("summary", {})
 
-        html = f"<h2>{tr('story.timeline', ip=story.get('target_ip', '?'))}</h2>"
+        html = _DOC_CSS
+        html += f"<h2>{tr('story.timeline', ip=story.get('target_ip', '?'))}</h2>"
         html += f"<p><b>{tr('story.total')}</b> {summary.get('total_events', 0)} "
         html += f"| <b>{tr('story.findings')}</b> {summary.get('findings_count', 0)} "
         html += f"| <b>{tr('story.flows')}</b> {summary.get('flows_count', 0)}</p><hr>"
 
         if not events:
-            html += f"<p style='color:#a0a0b0;'>{tr('story.empty')}</p>"
+            html += f"<p class='muted'>{tr('story.empty')}</p>"
         else:
             html += "<ul style='line-height: 1.6;'>"
             for ev in events:
@@ -51,21 +67,27 @@ class HostStoryDialog(QDialog):
                     src = f"{d.get('src_ip')}:{d.get('src_port', '')}"
                     dst = f"{d.get('dst_ip')}:{d.get('dst_port', '')}"
                     byt = d.get('bytes', 0)
-                    html += f"<li><b>[{time_str}]</b> Поток: {src} &rarr; {dst} ({byt} байт)</li>"
+                    html += (
+                        f"<li><b class='mono'>[{time_str}]</b> Поток: "
+                        f"{src} &rarr; {dst} ({byt} байт)</li>"
+                    )
                 elif ev["type"] == "finding":
                     d = ev["data"]
                     ftype = d.get('type', '?')
                     val = d.get('value', '')
-                    html += f"<li><b>[{time_str}]</b> <span style='color:#ff7777;'>Сработка: {ftype} ({val})</span></li>"
+                    html += (
+                        f"<li><b class='mono'>[{time_str}]</b> "
+                        f"<span class='danger'>Сработка: {ftype} ({val})</span></li>"
+                    )
             html += "</ul>"
 
         browser.setHtml(html)
         layout.addWidget(browser)
 
-        btn_row = QHBoxLayout()
-        btn_row.addStretch()
-        btn_close = QPushButton(tr("story.close"))
-        btn_close.setObjectName("primary")
-        btn_close.clicked.connect(self.accept)
-        btn_row.addWidget(btn_close)
-        layout.addLayout(btn_row)
+        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box.setObjectName("dialogButtons")
+        close = box.button(QDialogButtonBox.StandardButton.Close)
+        close.setText(tr("story.close"))
+        close.setDefault(True)
+        box.rejected.connect(self.accept)
+        layout.addWidget(box)

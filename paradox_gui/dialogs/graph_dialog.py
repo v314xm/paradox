@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui.i18n import tr
+from paradox_gui.theme import PALETTE, SEVERITY
 
 # Попытка импортировать диалог истории хоста
 try:
@@ -43,7 +44,8 @@ class ZoomableView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
-        self.setBackgroundBrush(QColor("#1e1e24"))
+        self.setObjectName("graphCanvas")
+        self.setBackgroundBrush(QColor(PALETTE["bg"]))
 
     def wheelEvent(self, event):
         zoom_factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
@@ -64,19 +66,19 @@ class InteractiveNode(QGraphicsEllipseItem):
         total_bytes = total_bytes or 0
 
         if ip == "Другие внешние" or "/" in ip:
-            color = QColor("#555555")
+            color = QColor(PALETTE["text_muted"])
         elif "pivot" in roles or "attacker_candidate" in roles:
-            color = QColor("#ff4444")
+            color = QColor(PALETTE["danger"])
         elif "victim_candidate" in roles:
-            color = QColor("#ffaa00")
+            color = QColor(SEVERITY["high"])
         elif x < 300:
-            color = QColor("#44aaff")
+            color = QColor(PALETTE["accent"])
         else:
-            color = QColor("#888888")
+            color = QColor(PALETTE["text_muted"])
 
         self.default_brush = QBrush(color)
         self.setBrush(self.default_brush)
-        self.setPen(QPen(QColor("#ffffff"), 1.5))
+        self.setPen(QPen(QColor(PALETTE["text"]), 1.5))
 
         roles_str = ", ".join(roles) if roles else "—"
         self.setToolTip(f"<b>IP:</b> {ip}<br><b>Роль:</b> {roles_str}<br><b>Трафик:</b> {total_bytes:,} байт")
@@ -109,12 +111,16 @@ class InteractiveEdge(QGraphicsPathItem):
         self.setPath(path)
 
         pen_width = max(1.0, min(8.0, math.log10(bytes_count + 10) - 1))
-        self.default_pen = QPen(QColor("#444455"), pen_width)
-        self.highlight_pen = QPen(QColor("#ffffff"), pen_width + 2)
+        self.default_pen = QPen(QColor(PALETTE["border"]), pen_width)
+        self.highlight_pen = QPen(QColor(PALETTE["text"]), pen_width + 2)
 
         if "Finding" in str(proto):
-            self.default_pen = QPen(QColor("#ff4444"), 2, Qt.PenStyle.DashLine)
-            self.highlight_pen = QPen(QColor("#ff8888"), 3, Qt.PenStyle.DashLine)
+            self.default_pen = QPen(
+                QColor(PALETTE["danger"]), 2, Qt.PenStyle.DashLine
+            )
+            self.highlight_pen = QPen(
+                QColor(PALETTE["danger_light"]), 3, Qt.PenStyle.DashLine
+            )
 
         self.setPen(self.default_pen)
 
@@ -125,8 +131,10 @@ class InteractiveEdge(QGraphicsPathItem):
 class GraphDialog(QDialog):
     def __init__(self, report: dict, parent=None):
         super().__init__(parent)
+        self.setObjectName("graphDialog")
         self.setWindowTitle(tr("graph.title"))
-        self.resize(1300, 850)
+        self.resize(1280, 820)
+        self.setMinimumSize(960, 640)
         self.report = report or {}
 
         self.nodes = {}
@@ -141,6 +149,7 @@ class GraphDialog(QDialog):
 
     def _build_ui(self):
         layout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
 
         left_widget = QWidget()
         left_layout = QVBoxLayout(left_widget)
@@ -166,7 +175,7 @@ class GraphDialog(QDialog):
         # Панель времени
         time_layout = QHBoxLayout()
         self.lbl_time = QLabel(tr("graph.time"))
-        self.lbl_time.setStyleSheet("color: #44aaff; font-weight: bold;")
+        self.lbl_time.setObjectName("timeLabel")
         time_layout.addWidget(self.lbl_time)
 
         self.slider = QSlider(Qt.Orientation.Horizontal)
@@ -179,41 +188,49 @@ class GraphDialog(QDialog):
 
         # Правая панель
         right_widget = QWidget()
-        right_widget.setFixedWidth(350)
+        right_widget.setMinimumWidth(320)
+        right_widget.setMaximumWidth(440)
         right_layout = QVBoxLayout(right_widget)
         right_layout.setContentsMargins(10, 0, 0, 0)
 
         self.info_panel = QTextBrowser()
-        self.info_panel.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px;")
-        self.info_panel.setHtml(f"<p style='color:#888;'>{tr('graph.tip')}<br>Двойной клик — открыть {tr('story.title', ip='...')}.</p>")
+        self.info_panel.setObjectName("graphInfo")
+        self.info_panel.setHtml(
+            f"<p style='color:{PALETTE['text_muted']};'>"
+            f"{tr('graph.tip')}<br>Двойной клик — открыть "
+            f"{tr('story.title', ip='...')}.</p>"
+        )
         right_layout.addWidget(self.info_panel)
 
         legend = QLabel(
             f"{tr('graph.legend_title')}<br>"
-            f"<span style='color:#ff4444;'>●</span> {tr('graph.legend_attacker')}<br>"
-            f"<span style='color:#ffaa00;'>●</span> {tr('graph.legend_victim')}<br>"
-            f"<span style='color:#44aaff;'>●</span> {tr('graph.legend_internal')}<br>"
-            f"<span style='color:#888888;'>●</span> {tr('graph.legend_external')}<br>"
-            f"<span style='color:#555555;'>●</span> {tr('graph.legend_subnet')}<br>"
-            f"<span style='color:#ff4444;'>- - -</span> {tr('graph.legend_finding')}<br>"
+            f"<span style='color:{PALETTE['danger']};'>●</span> {tr('graph.legend_attacker')}<br>"
+            f"<span style='color:{SEVERITY['high']};'>●</span> {tr('graph.legend_victim')}<br>"
+            f"<span style='color:{PALETTE['accent']};'>●</span> {tr('graph.legend_internal')}<br>"
+            f"<span style='color:{PALETTE['text_muted']};'>●</span> {tr('graph.legend_external')}<br>"
+            f"<span style='color:{PALETTE['text_muted']};'>●</span> {tr('graph.legend_subnet')}<br>"
+            f"<span style='color:{PALETTE['danger']};'>- - -</span> {tr('graph.legend_finding')}<br>"
         )
-        legend.setStyleSheet("color: #a0a0b0; font-size: 11px; margin-top: 10px;")
+        legend.setObjectName("graphLegend")
         right_layout.addWidget(legend)
 
         btn_row = QHBoxLayout()
         btn_reset = QPushButton(tr("graph.reset"))
+        btn_reset.setObjectName("small")
         btn_reset.clicked.connect(self.reset_highlight)
         btn_close = QPushButton(tr("graph.close"))
-        btn_close.setObjectName("primary")
+        btn_close.setDefault(True)
         btn_close.clicked.connect(self.accept)
         btn_row.addWidget(btn_reset)
+        btn_row.addStretch(1)
         btn_row.addWidget(btn_close)
         right_layout.addLayout(btn_row)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left_widget)
         splitter.addWidget(right_widget)
-        splitter.setSizes([950, 350])
+        splitter.setStretchFactor(0, 1)
+        splitter.setSizes([900, 360])
         layout.addWidget(splitter)
 
         self._draw_graph()
@@ -395,7 +412,7 @@ class GraphDialog(QDialog):
                     display_ip = ip.split('/')[0] + ".x"
 
                 text = QGraphicsTextItem(display_ip)
-                text.setDefaultTextColor(QColor("#ffffff"))
+                text.setDefaultTextColor(QColor(PALETTE["text"]))
                 text.setFont(QFont("Consolas", 9))
                 rect = text.boundingRect()
                 text.setPos(data["x"] - rect.width()/2, data["y"] + data["r"] + 5)
@@ -404,7 +421,10 @@ class GraphDialog(QDialog):
             self.scene.setSceneRect(self.scene.itemsBoundingRect())
         except Exception as e:
             err = traceback.format_exc()
-            self.info_panel.setHtml(f"<h3 style='color:red;'>Ошибка отрисовки графа</h3><pre>{err}</pre>")
+            self.info_panel.setHtml(
+                f"<h3 style='color:{PALETTE['danger']};'>"
+                f"Ошибка отрисовки графа</h3><pre>{err}</pre>"
+            )
 
     def open_host_story(self, ip: str):
         """Открыть окно истории хоста при двойном клике."""
@@ -443,7 +463,7 @@ class GraphDialog(QDialog):
 
         if ip in self.nodes:
             self.nodes[ip].setOpacity(1.0)
-            self.nodes[ip].setBrush(QBrush(QColor("#ffffff")))
+            self.nodes[ip].setBrush(QBrush(QColor(PALETTE["text"])))
 
         findings = self.report.get("findings") or []
         ip_findings = [f for f in findings if f.get("src_ip") == ip or f.get("dst_ip") == ip]
@@ -464,10 +484,10 @@ class GraphDialog(QDialog):
             for f in ip_findings:
                 ts = f.get("first_seen")
                 t_str = dt.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "??:??"
-                html += f"<li><span style='color:#ffaa00;'>[{t_str}]</span> {f.get('type')}</li>"
+                html += f"<li><span style='color:{SEVERITY['high']};'>[{t_str}]</span> {f.get('type')}</li>"
             html += "</ul>"
         else:
-            html += "<p style='color:#888;'>Нет сработок детекторов.</p>"
+            html += f"<p style='color:{PALETTE['text_muted']};'>Нет сработок детекторов.</p>"
 
         self.info_panel.setHtml(html)
 
@@ -477,4 +497,7 @@ class GraphDialog(QDialog):
             edge.setPen(edge.default_pen)
         for node in self.nodes.values():
             node.setBrush(node.default_brush)
-        self.info_panel.setHtml("<p style='color:#888;'>Кликните на узел, чтобы увидеть детали.</p>")
+        self.info_panel.setHtml(
+            f"<p style='color:{PALETTE['text_muted']};'>"
+            f"Кликните на узел, чтобы увидеть детали.</p>"
+        )

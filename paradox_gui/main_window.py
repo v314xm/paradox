@@ -387,6 +387,7 @@ class MainWindow(QMainWindow):
             _logo = None
 
         header = QWidget()
+        header.setObjectName("topbar")
         header_h = QHBoxLayout(header)
         header_h.setContentsMargins(10, 4, 4, 0)
         header_h.setSpacing(6)
@@ -426,7 +427,7 @@ class MainWindow(QMainWindow):
         sb.addWidget(self._status_file)
 
         self._version_lbl = ClickableLabel(f"v{APP_VERSION} · © v314xm")
-        self._version_lbl.setStyleSheet("color: #a0a0b0; padding: 0 8px;")
+        self._version_lbl.setObjectName("statusVersion")
         self._version_lbl.setCursor(Qt.CursorShape.PointingHandCursor)
         self._version_lbl.setToolTip(tr("dialog.about.title"))
         self._version_lbl.clicked.connect(self._on_about)
@@ -521,6 +522,7 @@ class MainWindow(QMainWindow):
             from PySide6.QtWidgets import (
                 QDialog,
                 QDialogButtonBox,
+                QFrame,
                 QLabel,
                 QVBoxLayout,
             )
@@ -528,10 +530,12 @@ class MainWindow(QMainWindow):
             from paradox_gui.logo import render_logo
 
             dlg = QDialog(self)
+            dlg.setObjectName("aboutDialog")
             dlg.setWindowTitle(tr("dialog.about.title"))
-            dlg.setMinimumWidth(420)
+            dlg.resize(460, 420)
+            dlg.setMinimumSize(420, 380)
             v = QVBoxLayout(dlg)
-            v.setContentsMargins(24, 24, 24, 16)
+            v.setContentsMargins(20, 20, 20, 16)
             v.setSpacing(10)
 
             logo_lbl = QLabel()
@@ -541,9 +545,7 @@ class MainWindow(QMainWindow):
 
             title = QLabel(tr("dialog.about.app_title", version=APP_VERSION))
             title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            title.setStyleSheet(
-                "font-size: 20px; font-weight: 700; color: #5b8cff;"
-            )
+            title.setObjectName("aboutTitle")
             v.addWidget(title)
 
             subtitle = QLabel(tr("dialog.about.subtitle"))
@@ -555,9 +557,9 @@ class MainWindow(QMainWindow):
             modules.setAlignment(Qt.AlignmentFlag.AlignCenter)
             v.addWidget(modules)
 
-            sep = QLabel("─" * 30)
-            sep.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            sep.setStyleSheet("color: #3a3d4d;")
+            sep = QFrame()
+            sep.setObjectName("hline")
+            sep.setFrameShape(QFrame.Shape.HLine)
             v.addWidget(sep)
 
             copyright_lbl = QLabel(tr("dialog.about.copyright"))
@@ -566,10 +568,11 @@ class MainWindow(QMainWindow):
             v.addWidget(copyright_lbl)
 
             btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+            btn.setObjectName("dialogButtons")
             btn.rejected.connect(dlg.reject)
-            btn.button(QDialogButtonBox.StandardButton.Close).setText(
-                tr("btn.close")
-            )
+            close = btn.button(QDialogButtonBox.StandardButton.Close)
+            close.setText(tr("btn.close"))
+            close.setDefault(True)
             v.addWidget(btn)
 
             dlg.exec()

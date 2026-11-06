@@ -7,10 +7,10 @@ first_seen. Ничего не выдумывает — если ключа не�
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
@@ -24,8 +24,10 @@ class FindingDialog(QDialog):
         super().__init__(parent)
         self._finding = finding
         ftype = finding.get("type", "?")
+        self.setObjectName("findingDialog")
         self.setWindowTitle(tr("finding.title", type=ftype))
-        self.resize(600, 500)
+        self.resize(680, 560)
+        self.setMinimumSize(560, 420)
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -42,7 +44,7 @@ class FindingDialog(QDialog):
         outer.addWidget(self._build_confidence_reasons())
         outer.addWidget(self._section_label(tr("finding.evidence")))
         outer.addWidget(self._build_evidence(), stretch=1)
-        outer.addLayout(self._build_footer())
+        outer.addWidget(self._build_footer())
 
     # ---------- секции ----------
 
@@ -54,7 +56,7 @@ class FindingDialog(QDialog):
         row.setSpacing(12)
 
         type_lbl = QLabel(str(f.get("type", "?")))
-        type_lbl.setObjectName("h1")
+        type_lbl.setObjectName("dialogTitle")
 
         conf = f.get("confidence")
         conf_lbl = QLabel(
@@ -67,8 +69,10 @@ class FindingDialog(QDialog):
         ts_lbl.setObjectName("muted")
 
         row.addWidget(type_lbl)
-        row.addWidget(conf_lbl)
-        row.addWidget(ts_lbl)
+        if conf_lbl.text():
+            row.addWidget(conf_lbl)
+        if ts_lbl.text():
+            row.addWidget(ts_lbl)
         row.addStretch(1)
         return w
 
@@ -113,7 +117,7 @@ class FindingDialog(QDialog):
         ev = self._finding.get("evidence") or {}
 
         container = QFrame()
-        container.setObjectName("contraFacts")  # переиспользуем стиль
+        container.setObjectName("detailPanel")
         v = QVBoxLayout(container)
         v.setContentsMargins(12, 10, 12, 10)
         v.setSpacing(4)
@@ -140,24 +144,24 @@ class FindingDialog(QDialog):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setWidget(container)
-        scroll.setMinimumHeight(160)
+        scroll.setMinimumHeight(150)
         return scroll
 
-    def _build_footer(self) -> QHBoxLayout:
-        row = QHBoxLayout()
-        row.addStretch(1)
-        close = QPushButton(tr("finding.close"))
-        close.setObjectName("primary")
-        close.clicked.connect(self.accept)
-        row.addWidget(close)
-        return row
+    def _build_footer(self) -> QDialogButtonBox:
+        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box.setObjectName("dialogButtons")
+        close = box.button(QDialogButtonBox.StandardButton.Close)
+        close.setText(tr("finding.close"))
+        close.setDefault(True)
+        box.rejected.connect(self.accept)
+        return box
 
     # ---------- утилиты ----------
 
     @staticmethod
     def _section_label(text: str) -> QLabel:
         lbl = QLabel(text)
-        lbl.setObjectName("h1")
+        lbl.setObjectName("sectionLabel")
         return lbl
 
     @staticmethod

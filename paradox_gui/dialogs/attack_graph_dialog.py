@@ -27,18 +27,20 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui.i18n import tr
+from paradox_gui.theme import PALETTE, SEVERITY
 
 _PHASE_COLOR = {
-    "recon": "#5a7ab8", "initial_access": "#c060d0",
-    "execution": "#e08040", "persistence": "#e08040",
-    "lateral_movement": "#d05050", "c2": "#d0b040",
-    "exfiltration": "#e060a0", "impact": "#ff5555",
-    "other": "#5a5a6a",
+    "recon": SEVERITY["info"], "initial_access": PALETTE["violet"],
+    "execution": SEVERITY["high"], "persistence": SEVERITY["high"],
+    "lateral_movement": PALETTE["danger"], "c2": SEVERITY["medium"],
+    "exfiltration": PALETTE["violet"], "impact": PALETTE["danger"],
+    "other": PALETTE["text_muted"],
 }
 
 _SEV_COLOR = {
-    "critical": "#ff3030", "high": "#ff8040",
-    "medium": "#d0c040", "low": "#50c050", "info": "#5a7ab8",
+    "critical": SEVERITY["critical"], "high": SEVERITY["high"],
+    "medium": SEVERITY["medium"], "low": SEVERITY["low"],
+    "info": SEVERITY["info"],
 }
 
 
@@ -49,7 +51,8 @@ class _Zoomable(QGraphicsView):
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
-        self.setBackgroundBrush(QColor("#1e1e24"))
+        self.setObjectName("graphCanvas")
+        self.setBackgroundBrush(QColor(PALETTE["bg"]))
 
     def wheelEvent(self, event):
         factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
@@ -80,39 +83,44 @@ class AttackGraphDialog(QDialog):
         self._selected_edges: set[tuple[str, str]] | None = None
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._on_play_tick)
+        self.setObjectName("attackGraphDialog")
         self.setWindowTitle(tr("atk.title"))
+        self.resize(1280, 820)
+        self.setMinimumSize(960, 640)
         self._build()
         self._draw()
         if self._paths:
             self._path_list.setCurrentRow(0)
-        self.showMaximized()
 
     def showEvent(self, event):
         super().showEvent(event)
-        # Вызываем fit ТОЛЬКО когда окно уже развернуто на весь экран
+        # fit только после того, как окно получило реальный размер
         self._view.fit()
 
     def _build(self):
-        root = QHBoxLayout(self)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.setSpacing(8)
 
         # --- Левая панель: список путей ---
         left = QWidget()
         lv = QVBoxLayout(left)
         lv.setContentsMargins(8, 8, 8, 8)
         lbl = QLabel(tr("atk.paths", count=len(self._paths)))
-        lbl.setStyleSheet("font-weight: 600; font-size: 14px;")
+        lbl.setObjectName("sectionTitle")
         lv.addWidget(lbl)
         self._path_list = QListWidget()
-        self._path_list.setMinimumWidth(320)
+        self._path_list.setMinimumWidth(300)
         for i, p in enumerate(self._paths):
             item = QListWidgetItem(self._fmt_path(p))
             item.setData(Qt.ItemDataRole.UserRole, i)
-            col = _SEV_COLOR.get(p.get("severity", "medium"), "#d0c040")
+            col = _SEV_COLOR.get(p.get("severity", "medium"), SEVERITY["medium"])
             item.setForeground(QBrush(QColor(col)))
             self._path_list.addItem(item)
         self._path_list.currentRowChanged.connect(self._on_select)
         lv.addWidget(self._path_list, stretch=1)
-        left.setFixedWidth(360)
+        left.setMinimumWidth(300)
+        left.setMaximumWidth(420)
 
         # --- Центральная панель: легенда + граф + таймлайн ---
         self._scene = QGraphicsScene(self)
@@ -129,15 +137,23 @@ class AttackGraphDialog(QDialog):
         legend_layout.addWidget(QLabel(tr("atk.legend")))
 
         def _lbl(color, text):
-            return QLabel(f"<span style='color:{color}; font-size:18px;'>●</span> {text}")
+            return QLabel(
+                f"<span style='color:{color}; font-size:18px;'>●</span> {text}"
+            )
 
-        legend_layout.addWidget(_lbl("#40c040", tr("atk.legend_entry")))
-        legend_layout.addWidget(_lbl("#e0a040", tr("atk.legend_pivot")))
-        legend_layout.addWidget(_lbl("#e04040", tr("atk.legend_impact")))
+        legend_layout.addWidget(_lbl(PALETTE["success"], tr("atk.legend_entry")))
+        legend_layout.addWidget(_lbl(SEVERITY["high"], tr("atk.legend_pivot")))
+        legend_layout.addWidget(_lbl(PALETTE["danger"], tr("atk.legend_impact")))
         legend_layout.addSpacing(24)
-        legend_layout.addWidget(QLabel(f"<span style='color:#a0a0b0;'>{tr('atk.legend_lines')}</span>"))
+        legend_layout.addWidget(QLabel(
+            f"<span style='color:{PALETTE['text_muted']};'>"
+            f"{tr('atk.legend_lines')}</span>"
+        ))
         legend_layout.addStretch(1)
-        legend_layout.addWidget(QLabel(f"<i style='color:#808090; font-size:11px;'>{tr('atk.legend_zoom')}</i>"))
+        legend_layout.addWidget(QLabel(
+            f"<i style='color:{PALETTE['text_muted']}; font-size:11px;'>"
+            f"{tr('atk.legend_zoom')}</i>"
+        ))
 
         center_layout.addLayout(legend_layout)
         center_layout.addWidget(self._view, stretch=1)
@@ -147,7 +163,8 @@ class AttackGraphDialog(QDialog):
         timeline_row.setContentsMargins(0, 10, 0, 10)
 
         self._btn_play = QPushButton(f"\u25b6 {tr('atk.play')}")
-        self._btn_play.setFixedWidth(160)
+        self._btn_play.setObjectName("small")
+        self._btn_play.setMinimumWidth(120)
         self._btn_play.clicked.connect(self._toggle_play)
         timeline_row.addWidget(self._btn_play)
 
@@ -158,8 +175,8 @@ class AttackGraphDialog(QDialog):
         timeline_row.addWidget(self._time_slider, stretch=1)
 
         self._time_label = QLabel("\u2014")
-        self._time_label.setStyleSheet("color: #a0a0b0; font-family: Consolas;")
-        self._time_label.setFixedWidth(160)
+        self._time_label.setObjectName("timeLabel")
+        self._time_label.setMinimumWidth(150)
         self._time_label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         timeline_row.addWidget(self._time_label)
 
@@ -170,35 +187,41 @@ class AttackGraphDialog(QDialog):
         rv = QVBoxLayout(right)
         rv.setContentsMargins(8, 8, 8, 8)
         r_lbl = QLabel(tr("atk.details"))
-        r_lbl.setStyleSheet("font-weight: 600; font-size: 14px;")
+        r_lbl.setObjectName("sectionTitle")
         rv.addWidget(r_lbl)
         self._details = QTextBrowser()
+        self._details.setObjectName("graphInfo")
         rv.addWidget(self._details, stretch=1)
-        right.setFixedWidth(360)
+        right.setMinimumWidth(300)
+        right.setMaximumWidth(420)
 
         # --- Splitter ---
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left)
         splitter.addWidget(center_widget)
         splitter.addWidget(right)
-        splitter.setSizes([340, 700, 340])
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([320, 900, 340])
         root.addWidget(splitter, stretch=1)
 
-        # --- Кнопка закрыть ---
+        # --- Кнопки экспорта / закрытия ---
         btn_row = QHBoxLayout()
         btn_row.addWidget(QLabel(tr("atk.export")))
         btn_png = QPushButton("PNG")
+        btn_png.setObjectName("small")
         btn_png.clicked.connect(self._export_png)
         btn_row.addWidget(btn_png)
         btn_dot = QPushButton("DOT")
+        btn_dot.setObjectName("small")
         btn_dot.clicked.connect(self._export_dot)
         btn_row.addWidget(btn_dot)
         btn_gml = QPushButton("GraphML")
+        btn_gml.setObjectName("small")
         btn_gml.clicked.connect(self._export_graphml)
         btn_row.addWidget(btn_gml)
         btn_row.addStretch(1)
         btn = QPushButton(tr("atk.close"))
-        btn.setObjectName("primary")
+        btn.setDefault(True)
         btn.clicked.connect(self.accept)
         btn_row.addWidget(btn)
         root.addLayout(btn_row)
@@ -215,7 +238,7 @@ class AttackGraphDialog(QDialog):
     def _draw(self):
         if not self._nodes:
             text = QGraphicsTextItem(tr("atk.empty"))
-            text.setDefaultTextColor(QColor("#a0a0b0"))
+            text.setDefaultTextColor(QColor(PALETTE["text_muted"]))
             self._scene.addItem(text)
             return
 
@@ -268,17 +291,19 @@ class AttackGraphDialog(QDialog):
         if n.get("is_entry"):
             r = 28.0
 
-        color = QColor(_PHASE_COLOR.get(n.get("phase_reached", "other"), "#5a5a6a"))
+        color = QColor(
+            _PHASE_COLOR.get(n.get("phase_reached", "other"), PALETTE["text_muted"])
+        )
         if n.get("is_entry"):
-            color = QColor("#40c040")
+            color = QColor(PALETTE["success"])
         elif n.get("is_impact"):
-            color = QColor("#e04040")
+            color = QColor(PALETTE["danger"])
         elif n.get("is_pivot"):
-            color = QColor("#e0a040")
+            color = QColor(SEVERITY["high"])
 
         item = QGraphicsEllipseItem(x - r, y - r, r * 2, r * 2)
         item.setBrush(QBrush(color))
-        item.setPen(QPen(QColor("#ffffff"), 1.5))
+        item.setPen(QPen(QColor(PALETTE["text"]), 1.5))
 
         # Tooltip с деталями узла
         roles_str = ", ".join(n.get("roles", [])) or "—"
@@ -318,14 +343,14 @@ class AttackGraphDialog(QDialog):
         self._node_items[n["ip"]] = item
 
         lbl = QGraphicsTextItem(n["ip"])
-        lbl.setDefaultTextColor(QColor("#ffffff"))
+        lbl.setDefaultTextColor(QColor(PALETTE["text"]))
         lbl.setFont(QFont("Consolas", 8))
         lbl.setPos(x - lbl.boundingRect().width() / 2, y + r + 4)
         self._scene.addItem(lbl)
 
         if n.get("is_pivot"):
             tag = QGraphicsTextItem("PIVOT")
-            tag.setDefaultTextColor(QColor("#ffffff"))
+            tag.setDefaultTextColor(QColor(PALETTE["text"]))
             tag.setFont(QFont("Consolas", 7, QFont.Weight.Bold))
             tag.setPos(x - 20, y - r - 16)
             self._scene.addItem(tag)
@@ -334,7 +359,9 @@ class AttackGraphDialog(QDialog):
         import math
         x1, y1 = src
         x2, y2 = dst
-        color = QColor(_PHASE_COLOR.get(e.get("phase", "other"), "#5a5a6a"))
+        color = QColor(
+            _PHASE_COLOR.get(e.get("phase", "other"), PALETTE["text_muted"])
+        )
 
         sev = e.get("severity", "info")
         conf = float(e.get("confidence", 0.5))
@@ -533,7 +560,7 @@ class AttackGraphDialog(QDialog):
             # Отступ 20px со всех сторон
             rect.adjust(-20, -20, 20, 20)
             image = QImage(rect.size().toSize(), QImage.Format.Format_ARGB32)
-            image.fill(QColor("#1e1e2e")) # цвет фона как в теме
+            image.fill(QColor(PALETTE["bg"]))
             painter = QPainter(image)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             self._scene.render(painter, target=image.rect(), source=rect)
@@ -555,7 +582,12 @@ class AttackGraphDialog(QDialog):
         try:
             lines = ["digraph AttackGraph {", "  rankdir=LR;", "  node [shape=circle, style=filled];"]
             for n in self._nodes:
-                color = "#40c040" if n.get("is_entry") else ("#e04040" if n.get("is_impact") else ("#e0a040" if n.get("is_pivot") else "#5a5a6a"))
+                color = (
+                    PALETTE["success"] if n.get("is_entry")
+                    else PALETTE["danger"] if n.get("is_impact")
+                    else SEVERITY["high"] if n.get("is_pivot")
+                    else PALETTE["text_muted"]
+                )
                 label = n["ip"]
                 if n.get("is_pivot"):
                     label += "\n(PIVOT)"
@@ -564,7 +596,9 @@ class AttackGraphDialog(QDialog):
                 lines.append(f'  "{safe_ip}" [fillcolor="{color}", label="{safe_label}"];')
 
             for e in self._edges:
-                color = _PHASE_COLOR.get(e.get("phase", "other"), "#5a5a6a")
+                color = _PHASE_COLOR.get(
+                    e.get("phase", "other"), PALETTE["text_muted"]
+                )
                 label = ", ".join(e.get("finding_types", []))
                 safe_label = label.replace('"', '\\"')
                 safe_src = e["src"].replace('"', '\\"')

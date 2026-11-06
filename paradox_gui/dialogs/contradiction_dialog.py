@@ -7,23 +7,16 @@ likely_causes. Никаких действий с данными — тольк�
 """
 from PySide6.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
 from paradox_gui.i18n import tr
-
-_SEVERITY_ICON = {
-    "critical": "🔴",
-    "high":     "🟠",
-    "medium":   "🟡",
-    "low":      "🟢",
-}
 
 # Веса совпадают с ядром (contradictions/base.py: SEVERITY_WEIGHT).
 # Нужны для фолбэка, если priority в dict нет.
@@ -41,15 +34,17 @@ class ContradictionDialog(QDialog):
         self._contra = contra
         rule = contra.get("rule", "?")
         subject = contra.get("subject", "—")
+        self.setObjectName("contradictionDialog")
         self.setWindowTitle(tr("contra.title", rule=rule, subject=subject))
-        self.resize(620, 560)
+        self.resize(680, 560)
+        self.setMinimumSize(560, 420)
 
         self._build_ui()
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(20, 20, 20, 20)
-        outer.setSpacing(14)
+        outer.setSpacing(12)
 
         outer.addWidget(self._build_header())
         outer.addWidget(self._section_label(tr("contra.resolution")))
@@ -58,7 +53,7 @@ class ContradictionDialog(QDialog):
         outer.addWidget(self._build_facts(), stretch=1)
         outer.addWidget(self._section_label(tr("contra.causes")))
         outer.addWidget(self._build_causes())
-        outer.addLayout(self._build_footer())
+        outer.addWidget(self._build_footer())
 
     # ---------- секции ----------
 
@@ -67,11 +62,22 @@ class ContradictionDialog(QDialog):
         severity = c.get("severity", "low")
 
         w = QWidget()
-        row = QHBoxLayout(w)
+        col = QVBoxLayout(w)
+        col.setContentsMargins(0, 0, 0, 0)
+        col.setSpacing(6)
+
+        rule = c.get("rule", "?")
+        subject = c.get("subject", "—")
+        title = QLabel(f"{rule} — {subject}")
+        title.setObjectName("dialogTitle")
+        title.setWordWrap(True)
+        col.addWidget(title)
+
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(12)
 
-        badge = QLabel(f"{_SEVERITY_ICON.get(severity, '')} {severity}".strip())
+        badge = QLabel(severity)
         badge.setObjectName(f"severityBadge_{severity}")
 
         conf = c.get("confidence")
@@ -91,6 +97,7 @@ class ContradictionDialog(QDialog):
         row.addWidget(badge)
         row.addWidget(meta_lbl)
         row.addStretch(1)
+        col.addLayout(row)
         return w
 
     def _build_resolution(self) -> QLabel:
@@ -107,7 +114,7 @@ class ContradictionDialog(QDialog):
         facts = self._contra.get("facts") or []
 
         container = QFrame()
-        container.setObjectName("contraFacts")
+        container.setObjectName("detailPanel")
         v = QVBoxLayout(container)
         v.setContentsMargins(12, 10, 12, 10)
         v.setSpacing(4)
@@ -129,7 +136,7 @@ class ContradictionDialog(QDialog):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setWidget(container)
-        scroll.setMinimumHeight(140)
+        scroll.setMinimumHeight(150)
         return scroll
 
     def _build_causes(self) -> QLabel:
@@ -144,21 +151,21 @@ class ContradictionDialog(QDialog):
         lbl.setObjectName("muted")
         return lbl
 
-    def _build_footer(self) -> QHBoxLayout:
-        row = QHBoxLayout()
-        row.addStretch(1)
-        close = QPushButton(tr("contra.close"))
-        close.setObjectName("primary")
-        close.clicked.connect(self.accept)
-        row.addWidget(close)
-        return row
+    def _build_footer(self) -> QDialogButtonBox:
+        box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        box.setObjectName("dialogButtons")
+        close = box.button(QDialogButtonBox.StandardButton.Close)
+        close.setText(tr("contra.close"))
+        close.setDefault(True)
+        box.rejected.connect(self.accept)
+        return box
 
     # ---------- утилиты ----------
 
     @staticmethod
     def _section_label(text: str) -> QLabel:
         lbl = QLabel(text)
-        lbl.setObjectName("h1")
+        lbl.setObjectName("sectionLabel")
         return lbl
 
     @staticmethod
