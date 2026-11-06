@@ -3,6 +3,24 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/).
 Версии: семантическое версионирование (major.minor.patch).
 
+## [Unreleased]
+
+### Добавлено
+- STIX 2.1 в CLI: `paradox capture.pcap --stix` пишет
+  `<report>.stix.json` рядом с JSON. Логика вынесена из GUI
+  в ядро — `paradox/reporters/stix_reporter.py`: детерминированные
+  UUIDv5 (повторный прогон даёт тот же bundle), внешние IP из
+  findings и домены из `value` / `evidence.host(s)` /
+  `unique_destinations`. Внутренние IP не экспортируются.
+- Плагины детекторов: каталог `~/.paradox/plugins/*.py`,
+  плагин экспортирует `DETECTORS = [MyDetector()]` или
+  `DETECTOR = MyDetector`. Включается флагом `--plugins` или
+  `Config(plugins_enabled=True)`; путь — `plugins_dir`.
+  Совпадение имени с встроенным детектором и ошибки загрузки
+  не валят пайплайн, а попадают в `summary.extractor_errors`
+  (ключ `plugin`); упавший `run()` считается как
+  `detector:<name>`.
+
 ## [1.4.0] — 2026-11-06
 
 ### Добавлено
@@ -53,11 +71,9 @@
   — без изменений.
 
 ### Запланировано (v1.5.0)
-- Плагинная система: `~/.paradox/plugins/*.py`, автозагрузка детекторов.
 - PDF-экспорт Markdown-отчёта.
-- Лендинг + GitHub Pages.
-- STIX 2.1 экспорт IOC.
 - Унификация полярности findings (сейчас дублируется в `entities.py` и `facts.py`).
+- GUI: вкладка управления плагинами и настройка `plugins_dir`.
 
 ### Известные проблемы
 - `test_multi_pcap.py` — 1 тест (ручной `tools/test_multi_pcap.py`).

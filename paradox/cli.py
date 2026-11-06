@@ -5,6 +5,7 @@ from pathlib import Path
 from paradox.config import Config
 from paradox.pipeline import run_pipeline
 from paradox.reporters.json_reporter import write_json, write_markdown
+from paradox.reporters.stix_reporter import write_stix
 
 
 def _ask_pcap_path() -> Path:
@@ -82,6 +83,16 @@ def main(argv: list[str] | None = None) -> None:
         help="Обогатить findings через Shodan InternetDB (требует сети)",
     )
     parser.add_argument(
+        "--stix",
+        action="store_true",
+        help="Дополнительно выгрузить STIX 2.1 bundle (рядом с JSON)",
+    )
+    parser.add_argument(
+        "--plugins",
+        action="store_true",
+        help="Загрузить детекторы из ~/.paradox/plugins/*.py",
+    )
+    parser.add_argument(
         "pcap", nargs="?", type=Path, default=None,
         help="path to pcap file (если не указан — спросит интерактивно)",
     )
@@ -103,7 +114,7 @@ def main(argv: list[str] | None = None) -> None:
             print(f"file not found: {pcap_path}", file=sys.stderr)
             sys.exit(2)
 
-    config = Config()
+    config = Config(plugins_enabled=args.plugins)
     report = run_pipeline(pcap_path, config)
 
     # Обогащение findings (опционально, --enrich)
@@ -133,6 +144,11 @@ def main(argv: list[str] | None = None) -> None:
     md_out = out.with_suffix(".md")
     write_markdown(report, md_out)
 
+    stix_out = None
+    if args.stix:
+        stix_out = out.with_suffix(".stix.json")
+        write_stix(report, stix_out)
+
     s = report["summary"]
     print()
     print(f"packets:            {s['packets']}")
@@ -144,3 +160,5 @@ def main(argv: list[str] | None = None) -> None:
         print(f"extractor errors:   {s['extractor_errors']}")
     print(f"report JSON:        {out}")
     print(f"report Markdown:    {md_out}")
+    if stix_out is not None:
+        print(f"report STIX:        {stix_out}")

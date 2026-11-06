@@ -34,12 +34,13 @@
 
 | Файл | Строк | Что делает |
 |---|---|---|
-| `__init__.py` | 1 | `__version__ = "1.0.0"` |
+| `__init__.py` | 1 | `__version__ = "1.4.0"` |
 | `__main__.py` | 6 | `python -m paradox` → `cli.main()` |
-| `cli.py` | 146 | CLI: аргументы, `-o`, `--enrich`, interactive |
-| `config.py` | 790 | Все настройки (frozen dataclass), валидация |
+| `cli.py` | 165 | CLI: аргументы, `-o`, `--enrich`, `--stix`, `--plugins` |
+| `config.py` | 892 | Все настройки (frozen dataclass), валидация |
 | `models.py` | 349 | `Finding`, `FlowKey`, `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
-| `pipeline.py` | 590 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect` |
+| `pipeline.py` | 621 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect` |
+| `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
 | `multi_pcap.py` | 169 | `merge_capture_states(states)` — слияние N датасетов |
 | `timeline.py` | 305 | `build_timeline`, `summarize_by_phase`, kill-chain |
 | `domain_utils.py` | 151 | `split_domain`, `base_domain`, `registered_label`, `matches_suffix` |
@@ -349,6 +350,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `markdown_reporter.py` | 976 | `render_markdown` — 11 секций (TL;DR, Timeline, Carved, Сводка, Сущности, Findings, Противоречия, HTTP, IOC, Top-10 flows) |
 | `flow_report.py` | 231 | `build_flow_report`, `build_dns_report`, `build_http_report`, `build_http_object_report` |
 | `ioc_reporter.py` | 349 | **v1.0.0** — `build_ioc_report`, `write_ioc_files` (txt/csv/json/suricata/queries) |
+| `stix_reporter.py` | 153 | `build_stix_bundle`, `render_stix_json`, `write_stix` — STIX 2.1, детерминированные UUIDv5; используется CLI (`--stix`) и GUI |
 
 **`_CHAIN_ORDER`** в markdown_reporter — порядок findings в TL;DR (pivot=5, web_scanner=10 … large_transfer=110).
 
@@ -457,12 +459,13 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Enrichment | 15 | 92 | `test_enricher_orchestrator.py` (11) |
 | GUI (offscreen) | 12 | 66 | `test_provider_card.py` (8), `test_editable_list.py` (12) |
 | Регрессии / FP | 2 | 42 | `test_regressions.py` — FP-каталог |
-| Мульти-pcap | 1 | 0 ⚠️ | `test_multi_pcap.py` — **пустой, наполняется вручную** |
+| Плагины и STIX | 2 | 28 | `test_detector_plugins.py` (14), `test_stix_reporter.py` (14) |
+| Мульти-pcap | 1 | 1 | `test_multi_pcap.py` — базовый merge |
 
 **Ядро проекта:** `test_detectors.py`, `test_beaconing.py`, `test_attack_graph.py`, `test_regressions.py`, `test_timeline.py`.
 
 **Известный долг тестов:**
-- `test_multi_pcap.py` — 0 тестов (сейчас только ручной `tools/test_multi_pcap.py`)
+- `test_multi_pcap.py` — 1 тест (базовый merge; глубокие сценарии — вручную)
 - `test_extractors_ndp.py` — 1 тест (только happy path)
 - `test_auto_explain.py` — 5 тестов (explainer покрыт поверхностно)
 

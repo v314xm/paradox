@@ -655,6 +655,13 @@ class Config:
     # --- flow report ---
     flow_report_top_n: int = 500
 
+    # --- plugins ---
+    # Пользовательские детекторы из ~/.paradox/plugins/*.py.
+    # По умолчанию выключено: плагин — это код, который будет
+    # исполнен в процессе анализа.
+    plugins_enabled: bool = False
+    plugins_dir: Path = Path.home() / ".paradox" / "plugins"
+
     # --- enrichment ---
     # Threat Intel. Не запускается в основном pipeline — только
     # по флагу --enrich. Требует сети.
@@ -853,6 +860,8 @@ class Config:
             errors.append("gateway_min_unique_dsts must be > 0")
         if self.flow_report_top_n <= 0:
             errors.append("flow_report_top_n must be > 0")
+        if not str(self.plugins_dir).strip():
+            errors.append("plugins_dir must not be empty")
         if self.web_scanner_min_distinct_paths <= 0:
             errors.append("web_scanner_min_distinct_paths must be > 0")
         if self.port_scan_min_distinct_dsts <= 0:

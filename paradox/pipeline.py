@@ -271,7 +271,20 @@ def _detect(
     # Каждый детектор обёрнут в try/except: один упавший не валит
     # остальные. Ошибки считаются в state.extractor_errors с префиксом
     # "detector:<name>" — их видно в summary отчёта.
-    active = list(detectors) if detectors is not None else DETECTORS
+    active = list(detectors) if detectors is not None else list(DETECTORS)
+
+    # Пользовательские детекторы из ~/.paradox/plugins (если включены).
+    # Ошибки загрузки считаются в summary, но пайплайн не валят.
+    from paradox.detector_plugins import load_detector_plugins
+
+    plugin_result = load_detector_plugins(
+        config, reserved_names={d.name for d in active},
+    )
+    if plugin_result.detectors:
+        active.extend(plugin_result.detectors)
+    if plugin_result.errors:
+        state.extractor_errors["plugin"] += len(plugin_result.errors)
+
     findings = []
     total = len(active)
     for i, det in enumerate(active):
