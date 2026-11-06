@@ -3,7 +3,7 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/).
 Версии: семантическое версионирование (major.minor.patch).
 
-## [Unreleased]
+## [1.4.0] — 2026-11-06
 
 ### Добавлено
 - `http_binary_upload` — 22-й детектор: серия POST'ов с бинарным
@@ -52,7 +52,7 @@
   + 1 cloud_tunnel). FIRST-2015: 0 findings, 2 contradictions
   — без изменений.
 
-### Запланировано (v1.3.0)
+### Запланировано (v1.5.0)
 - Плагинная система: `~/.paradox/plugins/*.py`, автозагрузка детекторов.
 - PDF-экспорт Markdown-отчёта.
 - Лендинг + GitHub Pages.
