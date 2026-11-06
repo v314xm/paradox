@@ -9,29 +9,31 @@
     - HTML правится в одном месте, без верстки десятка виджетов
     - ссылки (если появятся) откроются без доп. кода
 
-Ключевое решение: цвета в HTML захардкожены, не тянутся из PALETTE.
-Причина — QTextBrowser рендерит свой QTextDocument, и QSS на его
-содержимое не распространяется. Значения вручную согласованы
-с PALETTE/SEVERITY из theme.py.
+Ключевое решение: QTextBrowser рендерит свой QTextDocument и не читает
+внешний QSS, поэтому CSS для документа собирается из PALETTE/SEVERITY.
 """
 from PySide6.QtWidgets import QTextBrowser, QVBoxLayout, QWidget
 
+from paradox_gui.theme import PALETTE, SEVERITY
+
 # Содержимое — единственная точка правки. Обновляется руками.
 # Отступ HTML не в столбик 0 ради читаемости diff'ов.
-_ROADMAP_HTML = r"""
+_ROADMAP_CSS = f"""
 <style>
-    h2    { color: #e0e0e0; font-size: 17px; margin-bottom: 4px; }
-    h3    { color: #5b8cff; font-size: 14px; margin-top: 16px; margin-bottom: 4px; }
-    p, li { color: #e0e0e0; font-size: 13px; }
-    ul    { margin-top: 4px; margin-bottom: 4px; }
-    li    { margin-bottom: 2px; }
-    .done { color: #50fa7b; }
-    .wip  { color: #f1fa8c; }
-    .plan { color: #a0a0b0; }
-    .note { color: #a0a0b0; font-size: 12px; }
-    code  { color: #8be9fd; }
+    h2    {{ color: {PALETTE['text']}; font-size: 17px; margin-bottom: 4px; }}
+    h3    {{ color: {PALETTE['accent']}; font-size: 14px; margin-top: 16px; margin-bottom: 4px; }}
+    p, li {{ color: {PALETTE['text']}; font-size: 13px; }}
+    ul    {{ margin-top: 4px; margin-bottom: 4px; }}
+    li    {{ margin-bottom: 2px; }}
+    .done {{ color: {PALETTE['success']}; }}
+    .wip  {{ color: {SEVERITY['medium']}; }}
+    .plan {{ color: {PALETTE['text_muted']}; }}
+    .note {{ color: {PALETTE['text_muted']}; font-size: 12px; }}
+    code  {{ color: {SEVERITY['info']}; }}
 </style>
+"""
 
+_ROADMAP_HTML = _ROADMAP_CSS + r"""
 <h2>Развитие Paradox GUI</h2>
 <p class="note">
     Ядро <code>paradox/</code> не трогаем без нужды. GUI — отдельный
@@ -90,7 +92,7 @@ class RoadmapView(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
         browser = QTextBrowser()

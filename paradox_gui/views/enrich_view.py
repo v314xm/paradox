@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.theme import PALETTE
 from paradox_gui.workers.enrichment_worker import EnrichmentWorker
 
 # Индексы колонок верхней (кандидаты) и нижней (результаты) таблиц.
@@ -67,8 +68,8 @@ class EnrichView(QWidget):
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(24, 24, 24, 24)
-        outer.setSpacing(10)
+        outer.setContentsMargins(20, 20, 20, 20)
+        outer.setSpacing(16)
 
         title = QLabel("Обогащение")
         title.setObjectName("h1")
@@ -79,7 +80,7 @@ class EnrichView(QWidget):
             "AbuseIPDB — нужен ключ (Настройки → Threat Intel). "
             "Двойной клик по строке — полный JSON."
         )
-        subtitle.setObjectName("muted")
+        subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
 
@@ -92,11 +93,13 @@ class EnrichView(QWidget):
         controls.addWidget(self._status, stretch=1)
 
         self._select_all_btn = QPushButton("Выбрать все")
+        self._select_all_btn.setObjectName("small")
         self._select_all_btn.clicked.connect(lambda: self._set_all(True))
         self._select_all_btn.setEnabled(False)
         controls.addWidget(self._select_all_btn)
 
         self._select_none_btn = QPushButton("Снять все")
+        self._select_none_btn.setObjectName("small")
         self._select_none_btn.clicked.connect(lambda: self._set_all(False))
         self._select_none_btn.setEnabled(False)
         controls.addWidget(self._select_none_btn)
@@ -105,7 +108,6 @@ class EnrichView(QWidget):
         self._progress.setRange(0, 0)
         self._progress.setTextVisible(False)
         self._progress.setVisible(False)
-        self._progress.setFixedWidth(140)
         controls.addWidget(self._progress)
 
         self._enrich_btn = QPushButton("Обогатить выбранные")
@@ -129,6 +131,7 @@ class EnrichView(QWidget):
         top_l.addWidget(_section_label("Кандидаты"))
 
         self._cand_table = QTableWidget()
+        self._cand_table.setObjectName("iocCandidates")
         self._cand_table.setColumnCount(4)
         self._cand_table.setHorizontalHeaderLabels(
             ["", "IOC", "Тип", "Статус"]
@@ -142,6 +145,9 @@ class EnrichView(QWidget):
         self._cand_table.setAlternatingRowColors(True)
         self._cand_table.verticalHeader().setVisible(False)
         self._cand_table.horizontalHeader().setStretchLastSection(True)
+        self._cand_table.horizontalHeader().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         self._cand_table.setColumnWidth(C_CHECK, 30)
         self._cand_table.setColumnWidth(C_IOC, 320)
         self._cand_table.setColumnWidth(C_TYPE, 100)
@@ -157,6 +163,7 @@ class EnrichView(QWidget):
         bottom_l.addWidget(_section_label("Результаты"))
 
         self._res_table = QTableWidget()
+        self._res_table.setObjectName("iocResults")
         self._res_table.setColumnCount(4)
         self._res_table.setHorizontalHeaderLabels(
             ["IOC", "Тип", "Провайдер", "Данные"]
@@ -170,6 +177,9 @@ class EnrichView(QWidget):
         self._res_table.setAlternatingRowColors(True)
         self._res_table.verticalHeader().setVisible(False)
         self._res_table.horizontalHeader().setStretchLastSection(True)
+        self._res_table.horizontalHeader().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         self._res_table.setColumnWidth(R_IOC, 320)
         self._res_table.setColumnWidth(R_TYPE, 100)
         self._res_table.setColumnWidth(R_PROVIDER, 160)
@@ -381,22 +391,22 @@ class EnrichView(QWidget):
         self._cand_table.setItem(row, C_CHECK, check)
 
         ioc_item = QTableWidgetItem(ioc)
-        ioc_item.setForeground(QBrush(QColor("#e0e0e0")))
+        ioc_item.setForeground(QBrush(QColor(PALETTE["text"])))
         ioc_item.setToolTip(ioc)  # AUTO-FIXED-ENRICH-WIDTH: полное имя
         self._cand_table.setItem(row, C_IOC, ioc_item)
 
         type_item = QTableWidgetItem(ioc_type)
         type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-        type_item.setForeground(QBrush(QColor("#a0a0b0")))
+        type_item.setForeground(QBrush(QColor(PALETTE["text_muted"])))
         self._cand_table.setItem(row, C_TYPE, type_item)
 
         if already:
             sources = list(self._enrichment.get(key, {}).keys())
             status_text = f"✓ {', '.join(sources)}"
-            status_color = "#50fa7b"
+            status_color = PALETTE["success"]
         else:
             status_text = "не обогащён"
-            status_color = "#a0a0b0"
+            status_color = PALETTE["text_muted"]
 
         status_item = QTableWidgetItem(status_text)
         status_item.setForeground(QBrush(QColor(status_color)))
@@ -441,17 +451,17 @@ class EnrichView(QWidget):
         self._res_table.setRowCount(len(rows))
         for i, (ioc, t, source, summary, _) in enumerate(rows):
             ioc_item = QTableWidgetItem(ioc)
-            ioc_item.setForeground(QBrush(QColor("#e0e0e0")))
+            ioc_item.setForeground(QBrush(QColor(PALETTE["text"])))
             ioc_item.setToolTip(ioc)  # AUTO-FIXED-ENRICH-WIDTH: полное имя
             self._res_table.setItem(i, R_IOC, ioc_item)
 
             type_item = QTableWidgetItem(t)
             type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            type_item.setForeground(QBrush(QColor("#a0a0b0")))
+            type_item.setForeground(QBrush(QColor(PALETTE["text_muted"])))
             self._res_table.setItem(i, R_TYPE, type_item)
 
             prov_item = QTableWidgetItem(source)
-            prov_item.setForeground(QBrush(QColor("#5b8cff")))
+            prov_item.setForeground(QBrush(QColor(PALETTE["accent"])))
             self._res_table.setItem(i, R_PROVIDER, prov_item)
 
             data_item = QTableWidgetItem(summary)
@@ -516,8 +526,7 @@ class EnrichView(QWidget):
 def _section_label(text: str) -> QLabel:
     """Подпись раздела между таблицами: небольшой, приглушённый."""
     lbl = QLabel(text)
-    lbl.setObjectName("muted")
-    lbl.setStyleSheet("font-weight: 600;")
+    lbl.setObjectName("panelTitle")
     return lbl
 
 

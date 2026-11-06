@@ -238,6 +238,7 @@ class SettingsView(QWidget):
         search_row.setSpacing(6)
 
         self._search_line = QLineEdit()
+        self._search_line.setObjectName("searchField")
         self._search_line.setPlaceholderText(
             tr("settings.search.placeholder")
         )
@@ -285,7 +286,7 @@ class SettingsView(QWidget):
 
         # Статус-полоса: счётчик пропущенных токенов, короткие подсказки.
         self._status_label = QLabel("")
-        self._status_label.setObjectName("muted")
+        self._status_label.setObjectName("statusLine")
         self._status_label.setContentsMargins(12, 4, 12, 4)
         outer.addWidget(self._status_label)
 
@@ -382,8 +383,6 @@ class SettingsView(QWidget):
     # БЕЙДЖ «ИЗМЕНЕНО» И СТАТУС-ПОЛОСА
     # =========================================================================
 
-    _MARK_STYLE = "color: #d0a060;"
-
     _INPUT_GROUPS = (
         "_threshold_inputs", "_brute_inputs", "_network_inputs",
         "_perf_inputs", "_allowlist_inputs", "_dga_inputs",
@@ -395,8 +394,9 @@ class SettingsView(QWidget):
         label = getattr(self, "_status_label", None)
         if label is None:
             return
-        color = {"warn": "#d0a060", "error": "#e06060"}.get(level, "")
-        label.setStyleSheet(f"color: {color};" if color else "")
+        label.setProperty("level", level)
+        label.style().unpolish(label)
+        label.style().polish(label)
         label.setText(msg)
 
         from PySide6.QtCore import QTimer
@@ -450,18 +450,22 @@ class SettingsView(QWidget):
 
     def _refresh_widget_style(self, widget, key: str) -> None:
         """Совместить modified (цвет текста) и search (фон)."""
-        parts: list[str] = []
+        modified = False
         if self._defaults is not None:
             default = getattr(self._defaults, key, None)
             if default is not None:
                 try:
-                    if self._widget_differs(widget, default):
-                        parts.append(self._MARK_STYLE)
+                    modified = self._widget_differs(widget, default)
                 except Exception:
                     pass
-        if self._search_text and self._is_search_match(widget, key):
-            parts.append("background-color: #4a4a10;")
-        widget.setStyleSheet(" ".join(parts))
+        search_hit = bool(
+            self._search_text and self._is_search_match(widget, key)
+        )
+        for prop, value in (("modified", modified), ("searchHit", search_hit)):
+            if widget.property(prop) != value:
+                widget.setProperty(prop, value)
+                widget.style().unpolish(widget)
+                widget.style().polish(widget)
 
     def _is_search_match(self, widget, key: str) -> bool:
         if not self._search_text:
@@ -864,7 +868,7 @@ class SettingsView(QWidget):
         hint.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred,
         )
-        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setObjectName("hint")
         hint.setToolTip(text)
         v.addWidget(hint)
 
@@ -1069,11 +1073,11 @@ class SettingsView(QWidget):
         vbox.setSpacing(4)
 
         te = QPlainTextEdit()
-        te.setFixedHeight(60)
+        te.setObjectName("listField")
         te.setPlaceholderText("Например: 10.0.0.0/8" if is_net else "Например: 80, 443, 8080")
 
         status_lbl = QLabel("")
-        status_lbl.setStyleSheet("color: #a0a0b0; font-size: 11px;")
+        status_lbl.setObjectName("hint")
         status_lbl.setWordWrap(True)
 
         vbox.addWidget(te)
@@ -1086,14 +1090,28 @@ class SettingsView(QWidget):
         te.setProperty("is_net", is_net)
         te.textChanged.connect(lambda w=te, k=key: self._validate_and_preview_net(w, k))
 
+    @staticmethod
+    def _set_invalid(widget, invalid: bool) -> None:
+        if widget.property("invalid") != invalid:
+            widget.setProperty("invalid", invalid)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+
+    @staticmethod
+    def _set_net_status(label, text: str, error: bool = False) -> None:
+        label.setProperty("level", "error" if error else "info")
+        label.style().unpolish(label)
+        label.style().polish(label)
+        label.setText(text)
+
     def _validate_and_preview_net(self, widget: QPlainTextEdit, key: str) -> None:
         text = widget.toPlainText().strip()
         is_net = widget.property("is_net")
         status_lbl = self._network_status[key]
 
         if not text:
-            widget.setStyleSheet("")
-            status_lbl.setText("")
+            self._set_invalid(widget, False)
+            self._set_net_status(status_lbl, "")
             return
 
         tokens = [t for t in re.split(r'[\s,]+', text) if t]
@@ -1107,11 +1125,17 @@ class SettingsView(QWidget):
                     invalid.append(t)
 
             if invalid:
-                widget.setStyleSheet("border: 1px solid #ff5555;")
-                status_lbl.setText(f"<span style='color:#ff5555;'>Ошибка в: {', '.join(set(invalid))}</span>")
+                self._set_invalid(widget, True)
+                self._set_net_status(
+                    status_lbl,
+                    f"Ошибка в: {', '.join(set(invalid))}",
+                    error=True,
+                )
             else:
-                widget.setStyleSheet("")
-                status_lbl.setText(f"Будет сохранено: {', '.join(valid)}")
+                self._set_invalid(widget, False)
+                self._set_net_status(
+                    status_lbl, f"Будет сохранено: {', '.join(valid)}"
+                )
         else:
             valid, invalid = [], []
             for t in tokens:
@@ -1121,12 +1145,20 @@ class SettingsView(QWidget):
                     invalid.append(t)
 
             if invalid:
-                widget.setStyleSheet("border: 1px solid #ff5555;")
-                status_lbl.setText(f"<span style='color:#ff5555;'>Невалидные порты: {', '.join(set(invalid))}</span>")
+                self._set_invalid(widget, True)
+                self._set_net_status(
+                    status_lbl,
+                    f"Невалидные порты: {', '.join(set(invalid))}",
+                    error=True,
+                )
             else:
                 sorted_valid = sorted(list(set(int(p) for p in valid)))
-                widget.setStyleSheet("")
-                status_lbl.setText(f"Будет сохранено ({len(sorted_valid)}): {', '.join(map(str, sorted_valid))}")
+                self._set_invalid(widget, False)
+                self._set_net_status(
+                    status_lbl,
+                    f"Будет сохранено ({len(sorted_valid)}): "
+                    f"{', '.join(map(str, sorted_valid))}",
+                )
 
     def _load_network(self) -> None:
         try:
@@ -1202,12 +1234,11 @@ class SettingsView(QWidget):
         # --- TCP Reassembly ---
         cb_reassembly = QCheckBox(tr("settings.perf.reassembly"))
         lbl_reassembly = QLabel(
-            "<span style='color:#a0a0b0; font-size:11px;'>"
             "Собирает полные HTTP-запросы и TLS-хендшейки. "
             "Выключите для максимальной скорости."
-            "</span>"
         )
-        lbl_reassembly.setTextFormat(Qt.TextFormat.RichText)
+        lbl_reassembly.setObjectName("hint")
+        lbl_reassembly.setWordWrap(True)
         form.addRow(cb_reassembly, lbl_reassembly)
         self._perf_inputs["tcp_reassembly_enabled"] = cb_reassembly
         if not hasattr(self, "_field_hints"): self._field_hints = {}
@@ -1216,12 +1247,11 @@ class SettingsView(QWidget):
         # --- File Carve ---
         cb_carve = QCheckBox(tr("settings.perf.carve"))
         lbl_carve = QLabel(
-            "<span style='color:#a0a0b0; font-size:11px;'>"
             "Находит скачанные скрипты и бинарники (SHA256, MIME). "
             "Тело файла на диск не пишется."
-            "</span>"
         )
-        lbl_carve.setTextFormat(Qt.TextFormat.RichText)
+        lbl_carve.setObjectName("hint")
+        lbl_carve.setWordWrap(True)
         form.addRow(cb_carve, lbl_carve)
         self._perf_inputs["file_carve_enabled"] = cb_carve
         if not hasattr(self, "_field_hints"): self._field_hints = {}
@@ -1229,12 +1259,11 @@ class SettingsView(QWidget):
 
         cb_write = QCheckBox(tr("settings.perf.write_body"))
         lbl_write = QLabel(
-            "<span style='color:#ff5555; font-size:11px;'>"
             "Создает файлы в reports/carved/. Включайте только "
             "если уверены в безопасности."
-            "</span>"
         )
-        lbl_write.setTextFormat(Qt.TextFormat.RichText)
+        lbl_write.setObjectName("hintDanger")
+        lbl_write.setWordWrap(True)
         form.addRow(cb_write, lbl_write)
         self._perf_inputs["file_carve_write_body"] = cb_write
         if not hasattr(self, "_field_hints"): self._field_hints = {}
@@ -1776,11 +1805,10 @@ class SettingsView(QWidget):
         form.addRow("", show_cb)
 
         shodan_note = QLabel(
-            "<span style='color:#a0a0b0; font-size:11px;'>"
             "Shodan InternetDB не требует ключа — работает из коробки."
-            "</span>"
         )
-        shodan_note.setTextFormat(Qt.TextFormat.RichText)
+        shodan_note.setObjectName("hint")
+        shodan_note.setWordWrap(True)
         form.addRow("", shodan_note)
 
         # --- Кэш ---
@@ -1957,7 +1985,7 @@ class SettingsView(QWidget):
         help_text = get_detector_help(name)
         hint = QLabel(help_text)
         hint.setWordWrap(True)
-        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setObjectName("hint")
         hint.setToolTip(help_text)
         h.addWidget(hint, stretch=1)
 
@@ -2041,7 +2069,7 @@ class SettingsView(QWidget):
         help_text = get_contradiction_help(name)
         hint = QLabel(help_text)
         hint.setWordWrap(True)
-        hint.setStyleSheet("color: #8a8a9a; font-size: 11px;")
+        hint.setObjectName("hint")
         hint.setToolTip(help_text)
         h.addWidget(hint, stretch=1)
 

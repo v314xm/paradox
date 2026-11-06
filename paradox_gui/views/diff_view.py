@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -31,19 +32,22 @@ class DiffView(QWidget):
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(20, 20, 20, 20)
-        outer.setSpacing(12)
+        outer.setSpacing(16)
 
         title = QLabel(tr("diff.title"))
         title.setObjectName("h1")
         outer.addWidget(title)
 
         hint = QLabel(tr("diff.subtitle"))
-        hint.setObjectName("muted")
+        hint.setObjectName("subtitle")
         hint.setWordWrap(True)
         outer.addWidget(hint)
 
         row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(8)
         self._btn_old = QPushButton(tr("diff.load_old"))
+        self._btn_old.setObjectName("small")
         self._btn_old.clicked.connect(lambda: self._load("old"))
         self._lbl_old = QLabel("—")
         self._lbl_old.setObjectName("muted")
@@ -51,6 +55,7 @@ class DiffView(QWidget):
         row.addWidget(self._lbl_old, stretch=1)
 
         self._btn_new = QPushButton(tr("diff.load_new"))
+        self._btn_new.setObjectName("small")
         self._btn_new.clicked.connect(lambda: self._load("new"))
         self._lbl_new = QLabel("—")
         self._lbl_new.setObjectName("muted")
@@ -59,21 +64,26 @@ class DiffView(QWidget):
         outer.addLayout(row)
 
         self._summary = QLabel(tr("diff.placeholder"))
-        self._summary.setObjectName("muted")
+        self._summary.setObjectName("panelBody")
         self._summary.setWordWrap(True)
         outer.addWidget(self._summary)
 
         btn_row = QHBoxLayout()
         btn_row.addStretch(1)
         self._btn_export = QPushButton(tr("diff.export_md"))
+        self._btn_export.setObjectName("primary")
         self._btn_export.setEnabled(False)
         self._btn_export.clicked.connect(self._on_export_md)
         btn_row.addWidget(self._btn_export)
         outer.addLayout(btn_row)
 
         self._tree = QTreeWidget()
+        self._tree.setObjectName("diffTree")
         self._tree.setHeaderLabels(["Категория", "Значение", "Детали"])
         self._tree.setAlternatingRowColors(True)
+        self._tree.header().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         self._tree.header().resizeSection(0, 200)
         self._tree.header().resizeSection(1, 400)
         outer.addWidget(self._tree, stretch=1)

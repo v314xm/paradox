@@ -46,6 +46,7 @@ PALETTE = {
     "accent_hover": "#4a7ae0",
     "border":       "#3a3d4d",
     "danger":       "#ff5555",
+    "danger_light": "#ff8888",
     "success":      "#50fa7b",
     "violet":       "#c792ea",
 }
@@ -278,6 +279,7 @@ QLineEdit, QPlainTextEdit, QTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
     selection-color: #ffffff;
 }}
 QLineEdit {{ placeholder-text-color: {text_muted}; }}
+QPlainTextEdit {{ placeholder-text-color: {text_muted}; }}
 QLineEdit:hover, QComboBox:hover, QSpinBox:hover,
 QDoubleSpinBox:hover {{ border-color: {bg_hover}; }}
 QLineEdit:focus, QPlainTextEdit:focus, QComboBox:focus,
@@ -308,6 +310,9 @@ QDoubleSpinBox[searchHit="true"] {{
 QComboBox {{ padding-right: 22px; }}
 QComboBox#filterType {{ min-width: 160px; max-width: 160px; }}
 QComboBox#filterConf {{ min-width: 100px; max-width: 100px; }}
+QComboBox#formatCombo {{ min-width: 250px; max-width: 250px; }}
+QComboBox#typeCombo {{ min-width: 110px; max-width: 110px; }}
+QComboBox#comboWide {{ min-width: 420px; }}
 QComboBox::drop-down {{
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -467,7 +472,9 @@ QTreeWidget::item:selected, QTreeView::item:selected {{
 QTreeView::branch {{
     background: transparent;
 }}
-QHeaderView {{ background-color: {bg_light}; }}
+QHeaderView {{
+    background-color: {bg_light};
+}}
 QHeaderView::section {{
     background-color: {bg_light};
     color: {text_muted};
@@ -489,6 +496,29 @@ QTableWidget::item:hover {{ background: {bg_lighter}; }}
 QTableWidget::item:selected {{
     background: rgba(91, 140, 255, 0.20);
     color: {text};
+}}
+QTableWidget QWidget#qt_scrollarea_viewport,
+QTreeWidget QWidget#qt_scrollarea_viewport,
+QTreeView QWidget#qt_scrollarea_viewport {{
+    background-color: {bg_light};
+}}
+QTableWidget QScrollBar:vertical,
+QTreeWidget QScrollBar:vertical,
+QTreeView QScrollBar:vertical {{
+    background: {bg_light};
+}}
+QTableWidget QScrollBar::add-page:vertical,
+QTableWidget QScrollBar::sub-page:vertical,
+QTreeWidget QScrollBar::add-page:vertical,
+QTreeWidget QScrollBar::sub-page:vertical,
+QTreeView QScrollBar::add-page:vertical,
+QTreeView QScrollBar::sub-page:vertical {{
+    background: {bg_light};
+}}
+QTableWidget QScrollBar::groove:vertical,
+QTreeWidget QScrollBar::groove:vertical,
+QTreeView QScrollBar::groove:vertical {{
+    background: {bg_light};
 }}
 QTableCornerButton::section {{
     background-color: {bg_light};
@@ -823,6 +853,12 @@ QLabel#hintDanger {{
     color: {danger};
     font-size: 11px;
 }}
+QLabel#hint[level="error"] {{ color: {danger}; }}
+QLabel#statusLine {{ color: {text_muted}; }}
+QLabel#statusLine[level="warn"] {{ color: {high}; }}
+QLabel#statusLine[level="error"] {{ color: {danger}; }}
+QLineEdit#searchField {{ min-width: 240px; }}
+QPlainTextEdit#listField {{ min-height: 60px; }}
 QLabel#statusVersion {{
     color: {text_muted};
     padding: 0 8px;
@@ -836,6 +872,11 @@ QLabel#timeLabel {{
     color: {accent};
     font-family: {mono};
     font-weight: 600;
+}}
+QLabel#graphLegend {{
+    color: {text_muted};
+    font-size: 11px;
+    margin-top: 10px;
 }}
 QLabel#warnText {{
     color: {danger};
@@ -906,6 +947,10 @@ QFrame#hline {{
     border: none;
     max-height: 1px;
 }}
+QWidget#topbar {{
+    background-color: {bg_light};
+    border-bottom: 1px solid {border};
+}}
 QFrame#card QTabBar::tab:selected {{
     background: {bg_lighter};
 }}
@@ -945,6 +990,8 @@ QListWidget#historyList {{
     border: 1px solid {border};
     border-radius: 6px;
     padding: 4px;
+    min-width: 320px;
+    max-width: 320px;
     outline: none;
 }}
 QListWidget#historyList::item {{

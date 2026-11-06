@@ -25,13 +25,19 @@ def test_modified_badge_appears_on_change(qapp, tmp_path):
     key = "nxdomain_burst_window_sec"
     widget = view._threshold_inputs[key]
 
-    assert widget.styleSheet() == "", "при дефолте стиль должен быть пуст"
+    assert widget.property("modified") is not True, (
+        "при дефолте подсветки быть не должно"
+    )
     widget.setValue(defaults.nxdomain_burst_window_sec + 1)
     view._check_modified()
-    assert "color" in widget.styleSheet(), "изменённое поле не подсвечено"
+    assert widget.property("modified") is True, (
+        "изменённое поле не подсвечено"
+    )
     widget.setValue(defaults.nxdomain_burst_window_sec)
     view._check_modified()
-    assert widget.styleSheet() == "", "возврат к дефолту не снял подсветку"
+    assert widget.property("modified") is not True, (
+        "возврат к дефолту не снял подсветку"
+    )
 
 
 def test_parse_ports_with_report_counts_invalid():

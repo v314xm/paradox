@@ -1,33 +1,22 @@
 """UI-виджет для IPv6 (NDP + потоки) с вертикальным QSplitter."""
-try:
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import (
-        QHeaderView,
-        QLabel,
-        QSplitter,
-        QTableWidget,
-        QTableWidgetItem,
-        QVBoxLayout,
-        QWidget,
-    )
-except ImportError:
-    from PyQt5.QtCore import Qt
-    from PyQt5.QtWidgets import (
-        QHeaderView,
-        QLabel,
-        QSplitter,
-        QTableWidget,
-        QTableWidgetItem,
-        QVBoxLayout,
-        QWidget,
-    )
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QHeaderView,
+    QLabel,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
 
 class IPv6View(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
 
         splitter = QSplitter(Qt.Orientation.Vertical)
         layout.addWidget(splitter)
@@ -36,38 +25,52 @@ class IPv6View(QWidget):
         top_widget = QWidget()
         top_layout = QVBoxLayout(top_widget)
         top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(6)
 
         self.lbl_summary = QLabel("IPv6: Нет данных")
-        self.lbl_summary.setStyleSheet("font-weight: bold; font-size: 14px; padding: 5px;")
+        self.lbl_summary.setObjectName("sectionTitle")
         top_layout.addWidget(self.lbl_summary)
 
-        self.table_neighbors = QTableWidget(0, 3)
-        self.table_neighbors.setHorizontalHeaderLabels(["IPv6 Адрес", "MAC-адрес", "Роль"])
-        self.table_neighbors.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table_neighbors.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_neighbors = self._make_table(
+            ["IPv6 Адрес", "MAC-адрес", "Роль"], "ipv6Neighbors"
+        )
         top_layout.addWidget(self.table_neighbors)
-
         splitter.addWidget(top_widget)
 
         # --- Нижняя часть: IPv6-Потоки ---
         bottom_widget = QWidget()
         bottom_layout = QVBoxLayout(bottom_widget)
         bottom_layout.setContentsMargins(0, 0, 0, 0)
+        bottom_layout.setSpacing(6)
 
         self.lbl_flows = QLabel("IPv6 Потоки (Top by Bytes)")
-        self.lbl_flows.setStyleSheet("font-weight: bold; padding: 5px;")
+        self.lbl_flows.setObjectName("sectionTitle")
         bottom_layout.addWidget(self.lbl_flows)
 
-        self.table_flows = QTableWidget(0, 3)
-        self.table_flows.setHorizontalHeaderLabels(["Src IPv6", "Dst IPv6", "Bytes"])
-        self.table_flows.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table_flows.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.table_flows = self._make_table(
+            ["Src IPv6", "Dst IPv6", "Bytes"], "ipv6Flows"
+        )
         bottom_layout.addWidget(self.table_flows)
-
         splitter.addWidget(bottom_widget)
 
-        # Пропорции
-        splitter.setSizes([400, 400])
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 1)
+
+    @staticmethod
+    def _make_table(headers: list[str], name: str) -> QTableWidget:
+        table = QTableWidget(0, len(headers))
+        table.setObjectName(name)
+        table.setHorizontalHeaderLabels(headers)
+        table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch
+        )
+        table.horizontalHeader().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        table.setAlternatingRowColors(True)
+        table.verticalHeader().setVisible(False)
+        return table
 
     def update_data(self, report: dict):
         """Обновление данных из итогового JSON (report)."""

@@ -36,20 +36,20 @@ def test_search_signal_is_wired(qapp, view):
 def test_search_highlights_matching_field(view):
     view._apply_search("beaconing")
     w = view._threshold_inputs["beaconing_min_connections"]
-    assert "background-color" in w.styleSheet()
+    assert w.property("searchHit") is True
 
 
 def test_search_does_not_highlight_unrelated(view):
     view._apply_search("beaconing")
     w = view._threshold_inputs["nxdomain_burst_threshold"]
-    assert "background-color" not in w.styleSheet()
+    assert w.property("searchHit") is not True
 
 
 def test_search_clear_removes_highlight(view):
     view._apply_search("beaconing")
     view._apply_search("")
     for key, w in view._threshold_inputs.items():
-        assert "background-color" not in w.styleSheet(), key
+        assert w.property("searchHit") is not True, key
 
 
 def test_search_reports_count(view):
@@ -61,4 +61,4 @@ def test_search_matches_tooltip_text(view):
     """Поиск по тексту tooltip: 'энтроп' есть только в описании DGA."""
     view._apply_search("энтроп")
     w = view._threshold_inputs["dga_entropy_threshold"]
-    assert "background-color" in w.styleSheet()
+    assert w.property("searchHit") is True

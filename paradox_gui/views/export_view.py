@@ -31,28 +31,30 @@ class ExportView(QWidget):
     def _build_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        layout.setSpacing(16)
 
         lbl = QLabel(tr("export.title"))
-        lbl.setObjectName("pageTitle")
+        lbl.setObjectName("h1")
         layout.addWidget(lbl)
 
         info = QLabel(tr("export.subtitle"))
-        info.setObjectName("muted")
+        info.setObjectName("subtitle")
         info.setWordWrap(True)
         layout.addWidget(info)
 
         ctrl_layout = QHBoxLayout()
+        ctrl_layout.setSpacing(8)
 
         self.format_combo = QComboBox()
+        self.format_combo.setObjectName("formatCombo")
         self.format_combo.addItem(tr("export.fmt_csv"), "csv")
         self.format_combo.addItem(tr("export.fmt_stix"), "stix")
         self.format_combo.addItem(tr("export.fmt_html"), "html")
-        self.format_combo.setMinimumWidth(250)
         self.format_combo.currentIndexChanged.connect(self._update_preview)
         ctrl_layout.addWidget(self.format_combo)
 
         self.btn_copy = QPushButton(tr("export.copy"))
+        self.btn_copy.setObjectName("small")
         self.btn_copy.clicked.connect(self._on_copy_clicked)
         self.btn_copy.setEnabled(False)
         ctrl_layout.addWidget(self.btn_copy)
@@ -68,7 +70,7 @@ class ExportView(QWidget):
 
         self.preview = QTextBrowser()
         self.preview.setObjectName("exportPreview")
-        self.preview.setHtml(f"<p style='color:#888;'>{tr('export.empty')}</p>")
+        self.preview.setHtml(f"<p>{tr('export.empty')}</p>")
         layout.addWidget(self.preview)
 
     def update_data(self, report: dict):

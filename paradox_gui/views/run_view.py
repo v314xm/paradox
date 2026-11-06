@@ -88,12 +88,10 @@ class RunView(QWidget):
         scroll.setFrameShape(QScrollArea.NoFrame)
         inner = QWidget()
         layout = QVBoxLayout(inner)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(6)
-        scroll.setWidget(inner)
-        outer.addWidget(scroll)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(16)
+        scroll.setWidget(inner)
+        outer.addWidget(scroll)
 
         # --- Drop zone ---
         self.drop_zone = DropZone()
@@ -101,11 +99,10 @@ class RunView(QWidget):
         layout.addWidget(self.drop_zone)
 
         # Кнопка "Открыть несколько pcap" (v1.2 multi-pcap)
-        from PySide6.QtWidgets import QHBoxLayout as _QH
-        from PySide6.QtWidgets import QPushButton as _QBtn
-        multi_row = _QH()
+        multi_row = QHBoxLayout()
         multi_row.setContentsMargins(0, 0, 0, 0)
-        self.btn_multi_pcap = _QBtn(tr("run.multi_pcap"))
+        self.btn_multi_pcap = QPushButton(tr("run.multi_pcap"))
+        self.btn_multi_pcap.setObjectName("small")
         self.btn_multi_pcap.setToolTip(
             "Выбрать 2+ pcap файла — они будут склеены в один датасет.\n"
             "Beaconing, DGA и slow-scan детекторы увидят длинный горизонт."
@@ -162,31 +159,38 @@ class RunView(QWidget):
 
         # --- Findings ---
         findings_header = QHBoxLayout()
+        findings_header.setContentsMargins(0, 0, 0, 0)
+        findings_header.setSpacing(8)
         lbl_findings = QLabel(tr("run.findings"))
         lbl_findings.setObjectName("h1")
         findings_header.addWidget(lbl_findings)
         findings_header.addStretch(1)
 
         self.btn_graph = QPushButton(tr("run.graph"))
+        self.btn_graph.setObjectName("small")
         self.btn_graph.setEnabled(False)
         self.btn_graph.clicked.connect(self._on_graph_clicked)
         findings_header.addWidget(self.btn_graph)
 
         self.btn_attack_graph = QPushButton(tr("run.attack_graph"))
+        self.btn_attack_graph.setObjectName("small")
         self.btn_attack_graph.setEnabled(False)
         self.btn_attack_graph.clicked.connect(self._on_attack_graph_clicked)
         findings_header.addWidget(self.btn_attack_graph)
 
         self.btn_carved = QPushButton(tr("run.files"))
+        self.btn_carved.setObjectName("small")
         self.btn_carved.setEnabled(False)
         self.btn_carved.clicked.connect(self._on_carved_clicked)
         findings_header.addWidget(self.btn_carved)
 
         self.btn_what_if = QPushButton(tr("run.what_if"))
+        self.btn_what_if.setObjectName("small")
         self.btn_what_if.setEnabled(False)
         self.btn_what_if.clicked.connect(self._on_what_if_clicked)
 
         self.btn_reset_filter = QPushButton(tr("run.reset_filter"))
+        self.btn_reset_filter.setObjectName("filterChip")
         self.btn_reset_filter.setVisible(False)
         self.btn_reset_filter.clicked.connect(self._on_reset_what_if)
 
@@ -575,7 +579,7 @@ class RunView(QWidget):
         self._original_findings = []
         if hasattr(self, "btn_carved"):
             self.btn_carved.setEnabled(False)
-            self.btn_carved.setText("Файлы")
+            self.btn_carved.setText(tr("run.files"))
         if hasattr(self, "btn_what_if"):
             self.btn_what_if.setEnabled(False)
             self.btn_graph.setEnabled(False)

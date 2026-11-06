@@ -43,6 +43,26 @@ from PySide6.QtWidgets import (
 
 from paradox_gui.i18n import tr
 from paradox_gui.storage import HistoryDB
+from paradox_gui.theme import MONO_FAMILY, PALETTE, SEVERITY
+
+_DETAILS_CSS = (
+    "<style>"
+    f"h2{{color:{PALETTE['accent']};font-size:14px;margin:14px 0 6px 0;}}"
+    "table{border-collapse:collapse;margin:6px 0;font-size:12px;}"
+    f"th{{color:{PALETTE['text_muted']};text-align:left;"
+    "padding:2px 12px 2px 0;font-weight:600;"
+    f"border-bottom:1px solid {PALETTE['border']};}}"
+    f"td{{padding:3px 12px 3px 0;color:{PALETTE['text']};"
+    "vertical-align:top;}"
+    f".muted{{color:{PALETTE['text_muted']};font-size:11px;}}"
+    f".sev-critical{{color:{SEVERITY['critical']};font-weight:600;}}"
+    f".sev-high{{color:{SEVERITY['high']};font-weight:600;}}"
+    f".sev-medium{{color:{SEVERITY['medium']};font-weight:600;}}"
+    f".sev-low{{color:{SEVERITY['low']};font-weight:600;}}"
+    f".ok{{color:{PALETTE['success']};font-weight:600;}}"
+    f".mono{{font-family:{MONO_FAMILY};font-size:11px;}}"
+    "</style>"
+)
 
 
 class HistoryView(QWidget):
@@ -80,15 +100,15 @@ class HistoryView(QWidget):
         # Внешний вертикальный слой: заголовок → подпись → две колонки →
         # кнопка «Очистить». Пропорции держим через stretch.
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(24, 24, 24, 24)
-        outer.setSpacing(12)
+        outer.setContentsMargins(20, 20, 20, 20)
+        outer.setSpacing(16)
 
         title = QLabel(tr("history.title"))
         title.setObjectName("h1")  # QSS-стиль из theme.py
         outer.addWidget(title)
 
         subtitle = QLabel(tr("history.subtitle"))
-        subtitle.setObjectName("muted")
+        subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
 
@@ -102,7 +122,6 @@ class HistoryView(QWidget):
         # стабильную левую колонку и оставляет место под HTML справа.
         self._list = QListWidget()
         self._list.setObjectName("historyList")  # стиль в theme.py
-        self._list.setFixedWidth(320)
         # Подписываемся на смену строки сразу при сборке UI. При
         # добавлении первой записи сработает автоматически — не надо
         # вручную вызывать _on_row_changed.
@@ -121,10 +140,11 @@ class HistoryView(QWidget):
         self._details = QTextBrowser()
         self._details.setObjectName("historyDetails")
         self._details.setOpenExternalLinks(True)
+        self._details.document().setDefaultStyleSheet(_DETAILS_CSS)
         # Плейсхолдер вместо пустого белого прямоугольника: понятнее,
         # что здесь появится после первого прогона.
         self._details.setHtml(
-            f'<p style="color:#a0a0b0;">{tr("history.empty")}</p>'
+            f'<p class="muted">{tr("history.empty")}</p>'
         )
         columns.addWidget(self._details, stretch=1)
 
@@ -135,6 +155,7 @@ class HistoryView(QWidget):
         buttons = QHBoxLayout()
         buttons.addStretch(1)
         clear_btn = QPushButton(tr("history.clear_button"))
+        clear_btn.setObjectName("dangerOutline")
         clear_btn.clicked.connect(self.clear)
         buttons.addWidget(clear_btn)
         outer.addLayout(buttons)
@@ -344,25 +365,9 @@ class HistoryView(QWidget):
         # отчётах это заметно быстрее, а читается так же.
         parts: list[str] = []
 
-        # Инлайн-стили. Имена классов не пересекаются с theme.py —
-        # QTextDocument всё равно не читает внешний QSS, поэтому здесь
-        # всё локально. Цвета подобраны вручную под PALETTE.
-        parts.append(
-            '<style>'
-            'h2{color:#5b8cff;font-size:14px;margin:14px 0 6px 0;}'
-            'table{border-collapse:collapse;margin:6px 0;font-size:12px;}'
-            'th{color:#a0a0b0;text-align:left;padding:2px 12px 2px 0;'
-            'font-weight:600;border-bottom:1px solid #3a3d4d;}'
-            'td{padding:3px 12px 3px 0;color:#e0e0e0;vertical-align:top;}'
-            '.muted{color:#a0a0b0;font-size:11px;}'
-            '.sev-critical{color:#ff5555;font-weight:600;}'
-            '.sev-high{color:#ffb86c;font-weight:600;}'
-            '.sev-medium{color:#f1fa8c;font-weight:600;}'
-            '.sev-low{color:#50fa7b;font-weight:600;}'
-            '.ok{color:#50fa7b;font-weight:600;}'
-            '.mono{font-family:Consolas,monospace;font-size:11px;}'
-            '</style>'
-        )
+        # Стили документа — общий _DETAILS_CSS из PALETTE/SEVERITY:
+        # QTextDocument не читает внешний QSS, но значения не дублируем.
+        parts.append(_DETAILS_CSS)
 
         # --- Provenance ---
         # Короткий блок «откуда данные»: путь + усечённый SHA256.

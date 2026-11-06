@@ -36,8 +36,9 @@ class QuickCheckWindow(QWidget):
 
     def __init__(self, config, parent=None) -> None:
         super().__init__(parent, Qt.WindowType.Window)
-        self.setWindowTitle("Быстрая проверка IOC — Paradox")
-        self.resize(900, 760)
+        self.setWindowTitle(f"{tr('quick_check.title')} — Paradox")
+        self.resize(900, 720)
+        self.setMinimumSize(760, 600)
 
         self._config = config
         # Ключи уже в os.environ — их прокинул SettingsView
@@ -55,15 +56,15 @@ class QuickCheckWindow(QWidget):
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(16, 16, 16, 16)
-        outer.setSpacing(10)
+        outer.setContentsMargins(20, 20, 20, 20)
+        outer.setSpacing(16)
 
         title = QLabel(tr("quick_check.title"))
         title.setObjectName("h1")
         outer.addWidget(title)
 
         subtitle = QLabel(tr("quick_check.subtitle"))
-        subtitle.setObjectName("muted")
+        subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
 
@@ -72,23 +73,20 @@ class QuickCheckWindow(QWidget):
         input_row.setSpacing(8)
 
         self._type_combo = QComboBox()
+        self._type_combo.setObjectName("typeCombo")
         self._type_combo.addItem(tr(_AUTO_KEY))
         for t in _TYPES:
             self._type_combo.addItem(t)
-        self._type_combo.setFixedWidth(110)
         input_row.addWidget(self._type_combo)
 
         self._ioc_input = QLineEdit()
         self._ioc_input.setPlaceholderText(tr("quick_check.input_placeholder"))
-        self._ioc_input.setMinimumHeight(30)
         self._ioc_input.returnPressed.connect(self._on_check)
         self._ioc_input.textChanged.connect(self._on_input_changed)
         input_row.addWidget(self._ioc_input, stretch=1)
 
         self._check_btn = QPushButton(tr("quick_check.check_button"))
         self._check_btn.setObjectName("primary")
-        self._check_btn.setMinimumHeight(30)
-        self._check_btn.setMinimumWidth(140)
         self._check_btn.clicked.connect(self._on_check)
         input_row.addWidget(self._check_btn)
 
@@ -102,14 +100,13 @@ class QuickCheckWindow(QWidget):
         from_row.addWidget(from_lbl)
 
         self._ioc_combo = QComboBox()
-        self._ioc_combo.setMinimumWidth(420)
+        self._ioc_combo.setObjectName("comboWide")
         self._ioc_combo.addItem(tr("quick_check.no_data"))
         self._ioc_combo.setEnabled(False)
         self._ioc_combo.currentIndexChanged.connect(
             self._on_ioc_combo_changed,
         )
         from_row.addWidget(self._ioc_combo, stretch=1)
-        from_row.addStretch(1)
         outer.addLayout(from_row)
 
         # --- detected type hint ---
@@ -126,6 +123,7 @@ class QuickCheckWindow(QWidget):
 
         # --- results scroll ---
         scroll = QScrollArea()
+        scroll.setObjectName("pageScroll")
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.Shape.NoFrame)
 

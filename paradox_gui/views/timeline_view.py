@@ -16,6 +16,24 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui.i18n import tr
+from paradox_gui.theme import PALETTE, SEVERITY
+
+_PHASE_COLOR = {
+    "reconnaissance": SEVERITY["info"],
+    "execution": SEVERITY["high"],
+    "persistence": SEVERITY["high"],
+    "lateral_movement": PALETTE["danger"],
+    "exfiltration": PALETTE["violet"],
+    "impact": PALETTE["danger"],
+}
+
+
+def _conf_color(conf: float) -> str:
+    if conf >= 0.85:
+        return SEVERITY["critical"]
+    if conf >= 0.7:
+        return SEVERITY["high"]
+    return PALETTE["accent"]
 
 
 class TimelineView(QWidget):
@@ -26,25 +44,28 @@ class TimelineView(QWidget):
     def _build_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(10)
+        layout.setSpacing(16)
 
         header_layout = QHBoxLayout()
+        header_layout.setSpacing(8)
         self.lbl_info = QLabel(tr("timeline.title"))
-        self.lbl_info.setStyleSheet("font-size: 16px; font-weight: bold; color: #e0e0e0;")
+        self.lbl_info.setObjectName("h1")
         header_layout.addWidget(self.lbl_info)
         header_layout.addStretch()
 
         self.search_edit = QLineEdit()
+        self.search_edit.setObjectName("searchField")
         self.search_edit.setPlaceholderText(tr("timeline.search_placeholder"))
-        self.search_edit.setMinimumWidth(300)
         self.search_edit.textChanged.connect(self._apply_filter)
         header_layout.addWidget(self.search_edit)
 
         self.btn_expand = QPushButton(tr("timeline.expand_all"))
+        self.btn_expand.setObjectName("small")
         self.btn_expand.clicked.connect(lambda: self.tree.expandAll())
         header_layout.addWidget(self.btn_expand)
 
         self.btn_collapse = QPushButton(tr("timeline.collapse_all"))
+        self.btn_collapse.setObjectName("small")
         self.btn_collapse.clicked.connect(lambda: self.tree.collapseAll())
         header_layout.addWidget(self.btn_collapse)
 
@@ -54,6 +75,7 @@ class TimelineView(QWidget):
         layout.addWidget(splitter)
 
         self.tree = QTreeWidget()
+        self.tree.setObjectName("timelineTree")
         self.tree.setHeaderLabels([
             "Событие", "Время", "Источник", "Назначение", "Детали", "Conf", "MITRE"
         ])
@@ -61,6 +83,9 @@ class TimelineView(QWidget):
         self.tree.setSortingEnabled(False)
 
         header = self.tree.header()
+        header.setDefaultAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
@@ -73,9 +98,12 @@ class TimelineView(QWidget):
         splitter.addWidget(self.tree)
 
         self.details = QTextBrowser()
-        self.details.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px;")
-        self.details.setHtml(f"<p style='color:#888;'>{tr('timeline.no_selection')}</p>")
-        self.details.setMinimumWidth(350)
+        self.details.setObjectName("timelineDetails")
+        self.details.setHtml(
+            f"<p style='color:{PALETTE['text_muted']};'>"
+            f"{tr('timeline.no_selection')}</p>"
+        )
+        self.details.setMinimumWidth(320)
         splitter.addWidget(self.details)
 
         splitter.setSizes([850, 350])
@@ -106,20 +134,14 @@ class TimelineView(QWidget):
             events = phases[phase_name]
 
             phase_item = QTreeWidgetItem(self.tree)
-            phase_item.setText(0, f"📁 {phase_name.upper()} ({len(events)})")
+            phase_item.setText(0, f"{phase_name.upper()} ({len(events)})")
             font = QFont()
             font.setBold(True)
             phase_item.setFont(0, font)
 
-            phase_colors = {
-                "reconnaissance": "#44aaff",
-                "execution": "#ffaa00",
-                "persistence": "#ff8888",
-                "lateral_movement": "#ff4444",
-                "exfiltration": "#ff00ff",
-                "impact": "#ff0000"
-            }
-            color = QColor(phase_colors.get(phase_name.lower(), "#888888"))
+            color = QColor(
+                _PHASE_COLOR.get(phase_name.lower(), PALETTE["text_muted"])
+            )
             phase_item.setForeground(0, QBrush(color))
 
             for e in events:
@@ -149,10 +171,7 @@ class TimelineView(QWidget):
                 conf = e.get("confidence")
                 if isinstance(conf, (int, float)):
                     child.setText(5, f"{conf:.2f}")
-                    if conf >= 0.85:
-                        child.setForeground(5, QBrush(QColor("#ff4444")))
-                    elif conf >= 0.7:
-                        child.setForeground(5, QBrush(QColor("#ffaa00")))
+                    child.setForeground(5, QBrush(QColor(_conf_color(conf))))
                 else:
                     child.setText(5, "—")
 
@@ -164,35 +183,42 @@ class TimelineView(QWidget):
 
     def _on_item_clicked(self, item: QTreeWidgetItem, column: int):
         data = item.data(0, Qt.ItemDataRole.UserRole)
+        muted = PALETTE["text_muted"]
         if not data:
-            self.details.setHtml(f"<p style='color:#888;'>{tr('timeline.phase_selected')}</p>")
+            self.details.setHtml(
+                f"<p style='color:{muted};'>"
+                f"{tr('timeline.phase_selected')}</p>"
+            )
             return
 
-        html = f"<h2 style='color:#44aaff; margin-bottom:5px;'>{data.get('type', '?')}</h2>"
+        html = (
+            f"<h2 style='color:{PALETTE['accent']}; margin-bottom:5px;'>"
+            f"{data.get('type', '?')}</h2>"
+        )
         html += f"<p><b>{tr('timeline.phase_label')}</b> {data.get('phase', '?')}</p>"
 
         mitre = data.get('mitre_id')
         html += f"<p><b>MITRE:</b> {mitre if mitre else '—'}</p>"
 
         conf = data.get("confidence", 0)
-        conf_color = "#ff4444" if conf >= 0.85 else "#ffaa00" if conf >= 0.7 else "#44aaff"
+        conf_color = _conf_color(conf)
         html += f"<p><b>{tr('timeline.confidence_label')}</b> <span style='color:{conf_color}; font-weight:bold;'>{conf:.2f}</span></p>"
 
         reasons = data.get("confidence_reasons") or []
         if reasons:
-            html += f"<h4 style='color:#aaa;'>{tr('timeline.reasons_label')}</h4><ul>"
+            html += f"<h4 style='color:{muted};'>{tr('timeline.reasons_label')}</h4><ul>"
             for r in reasons:
                 html += f"<li>{r}</li>"
             html += "</ul>"
 
         ev = data.get("evidence") or {}
         if ev:
-            html += f"<h4 style='color:#aaa;'>{tr('timeline.evidence_label')}</h4><ul>"
+            html += f"<h4 style='color:{muted};'>{tr('timeline.evidence_label')}</h4><ul>"
             for k, v in ev.items():
                 html += f"<li><b>{k}:</b> {v}</li>"
             html += "</ul>"
 
-        html += f"<hr><h4 style='color:#aaa;'>{tr('timeline.description_label')}</h4><p style='line-height:1.4;'>{data.get('description', '')}</p>"
+        html += f"<hr><h4 style='color:{muted};'>{tr('timeline.description_label')}</h4><p style='line-height:1.4;'>{data.get('description', '')}</p>"
 
         self.details.setHtml(html)
 
