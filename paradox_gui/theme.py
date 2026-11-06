@@ -1253,14 +1253,14 @@ def _arrow_assets() -> dict[str, str]:
         directory.mkdir(parents=True, exist_ok=True)
         down_path = directory / "chevron-down-v1.png"
         up_path = directory / "chevron-up-v1.png"
-        disabled_path = directory / "chevron-down-disabled-v1.png"
+        disabled_path = directory / "chevron-down-disabled-v2.png"
         if not down_path.exists():
             _chevron_png(down_path, up=False, color=PALETTE["text_muted"])
         if not up_path.exists():
             _chevron_png(up_path, up=True, color=PALETTE["text_muted"])
         if not disabled_path.exists():
             _chevron_png(
-                disabled_path, up=False, color=PALETTE["border"]
+                disabled_path, up=False, color=PALETTE["text_muted"]
             )
     except OSError:
         return {}
