@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1155%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1167%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 23 детектора, 12 правил противоречий, GUI, 1155 тестов.**
+**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1167 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -187,7 +187,7 @@ Timeline строится после contradictions (нужны оба исто�
 |---|---|---|
 | Extractors | flow, dns, tls, http, host_identity, arp_history, dhcp, nbns, kerberos, ndp, ssh_banner, smtp | 12 |
 | Post-extract | reassembler, http_object, tls_cert, file_carve | 4 |
-| Detectors | DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, ja3s_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, http_binary_upload, php_payload, yara | 23 |
+| Detectors | DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, ja3s_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, http_binary_upload, php_payload, webshell_markers, yara | 24 |
 | Contradictions | см. таблицу выше | 12 |
 | Analyzers | absence, counterfactual (What-If), story, ndp | 4 |
 | Reporters | JSON, Markdown, flow report, IOC (txt/csv/json/suricata/kql) | 4 |
@@ -198,17 +198,17 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~20 сек, 1155 passed
+pytest -m "not slow"           # ~20 сек, 1167 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1155 тестов в 132 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+1167 тестов в 133 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
 
 Покрытие:
 
 - Парсеры (TLS, X.509 DER, Kerberos, NBNS, HTTP, IPv6)
 - Все 12 extractors
-- Все 23 детектора + MITRE-map
+- Все 24 детектора + MITRE-map
 - Все 12 правил contradictions
 - Reassembler, HTTPObject (keep-alive, gzip/deflate), JA3/JA3S, YARA
 - Регрессионные тесты на реальные FP (`test_regressions.py`, 42 теста)
@@ -256,7 +256,7 @@ pre-commit install
 
 ## Roadmap
 
-- **1.4.0 (текущая)** — 23 детектора, 12 правил противоречий, GUI (8 вкладок), B1 (сравнение прогонов), 1155 тестов.
+- **1.4.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (8 вкладок), B1 (сравнение прогонов), 1167 тестов.
 - **Дальше** — HTTP/2-парсер (h2-фреймы + HPACK), stream mode для pcap > 2 ГБ, PDF-экспорт, вкладка плагинов в GUI, CI-workflow.
 - **Backlog** — SMB relay, DHCP starvation, DoH-аномалии.
 

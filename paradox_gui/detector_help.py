@@ -70,6 +70,12 @@ DETECTOR_HELP: dict[str, str] = {
         "(php_download — скачанный веб-шелл/дроппер) или POST "
         "содержит '<?php' (webshell_upload — заливка шелла). "
         "По телу, а не по расширению: /index.php — это норма.",
+    "webshell_markers":
+        "Маркеры веб-шеллов разных языков: eval/assert/system/"
+        "shell_exec с $_POST/$_GET, eval Request[...], "
+        "Runtime.getRuntime().exec(request.getParameter), "
+        "Process.Start(Request), семейства WSO/b374k/c99/r57/phpspy. "
+        "Ищет связку «исполнение + ввод из запроса», а не просто eval(.",
     "ssh_brute_force":
         "Много SSH-сессий к одному серверу с уникальных src-портов. Подбор "
         "учётных данных SSH: сервер видит серию неудачных аутентификаций с одного "

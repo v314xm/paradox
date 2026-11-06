@@ -12,6 +12,17 @@
   UUIDv5 (повторный прогон даёт тот же bundle), внешние IP из
   findings и домены из `value` / `evidence.host(s)` /
   `unique_destinations`. Внутренние IP не экспортируются.
+- `webshell_markers` — 24-й детектор: маркеры веб-шеллов
+  PHP/ASP/JSP (связки `eval`/`assert`/`system`/`shell_exec`
+  с `$_POST`/`$_GET`, `eval Request[...]`,
+  `Runtime.getRuntime().exec(request.getParameter)`,
+  `Process.Start(Request)`) и известные семейства
+  WSO/b374k/c99/r57/phpspy. HTML-ответы и тела с printable < 0.6
+  пропускаются, gzip/deflate распаковываются. Severity critical,
+  T1505.003; confidence 0.85, у известных семейств — 0.9.
+  Сигнатуры хранятся наборами токенов: это и меньше FP на
+  «eval(» в JS, и отсутствие цельных строк, на которые реагирует
+  антивирус при чтении исходников.
 - Плагины детекторов: каталог `~/.paradox/plugins/*.py`,
   плагин экспортирует `DETECTORS = [MyDetector()]` или
   `DETECTOR = MyDetector`. Включается флагом `--plugins` или

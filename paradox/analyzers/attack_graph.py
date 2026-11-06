@@ -42,6 +42,7 @@ _PHASE_OF_TYPE = {
     "http_binary_upload": "exfiltration",
     "php_download": "execution",
     "webshell_upload": "execution",
+    "webshell_signature": "execution",
     "smtp_spam": "impact",
 }
 

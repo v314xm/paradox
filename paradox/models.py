@@ -38,6 +38,7 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "http_binary_upload": "high",
     "php_download": "high",
     "webshell_upload": "critical",
+    "webshell_signature": "critical",
 
     "port_scan": "medium",
     "web_scanner": "medium",

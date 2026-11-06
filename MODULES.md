@@ -16,7 +16,7 @@
 1. [Корень пакета `paradox/`](#корень-пакета-paradox)
 2. [Парсеры](#парсеры)
 3. [Экстракторы (12)](#экстракторы)
-4. [Детекторы (23)](#детекторы)
+4. [Детекторы (24)](#детекторы)
 5. [Contradictions (12 правил)](#contradictions)
 6. [Анализаторы](#анализаторы)
 7. [Multi-pcap](#multi-pcap)
@@ -126,7 +126,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 
 Слой `paradox/detectors/`. Contract: `LocalDetector` — `name`, `run(state, config) -> list[Finding]`.
 
-**23 детектора.**
+**24 детектора.**
 
 | Детектор | Строк | Что ищет |
 |---|---|---|
@@ -151,6 +151,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 | `command_injection.py` | 184 | RCE в HTTP URI/текстовом body |
 | `http_binary_upload.py` | 155 | Серия бинарных POST'ов на внешний хост (C2/exfil) |
 | `php_payload.py` | 180 | `<?php` в теле: скачанный шелл / заливка шелла |
+| `webshell_markers.py` | 215 | Маркеры шеллов PHP/ASP/JSP + семейства WSO/b374k/c99/r57 |
 | `yara_detector.py` | 81 | YARA на carved_files (опционально) |
 
 **`_http_body.py` (193)** — общее для трёх детекторов: распаковка
@@ -169,6 +170,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 - **beaconing slow:** min_conn=3, duration≥3600s, jitter<0.15, rate<0.2/min, confidence 0.55–0.7, `evidence.mode="slow"`
 - **http_binary_upload:** ≥3 POST'ов, body≥1KB, non-text body, outbound; skip ocsp-request и allowlist_suffixes
 - **php_payload:** ответ 2xx, маркер `<?php` в первых 64 байтах (BOM/пробелы допускаются), HTML-ответы пропускаются, gzip/deflate распаковываются; заливка — POST/PUT/PATCH с `<?php` в первых 64 КБ тела
+- **webshell_markers:** набор токенов целиком в первых 64 КБ; HTML-ответы и тела с printable < 0.6 пропускаются; confidence 0.85, известные семейства — 0.9
 - **decompression:** gzip/x-gzip + deflate (zlib и raw), magic-сниффинг `1f 8b`; лимит `http_body_max_decoded_bytes` = 8 МБ; brotli/zstd не сканируются
 - **nxdomain_burst:** threshold=5, window=60s, min_ratio=0.2
 - **dns_tunneling:** qname≥50, long≥20, queries≥50
@@ -459,6 +461,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Enrichment | 15 | 92 | `test_enricher_orchestrator.py` (11) |
 | GUI (offscreen) | 12 | 66 | `test_provider_card.py` (8), `test_editable_list.py` (12) |
 | Регрессии / FP | 2 | 42 | `test_regressions.py` — FP-каталог |
+| Webshell-маркеры | 1 | 12 | `test_webshell_markers.py` |
 | Плагины и STIX | 2 | 28 | `test_detector_plugins.py` (14), `test_stix_reporter.py` (14) |
 | Мульти-pcap | 1 | 1 | `test_multi_pcap.py` — базовый merge |
 

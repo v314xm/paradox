@@ -55,6 +55,7 @@ _PHASE_BY_TYPE: dict[str, str] = {
     "script_download": "execution",
     "php_download": "execution",
     "webshell_upload": "execution",
+    "webshell_signature": "execution",
     "carved_file": "execution",
     "yara_match": "execution",
 

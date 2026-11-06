@@ -40,6 +40,7 @@ MITRE_MAP: dict[str, tuple[str, ...]] = {
     "http_binary_upload": ("T1071.001", "T1041"),  # бинарные POST на внешний хост
     "php_download": ("T1105",),          # Ingress Tool Transfer
     "webshell_upload": ("T1505.003",),   # Server Software Component: Web Shell
+    "webshell_signature": ("T1505.003",),  # маркеры шеллов PHP/ASP/JSP
     "dns_tunneling": ("T1071.004",),     # DNS
     "ja3_malware": ("T1071.001",),       # известный malware-JA3
     "ja3s_malware": ("T1071.001",),      # известный malware-JA3S (сервер)

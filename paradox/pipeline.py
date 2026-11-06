@@ -32,6 +32,7 @@ from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
 from paradox.detectors.suspicious_port import SuspiciousPortDetector
 from paradox.detectors.typosquatting import TyposquattingDetector
 from paradox.detectors.vulnerable_path import VulnerablePathDetector
+from paradox.detectors.webshell_markers import WebShellMarkersDetector
 from paradox.detectors.yara_detector import YARADetector
 from paradox.extractors.arp_history import ARPMacHistoryExtractor
 from paradox.extractors.dhcp import DHCPExtractor
@@ -106,6 +107,7 @@ DETECTORS = [
     CommandInjectionDetector(),
     HttpBinaryUploadDetector(),
     PhpPayloadDetector(),
+    WebShellMarkersDetector(),
     YARADetector(),
 ]
 

@@ -90,6 +90,7 @@ _DETECTORS = (
     ("command_injection",  "Command injection"),
     ("http_binary_upload", "HTTP binary upload"),
     ("php_payload",        "PHP payload / webshell"),
+    ("webshell_markers",   "Web shell markers"),
     ("ssh_brute_force", "SSH brute force"),
     ("smtp_spam", "SMTP spam"),
     ("yara", "YARA"),
