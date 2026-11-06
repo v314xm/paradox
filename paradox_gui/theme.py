@@ -40,6 +40,7 @@ PALETTE = {
     "border":       "#3a3d4d",
     "danger":       "#ff5555",
     "success":      "#50fa7b",
+    "violet":       "#c792ea",
 }
 
 # Severity — ключи совпадают со строками severity в dict из run_pipeline.
@@ -436,6 +437,16 @@ QLabel#metricValue {{
     color: {text};
     font-size: 13px;
 }}
+QLabel#metricValue[empty="true"] {{ color: {text_muted}; }}
+
+/* Точки категорий: те же цвета, что у полос карточек highlights. */
+QLabel#metricDot {{ border-radius: 3px; }}
+QLabel#metricDot[kind="http"]   {{ background-color: {accent}; }}
+QLabel#metricDot[kind="dns"]    {{ background-color: {info}; }}
+QLabel#metricDot[kind="flow"]   {{ background-color: {high}; }}
+QLabel#metricDot[kind="hosts"]  {{ background-color: {success}; }}
+QLabel#metricDot[kind="tcp"]    {{ background-color: {medium}; }}
+QLabel#metricDot[kind="carved"] {{ background-color: {violet}; }}
 QLabel#panelBody {{
     color: {text};
     font-size: 13px;

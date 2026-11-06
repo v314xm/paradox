@@ -12,11 +12,19 @@ from paradox_gui.i18n import tr
 
 
 class _MetricRow(QFrame):
-    def __init__(self, label: str):
+    def __init__(self, label: str, kind: str):
         super().__init__()
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 2, 0, 2)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
+
+        # Цветная точка связывает строку с категорией хайлайта,
+        # чтобы панели читались как один набор, а не как два списка.
+        self._dot = QLabel()
+        self._dot.setObjectName("metricDot")
+        self._dot.setProperty("kind", kind)
+        self._dot.setFixedSize(6, 6)
+        layout.addWidget(self._dot, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self._label = QLabel(label)
         self._label.setObjectName("metricLabel")
@@ -28,8 +36,15 @@ class _MetricRow(QFrame):
         self._value.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self._value, 1)
 
-    def set_value(self, text: str) -> None:
+    def set_value(self, text: str, empty: bool = False) -> None:
         self._value.setText(text)
+        # «—» и нулевые счётчики — это отсутствие данных, а не метрика:
+        # не даём им светиться тем же цветом, что и реальные числа.
+        empty = empty or text.startswith("—")
+        if self._value.property("empty") != empty:
+            self._value.setProperty("empty", empty)
+            self._value.style().unpolish(self._value)
+            self._value.style().polish(self._value)
 
 
 class ObservationsPanel(QFrame):
@@ -44,12 +59,12 @@ class ObservationsPanel(QFrame):
         title.setObjectName("panelTitle")
         layout.addWidget(title)
 
-        self._row_http = _MetricRow("HTTP")
-        self._row_dns = _MetricRow("DNS")
-        self._row_flows = _MetricRow("Flows")
-        self._row_hosts = _MetricRow("Hosts")
-        self._row_tcp = _MetricRow("TCP")
-        self._row_carved = _MetricRow("Carved")
+        self._row_http = _MetricRow("HTTP", "http")
+        self._row_dns = _MetricRow("DNS", "dns")
+        self._row_flows = _MetricRow("Flows", "flow")
+        self._row_hosts = _MetricRow("Hosts", "hosts")
+        self._row_tcp = _MetricRow("TCP", "tcp")
+        self._row_carved = _MetricRow("Carved", "carved")
         for r in (self._row_http, self._row_dns, self._row_flows,
                   self._row_hosts, self._row_tcp, self._row_carved):
             layout.addWidget(r)
@@ -66,7 +81,8 @@ class ObservationsPanel(QFrame):
         um = len(http.get("methods") or [])
         ua = http.get("unique_user_agents", 0)
         self._row_http.set_value(
-            f"{uh} host · {uu} URI · {um} method · {ua} UA"
+            f"{uh} host · {uu} URI · {um} method · {ua} UA",
+            empty=(uh == 0 and uu == 0),
         )
 
         uq = summary.get("unique_dns_queries", 0)
@@ -77,11 +93,14 @@ class ObservationsPanel(QFrame):
             self._row_dns.set_value(f"{uq} запросов · {nx} NXDOMAIN")
 
         total = summary.get("flows", 0)
-        self._row_flows.set_value(f"{total} total")
+        self._row_flows.set_value(f"{total} total", empty=(total == 0))
 
         n_int = len(entities.get("internal", []) or [])
         n_ext = len(entities.get("external", []) or [])
-        self._row_hosts.set_value(f"{n_int} internal · {n_ext} external")
+        self._row_hosts.set_value(
+            f"{n_int} internal · {n_ext} external",
+            empty=(n_int == 0 and n_ext == 0),
+        )
 
         tcp_s = summary.get("tcp_streams", 0)
         trunc = summary.get("tcp_streams_truncated", 0)
