@@ -5,24 +5,72 @@
 
 ## [Unreleased]
 
+### Добавлено
+- `http_binary_upload` — 22-й детектор: серия POST'ов с бинарным
+  телом (octet-stream, gzip, зашифрованный блоб) на внешний хост.
+  Ловит C2/exfil RAT/stealer'а, который раньше маскировался под
+  ложный `command_injection`. MITRE T1071.001 + T1041, severity high.
+- `php_payload` — 23-й детектор, два finding-типа по маркеру `<?php`:
+  `php_download` (ответ начинается с `<?php` — скачанный веб-шелл,
+  дроппер; severity high, T1105) и `webshell_upload` (POST/PUT/PATCH,
+  в теле `<?php` — заливка шелла; severity critical, T1505.003).
+  Ключ по телу, а не по расширению: `.php` в URI — это каждый
+  `/index.php`, поэтому extension-фильтр сознательно не расширялся.
+- Распаковка HTTP-тел для поиска паттернов: gzip/x-gzip и deflate
+  (zlib-wrapped и raw), включая gzip без `content-encoding` —
+  определяется по magic `1f 8b`. Работает в `command_injection`
+  и `php_payload`; `http_binary_upload` по-прежнему оценивает тело
+  «на проводе». Лимит `http_body_max_decoded_bytes` (8 МБ) защищает
+  от zip-бомбы, обрезанные потоки распаковываются насколько успели,
+  битый поток просто не сканируется. brotli/zstd не поддержаны
+  (нужны внешние зависимости).
+- `beaconing`: slow-режим для C2 со sleep больше часа —
+  `beaconing_slow_min_connections` (3), `beaconing_slow_min_duration_sec`
+  (3600), `beaconing_slow_max_jitter_ratio` (0.15),
+  `beaconing_slow_max_flows_per_minute` (0.2). Плотный beacon
+  по-прежнему идёт по fast-пути; в evidence появилось `mode`.
+- `summary.protocols.by_l4` / `by_l7` — разрез flows по протоколам
+  (dns/tls/http/smb/kerberos/ldap/…). Секция «Сводка» в Markdown
+  показывает обе строки.
+- `http_text_content_types`, `command_injection_min_printable_ratio`,
+  `http_binary_upload_*` — новые ключи Config с валидацией.
+
+### Исправлено
+- HTTP keep-alive: из одного TCP-соединения читались только первый
+  запрос и первый ответ. Теперь разбираются все сообщения
+  (`iter_http_requests` / `iter_http_responses`), ответы матчатся
+  с запросами по порядку. Замер: FIRST-2015 — запросов 504 → 623
+  (+119), ответов 499 → 571 (+72); 2025-06-13 — +1/+1.
+  Findings не изменились (10 и 0).
+- `command_injection` больше не сканирует бинарные тела
+  (octet-stream, gzip, image/*, content-encoding: gzip). На
+  захвате 2025-06-13 это убрало 35 ложных findings из 42:
+  «$(`» в gzip-байтах больше не считается RCE. URI сканируется
+  всегда, текстовые тела — как раньше.
+- Реальный прогон 2025-06-13: 42 → 10 findings
+  (4 typosquatting + 3 http_binary_upload + 2 lateral_movement
+  + 1 cloud_tunnel). FIRST-2015: 0 findings, 2 contradictions
+  — без изменений.
+
 ### Запланировано (v1.3.0)
 - Плагинная система: `~/.paradox/plugins/*.py`, автозагрузка детекторов.
 - PDF-экспорт Markdown-отчёта.
 - Лендинг + GitHub Pages.
 - STIX 2.1 экспорт IOC.
-- `beaconing` windowing для медленных C2 (интервал > часа).
 - Унификация полярности findings (сейчас дублируется в `entities.py` и `facts.py`).
 
 ### Известные проблемы
-- `test_multi_pcap.py` — 0 тестов (ручной `tools/test_multi_pcap.py`).
-- `NDPExtractor` без `layer = 0` — нарушает Protocol `Extractor`.
+- `test_multi_pcap.py` — 1 тест (ручной `tools/test_multi_pcap.py`).
 - `sni_mismatch` шумит (73 FP на FIN-2015) — нужен context-aware allowlist.
 - JA3 браузеров не в config — ja3_ua_mismatch работает только на tool/malware.
+  Хеши не добавлены сознательно: без проверенных значений это источник FP.
 - TLS 1.3 Certificate зашифрован — правила на сертификатах только для TLS 1.2.
 - `markdown_reporter.py` — 976 строк, `settings_view.py` — 2021, `facts.py` — 927. Кандидаты на разбивку.
-- `beaconing` не ловит медленный C2 (интервал > часа) — нужен windowing.
 - Внутренний C2 (internal→internal зашифрованный) — вне зоны видимости.
 - Двухуровневые TLD поддержаны (domain_utils), но не в typosquatting SLD-фильтре для части кейсов.
+- `rare_external_ip` / `long_connections` не реализованы: на эталонах
+  52 и 39 «редких» внешних IP и длинные NTP/SMB/SSDP-сессии —
+  наивный вариант дал бы десятки FP, нужен отдельный дизайн.
 
 ## [1.2.0] — 2026-10-20
 

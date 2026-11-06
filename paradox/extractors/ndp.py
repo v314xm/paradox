@@ -107,6 +107,7 @@ def extract_ndp(record) -> NdpRecord | None:
 class NDPExtractor:
     """Экстрактор NDP для потокового пайплайна."""
     name = "ndp"
+    layer = 0
 
     def process(self, record, state) -> None:
         ndp = extract_ndp(record)

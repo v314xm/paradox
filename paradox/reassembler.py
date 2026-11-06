@@ -47,6 +47,9 @@ class TCPReassembler:
         self._buffers: dict[FlowKey, dict[int, bytes]] = {}
         # key -> базовый seq (из SYN или первого пакета)
         self._syn_seq: dict[FlowKey, int] = {}
+        # ключи, для которых SYN реально видели: у mid-stream потока
+        # первый пакет может оказаться не самым ранним.
+        self._syn_seen: set[FlowKey] = set()
         # key -> размер буфера (для быстрой проверки лимита)
         self._flow_sizes: dict[FlowKey, int] = {}
         # финализированные потоки
@@ -86,7 +89,14 @@ class TCPReassembler:
 
         # Новый сеанс — SYN без ACK
         if (flags & _TCP_SYN) and not (flags & _TCP_ACK):
+            # Повторное использование 4-tuple: старый поток уже
+            # финализирован, новый в модель «один поток на FlowKey»
+            # не влезает. Помечаем, что данные второго сеанса
+            # потеряны, вместо тихого пропуска.
+            if key in self._finalized:
+                self._truncated.add(key)
             self._syn_seq[key] = record.tcp_seq
+            self._syn_seen.add(key)
 
         # Payload (может быть вместе с FIN)
         if record.payload:
@@ -97,11 +107,35 @@ class TCPReassembler:
                 self._syn_seq[key] = base
 
             offset = (record.tcp_seq - base) & _UINT32_MASK
+
+            # Mid-stream и пакет раньше «базы»: первый увиденный
+            # сегмент был не самым ранним. Без перебазирования
+            # offset уходит почти на 4 ГиБ и поток склеивается
+            # в обратном порядке.
+            if key not in self._syn_seen and offset > _UINT32_MASK // 2:
+                offset = self._rebase_earlier(key, base, record.tcp_seq)
+
             self._store(key, offset, record.payload)
 
         # Конец направления — FIN или RST
         if flags & (_TCP_FIN | _TCP_RST):
             self._finalize(key)
+
+    def _rebase_earlier(
+        self, key: FlowKey, base: int, seq: int,
+    ) -> int:
+        """Перебазировать mid-stream поток на более ранний seq.
+
+        Возвращает 0 — offset нового пакета относительно новой базы.
+        """
+        delta = (base - seq) & _UINT32_MASK
+        buf = self._buffers.get(key)
+        if buf:
+            self._buffers[key] = {
+                offset + delta: data for offset, data in buf.items()
+            }
+        self._syn_seq[key] = seq
+        return 0
 
     def _store(self, key: FlowKey, offset: int, data: bytes) -> None:
         # Уже финализирован — поздние retransmit игнорируем

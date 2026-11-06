@@ -88,6 +88,8 @@ _DETECTORS = (
     ("large_transfer",     "Large transfer"),
     ("vulnerable_path",    "Vulnerable path"),
     ("command_injection",  "Command injection"),
+    ("http_binary_upload", "HTTP binary upload"),
+    ("php_payload",        "PHP payload / webshell"),
     ("ssh_brute_force", "SSH brute force"),
     ("smtp_spam", "SMTP spam"),
     ("yara", "YARA"),

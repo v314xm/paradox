@@ -20,6 +20,9 @@ import ipaddress
 import json
 from pathlib import Path
 
+from paradox.config import Config
+from paradox.net_utils import is_internal_ip
+
 # Типы findings, из которых достаём домены.
 _DOMAIN_FINDING_TYPES = frozenset({
     "dga_domain",
@@ -30,7 +33,7 @@ _DOMAIN_FINDING_TYPES = frozenset({
     "sni_without_dns",
 })
 
-# Типы findings, из которых достаём IP (dst).
+# Типы findings, из которых достаём IP.
 _IP_FINDING_TYPES = frozenset({
     "suspicious_port",
     "brute_force",
@@ -97,7 +100,26 @@ def _strip_port(value: str) -> str:
     return value
 
 
-def build_ioc_report(report: dict) -> dict:
+def _ioc_ip(f: dict, config: Config) -> str | None:
+    """Внешний IP находки: dst, затем src, затем value.
+
+    Внутренние адреса в IOC не попадают: при входящей атаке dst —
+    это жертва (brute_force, lateral_movement), и раньше она
+    экспортировалась как «вредоносный IP» вместе с Suricata-правилом
+    на блокировку собственного хоста.
+    """
+    candidates = (
+        f.get("dst_ip"),
+        f.get("src_ip"),
+        _strip_port(f.get("value") or ""),
+    )
+    for ip in candidates:
+        if ip and _looks_like_ip(ip) and not is_internal_ip(ip, config):
+            return ip
+    return None
+
+
+def build_ioc_report(report: dict, config: Config | None = None) -> dict:
     """
     Собрать IOC из dict-отчёта.
 
@@ -115,6 +137,7 @@ def build_ioc_report(report: dict) -> dict:
     sha256: dict[str, dict] = {}
     urls: dict[str, dict] = {}
 
+    cfg = config or Config()
     findings = report.get("findings") or []
     for f in findings:
         ftype = f.get("type", "")
@@ -129,9 +152,8 @@ def build_ioc_report(report: dict) -> dict:
             )
 
         elif ftype in _IP_FINDING_TYPES:
-            # dst_ip — самый вероятный индикатор.
-            ip = f.get("dst_ip") or _strip_port(value)
-            if ip and _looks_like_ip(ip):
+            ip = _ioc_ip(f, cfg)
+            if ip:
                 _upsert_ioc(
                     ips, ip,
                     {"value": ip, "severity": sev, "source": ftype},

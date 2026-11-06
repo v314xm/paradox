@@ -204,3 +204,27 @@ def test_suspicious_port_src_is_victim_not_attacker():
     assert "victim_candidate" in victim.roles
     assert "attacker_candidate" not in victim.roles
     assert "c2_candidate" in c2.roles
+
+
+def test_attacked_dc_is_both_dc_and_victim():
+    """DC под brute-force остаётся жертвой, а не только DC."""
+    state = CaptureState()
+    for sport in range(50000, 50020):
+        _add_flow(state, "10.0.0.5", "10.0.0.1", sport, 445)
+
+    findings = [Finding(
+        type="brute_force",
+        value="203.0.113.9 → 10.0.0.1",
+        confidence=0.8,
+        evidence={
+            "src_ip": "203.0.113.9",
+            "dst_ip": "10.0.0.1",
+            "dst_port": 445,
+        },
+    )]
+
+    entities = build_entities(state, findings, Config())
+
+    dc = next(e for e in entities.internal if e.ip == "10.0.0.1")
+    assert "domain_controller" in dc.roles
+    assert "victim_candidate" in dc.roles

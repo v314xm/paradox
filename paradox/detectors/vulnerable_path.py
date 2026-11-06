@@ -46,6 +46,10 @@ class _UriBucket:
     count: int = 0
     src_ips: Counter = field(default_factory=Counter)
     dst_ips: set[str] = field(default_factory=set)
+    # Полный набор dst для проверки scanner-пар: dst_ips обрезан
+    # до _EVIDENCE_SAMPLE_SIZE и не годится для решения «показывать
+    # finding или нет».
+    all_dst_ips: set[str] = field(default_factory=set)
     dst_ports: set[int] = field(default_factory=set)
     hosts: set[str] = field(default_factory=set)
     methods: set[str] = field(default_factory=set)
@@ -172,6 +176,7 @@ class VulnerablePathDetector:
 
                 if len(bucket.dst_ips) < _EVIDENCE_SAMPLE_SIZE:
                     bucket.dst_ips.add(key.dst_ip)
+                bucket.all_dst_ips.add(key.dst_ip)
                 if (key.dst_port is not None
                         and len(bucket.dst_ports) < _EVIDENCE_SAMPLE_SIZE):
                     bucket.dst_ports.add(key.dst_port)
@@ -208,7 +213,7 @@ class VulnerablePathDetector:
             # Если для этой path_key ВСЕ src-пары — scanner, пропускаем.
             # Если хоть одна пара не scanner — оставляем individual.
             src_ips_in_bucket = set(bucket.src_ips.keys())
-            dst_ips_in_bucket = bucket.dst_ips
+            dst_ips_in_bucket = bucket.all_dst_ips
             still_relevant = False
             for src in src_ips_in_bucket:
                 for dst in dst_ips_in_bucket:

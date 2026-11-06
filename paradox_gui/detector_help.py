@@ -61,6 +61,15 @@ DETECTOR_HELP: dict[str, str] = {
     "command_injection":
         "Паттерны RCE в HTTP (system(), os.execute, |nc). "
         "Попытка выполнения команд на сервере.",
+    "http_binary_upload":
+        "Серия POST'ов с бинарным телом (application/octet-stream, "
+        "gzip, зашифрованный блоб) на внешний хост. Типовой канал "
+        "RAT/stealer'а: выгрузка данных по случайным URI.",
+    "php_payload":
+        "PHP-исходник в HTTP: ответ начинается с '<?php' "
+        "(php_download — скачанный веб-шелл/дроппер) или POST "
+        "содержит '<?php' (webshell_upload — заливка шелла). "
+        "По телу, а не по расширению: /index.php — это норма.",
     "ssh_brute_force":
         "Много SSH-сессий к одному серверу с уникальных src-портов. Подбор "
         "учётных данных SSH: сервер видит серию неудачных аутентификаций с одного "

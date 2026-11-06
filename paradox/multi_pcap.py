@@ -27,6 +27,13 @@ def merge_capture_states(
     merged.first_ts = None
     merged.last_ts = None
 
+    # Экстрактор NDP создаёт эти поля динамически, в CaptureState
+    # их нет — без явной инициализации merge их терял, и отчёт
+    # multi-pcap всегда показывал пустой NDP.
+    merged.ndp_total = 0
+    merged.ndp_neighbors: dict[str, str] = {}
+    merged.ndp_routers: set[str] = set()
+
     for st in states:
         # --- мета ---
         merged.packet_count += st.packet_count
@@ -171,5 +178,10 @@ def merge_capture_states(
             merged.smtp_rcpt_by_src.setdefault(ip, set()).update(addrs)
         for ip, mailers in st.smtp_mailer_by_src.items():
             merged.smtp_mailer_by_src.setdefault(ip, set()).update(mailers)
+
+        # --- NDP (динамические поля из NDPExtractor) ---
+        merged.ndp_total += getattr(st, "ndp_total", 0)
+        merged.ndp_neighbors.update(getattr(st, "ndp_neighbors", {}))
+        merged.ndp_routers.update(getattr(st, "ndp_routers", set()))
 
     return merged

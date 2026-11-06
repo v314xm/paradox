@@ -2,7 +2,7 @@ import math
 from collections import Counter
 
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
+from paradox.models import CaptureState, Finding, dns_sources_by_name
 
 
 def shannon_entropy(s: str) -> float:
@@ -18,6 +18,7 @@ class DGADetector:
 
     def run(self, state: CaptureState, config: Config) -> list[Finding]:
         findings: list[Finding] = []
+        srcs_by_name = dns_sources_by_name(state)
 
         for name, count in state.dns_queries.items():
             if self._is_allowlisted(name, config):
@@ -47,18 +48,28 @@ class DGADetector:
             first_seen = min(ts_list) if ts_list else None
             last_seen = max(ts_list) if ts_list else None
 
-            findings.append(Finding(
-                type="dga_domain",
-                value=name,
-                confidence=round(confidence, 3),
-                evidence={
-                    "label": label,
-                    "entropy": round(entropy, 3),
-                    "queries": count,
-                },
-                first_seen=first_seen,
-                last_seen=last_seen,
-            ))
+            # Атрибуция к клиенту: без src_ip finding не попадает
+            # в entities. Одно имя могут спрашивать несколько хостов,
+            # поэтому finding на пару (src_ip, domain).
+            for src_ip in sorted(srcs_by_name.get(name, [])) or [None]:
+                src_queries = (
+                    state.dns_queries_by_src[src_ip][name]
+                    if src_ip else count
+                )
+                findings.append(Finding(
+                    type="dga_domain",
+                    value=name,
+                    confidence=round(confidence, 3),
+                    src_ip=src_ip,
+                    evidence={
+                        "src_ip": src_ip,
+                        "label": label,
+                        "entropy": round(entropy, 3),
+                        "queries": src_queries,
+                    },
+                    first_seen=first_seen,
+                    last_seen=last_seen,
+                ))
 
         return findings
 

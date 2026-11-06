@@ -26,6 +26,7 @@ profile.out
 # ---------- IDE ----------
 .idea/
 .vscode/
+.qwen/
 *.iml
 *.swp
 *.swo

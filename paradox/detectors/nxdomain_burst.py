@@ -1,3 +1,5 @@
+from bisect import bisect_left, bisect_right
+
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 
@@ -12,15 +14,32 @@ def _max_in_window(ts_sorted: list[float], window_sec: int) -> int:
     O(n), два указателя: расширяем right, сдвигаем left, пока
     разница ts[right] - ts[left] не влезет в окно.
     """
+    return _best_window(ts_sorted, window_sec)[1]
+
+
+def _best_window(ts_sorted: list[float], window_sec: int) -> tuple[float, int]:
+    """Начало и размер самого плотного окна (тот же two-pointer)."""
     if not ts_sorted:
-        return 0
+        return 0.0, 0
     left = 0
+    best_start = ts_sorted[0]
     best = 1
     for right in range(len(ts_sorted)):
         while ts_sorted[right] - ts_sorted[left] > window_sec:
             left += 1
-        best = max(best, right - left + 1)
-    return best
+        if right - left + 1 > best:
+            best = right - left + 1
+            best_start = ts_sorted[left]
+    return best_start, best
+
+
+def _count_in_window(
+    ts_sorted: list[float], start: float, window_sec: int,
+) -> int:
+    """Сколько точек попадает в [start, start + window_sec]."""
+    return bisect_right(ts_sorted, start + window_sec) - bisect_left(
+        ts_sorted, start,
+    )
 
 
 class NXDOMAINBurstDetector:
@@ -53,10 +72,11 @@ class NXDOMAINBurstDetector:
             ts_list = state.dns_nxdomain_ts_by_src.get(src_ip)
             if ts_list:
                 ts_sorted = sorted(ts_list)
-                max_win = _max_in_window(ts_sorted, window)
+                burst_start, max_win = _best_window(ts_sorted, window)
                 windowed = True
                 signal = max_win
             else:
+                burst_start = None
                 max_win = total
                 windowed = False
                 signal = total
@@ -73,9 +93,14 @@ class NXDOMAINBurstDetector:
             total_dns = sum(all_q.values()) if all_q else signal
 
             query_ts = state.dns_query_ts_by_src.get(src_ip) or []
-            dns_in_window: int | None = (
-                _max_in_window(sorted(query_ts), window) if query_ts else None
-            )
+            dns_in_window: int | None = None
+            if query_ts and windowed and burst_start is not None:
+                # Окно всплеска NXDOMAIN, а не самое шумное окно
+                # запросов: иначе шумный браузерный час в другом
+                # месте захвата глушит реальный всплеск.
+                dns_in_window = _count_in_window(
+                    sorted(query_ts), burst_start, window,
+                )
 
             if dns_in_window is not None and windowed:
                 ratio = signal / dns_in_window if dns_in_window > 0 else 1.0

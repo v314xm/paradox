@@ -88,3 +88,13 @@ def test_different_clients_isolated():
     ]
     rule = Ja3UaMismatchRule()
     assert rule.find_contradictions(facts) == []
+
+
+# 6. Браузерный JA3 из конфига классифицируется как браузер
+def test_browser_ja3_from_config_is_classified():
+    from paradox.config import Config
+    from paradox.contradictions.facts import _classify_ja3
+
+    cfg = Config(ja3_known_tools={"deadbeef": "Chrome 120 (Windows)"})
+
+    assert _classify_ja3("deadbeef", cfg) == "chrome"

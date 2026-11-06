@@ -1,5 +1,5 @@
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
+from paradox.models import CaptureState, Finding, dns_sources_by_name
 
 
 class CloudTunnelDetector:
@@ -16,10 +16,7 @@ class CloudTunnelDetector:
         # entities, ни в victim_of — роль victim_candidate не
         # выставляется. Одно имя могут запрашивать несколько хостов,
         # поэтому finding на пару (src_ip, domain).
-        srcs_by_name: dict[str, list[str]] = {}
-        for src_ip, bucket in state.dns_queries_by_src.items():
-            for name in bucket:
-                srcs_by_name.setdefault(name, []).append(src_ip)
+        srcs_by_name = dns_sources_by_name(state)
 
         for name, count in state.dns_queries.items():
             match = self._match_tunnel(name, config)

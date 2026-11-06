@@ -21,7 +21,7 @@ v0.9.0: двухуровневые TLD (co.uk, com.au, co.jp, ...) поддер�
 Suffix List не тянем — только реальные кейсы.
 """
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
+from paradox.models import CaptureState, Finding, dns_sources_by_name
 
 
 def levenshtein(a: str, b: str) -> int:
@@ -100,6 +100,7 @@ class TyposquattingDetector:
         lev_threshold = config.typosquatting_levenshtein_threshold
 
         findings: list[Finding] = []
+        srcs_by_name = dns_sources_by_name(state)
         for qname, count in state.dns_queries.items():
             domain = qname.lower().strip(".")
             if not domain:
@@ -128,19 +129,29 @@ class TyposquattingDetector:
             ts_list = state.dns_query_ts_by_name.get(domain)
             first_seen = min(ts_list) if ts_list else None
             last_seen = max(ts_list) if ts_list else None
-            findings.append(Finding(
-                type="typosquatting",
-                value=domain,
-                confidence=confidence,
-                evidence={
-                    "brand": brand,
-                    "kind": kind,
-                    "label": sld,
-                    "queries": count,
-                },
-                first_seen=first_seen,
-                last_seen=last_seen,
-            ))
+            # Атрибуция к клиенту: без src_ip finding не попадает
+            # в entities. Одно имя могут спрашивать несколько хостов,
+            # поэтому finding на пару (src_ip, domain).
+            for src_ip in sorted(srcs_by_name.get(domain, [])) or [None]:
+                src_queries = (
+                    state.dns_queries_by_src[src_ip][domain]
+                    if src_ip else count
+                )
+                findings.append(Finding(
+                    type="typosquatting",
+                    value=domain,
+                    confidence=confidence,
+                    src_ip=src_ip,
+                    evidence={
+                        "src_ip": src_ip,
+                        "brand": brand,
+                        "kind": kind,
+                        "label": sld,
+                        "queries": src_queries,
+                    },
+                    first_seen=first_seen,
+                    last_seen=last_seen,
+                ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))
         return findings

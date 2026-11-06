@@ -605,6 +605,20 @@ def render_markdown(report: dict) -> str:
         lines.append(f"- **Uploaded (internal → external):** {_fmt_bytes(uploaded)}")
         lines.append(f"- **Downloaded (external → internal):** {_fmt_bytes(downloaded)}")
 
+    protocols = summary.get("protocols") or {}
+    by_l4 = protocols.get("by_l4") or {}
+    by_l7 = protocols.get("by_l7") or {}
+    if by_l4:
+        lines.append(
+            "- **L4 (flows):** "
+            + ", ".join(f"{k}: {v}" for k, v in by_l4.items())
+        )
+    if by_l7:
+        lines.append(
+            "- **L7 (flows):** "
+            + ", ".join(f"{k}: {v}" for k, v in by_l7.items())
+        )
+
     extractor_errors = summary.get("extractor_errors") or {}
     if extractor_errors:
         lines.append(f"- **Ошибки экстракторов:** `{extractor_errors}`")

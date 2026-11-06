@@ -30,6 +30,20 @@ class TlsCertificateExtractor:
         """
         _ = config  # пока не используется, но сигнатура на будущее
 
+        # Один и тот же сертификат приходит с каждым новым соединением
+        # клиента к серверу. Без дедупликации 300 сессий дают 300
+        # одинаковых tls_cert фактов и столько же contradictions.
+        def _cert_key(key: FlowKey, cert) -> tuple:
+            return (
+                key.src_ip, key.dst_ip, key.dst_port,
+                getattr(cert, "subject_cn", None),
+                getattr(cert, "issuer_cn", None),
+                getattr(cert, "not_before", None),
+                getattr(cert, "not_after", None),
+            )
+
+        seen = {_cert_key(k, c) for k, c in state.tls_certs}
+
         for key, flow in state.flows.items():
             if not flow.sni:
                 continue
@@ -48,5 +62,10 @@ class TlsCertificateExtractor:
             cert = parse_certificate_from_stream(stream)
             if cert is None:
                 continue
+
+            dedup_key = _cert_key(key, cert)
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
 
             state.tls_certs.append((key, cert))

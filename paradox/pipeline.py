@@ -17,12 +17,14 @@ from paradox.detectors.command_injection import CommandInjectionDetector
 from paradox.detectors.dga import DGADetector
 from paradox.detectors.dns_tunneling import DNSTunnelingDetector
 from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
+from paradox.detectors.http_binary_upload import HttpBinaryUploadDetector
 from paradox.detectors.ip_check_service import IPCheckServiceDetector
 from paradox.detectors.ja3_malware import JA3MalwareDetector
 from paradox.detectors.ja3s_malware import JA3SMalwareDetector
 from paradox.detectors.large_transfer import LargeTransferDetector
 from paradox.detectors.lateral_movement import LateralMovementDetector
 from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
+from paradox.detectors.php_payload import PhpPayloadDetector
 from paradox.detectors.port_scan import PortScanDetector
 from paradox.detectors.smtp_spam import SMTP_SpamDetector
 from paradox.detectors.sni_mismatch import SNIMismatchDetector
@@ -102,6 +104,8 @@ DETECTORS = [
     LargeTransferDetector(),
     VulnerablePathDetector(),
     CommandInjectionDetector(),
+    HttpBinaryUploadDetector(),
+    PhpPayloadDetector(),
     YARADetector(),
 ]
 
@@ -227,6 +231,13 @@ def _extract(
     except Exception:
         state.extractor_errors["tls_cert"] += 1
 
+    # SNI/JA3 из склеенных потоков: ClientHello больше одного сегмента
+    # потоковый экстрактор целиком не видит.
+    try:
+        TLSExtractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["tls"] += 1
+
     # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
     if config.file_carve_enabled:
         try:
@@ -318,6 +329,54 @@ def _summarize_direction(state: CaptureState, config: Config) -> dict:
         "external_bytes": external,
     }
 
+
+# Порт → прикладной протокол. Нужен только для summary-разреза;
+# для детекции протокол определяется экстракторами, а не портом.
+_L7_BY_PORT: dict[int, str] = {
+    53: "dns", 5353: "mdns", 5355: "llmnr",
+    80: "http", 8000: "http", 8080: "http", 3128: "http", 8888: "http",
+    443: "tls", 465: "tls", 636: "tls", 993: "tls", 995: "tls",
+    8443: "tls",
+    137: "nbns", 138: "netbios", 139: "smb", 445: "smb",
+    22: "ssh",
+    25: "smtp", 587: "smtp",
+    88: "kerberos",
+    123: "ntp",
+    389: "ldap",
+    67: "dhcp", 68: "dhcp",
+    1900: "ssdp",
+}
+
+
+def _classify_l7(key, flow) -> str:
+    """Прикладной протокол flow по фактам экстракторов, затем по порту."""
+    if key.proto in ("icmp", "icmpv6"):
+        return "icmp"
+    if flow.sni or flow.ja3 or flow.ja3s:
+        return "tls"
+    if flow.http_host or flow.http_uri or flow.http_method:
+        return "http"
+    for port in (key.dst_port, key.src_port):
+        if port in _L7_BY_PORT:
+            return _L7_BY_PORT[port]
+    return "other"
+
+
+def _summarize_protocols(state: CaptureState, config: Config) -> dict:
+    """Разрез по L4/L7 в количестве flows; для summary отчёта."""
+    from collections import Counter
+
+    l4: Counter = Counter()
+    l7: Counter = Counter()
+    for key, flow in state.flows.items():
+        l4[key.proto] += 1
+        l7[_classify_l7(key, flow)] += 1
+
+    return {
+        "by_l4": dict(sorted(l4.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "by_l7": dict(sorted(l7.items(), key=lambda kv: (-kv[1], kv[0]))),
+    }
+
 def _summarize_mitre(findings) -> dict:
     from collections import Counter
     counter = Counter()
@@ -393,6 +452,7 @@ def _build_report(
             "stats": {"nodes_total": 0, "edges_total": 0, "paths_total": 0},
         }
     direction_summary = _summarize_direction(state, config)
+    protocol_summary = _summarize_protocols(state, config)
 
     # v0.9.0: экспорт IOC для EDR/SIEM.
     ioc_files: dict = {}
@@ -406,7 +466,7 @@ def _build_report(
                 "findings": [f.to_dict() for f in findings],
                 "carved_files": carved_report,
                 "absence": absence_report,
-            })
+            }, config)
             ioc_files = {
                 k: str(v) for k, v in
                 write_ioc_files(ioc_report, config.output_dir).items()
@@ -436,6 +496,7 @@ def _build_report(
             "http_objects": len(state.http_objects),
             "carved_files": len(state.carved_files),
             **direction_summary,
+            "protocols": protocol_summary,
         },
         "entities": {
             "internal": [e.to_dict() for e in entities.internal],

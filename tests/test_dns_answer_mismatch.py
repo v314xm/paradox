@@ -1,5 +1,6 @@
 """Тесты правила dns_answer_mismatch."""
 from paradox.contradictions.base import Fact
+from paradox.contradictions.facts import _collect_ips_for
 from paradox.contradictions.rules.h_dns_answer_mismatch import (
     DnsAnswerMismatchRule,
 )
@@ -82,3 +83,17 @@ def test_different_clients_isolated():
     res = rule.find_contradictions(facts)
     assert len(res) == 1
     assert res[0].subject == "192.168.1.5"
+
+
+def test_cname_target_without_a_answer_is_not_an_ip():
+    """cdn.foo.com — домен, а не resolved IP: иначе ложный mismatch."""
+    dns = {"www.foo.com": {"cdn.foo.com"}}
+    assert _collect_ips_for("www.foo.com", dns) == set()
+
+
+def test_cname_chain_returns_terminal_ip():
+    dns = {
+        "www.foo.com": {"cdn.foo.com"},
+        "cdn.foo.com": {"1.2.3.4"},
+    }
+    assert _collect_ips_for("www.foo.com", dns) == {"1.2.3.4"}

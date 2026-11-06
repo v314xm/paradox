@@ -46,6 +46,7 @@ class HttpObject:
     body: bytes = b""
     body_size: int = 0             # реальный размер из заголовка (или len(body))
     truncated: bool = False        # body обрезано лимитом
+    consumed: int = 0              # сколько байт потока занимает сообщение
 
 
 def parse_http_request(
@@ -93,6 +94,7 @@ def parse_http_request(
         body=body[0],
         body_size=body[1],
         truncated=body[2],
+        consumed=head_end + 4 + body[3],
     )
 
 
@@ -140,6 +142,60 @@ def parse_http_response(
         body=body[0],
         body_size=body[1],
         truncated=body[2],
+        consumed=head_end + 4 + body[3],
+    )
+
+
+# ---------- keep-alive / pipelining ----------
+
+DEFAULT_MAX_MESSAGES_PER_STREAM = 200
+
+
+def _iter_messages(
+    stream: bytes,
+    parse,
+    body_limit: int,
+    max_messages: int,
+):
+    """Идти по потоку, пока парсер возвращает сообщения."""
+    offset = 0
+    for _ in range(max_messages):
+        if offset >= len(stream):
+            return
+        obj = parse(stream[offset:], body_limit)
+        if obj is None:
+            return
+        yield obj
+        if obj.consumed <= 0:
+            return
+        offset += obj.consumed
+
+
+def iter_http_requests(
+    stream: bytes,
+    body_limit: int = DEFAULT_BODY_LIMIT,
+    max_messages: int = DEFAULT_MAX_MESSAGES_PER_STREAM,
+):
+    """
+    Все HTTP-запросы в потоке, включая keep-alive и pipelining.
+
+    Один TCP-поток может содержать несколько запросов подряд —
+    раньше парсился только первый. Лимит max_messages защищает
+    от патологических потоков.
+    """
+    return _iter_messages(
+        stream, parse_http_request, body_limit, max_messages,
+    )
+
+
+def iter_http_responses(
+    stream: bytes,
+    body_limit: int = DEFAULT_BODY_LIMIT,
+    max_messages: int = DEFAULT_MAX_MESSAGES_PER_STREAM,
+):
+    """Все HTTP-ответы в потоке (keep-alive, pipelining)."""
+    return _iter_messages(
+        stream, parse_http_response, body_limit, max_messages,
     )
 
 
@@ -162,51 +218,59 @@ def _read_body(
     body_start: int,
     headers: dict[str, str],
     body_limit: int,
-) -> tuple[bytes, int, bool]:
+) -> tuple[bytes, int, bool, int]:
     """
     Прочитать body из stream начиная с body_start.
 
-    Возвращает (body, real_size, truncated):
+    Возвращает (body, real_size, truncated, wire_len):
       - real_size — размер из заголовка (или len(body) если неизвестен)
       - truncated — True если body не влезло в body_limit
+      - wire_len  — сколько байт потока занимает body (даже если body
+                    вернулось обрезанным). Нужно, чтобы найти начало
+                    следующего сообщения в keep-alive-соединении.
     """
     te = headers.get("transfer-encoding", "").lower()
     if "chunked" in te:
-        return _read_chunked(stream, body_start, body_limit)
+        body, size, truncated, end = _read_chunked(
+            stream, body_start, body_limit,
+        )
+        return body, size, truncated, max(0, end - body_start)
 
     cl = headers.get("content-length")
     if cl is None:
         # Без Content-Length и без chunked — body отсутствует
         # (для запросов это норма, для ответов = соединение закроется)
-        return b"", 0, False
+        return b"", 0, False, 0
 
     try:
         expected = int(cl)
     except ValueError:
-        return b"", 0, False
+        return b"", 0, False, 0
 
     available = stream[body_start:]
 
     if len(available) >= expected:
         # Всё body в потоке
         if expected > body_limit:
-            return available[:body_limit], expected, True
-        return available[:expected], expected, False
+            return available[:body_limit], expected, True, expected
+        return available[:expected], expected, False, expected
     else:
         # Body пришло частично (обрыв, FIN, или лимит сработал)
         take = min(len(available), body_limit)
-        return available[:take], expected, True
+        return available[:take], expected, True, len(available)
 
 
 def _read_chunked(
     stream: bytes,
     body_start: int,
     body_limit: int,
-) -> tuple[bytes, int, bool]:
+) -> tuple[bytes, int, bool, int]:
     """
     Разобрать chunked-encoded body. Возвращает распакованное тело.
 
     Формат: <size_hex>\r\n<data>\r\n<size_hex>\r\n<data>...0\r\n\r\n
+
+    Четвёртый элемент — абсолютная позиция конца сообщения в stream.
     """
     pos = body_start
     out = bytearray()
@@ -229,15 +293,21 @@ def _read_chunked(
         pos = eol + 2
 
         if size == 0:
-            # Последний чанк
-            break
+            # Последний чанк: после "0\r\n" идут либо "\r\n", либо trailer'ы
+            after = pos
+            if stream[after:after + 2] == b"\r\n":
+                after += 2
+            else:
+                end = stream.find(b"\r\n\r\n", after)
+                after = end + 4 if end >= 0 else after + 2
+            return bytes(out[:body_limit]), total_size, truncated, after
 
         if pos + size > len(stream):
             # Чанк обрезан
             out.extend(stream[pos:])
             total_size += len(stream[pos:])
             truncated = True
-            break
+            return bytes(out[:body_limit]), total_size, truncated, len(stream)
 
         out.extend(stream[pos:pos + size])
         total_size += size
@@ -249,6 +319,6 @@ def _read_chunked(
 
         if len(out) >= body_limit:
             truncated = True
-            break
+            return bytes(out[:body_limit]), total_size, truncated, len(stream)
 
-    return bytes(out[:body_limit]), total_size, truncated
+    return bytes(out[:body_limit]), total_size, truncated, pos

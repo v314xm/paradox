@@ -754,10 +754,14 @@ class MainWindow(QMainWindow):
             lines = []
             for r in rows:
                 if isinstance(r, dict):
-                    lines.append("\t".join(str(r.get(k, "")) for k in (
-                        "first_seen", "proto",
-                        "src_ip", "src_port", "dst_ip", "dst_port",
-                        "bytes",
+                    # flow_report отдаёт first_ts/last_ts; first_seen —
+                    # fallback для отчётов старого формата.
+                    ts = r.get("first_ts", r.get("first_seen", ""))
+                    lines.append("\t".join(str(v) for v in (
+                        ts, r.get("proto", ""),
+                        r.get("src_ip", ""), r.get("src_port", ""),
+                        r.get("dst_ip", ""), r.get("dst_port", ""),
+                        r.get("bytes", ""),
                     )))
             Path(path).write_text("\n".join(lines), encoding="utf-8")
             self._status_text.setText(tr("status.saved", path=path))
@@ -779,6 +783,47 @@ class MainWindow(QMainWindow):
             self.showNormal()
         else:
             self.showFullScreen()
+
+    def closeEvent(self, event) -> None:
+        """Не дать QThread умереть вместе с окном.
+
+        Закрытие во время анализа уничтожает AnalysisWorker, пока
+        run() внутри парсера — Qt аварийно завершает процесс без
+        traceback. Тот же риск у EnrichmentWorker.
+        """
+        busy = self.run_view.is_busy() or self.enrich_view.is_busy()
+        if busy:
+            answer = QMessageBox.question(
+                self,
+                "Идёт работа",
+                "Анализ или обогащение ещё выполняется. "
+                "Остановить и закрыть?",
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                event.ignore()
+                return
+
+            if self.run_view.is_busy():
+                self.run_view.stop_analysis()
+
+            # Ждём оба потока: Qt уничтожает QThread при закрытии
+            # окна, а живой поток роняет процесс.
+            stopped = self.run_view.wait_for_finish(10000)
+            stopped = self.enrich_view.wait_for_finish(10000) and stopped
+            if not stopped:
+                QMessageBox.warning(
+                    self,
+                    "Не удалось остановить",
+                    "Поток ещё работает. Дождитесь завершения "
+                    "и закройте окно снова.",
+                )
+                event.ignore()
+                return
+
+        super().closeEvent(event)
 
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Escape:

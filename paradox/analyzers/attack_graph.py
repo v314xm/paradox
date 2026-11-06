@@ -39,6 +39,9 @@ _PHASE_OF_TYPE = {
     "sni_mismatch": "c2", "suspicious_port": "c2", "nxdomain_burst": "c2",
     "lateral_movement": "lateral_movement",
     "large_transfer": "exfiltration",
+    "http_binary_upload": "exfiltration",
+    "php_download": "execution",
+    "webshell_upload": "execution",
     "smtp_spam": "impact",
 }
 

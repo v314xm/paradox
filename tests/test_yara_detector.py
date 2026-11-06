@@ -133,6 +133,9 @@ def test_yara_real_scan_saved_path(tmp_path):
     assert findings[0].value == "MalwareSignature"
     assert findings[0].severity == "high"
     assert findings[0].evidence["rule"] == "MalwareSignature"
+    # cf.src_ip — сервер, отдавший payload; dst — клиент.
+    assert findings[0].src_ip == "10.0.0.5"
+    assert findings[0].dst_ip == "10.0.0.1"
 
 
 @pytest.mark.skipif(not HAS_YARA, reason="yara-python not installed")

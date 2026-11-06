@@ -49,8 +49,10 @@ class SNIMismatchDetector:
             | config.beaconing_allowlist_suffixes
         )
 
-        # SNI → агрегат
-        agg: dict[str, dict] = defaultdict(lambda: {
+        # (src_ip, SNI) → агрегат. Агрегация по клиенту, а не только
+        # по SNI: иначе finding висел на внешнем узле без инициатора
+        # и не попадал в entities / victim_of / attack graph.
+        agg: dict[tuple[str, str], dict] = defaultdict(lambda: {
             "flow_count": 0,
             "dst_ips": set(),
             "dst_ports": set(),
@@ -68,7 +70,7 @@ class SNIMismatchDetector:
             if self._in_allowlist(sni, allowlist):
                 continue
 
-            bucket = agg[sni]
+            bucket = agg[(key.src_ip, sni)]
             bucket["flow_count"] += 1
             bucket["dst_ips"].add(key.dst_ip)
             if key.dst_port is not None:
@@ -83,7 +85,7 @@ class SNIMismatchDetector:
                     bucket["last_seen"] = flow.last_ts
 
         findings: list[Finding] = []
-        for sni, bucket in agg.items():
+        for (src_ip, sni), bucket in agg.items():
             if bucket["flow_count"] < config.sni_mismatch_min_flows:
                 continue
 
@@ -91,8 +93,10 @@ class SNIMismatchDetector:
                 type="sni_without_dns",
                 value=sni,
                 confidence=0.6,
+                src_ip=src_ip,
                 evidence={
                     "sni": sni,
+                    "src_ip": src_ip,
                     "flow_count": bucket["flow_count"],
                     "dst_ips": sorted(bucket["dst_ips"]),
                     "dst_ports": sorted(bucket["dst_ports"]),
@@ -102,7 +106,7 @@ class SNIMismatchDetector:
                 last_seen=bucket["last_seen"],
             ))
 
-        findings.sort(key=lambda f: f.value)
+        findings.sort(key=lambda f: (f.value, f.src_ip or ""))
         return findings
 
     def _in_allowlist(self, sni: str, allowlist: set[str]) -> bool:

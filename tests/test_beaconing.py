@@ -477,3 +477,53 @@ def test_beaconing_empty_state():
     """Пустой CaptureState — не падает."""
     findings = BeaconingDetector().run(CaptureState(), Config())
     assert findings == []
+
+
+# ---------------------------------------------------------------------
+# slow beacon (sleep > часа)
+# ---------------------------------------------------------------------
+
+def test_beaconing_detects_slow_beacon():
+    """
+    5 соединений с интервалом 1 час. Fast-путь требует 20
+    соединений и здесь бессилен, slow-путь должен поймать.
+    """
+    flows = _regular_flows(n=5, interval=3600.0, byts=300)
+    findings = BeaconingDetector().run(_beacon_state(flows), Config())
+
+    assert len(findings) == 1
+    f = findings[0]
+    assert f.evidence["mode"] == "slow"
+    assert f.evidence["count"] == 5
+    assert f.evidence["duration_sec"] >= 3600
+    assert 0.55 <= f.confidence <= 0.7
+
+
+def test_beaconing_slow_requires_regular_intervals():
+    """Нерегулярные редкие соединения — не beacon даже на длинном окне."""
+    flows = _regular_flows(n=5, interval=3600.0, jitter_offset=1000.0)
+    findings = BeaconingDetector().run(_beacon_state(flows), Config())
+    assert findings == []
+
+
+def test_beaconing_slow_requires_long_duration():
+    """3 редких соединения за 20 минут — окно слишком короткое."""
+    flows = _regular_flows(n=3, interval=600.0)
+    findings = BeaconingDetector().run(_beacon_state(flows), Config())
+    assert findings == []
+
+
+def test_beaconing_slow_respects_allowlist():
+    """Slow-путь тоже уважает SNI allowlist (CDN/analytics)."""
+    flows = _regular_flows(n=5, interval=3600.0, byts=300)
+    state = _beacon_state(flows, sni="www.google-analytics.com")
+    findings = BeaconingDetector().run(state, Config())
+    assert findings == []
+
+
+def test_beaconing_fast_mode_preferred_for_dense_beacon():
+    """Плотный beacon идёт по fast-пути, mode=fast."""
+    flows = _regular_flows(n=25, interval=60.0)
+    findings = BeaconingDetector().run(_beacon_state(flows), Config())
+    assert len(findings) == 1
+    assert findings[0].evidence["mode"] == "fast"

@@ -590,6 +590,18 @@ class RunView(QWidget):
         """True — идёт анализ. Нужно MainWindow для Esc-хендлера."""
         return bool(self._worker and self._worker.isRunning())
 
+    def wait_for_finish(self, timeout_ms: int = 10000) -> bool:
+        """Дождаться завершения воркера при закрытии окна.
+
+        True — поток остановлен (или его нет). False — не успел за
+        timeout_ms; тогда окно закрывать нельзя, иначе QThread умрёт
+        вместе с процессом.
+        """
+        w = self._worker
+        if w is None:
+            return True
+        return w.wait(timeout_ms)
+
     # =========================================================================
     # API ДЛЯ МЕНЮ
     # =========================================================================

@@ -76,3 +76,36 @@ class TLSExtractor:
 
         # Ни ClientHello, ни ServerHello — просто TLS handshake
         # (Certificate, Finished, Alert, ...). Игнорируем.
+
+    def run_post_extract(
+        self, state: CaptureState, config,
+    ) -> None:
+        """Добрать SNI/JA3 из склеенных TCP-потоков.
+
+        ClientHello современного Chrome (post-quantum key share,
+        длинный список расширений) не влезает в один сегмент.
+        Потоковый process() видит только первый сегмент и теряет
+        SNI, а с ним sni_mismatch, sni_without_dns, ja3_malware и
+        sni_domains у сущностей. В tcp_streams лежит весь поток —
+        парсим его, если поля ещё пустые.
+        """
+        _ = config
+        for key, stream in state.tcp_streams.items():
+            flow = state.flows.get(key)
+            if flow is None:
+                continue
+            if flow.sni is not None and flow.ja3 is not None:
+                continue
+
+            client = parse_client_hello(stream)
+            if client is None:
+                continue
+
+            if client.get("sni") and flow.sni is None:
+                flow.sni = client["sni"]
+                sk = make_session_key(key)
+                if sk not in state.session_sni:
+                    state.session_sni[sk] = client["sni"]
+
+            if client.get("ja3") and flow.ja3 is None:
+                flow.ja3 = client["ja3"]

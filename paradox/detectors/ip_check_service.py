@@ -15,7 +15,7 @@ IPCheckServiceDetector — обращения к сервисам проверк
 с sources={dns, sni, direct_ip}. Это делает результат стабильным.
 """
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
+from paradox.models import CaptureState, Finding, dns_sources_by_name
 
 
 class IPCheckServiceDetector:
@@ -25,13 +25,14 @@ class IPCheckServiceDetector:
         services = config.ip_check_services
         service_ips = config.ip_check_service_ips
 
-        # value (имя сервиса) -> {sources: set, extra: dict, first, last}
-        hits: dict[str, dict] = {}
+        # (value, src_ip) -> {sources: set, extra: dict, first, last}
+        hits: dict[tuple[str, str | None], dict] = {}
 
-        def _touch(value: str, source: str, extra: dict | None = None,
+        def _touch(value: str, src_ip: str | None, source: str,
+                   extra: dict | None = None,
                    first_ts: float | None = None,
                    last_ts: float | None = None) -> None:
-            h = hits.setdefault(value, {
+            h = hits.setdefault((value, src_ip), {
                 "sources": set(), "extra": {},
                 "first": None, "last": None,
             })
@@ -46,10 +47,18 @@ class IPCheckServiceDetector:
                     h["last"] = last_ts
 
         # 1. DNS
+        srcs_by_name = dns_sources_by_name(state)
         for qname, count in state.dns_queries.items():
             domain = qname.lower().strip(".")
             if domain in services:
-                _touch(domain, "dns", {"queries": count})
+                srcs = sorted(srcs_by_name.get(domain, []))
+                for src_ip in srcs or [None]:
+                    src_queries = (
+                        state.dns_queries_by_src[src_ip][domain]
+                        if src_ip else count
+                    )
+                    _touch(domain, src_ip, "dns",
+                           {"queries": src_queries})
 
         # 2. SNI / 3. HTTP Host / 4. direct IP
         for key, flow in state.flows.items():
@@ -57,7 +66,7 @@ class IPCheckServiceDetector:
                 sni = flow.sni.lower().strip(".")
                 if sni in services:
                     _touch(
-                        sni, "sni",
+                        sni, key.src_ip, "sni",
                         {"flow": f"{key.src_ip} -> {key.dst_ip}"},
                         first_ts=flow.first_ts,
                         last_ts=flow.last_ts,
@@ -67,7 +76,7 @@ class IPCheckServiceDetector:
                 host = flow.http_host.split(":", 1)[0].lower().strip(".")
                 if host in services:
                     _touch(
-                        host, "http_host",
+                        host, key.src_ip, "http_host",
                         {"flow": f"{key.src_ip} -> {key.dst_ip}"},
                         first_ts=flow.first_ts,
                         last_ts=flow.last_ts,
@@ -78,25 +87,27 @@ class IPCheckServiceDetector:
             service_name = service_ips.get(key.dst_ip)
             if service_name:
                 _touch(
-                    service_name, "direct_ip",
+                    service_name, key.src_ip, "direct_ip",
                     {"flow": f"{key.src_ip} -> {key.dst_ip}"},
                     first_ts=flow.first_ts,
                     last_ts=flow.last_ts,
                 )
 
         findings: list[Finding] = []
-        for value, h in hits.items():
+        for (value, src_ip), h in hits.items():
             findings.append(Finding(
                 type="ip_check_service",
                 value=value,
+                src_ip=src_ip,
                 confidence=0.7,
                 evidence={
                     "sources": sorted(h["sources"]),
+                    "src_ip": src_ip,
                     **h["extra"],
                 },
                 first_seen=h["first"],
                 last_seen=h["last"],
             ))
 
-        findings.sort(key=lambda f: f.value)
+        findings.sort(key=lambda f: (f.value, f.src_ip or ""))
         return findings

@@ -4,6 +4,8 @@
 Body читается из потока по Content-Length / chunked.
 """
 from paradox.http_object import (
+    iter_http_requests,
+    iter_http_responses,
     parse_http_request,
     parse_http_response,
 )
@@ -159,3 +161,83 @@ def test_chunked_request():
     assert obj is not None
     assert obj.method == "POST"
     assert obj.body == b"abcdefg"
+
+
+# ---------- keep-alive / pipelining ----------
+
+def test_consumed_covers_full_message():
+    body = b"a=1&b=2"
+    raw = (
+        b"POST /login HTTP/1.1\r\n"
+        b"Host: x\r\n"
+        b"Content-Length: " + str(len(body)).encode() + b"\r\n"
+        b"\r\n" + body
+    )
+    obj = parse_http_request(raw)
+    assert obj.consumed == len(raw)
+
+
+def test_iter_requests_keep_alive():
+    """Два запроса в одном соединении — оба разобраны."""
+    raw = (
+        b"GET /first HTTP/1.1\r\nHost: x\r\n\r\n"
+        b"GET /second HTTP/1.1\r\nHost: x\r\n\r\n"
+    )
+    objs = list(iter_http_requests(raw))
+    assert [o.uri for o in objs] == ["/first", "/second"]
+
+
+def test_iter_requests_with_bodies():
+    body = b"x" * 10
+    one = (
+        b"POST /a HTTP/1.1\r\nHost: x\r\n"
+        b"Content-Length: " + str(len(body)).encode() + b"\r\n\r\n" + body
+    )
+    two = (
+        b"POST /b HTTP/1.1\r\nHost: x\r\n"
+        b"Content-Length: 3\r\n\r\nxyz"
+    )
+    objs = list(iter_http_requests(one + two))
+    assert [o.uri for o in objs] == ["/a", "/b"]
+    assert objs[0].body == body
+    assert objs[1].body == b"xyz"
+
+
+def test_iter_requests_chunked_then_next():
+    raw = (
+        b"POST /a HTTP/1.1\r\nHost: x\r\nTransfer-Encoding: chunked\r\n"
+        b"\r\n4\r\nabcd\r\n0\r\n\r\n"
+        b"GET /b HTTP/1.1\r\nHost: x\r\n\r\n"
+    )
+    objs = list(iter_http_requests(raw))
+    assert [o.uri for o in objs] == ["/a", "/b"]
+    assert objs[0].body == b"abcd"
+
+
+def test_iter_responses_keep_alive():
+    raw = (
+        b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nok"
+        b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
+    )
+    objs = list(iter_http_responses(raw))
+    assert [o.status_code for o in objs] == [200, 404]
+
+
+def test_iter_requests_respects_max_messages():
+    raw = b"GET /x HTTP/1.1\r\nHost: x\r\n\r\n" * 10
+    objs = list(iter_http_requests(raw, max_messages=3))
+    assert len(objs) == 3
+
+
+def test_iter_stops_on_garbage_tail():
+    raw = (
+        b"GET /a HTTP/1.1\r\nHost: x\r\n\r\n"
+        b"\x00\x01\x02garbage"
+    )
+    objs = list(iter_http_requests(raw))
+    assert [o.uri for o in objs] == ["/a"]
+
+
+def test_iter_empty_stream():
+    assert list(iter_http_requests(b"")) == []
+    assert list(iter_http_responses(b"")) == []

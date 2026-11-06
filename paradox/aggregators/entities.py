@@ -403,19 +403,23 @@ def build_entities(
         has_victim = "victim_tag" in tags
 
         if ent.is_internal:
-            # 1. Приоритет: DC
-            if (ent.service_flows_in >= config.dc_min_service_flows
-                    and len(ent.service_unique_srcs) >= config.dc_min_unique_srcs):
+            is_dc = (
+                ent.service_flows_in >= config.dc_min_service_flows
+                and len(ent.service_unique_srcs) >= config.dc_min_unique_srcs
+            )
+            if is_dc:
                 ent.roles.append("domain_controller")
 
-            # 2. Victim > attacker: жертва — актив, который надо спасать.
+            # Victim > attacker: жертва — актив, который надо спасать.
             # Pivot (скомпрометированная жертва, атакующая дальше) —
             # тоже victim: у неё есть brute_force dst.
-            elif has_victim:
+            # DC не исключает victim: атакованный контроллер домена
+            # по-прежнему жертва, и роль DC раньше это скрывала.
+            if has_victim:
                 ent.roles.append("victim_candidate")
-            elif has_attacker:
+            elif not is_dc and has_attacker:
                 ent.roles.append("attacker_candidate")
-            elif has_findings:
+            elif not is_dc and has_findings:
                 ent.roles.append("victim_candidate")
 
             # 2b. pivot — метка поверх victim_candidate. Ставится,

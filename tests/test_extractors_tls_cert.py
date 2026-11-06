@@ -85,3 +85,48 @@ def test_tls_cert_extractor_parse_fails():
         TlsCertificateExtractor().run_post_extract(state, config=None)
 
     assert state.tls_certs == []
+
+
+class _FakeCert:
+    subject_cn = "example.com"
+    issuer_cn = "Example CA"
+    not_before = "2025-01-01T00:00:00"
+    not_after = "2026-01-01T00:00:00"
+
+
+def test_repeated_connections_keep_one_cert():
+    """10 сессий к одному серверу → один сертификат, не 10."""
+    state = CaptureState()
+    for sport in range(50000, 50010):
+        key = FlowKey("tcp", "10.0.0.5", "1.1.1.1", sport, 443)
+        state.flows[key] = _make_flow(sni="example.com")
+        state.tcp_streams[
+            FlowKey("tcp", "1.1.1.1", "10.0.0.5", 443, sport)
+        ] = b"TLS"
+
+    with patch(
+        "paradox.extractors.tls_cert.parse_certificate_from_stream",
+        return_value=_FakeCert(),
+    ):
+        TlsCertificateExtractor().run_post_extract(state, config=None)
+
+    assert len(state.tls_certs) == 1
+
+
+def test_two_clients_keep_two_certs():
+    """Разные клиенты — разные finding'и, дедуп по серверу их не съедает."""
+    state = CaptureState()
+    for src, sport in (("10.0.0.5", 50000), ("10.0.0.6", 50001)):
+        key = FlowKey("tcp", src, "1.1.1.1", sport, 443)
+        state.flows[key] = _make_flow(sni="example.com")
+        state.tcp_streams[
+            FlowKey("tcp", "1.1.1.1", src, 443, sport)
+        ] = b"TLS"
+
+    with patch(
+        "paradox.extractors.tls_cert.parse_certificate_from_stream",
+        return_value=_FakeCert(),
+    ):
+        TlsCertificateExtractor().run_post_extract(state, config=None)
+
+    assert len(state.tls_certs) == 2

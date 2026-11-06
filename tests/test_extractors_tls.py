@@ -155,3 +155,54 @@ def test_tls_extractor_skips_udp():
 
     # никаких падений, никаких flows
     assert len(state.flows) == 0
+
+
+# ---------- post-extract: ClientHello через несколько сегментов ----------
+
+def test_post_extract_recovers_sni_from_stream():
+    """Потоковый process() не увидел SNI (сегмент не с начала) —
+    post-extract берёт SNI из склеенного потока."""
+    from paradox.models import FlowStats
+
+    key = FlowKey(proto="tcp", src_ip="a", dst_ip="b",
+                  src_port=100, dst_port=443)
+    state = CaptureState()
+    state.flows[key] = FlowStats()
+    state.tcp_streams[key] = _build_client_hello("split.example.com")
+
+    TLSExtractor().run_post_extract(state, config=None)
+
+    assert state.flows[key].sni == "split.example.com"
+    assert state.flows[key].ja3 is not None
+    assert "split.example.com" in state.session_sni.values()
+
+
+def test_post_extract_keeps_existing_sni():
+    from paradox.models import FlowStats
+
+    key = FlowKey(proto="tcp", src_ip="a", dst_ip="b",
+                  src_port=100, dst_port=443)
+    flow = FlowStats()
+    flow.sni = "first.com"
+    state = CaptureState()
+    state.flows[key] = flow
+    state.tcp_streams[key] = _build_client_hello("second.com")
+
+    TLSExtractor().run_post_extract(state, config=None)
+
+    assert flow.sni == "first.com"
+
+
+def test_post_extract_ignores_server_stream():
+    """Серверный поток не ClientHello — пропускаем без ошибок."""
+    from paradox.models import FlowStats
+
+    key = FlowKey(proto="tcp", src_ip="b", dst_ip="a",
+                  src_port=443, dst_port=100)
+    state = CaptureState()
+    state.flows[key] = FlowStats()
+    state.tcp_streams[key] = b"\x16\x03\x03\x00\x10" + b"\x02" + b"\x00" * 16
+
+    TLSExtractor().run_post_extract(state, config=None)
+
+    assert state.flows[key].sni is None

@@ -8,10 +8,13 @@ per-packet. Вместо этого его метод run_post_extract() выз�
 
 Что делает:
 - Идёт по state.tcp_streams (два прохода).
-- Pass 1: собирает все HTTP-запросы, сохраняет URI по нормализованному
-  ключу пары (src↔dst).
-- Pass 2: собирает все HTTP-ответы. Если у response нет URI (что норма),
-  берёт URI из парного request.
+- Pass 1: собирает ВСЕ HTTP-запросы потока (keep-alive и
+  pipelining: в одном соединении их может быть несколько),
+  сохраняет URI по нормализованному ключу пары (src↔dst).
+- Pass 2: собирает все HTTP-ответы. URI для response берётся из
+  парного request по порядку сообщений в потоке.
+- Счётчик сообщений на поток ограничен
+  config.http_object_max_messages_per_stream.
 
 Зачем pairing: URI есть только в request. Response видит только
 "HTTP/1.1 200 OK ...". Чтобы FileCarve мог использовать URI для
@@ -30,8 +33,9 @@ server_ip:server_port), response имеет обратный. Приводим �
 from paradox.config import Config
 from paradox.http_object import (
     DEFAULT_BODY_LIMIT,
-    parse_http_request,
-    parse_http_response,
+    DEFAULT_MAX_MESSAGES_PER_STREAM,
+    iter_http_requests,
+    iter_http_responses,
 )
 from paradox.models import CaptureState
 
@@ -72,8 +76,15 @@ class HTTPObjectExtractor:
         body_limit = getattr(
             config, "http_object_body_limit", DEFAULT_BODY_LIMIT,
         )
+        max_messages = getattr(
+            config,
+            "http_object_max_messages_per_stream",
+            DEFAULT_MAX_MESSAGES_PER_STREAM,
+        )
 
         # Pass 1: requests. Собираем URI по нормализованному pair-key.
+        # В keep-alive-потоке запросов может быть несколько — храним
+        # их списком, чтобы ответы сматчить по порядку.
         requests_by_pair: dict = {}
         request_objects: list = []
         for key, stream in state.tcp_streams.items():
@@ -84,11 +95,15 @@ class HTTPObjectExtractor:
             # — там точно есть пробел в первых 16 байтах.
             if b" " not in head:
                 continue
-            obj = parse_http_request(stream, body_limit=body_limit)
-            if obj is not None:
-                request_objects.append((key, obj))
-                if obj.uri:
-                    requests_by_pair[_norm_pair(key)] = obj.uri
+            objs = list(iter_http_requests(
+                stream, body_limit=body_limit, max_messages=max_messages,
+            ))
+            if not objs:
+                continue
+            request_objects.extend((key, obj) for obj in objs)
+            uris = [obj.uri for obj in objs if obj.uri]
+            if uris:
+                requests_by_pair[_norm_pair(key)] = uris
 
         # Pass 2: responses. Пробрасываем URI из парного request.
         response_objects: list = []
@@ -98,10 +113,15 @@ class HTTPObjectExtractor:
             head = stream[:16]
             if not head.startswith(b"HTTP/"):
                 continue
-            obj = parse_http_response(stream, body_limit=body_limit)
-            if obj is not None:
-                if not obj.uri:
-                    obj.uri = requests_by_pair.get(_norm_pair(key))
+            objs = list(iter_http_responses(
+                stream, body_limit=body_limit, max_messages=max_messages,
+            ))
+            if not objs:
+                continue
+            uris = requests_by_pair.get(_norm_pair(key), [])
+            for index, obj in enumerate(objs):
+                if not obj.uri and index < len(uris):
+                    obj.uri = uris[index]
                 response_objects.append((key, obj))
 
         state.http_objects = request_objects + response_objects

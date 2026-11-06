@@ -70,12 +70,18 @@ class YARADetector:
                     type="yara_match",
                     value=rule_name,
                     confidence=0.9,
+                    # cf.src_ip — сервер, отдавший payload; cf.dst_ip —
+                    # клиент, который его скачал (flow ответа).
+                    src_ip=cf.src_ip,
+                    dst_ip=cf.dst_ip,
                     evidence={
                         "rule": m.rule,
                         "tags": list(m.tags),
                         "filename": cf.uri or cf.sha256[:12],
                         "sha256": cf.sha256,
                         "saved_path": cf.saved_path,
+                        "src_ip": cf.src_ip,
+                        "dst_ip": cf.dst_ip,
                     },
                     # Единственная метка времени payload'а; без неё
                     # timeline выбрасывает YARA-находку.

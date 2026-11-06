@@ -132,6 +132,50 @@ class Config:
     # >= этого числа hit'ов — один finding с count вместо N.
     # В CTF 2015-03-17 было 32 hit'а с одного src на один endpoint.
     command_injection_aggregate_min: int = 5
+    # Body без content-type сканируем, только если он похож на текст.
+    # gzip/бинарь даёт ложные совпадения на "$(" и "`" в сжатых байтах.
+    command_injection_min_printable_ratio: float = 0.85
+    # Распаковка gzip/deflate для поиска паттернов. Лимит защищает
+    # от zip-бомбы: больше этого объёма не распаковываем.
+    http_body_decompress: bool = True
+    http_body_max_decoded_bytes: int = 8 * 1024 * 1024
+
+    # --- binary HTTP upload (exfil / C2) ---
+    # Много POST'ов с бинарным телом на внешний хост — типовой канал
+    # RAT/stealer'а. Легитимные машины так делают редко, поэтому
+    # требуем серию, а не одиночный запрос.
+    http_binary_upload_min_posts: int = 3
+    http_binary_upload_min_body_bytes: int = 1024
+    # content-type, которые считаем текстом даже без charset.
+    # Используется и command_injection (не искать shell в бинаре),
+    # и http_binary_upload (не считать такой POST бинарным).
+    http_text_content_types: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "application/json",
+            "application/xml",
+            "application/soap+xml",
+            "application/x-www-form-urlencoded",
+            "multipart/form-data",
+            "application/javascript",
+            "application/graphql",
+        ),
+    )
+    # Разбор HTTP-объектов из склеенных потоков: лимит тела
+    # и максимум сообщений в одном keep-alive-соединении.
+    http_object_body_limit: int = 1 * 1024 * 1024
+    http_object_max_messages_per_stream: int = 200
+    # Хосты, которым бинарные POST'ы — норма (обновления, телеметрия).
+    http_binary_upload_allowlist_suffixes: frozenset[str] = field(
+        default_factory=frozenset,
+    )
+    # Бинарные content-type служебных протоколов: OCSP-запросы
+    # выглядят как exfil, но это проверка отзыва сертификата.
+    http_binary_upload_ignored_content_types: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "application/ocsp-request",
+            "application/x-ocsp-request",
+        ),
+    )
 
     # --- file carve ---
     # Метаданные payload'ов — всегда (безопасно, без записи на диск).
@@ -256,6 +300,15 @@ class Config:
     beaconing_max_flows_per_minute: float = 5.0
     beaconing_payload_stddev_ratio_max: float = 0.5
     beaconing_skip_internal_dst: bool = True
+
+    # Медленный beacon (sleep > часа): соединений мало, но горизонт
+    # длинный. Обычный путь требует 20 соединений — такой C2 за
+    # 20 часов в коротком захвате не наберёт. Второй, «slow», путь
+    # смотрит на регулярность при малом числе соединений.
+    beaconing_slow_min_connections: int = 3
+    beaconing_slow_min_duration_sec: int = 3600
+    beaconing_slow_max_jitter_ratio: float = 0.15
+    beaconing_slow_max_flows_per_minute: float = 0.2
 
     # POP3/IMAP. Клиент дёргает ящик по таймеру — design, не C2.
     beaconing_mail_polling_ports: frozenset[int] = field(
@@ -712,6 +765,34 @@ class Config:
         ):
             errors.append(
                 "beaconing_mail_polling_ports must be in range 1..65535"
+            )
+        if self.beaconing_slow_min_connections < 2:
+            errors.append("beaconing_slow_min_connections must be >= 2")
+        if self.beaconing_slow_min_duration_sec <= 0:
+            errors.append("beaconing_slow_min_duration_sec must be > 0")
+        if not (0.0 < self.beaconing_slow_max_jitter_ratio <= 1.0):
+            errors.append(
+                "beaconing_slow_max_jitter_ratio must be in (0, 1]"
+            )
+        if self.beaconing_slow_max_flows_per_minute <= 0:
+            errors.append(
+                "beaconing_slow_max_flows_per_minute must be > 0"
+            )
+        if self.http_binary_upload_min_posts <= 0:
+            errors.append("http_binary_upload_min_posts must be > 0")
+        if self.http_binary_upload_min_body_bytes <= 0:
+            errors.append("http_binary_upload_min_body_bytes must be > 0")
+        if not (0.0 < self.command_injection_min_printable_ratio <= 1.0):
+            errors.append(
+                "command_injection_min_printable_ratio must be in (0, 1]"
+            )
+        if self.http_body_max_decoded_bytes <= 0:
+            errors.append("http_body_max_decoded_bytes must be > 0")
+        if self.http_object_body_limit <= 0:
+            errors.append("http_object_body_limit must be > 0")
+        if self.http_object_max_messages_per_stream <= 0:
+            errors.append(
+                "http_object_max_messages_per_stream must be > 0"
             )
         if self.ftp_brute_force_min_flows <= 0:
             errors.append("ftp_brute_force_min_flows must be > 0")

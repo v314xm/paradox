@@ -173,3 +173,36 @@ def test_config_flag_default():
     from paradox.config import Config
     cfg = Config()
     assert cfg.ioc_export_enabled is True
+
+
+# ---------- внутренние адреса не попадают в IOC ----------
+
+def test_inbound_brute_force_exports_attacker_not_victim():
+    """dst входящей атаки — жертва; в IOC должен уйти src."""
+    ioc = build_ioc_report(_report_with_findings({
+        "type": "brute_force", "value": "10.0.0.50",
+        "src_ip": "203.0.113.9", "dst_ip": "10.0.0.50",
+        "severity": "high",
+    }))
+    assert [i["value"] for i in ioc["ips"]] == ["203.0.113.9"]
+    assert "10.0.0.50" not in render_suricata_rules(ioc)
+
+
+def test_internal_only_finding_is_not_an_ioc():
+    """lateral_movement внутри сети — не внешний индикатор."""
+    ioc = build_ioc_report(_report_with_findings({
+        "type": "lateral_movement", "value": "10.0.0.50 → 10.0.0.60",
+        "src_ip": "10.0.0.50", "dst_ip": "10.0.0.60",
+        "severity": "high",
+    }))
+    assert ioc["ips"] == []
+    assert render_suricata_rules(ioc).count("alert ip") == 0
+
+
+def test_outbound_c2_still_exported():
+    ioc = build_ioc_report(_report_with_findings({
+        "type": "beaconing", "value": "10.0.0.50 → 198.51.100.7:8443",
+        "src_ip": "10.0.0.50", "dst_ip": "198.51.100.7",
+        "severity": "high",
+    }))
+    assert [i["value"] for i in ioc["ips"]] == ["198.51.100.7"]

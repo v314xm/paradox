@@ -53,6 +53,8 @@ _PHASE_BY_TYPE: dict[str, str] = {
     # Execution
     "command_injection": "execution",
     "script_download": "execution",
+    "php_download": "execution",
+    "webshell_upload": "execution",
     "carved_file": "execution",
     "yara_match": "execution",
 
@@ -64,6 +66,7 @@ _PHASE_BY_TYPE: dict[str, str] = {
     "cloud_tunnel_domain": "c2",
     "ja3_malware": "c2",
     "ja3s_malware": "c2",
+    "http_binary_upload": "exfiltration",
     "ip_check_service": "c2",
     "sni_without_dns": "c2",
     "sni_mismatch": "c2",

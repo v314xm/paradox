@@ -193,3 +193,26 @@ def test_ratio_no_query_data():
     findings = NXDOMAINBurstDetector().run(state, Config())
     assert len(findings) == 1
     assert findings[0].evidence["ratio"] == 1.0
+
+
+def test_ratio_uses_burst_window_not_busiest_window():
+    """Шумный браузерный час в другом месте не глушит всплеск.
+
+    6 NXDOMAIN и 6 запросов около t=100 (ratio внутри окна 1.0),
+    120 запросов около t=5000. Старый код брал max по любому окну
+    (120) и отсекал находку как 6/120=0.05.
+    """
+    state = CaptureState()
+    state.dns_nxdomain_by_src["A"] = 6
+    state.dns_nxdomain_ts_by_src["A"] = [100.0 + i for i in range(6)]
+    state.dns_query_ts_by_src["A"] = (
+        [100.0 + i for i in range(6)]
+        + [5000.0 + i for i in range(120)]
+    )
+    state.dns_queries_by_src["A"] = {"q.example": 126}
+
+    findings = NXDOMAINBurstDetector().run(state, Config())
+
+    assert len(findings) == 1
+    assert findings[0].evidence["dns_in_window"] == 6
+    assert findings[0].evidence["ratio"] == 1.0

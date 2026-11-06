@@ -21,6 +21,9 @@ CommandInjectionDetector — RCE через HTTP URI или POST body.
   - HTML/JS в body содержит eval() — фильтруем по kind="request"
   - JSON с "system" в значении — может пройти, если нет "(".
     Поэтому "system(" (со скобкой) — high confidence.
+  - gzip/octet-stream body: байты сжатого архива случайно
+    содержат "$(" и "`" — сканируем только текстовые тела
+    (content-type + printability), URI сканируем всегда.
 
 Confidence:
   - high-паттерн → 0.9
@@ -32,6 +35,7 @@ from dataclasses import dataclass, field
 from urllib.parse import unquote
 
 from paradox.config import Config
+from paradox.detectors._http_body import body_for_scan
 from paradox.models import CaptureState, Finding
 
 
@@ -74,14 +78,17 @@ class CommandInjectionDetector:
                     pass
 
             if obj.body:
-                # iso-8859-1 — все 256 байт → символы, безопасно для поиска
-                raw_text = obj.body.decode("iso-8859-1", errors="ignore")
-                haystack_parts.append(raw_text)
-                # url-decode (form-urlencoded)
-                try:
-                    haystack_parts.append(unquote(raw_text))
-                except Exception:
-                    pass
+                # gzip/deflate распаковываем: сжатый JSON с командой
+                # иначе не виден. В бинаре после распаковки — не ищем.
+                payload = body_for_scan(obj, config)
+                if payload:
+                    raw_text = payload.decode("iso-8859-1", errors="ignore")
+                    haystack_parts.append(raw_text)
+                    # url-decode (form-urlencoded)
+                    try:
+                        haystack_parts.append(unquote(raw_text))
+                    except Exception:
+                        pass
 
             if not haystack_parts:
                 continue

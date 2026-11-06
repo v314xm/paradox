@@ -92,6 +92,36 @@ def test_mid_stream_no_syn():
     assert r.all_streams()[key] == b"abcdef"
 
 
+def test_mid_stream_out_of_order_rebases():
+    """Первый пакет оказался не самым ранним — поток не перемешивается."""
+    r = TCPReassembler()
+    r.feed(_pkt(seq=5003, payload=b"def"))
+    r.feed(_pkt(seq=5000, payload=b"abc"))
+    r.finalize_all()
+
+    from paradox.models import FlowKey
+    key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
+                  src_port=50000, dst_port=80)
+    assert r.all_streams()[key] == b"abcdef"
+
+
+def test_reused_tuple_marks_truncated():
+    """Второй сеанс на том же 4-tuple не теряется молча."""
+    r = TCPReassembler()
+    r.feed(_pkt(flags=0x02, seq=1000))
+    r.feed(_pkt(seq=1001, payload=b"first"))
+    r.feed(_pkt(seq=1006, payload=b"", flags=0x01))  # FIN
+    r.feed(_pkt(flags=0x02, seq=9000))               # новое соединение
+    r.feed(_pkt(seq=9001, payload=b"second"))
+    r.finalize_all()
+
+    from paradox.models import FlowKey
+    key = FlowKey(proto="tcp", src_ip="1.1.1.1", dst_ip="2.2.2.2",
+                  src_port=50000, dst_port=80)
+    assert key in r.truncated_flows()
+    assert r.all_streams()[key] == b"first"
+
+
 def test_truncation_per_flow():
     """Превышение лимита per-flow — поток в truncated."""
     r = TCPReassembler(max_bytes_per_flow=10)

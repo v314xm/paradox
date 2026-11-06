@@ -5,11 +5,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 20 детекторов, 12 правил противоречий, GUI, 933 теста.**
+**PCAP triage: 23 детектора, 12 правил противоречий, GUI, 1127 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
-![Paradox GUI](docs/screenshot.png)
+![Paradox GUI](docs/assets/main.png)
 
 ## Чем отличается
 
@@ -174,7 +174,7 @@ Timeline строится после contradictions (нужны оба исто�
 Слой	Модуль	Кол-во
 Extractors	flow, dns, tls, http, host_identity, arp_history, dhcp, nbns, kerberos, ndp, ssh_banner, smtp	12
 Post-extract	reassembler, http_object, tls_cert, file_carve	4
-Detectors	DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, yara	20
+Detectors	DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, ja3s_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, http_binary_upload, php_payload, yara	23
 Contradictions	см. таблицу выше	12
 Analyzers	absence, counterfactual (What-If), story, ndp	4
 Reporters	JSON, Markdown, flow report, IOC (txt/csv/json/suricata/kql)	4
@@ -183,9 +183,9 @@ MITRE ATT&CK маппинг для всех findings.
 
 Тесты
 bash
-pytest -m "not slow"           # ~20 сек, 933 passed
+pytest -m "not slow"           # ~20 сек, 1127 passed
 ruff check .                   # 0 ошибок
-933 теста в ~45 файлах. CI на GitHub Actions прогоняет 6 комбинаций: ubuntu/windows/macos × Python 3.11/3.12/3.13.
+1127 тестов в 130 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
 
 Покрытие:
 

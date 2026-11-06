@@ -453,6 +453,26 @@ def test_sni_mismatch_aggregates_same_sni():
 
     assert len(findings) == 1
     assert findings[0].evidence["flow_count"] == 3
+    assert findings[0].src_ip == "192.168.1.100"
+
+
+def test_sni_mismatch_splits_by_client():
+    """Один SNI у двух клиентов → два finding'а, у каждого свой src_ip."""
+    state = CaptureState()
+    for src in ("192.168.1.100", "192.168.1.101"):
+        key = FlowKey(
+            proto="tcp",
+            src_ip=src, dst_ip="203.0.113.66",
+            src_port=54000, dst_port=443,
+        )
+        state.flows[key] = FlowStats(packets=5, bytes_sent=500)
+        state.flows[key].sni = "c2.evil.com"
+
+    findings = SNIMismatchDetector().run(state, Config())
+
+    assert [f.src_ip for f in findings] == [
+        "192.168.1.100", "192.168.1.101",
+    ]
 
 
 def test_sni_mismatch_separate_sni():
@@ -598,3 +618,49 @@ def test_vulnerable_path_queries_in_uri():
 
     assert len(findings) == 1
     assert findings[0].type == "script_download"
+
+
+def test_vulnerable_path_not_dropped_when_dst_outside_evidence_sample():
+    """Не-scanner пара с dst за пределами 5-элементной выборки.
+
+    evidence.dst_ips обрезан до _EVIDENCE_SAMPLE_SIZE; решение
+    «показывать finding» не должно опираться на эту выборку, иначе
+    находка пропадает, если все sampled dst оказались сканерами.
+    """
+    from paradox.detectors.vulnerable_path import VulnerablePathDetector
+
+    state = CaptureState()
+    target = "10.0.0.7"
+
+    # 5 сканерных пар: у каждой 10 разных путей, включая целевой.
+    for i, dst in enumerate(("10.0.0.2", "10.0.0.3", "10.0.0.4",
+                             "10.0.0.5", "10.0.0.6")):
+        for n in range(9):
+            key = FlowKey("tcp", "10.0.0.1", dst, 50000 + n, 80)
+            fs = FlowStats(packets=1, bytes_sent=100)
+            fs.http_uri = f"/p{n}"
+            fs.http_host = dst
+            state.flows[key] = fs
+        key = FlowKey("tcp", "10.0.0.1", dst, 51000 + i, 80)
+        fs = FlowStats(packets=1, bytes_sent=100)
+        fs.http_uri = "/wp-content/plugins/post-content-shortcodes/x.css"
+        fs.http_host = dst
+        state.flows[key] = fs
+
+    # Не-scanner пара: другой клиент, только целевой путь.
+    key = FlowKey("tcp", "10.0.0.2", target, 52000, 80)
+    fs = FlowStats(packets=1, bytes_sent=100)
+    fs.http_uri = "/wp-content/plugins/post-content-shortcodes/x.css"
+    fs.http_host = target
+    state.flows[key] = fs
+
+    findings = VulnerablePathDetector().run(state, Config())
+
+    individual = [
+        f for f in findings
+        if f.type == "vulnerable_path"
+        and "wp-content/plugins/post-content-shortcodes"
+        in f.evidence.get("path", "")
+    ]
+    assert individual, "individual finding потерян из-за обрезки dst_ips"
+    assert target not in individual[0].evidence["dst_ips"]

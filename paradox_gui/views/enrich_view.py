@@ -307,7 +307,23 @@ class EnrichView(QWidget):
 
     def _on_done(self) -> None:
         self._set_busy(False)
+        # finished приходит до фактического завершения QThread: без
+        # wait() последняя ссылка может умереть, пока поток ещё
+        # раскручивается. Как в RunView._on_thread_done.
+        w = self._worker
+        if w is not None:
+            w.wait(2000)
         self._worker = None
+
+    def is_busy(self) -> bool:
+        return bool(self._worker and self._worker.isRunning())
+
+    def wait_for_finish(self, timeout_ms: int = 10000) -> bool:
+        """Как RunView.wait_for_finish: не дать QThread умереть с окном."""
+        w = self._worker
+        if w is None:
+            return True
+        return w.wait(timeout_ms)
 
     def _on_candidate_changed(self, item: QTableWidgetItem) -> None:
         if item.column() != C_CHECK:

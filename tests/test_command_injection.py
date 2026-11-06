@@ -136,3 +136,93 @@ def test_command_injection_empty_state():
     """Пустой state — не падает."""
     findings = CommandInjectionDetector().run(CaptureState(), Config())
     assert findings == []
+
+
+# ---------- бинарные тела ----------
+
+def _state_with_headers(src_ip, uri, body, headers):
+    state = CaptureState()
+    key = FlowKey(
+        proto="tcp", src_ip=src_ip, dst_ip="104.21.16.1",
+        src_port=50000, dst_port=80,
+    )
+    obj = HttpObject(
+        kind="request",
+        method="POST",
+        uri=uri,
+        headers=headers,
+        body=body,
+        body_size=len(body),
+    )
+    state.http_objects = [(key, obj)]
+    return state
+
+
+# gzip-магия + случайные байты + shell-паттерны: так выглядел
+# трафик 2025-06-13, где 35 findings были ложными.
+_GZIP_NOISE = (
+    b"\x1f\x8b\x08\x00\x00\x00\x00\x00"
+    + bytes(range(256)) * 4
+    + b"$(`"
+)
+
+
+def test_command_injection_skips_octet_stream_body():
+    """Бинарное тело не сканируется — "$(" и "`" в нём случайны."""
+    state = _state_with_headers(
+        "10.6.13.133", "/rand/path", _GZIP_NOISE,
+        {"host": "evil.live", "content-type": "application/octet-stream"},
+    )
+    assert CommandInjectionDetector().run(state, Config()) == []
+
+
+def test_command_injection_decompresses_gzip_body():
+    """Сжатое тело распаковывается — команда внутри находится."""
+    import gzip
+
+    state = _state_with_headers(
+        "10.6.13.133", "/api", gzip.compress(b"cmd=$(id); `whoami`"),
+        {
+            "host": "target.local",
+            "content-type": "text/plain",
+            "content-encoding": "gzip",
+        },
+    )
+    findings = CommandInjectionDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].confidence == 0.75
+
+
+def test_command_injection_unreadable_gzip_not_scanned():
+    """Заявлен gzip, но данные не gzip — не распаковывается, нет finding."""
+    state = _state_with_headers(
+        "10.6.13.133", "/api", b"$(id)`id`",
+        {
+            "host": "evil.live",
+            "content-type": "text/plain",
+            "content-encoding": "gzip",
+        },
+    )
+    assert CommandInjectionDetector().run(state, Config()) == []
+
+
+def test_command_injection_scans_text_body_still():
+    """Текстовое тело по-прежнему проверяется."""
+    state = _state_with_headers(
+        "10.6.13.133", "/api", b"cmd=$(id); `whoami`",
+        {"host": "target.local", "content-type": "text/plain"},
+    )
+    findings = CommandInjectionDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].confidence == 0.75
+
+
+def test_command_injection_scans_uri_in_binary_request():
+    """URI проверяется даже при бинарном теле."""
+    state = _state_with_headers(
+        "10.6.13.133", "/shell.php?cmd=$(id)&x=`id`", _GZIP_NOISE,
+        {"host": "evil.live", "content-type": "application/octet-stream"},
+    )
+    findings = CommandInjectionDetector().run(state, Config())
+    assert len(findings) == 1
+    assert findings[0].evidence["uri"].startswith("/shell.php")

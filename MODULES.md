@@ -16,7 +16,7 @@
 1. [Корень пакета `paradox/`](#корень-пакета-paradox)
 2. [Парсеры](#парсеры)
 3. [Экстракторы (12)](#экстракторы)
-4. [Детекторы (20)](#детекторы)
+4. [Детекторы (23)](#детекторы)
 5. [Contradictions (12 правил)](#contradictions)
 6. [Анализаторы](#анализаторы)
 7. [Multi-pcap](#multi-pcap)
@@ -46,7 +46,7 @@
 | `net_utils.py` | 39 | `is_internal_ip`, `classify_direction` |
 | `reassembler.py` | 162 | `TCPReassembler` — склейка TCP по seq |
 | `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
-| `http_object.py` | 254 | `parse_http_request`, `parse_http_response` (полный HTTP) |
+| `http_object.py` | 324 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining) |
 | `http_parse.py` | 106 | Быстрый `parse_request` первого сегмента |
 | `tls_parse.py` | 181 | `extract_sni(ClientHello)` |
 | `tls_cert.py` | 122 | `parse_certificate_from_stream` — X.509 из TLS |
@@ -117,7 +117,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 | `ndp.py` (132) | ndp | `ndp_neighbors`, `ndp_routers`, `ndp_total` ⚠️ **без `layer=0`** |
 | `tls_cert.py` (52) | tls_cert | `state.tls_certs` — вызывает `run_post_extract` |
 
-**`http_object.py` (107)** — `HTTPObjectExtractor.run_post_extract()` — обёртка над `paradox/http_object.py`, работает на `tcp_streams`, не на пакетах.
+**`http_object.py` (127)** — `HTTPObjectExtractor.run_post_extract()` — обёртка над `paradox/http_object.py`, работает на `tcp_streams`, не на пакетах. Разбирает ВСЕ сообщения потока (keep-alive), ответы матчатся с запросами по порядку; лимит `http_object_max_messages_per_stream`.
 
 ---
 
@@ -125,7 +125,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 
 Слой `paradox/detectors/`. Contract: `LocalDetector` — `name`, `run(state, config) -> list[Finding]`.
 
-**20 детекторов.**
+**23 детектора.**
 
 | Детектор | Строк | Что ищет |
 |---|---|---|
@@ -140,15 +140,23 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 | `ja3_malware.py` | 82 | JA3 из `ja3_known_malware` |
 | `brute_force.py` | 188 | HTTP-перебор (src_ports, URI-ratio, rate) |
 | `ftp_brute_force.py` | 99 | 20+ flows на порт 21 |
-| `beaconing.py` | 254 | Jitter + multi-tenant + payload stddev |
+| `beaconing.py` | 283 | Jitter + multi-tenant + payload stddev + slow-режим |
 | `dns_tunneling.py` | 104 | Длинные уникальные qname под одним base |
 | `ssh_brute_force.py` | 58 | 20+ SSH-баннеров на пару |
 | `smtp_spam.py` | 108 | 50+ уникальных RCPT TO |
 | `lateral_movement.py` | 143 | SMB/RDP/WinRM internal→internal |
 | `large_transfer.py` | 252 | 100MB в одном flow (или паре) |
 | `vulnerable_path.py` | 310 | wp-login/.env/.git + script_download + web_scanner |
-| `command_injection.py` | 180 | RCE в HTTP URI/body |
+| `command_injection.py` | 184 | RCE в HTTP URI/текстовом body |
+| `http_binary_upload.py` | 155 | Серия бинарных POST'ов на внешний хост (C2/exfil) |
+| `php_payload.py` | 180 | `<?php` в теле: скачанный шелл / заливка шелла |
 | `yara_detector.py` | 81 | YARA на carved_files (опционально) |
+
+**`_http_body.py` (193)** — общее для трёх детекторов: распаковка
+`gzip`/`deflate` (в т.ч. по magic `1f 8b` без `content-encoding`),
+критерий текстовости и `body_for_scan()`. Нужен `command_injection`
+(не искать shell в бинаре, но видеть сжатый текст) и
+`http_binary_upload` (искать именно бинарь «на проводе»).
 
 **`mitre_map.py` (60)** — `MITRE_MAP: dict[str, tuple[str, ...]]`. Instance-level `Finding.mitre_techniques` приоритетнее.
 
@@ -157,6 +165,10 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 ### Пороги детекторов (важные)
 
 - **beaconing:** min_conn=20, duration≥600s, jitter<0.1, avg_bytes<5000, rate<5/min, payload_var<0.5, multi-tenant filter (>1 SNI/Host = CDN), mail_ports={110,143,993,995}, skip_internal=True
+- **beaconing slow:** min_conn=3, duration≥3600s, jitter<0.15, rate<0.2/min, confidence 0.55–0.7, `evidence.mode="slow"`
+- **http_binary_upload:** ≥3 POST'ов, body≥1KB, non-text body, outbound; skip ocsp-request и allowlist_suffixes
+- **php_payload:** ответ 2xx, маркер `<?php` в первых 64 байтах (BOM/пробелы допускаются), HTML-ответы пропускаются, gzip/deflate распаковываются; заливка — POST/PUT/PATCH с `<?php` в первых 64 КБ тела
+- **decompression:** gzip/x-gzip + deflate (zlib и raw), magic-сниффинг `1f 8b`; лимит `http_body_max_decoded_bytes` = 8 МБ; brotli/zstd не сканируются
 - **nxdomain_burst:** threshold=5, window=60s, min_ratio=0.2
 - **dns_tunneling:** qname≥50, long≥20, queries≥50
 - **large_transfer:** 100 MB, pair mode (сумма обоих направлений)
@@ -435,7 +447,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 |---|---|---|---|
 | Парсеры | 3 | 44 | `test_parsers.py` (11), `test_parsers_ipv6.py` (11), `test_http_parse.py` (22) |
 | Экстракторы | 8 | 57 | `test_dhcp.py` (12), `test_smtp.py` (22), `test_ssh_banner.py` (17) |
-| HTTP/TLS/JA3 | 5 | 54 | `test_http_object.py` (12), `test_ja3.py` (8), `test_tls_cert.py` (8) |
+| HTTP/TLS/JA3 | 5 | 62 | `test_http_object.py` (20), `test_ja3.py` (8), `test_tls_cert.py` (8) |
 | Reassembly | 1 | 9 | `test_reassembler.py` |
 | Детекторы (базовые) | 5 | 92 | `test_detectors.py` (49), `test_beaconing.py` (31), `test_regressions.py` (42) |
 | Детекторы (новые) | 4 | 44 | `test_smtp_spam.py` (16), `test_ssh_brute_force.py` (16) |
@@ -476,7 +488,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 |---|---|---|
 | `test_multi_pcap.py` пуст (0 тестов) | Нет регрессии для `merge_capture_states` | Высокий приоритет |
 | `NDPExtractor` без `layer = 0` | Нарушает Protocol `Extractor` | 1 строка |
-| `beaconing` требует windowing для медленных C2 (интервал > часа) | В одном pcap не поймать | v1.3 |
+| `beaconing` не ловил медленный C2 (интервал > часа) | ~~В одном pcap не поймать~~ → slow-режим (2026-11-06) | Закрыто |
 | `sni_mismatch` шумит (73 FP на FIN-2015) | Много noise | Context-aware allowlist |
 | JA3-браузеров нет в config | ja3_ua_mismatch не работает на Chrome/Firefox | Расширить `ja3_known_tools` |
 | IPv6 в IOC reporter — есть, но не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |

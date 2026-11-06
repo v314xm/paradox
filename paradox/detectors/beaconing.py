@@ -125,6 +125,10 @@ class BeaconingDetector:
         max_rate = config.beaconing_max_flows_per_minute
         max_payload_var = config.beaconing_payload_stddev_ratio_max
         skip_internal = config.beaconing_skip_internal_dst
+        slow_min_conn = config.beaconing_slow_min_connections
+        slow_min_duration = config.beaconing_slow_min_duration_sec
+        slow_max_jitter = config.beaconing_slow_max_jitter_ratio
+        slow_max_rate = config.beaconing_slow_max_flows_per_minute
         mail_ports = config.beaconing_mail_polling_ports
         allow_suffixes = config.beaconing_allowlist_suffixes
         allow_ips = config.beaconing_allowlist_ips
@@ -167,10 +171,22 @@ class BeaconingDetector:
 
         findings: list[Finding] = []
         for (src_ip, dst_ip, dst_port), g in groups.items():
-            if g.count < min_conn:
+            # Два режима: обычный (много соединений) и slow —
+            # C2 со sleep больше часа. В коротком захвате такой
+            # beacon физически не наберёт 20 соединений.
+            fast_ok = g.count >= min_conn and g.duration >= min_duration
+            slow_ok = (
+                g.count >= slow_min_conn
+                and g.duration >= slow_min_duration
+            )
+            if not fast_ok and not slow_ok:
                 continue
-            if g.duration < min_duration:
-                continue
+            mode = "fast" if fast_ok else "slow"
+            max_jitter_eff = max_jitter if mode == "fast" else slow_max_jitter
+            max_rate_eff = max_rate if mode == "fast" else slow_max_rate
+            min_intervals = (
+                min_conn - 1 if mode == "fast" else slow_min_conn - 1
+            )
 
             # Multi-tenant filter: > 1 уникального SNI/Host = shared edge.
             # Chrome к Akamai открывает десятки соединений к одному IP,
@@ -190,7 +206,7 @@ class BeaconingDetector:
             if duration_min <= 0:
                 continue
             flow_rate = g.count / duration_min
-            if flow_rate > max_rate:
+            if flow_rate > max_rate_eff:
                 continue
 
             ts_sorted = sorted(g.first_timestamps)
@@ -199,7 +215,7 @@ class BeaconingDetector:
                 for i in range(len(ts_sorted) - 1)
             ]
             intervals = [iv for iv in intervals if iv > 0]
-            if len(intervals) < min_conn - 1:
+            if len(intervals) < min_intervals:
                 continue
 
             mean_iv = statistics.mean(intervals)
@@ -208,7 +224,7 @@ class BeaconingDetector:
             stdev_iv = statistics.pstdev(intervals)
             jitter = stdev_iv / mean_iv
 
-            if jitter >= max_jitter:
+            if jitter >= max_jitter_eff:
                 continue
 
             avg_bytes = g.avg_bytes()
@@ -219,33 +235,46 @@ class BeaconingDetector:
             if payload_var is not None and payload_var > max_payload_var:
                 continue
 
-            confidence = 0.6 + 0.25 * (1 - jitter / max_jitter)
-            confidence = max(0.6, min(0.85, confidence))
+            if mode == "fast":
+                confidence = 0.6 + 0.25 * (1 - jitter / max_jitter_eff)
+                confidence = max(0.6, min(0.85, confidence))
+            else:
+                confidence = 0.55 + 0.15 * (1 - jitter / max_jitter_eff)
+                confidence = max(0.55, min(0.7, confidence))
+
+            evidence = {
+                "src_ip": src_ip,
+                "dst_ip": dst_ip,
+                "dst_port": dst_port,
+                "mode": mode,
+                "count": g.count,
+                "duration_sec": round(g.duration, 1),
+                "flow_rate_per_min": round(flow_rate, 2),
+                "mean_interval_sec": round(mean_iv, 2),
+                "stdev_interval_sec": round(stdev_iv, 3),
+                "jitter_ratio": round(jitter, 3),
+                "avg_bytes_per_conn": round(avg_bytes, 1),
+                "payload_stddev_ratio": (
+                    round(payload_var, 3)
+                    if payload_var is not None
+                    else None
+                ),
+                "unique_destinations": sorted(unique_dests),
+                "total_bytes": g.total_bytes,
+                "total_packets": g.total_packets,
+            }
+            if mode == "slow":
+                evidence["confidence_reasons"] = [
+                    f"Медленный beacon: {g.count} соединений за "
+                    f"{round(g.duration / 3600, 1)} ч, "
+                    f"jitter={round(jitter, 3)}",
+                ]
 
             findings.append(Finding(
                 type="beaconing",
                 value=f"{src_ip} -> {dst_ip}:{dst_port}",
                 confidence=round(confidence, 3),
-                evidence={
-                    "src_ip": src_ip,
-                    "dst_ip": dst_ip,
-                    "dst_port": dst_port,
-                    "count": g.count,
-                    "duration_sec": round(g.duration, 1),
-                    "flow_rate_per_min": round(flow_rate, 2),
-                    "mean_interval_sec": round(mean_iv, 2),
-                    "stdev_interval_sec": round(stdev_iv, 3),
-                    "jitter_ratio": round(jitter, 3),
-                    "avg_bytes_per_conn": round(avg_bytes, 1),
-                    "payload_stddev_ratio": (
-                        round(payload_var, 3)
-                        if payload_var is not None
-                        else None
-                    ),
-                    "unique_destinations": sorted(unique_dests),
-                    "total_bytes": g.total_bytes,
-                    "total_packets": g.total_packets,
-                },
+                evidence=evidence,
                 first_seen=ts_sorted[0],
                 last_seen=ts_sorted[-1],
             ))

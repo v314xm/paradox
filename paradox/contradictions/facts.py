@@ -51,6 +51,8 @@ _ATTACK_TYPES: frozenset[str] = frozenset({
     "port_scan",
     "web_scanner",
     "lateral_movement",
+    # Сервер отдал payload, клиент его скачал: src=attacker, dst=victim.
+    "yara_match",
 })
 
 # Типы findings, где src — ЖЕРТВА (или инициатор), dst — C2/exfil-получатель.
@@ -278,6 +280,13 @@ def _collect_ips_for(
                     seen.add(val)
                     queue.append((val, depth + 1))
             else:
+                # Только реальные IP: CNAME-таргет без захваченного
+                # ответа (cdn.foo.com) иначе попадал в «resolved IPs»
+                # и давал ложный dns_answer_mismatch.
+                try:
+                    ip_address(val)
+                except ValueError:
+                    continue
                 ips.add(val)
     return ips
 
@@ -434,6 +443,11 @@ def _classify_ja3(ja3: str, config: Config) -> str:
             return "curl"
         if "wget" in name:
             return "wget"
+        # Браузерные JA3 из конфига: без этого они попадали в "tool",
+        # и ветка «браузерный TLS + скриптовый UA» не срабатывала.
+        for family in ("chrome", "firefox", "edge", "safari"):
+            if family in name:
+                return family
         return "tool"
     return "normal"
 

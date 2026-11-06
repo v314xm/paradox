@@ -33,7 +33,14 @@ class NBNSExtractor:
         if result.suffix not in HOSTNAME_SUFFIXES:
             return
 
-        # Имя принадлежит инициатору NBNS-пакета.
+        # Имя принадлежит владельцу, то есть отвечающему хосту.
+        # В запросе Question — имя цели («кто такой FILE-SRV?»),
+        # и приписывать его отправителю нельзя: получалась чужая
+        # идентичность у случайного хоста.
+        flags = int.from_bytes(record.payload[2:4], "big")
+        if not flags & 0x8000:
+            return
+
         client_ip = record.src_ip
 
         if not client_ip or not result.name:

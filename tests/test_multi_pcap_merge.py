@@ -293,3 +293,34 @@ def test_smtp_merge():
         "victim1@x.com", "victim2@x.com",
     }
     assert merged.smtp_mailer_by_src["10.0.0.5"] == {"PHPMailer", "Swaks"}
+
+
+# ================== NDP ==================
+
+def test_ndp_dynamic_fields_merge():
+    """NDP-поля создаёт экстрактор динамически — merge их не теряет."""
+    s1 = CaptureState()
+    s1.ndp_total = 3
+    s1.ndp_neighbors = {"fe80::1": "aa:bb:cc:dd:ee:01"}
+    s1.ndp_routers = {"fe80::1"}
+
+    s2 = CaptureState()
+    s2.ndp_total = 2
+    s2.ndp_neighbors = {"fe80::2": "aa:bb:cc:dd:ee:02"}
+    s2.ndp_routers = {"fe80::2"}
+
+    merged = merge_capture_states([s1, s2])
+
+    assert merged.ndp_total == 5
+    assert merged.ndp_neighbors == {
+        "fe80::1": "aa:bb:cc:dd:ee:01",
+        "fe80::2": "aa:bb:cc:dd:ee:02",
+    }
+    assert merged.ndp_routers == {"fe80::1", "fe80::2"}
+
+
+def test_ndp_fields_exist_without_ndp_packets():
+    merged = merge_capture_states([CaptureState()])
+    assert merged.ndp_total == 0
+    assert merged.ndp_neighbors == {}
+    assert merged.ndp_routers == set()

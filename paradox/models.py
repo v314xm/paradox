@@ -35,6 +35,9 @@ _SEVERITY_BY_TYPE: dict[str, str] = {
     "ja3s_malware": "high",
     "script_download": "high",
     "yara_match": "high",
+    "http_binary_upload": "high",
+    "php_download": "high",
+    "webshell_upload": "critical",
 
     "port_scan": "medium",
     "web_scanner": "medium",
@@ -346,6 +349,15 @@ class CaptureState:
     smtp_from_by_src: dict[str, set[str]] = field(default_factory=dict)
     smtp_rcpt_by_src: dict[str, set[str]] = field(default_factory=dict)
     smtp_mailer_by_src: dict[str, set[str]] = field(default_factory=dict)
+
+
+def dns_sources_by_name(state: CaptureState) -> dict[str, list[str]]:
+    """Обратный индекс: qname → список src_ip, которые его спрашивали."""
+    out: dict[str, list[str]] = {}
+    for src_ip, bucket in state.dns_queries_by_src.items():
+        for name in bucket:
+            out.setdefault(name, []).append(src_ip)
+    return out
 
 
 def get_session_sni(

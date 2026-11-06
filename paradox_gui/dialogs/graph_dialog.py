@@ -240,6 +240,7 @@ class GraphDialog(QDialog):
     def _draw_graph(self):
         try:
             hide_isolated = self.cb_hide_isolated.isChecked()
+            only_findings = self.cb_only_findings.isChecked()
 
             entities = self.report.get("entities") or {}
             internal = entities.get("internal") or []
@@ -265,6 +266,24 @@ class GraphDialog(QDialog):
             for f in findings:
                 if f.get("src_ip"): finding_ips.add(f.get("src_ip"))
                 if f.get("dst_ip"): finding_ips.add(f.get("dst_ip"))
+
+            # «Только findings»: узлы и рёбра без привязки к находкам
+            # не рисуем. Кластеры внешних IP проверяем по подсети.
+            if only_findings:
+                finding_subnets = {self._get_subnet(ip) for ip in finding_ips}
+                internal = [
+                    e for e in internal if e.get("ip") in finding_ips
+                ]
+                external = [
+                    e for e in external
+                    if e.get("ip") in finding_ips
+                    or self._get_subnet(e.get("ip", "")) in finding_subnets
+                ]
+                flows = [
+                    f for f in flows
+                    if f.get("src_ip") in finding_ips
+                    or f.get("dst_ip") in finding_ips
+                ]
 
             # Кластеризация внешних IP по /24
             external_clustered = {}
@@ -311,7 +330,7 @@ class GraphDialog(QDialog):
                 ip = e["ip"]
                 total_b = e["bytes"]
                 r = min(30, max(12, 12 + math.log10(total_b + 10) * 2))
-                if any(x in finding_ips for x in [ip]): r = max(r, 18)
+                if ip in finding_ips: r = max(r, 18)
 
                 col = i % cols
                 row = i // cols

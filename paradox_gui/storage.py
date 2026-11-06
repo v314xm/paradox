@@ -38,6 +38,11 @@ def _db_dir() -> Path:
 
 
 class HistoryDB:
+    # Сколько прогонов хранить. Полный отчёт большого pcap — десятки
+    # МБ, поэтому без обрезки history.db растёт без предела, а
+    # HistoryView при каждом старте парсит 20 последних отчётов.
+    MAX_ROWS = 50
+
     def __init__(self, path: Path | None = None) -> None:
         self._ok = False
         try:
@@ -90,6 +95,13 @@ class HistoryDB:
                      int(s.get("findings", 0) or 0),
                      int(s.get("contradictions", 0) or 0),
                      payload),
+                )
+                # Обрезка старых прогонов: свежий id входит в LIMIT,
+                # поэтому только что вставленная строка не удаляется.
+                c.execute(
+                    "DELETE FROM runs WHERE id NOT IN ("
+                    " SELECT id FROM runs ORDER BY id DESC LIMIT ?)",
+                    (self.MAX_ROWS,),
                 )
                 return int(cur.lastrowid)
         except Exception:
