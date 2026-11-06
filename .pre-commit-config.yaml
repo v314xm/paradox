@@ -2,7 +2,6 @@
 # Установка: pre-commit install (один раз)
 # Ручной прогон: pre-commit run --all-files
 
-exclude: ^tools/_archive/
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.17.1
