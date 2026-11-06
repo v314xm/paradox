@@ -96,6 +96,29 @@ def test_empty_report_shows_empty_state(qapp):
     assert panel.cards() == []
     assert panel._empty.isVisible() is False  # ещё не показан на экране
     assert panel._empty.text() == tr("high.empty")
+    assert all(chip.isHidden() for chip in panel._chips.values())
+
+
+def test_filter_chips_show_only_matching_cards(qapp):
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_report())
+
+    assert [c.kind() for c in panel.cards()] == [
+        "http", "http", "http", "flow", "flow", "ext",
+    ]
+    assert panel._count.text() == "6"
+    assert not panel._chips["ext"].isHidden()
+
+    panel._chips["ext"].click()
+    assert [c.kind() for c in panel.cards()] == ["ext", "ext"]
+    assert panel._count.text() == "2 / 7"
+    assert panel._chips["ext"].isChecked()
+
+    panel._chips[None].click()
+    assert len(panel.cards()) == 6
+    assert panel._count.text() == "6"
 
 
 def test_values_are_plain_text_not_html(qapp):

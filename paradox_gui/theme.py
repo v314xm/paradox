@@ -509,6 +509,27 @@ QLabel#highlightEmpty {{
     font-style: italic;
     padding: 2px 0;
 }}
+QPushButton#filterChip {{
+    background: transparent;
+    border: 1px solid {border};
+    border-radius: 10px;
+    padding: 2px 10px;
+    min-height: 20px;
+    font-size: 11px;
+    color: {text_muted};
+}}
+QPushButton#filterChip:hover {{
+    color: {text};
+    border-color: {text_muted};
+}}
+QPushButton#filterChip:checked {{
+    color: {text};
+    background-color: rgba(91, 140, 255, 0.16);
+    border-color: {accent};
+}}
+QPushButton#filterChip:checked:hover {{
+    background-color: rgba(91, 140, 255, 0.22);
+}}
 
 QLabel#pageTitle {{
     font-size: 18px;

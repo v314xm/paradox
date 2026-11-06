@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QSizePolicy,
     QVBoxLayout,
 )
@@ -158,6 +159,8 @@ class HighlightsPanel(QFrame):
         super().__init__()
         self.setObjectName("highPanel")
         self._cards: list[_HighlightCard] = []
+        self._all_entries: list[dict] = []
+        self._filter: str | None = None
 
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(14, 12, 14, 12)
@@ -178,10 +181,37 @@ class HighlightsPanel(QFrame):
         header.addStretch(1)
         self._layout.addLayout(header)
 
+        self._layout.addLayout(self._build_chips())
+
         self._empty = QLabel("—")
         self._empty.setObjectName("highlightEmpty")
         self._empty.setWordWrap(True)
         self._layout.addWidget(self._empty)
+
+    def _build_chips(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(6)
+
+        self._chips: dict[str | None, QPushButton] = {}
+        specs = (
+            (None, tr("high.filter_all")),
+            ("http", "HTTP"),
+            ("flow", tr("high.filter_flow")),
+            ("ext", tr("high.filter_ext")),
+        )
+        for key, label in specs:
+            chip = QPushButton(label)
+            chip.setObjectName("filterChip")
+            chip.setCheckable(True)
+            chip.setChecked(key is None)
+            chip.clicked.connect(
+                lambda _checked=False, k=key: self._set_filter(k)
+            )
+            row.addWidget(chip)
+            self._chips[key] = chip
+        row.addStretch(1)
+        return row
 
     # ---------- публичный API ----------
 
@@ -189,18 +219,46 @@ class HighlightsPanel(QFrame):
         if not report:
             return
 
-        entries = self._collect(report)[:_MAX_CARDS]
-        self._clear_cards()
+        self._all_entries = self._collect(report)
+        self._filter = None
 
-        if not entries:
+        present = {e["kind"] for e in self._all_entries}
+        for key, chip in self._chips.items():
+            chip.setChecked(key is None)
+            chip.setVisible(
+                bool(self._all_entries) and (key is None or key in present)
+            )
+
+        if not self._all_entries:
+            self._clear_cards()
             self._count.setVisible(False)
             self._empty.setText(tr("high.empty"))
             self._empty.setVisible(True)
             return
 
         self._empty.setVisible(False)
-        self._count.setText(str(len(entries)))
+        self._apply_filter()
+
+    def _set_filter(self, kind: str | None) -> None:
+        self._filter = kind
+        for key, chip in self._chips.items():
+            chip.setChecked(key == kind)
+        self._apply_filter()
+
+    def _apply_filter(self) -> None:
+        entries = [
+            e for e in self._all_entries
+            if self._filter is None or e["kind"] == self._filter
+        ][:_MAX_CARDS]
+
+        self._clear_cards()
+        total = len(self._all_entries)
+        self._count.setText(
+            str(len(entries)) if self._filter is None
+            else f"{len(entries)} / {total}"
+        )
         self._count.setVisible(True)
+        self._empty.setVisible(not entries)
         for entry in entries:
             card = _HighlightCard(**entry)
             self._layout.addWidget(card)
