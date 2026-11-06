@@ -121,6 +121,23 @@ def test_filter_chips_show_only_matching_cards(qapp):
     assert panel._count.text() == "6"
 
 
+def test_first_card_fades_in(qapp):
+    from PySide6.QtWidgets import QGraphicsOpacityEffect
+
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_report())
+    assert isinstance(
+        panel.cards()[0].graphicsEffect(), QGraphicsOpacityEffect
+    )
+
+    # Переключение фильтра не должно анимировать заново — иначе
+    # чипы будут «мигать» при каждом клике.
+    panel._chips["ext"].click()
+    assert all(c.graphicsEffect() is None for c in panel.cards())
+
+
 def test_values_are_plain_text_not_html(qapp):
     from paradox_gui.widgets.highlights_panel import HighlightsPanel
 

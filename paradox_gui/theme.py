@@ -469,7 +469,12 @@ QFrame#highlightCard {{
 }}
 QFrame#highlightCard[kind="flow"] {{ border-left-color: {info}; }}
 QFrame#highlightCard[kind="ext"]  {{ border-left-color: {high}; }}
-QFrame#highlightCard:hover {{ background-color: {bg_lighter}; }}
+QFrame#highlightCard:hover {{
+    background-color: {bg_lighter};
+    border-top-color: #4a4d5e;
+    border-right-color: #4a4d5e;
+    border-bottom-color: #4a4d5e;
+}}
 
 QLabel#highlightBadge {{
     color: {accent};

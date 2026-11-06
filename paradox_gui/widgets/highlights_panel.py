@@ -11,9 +11,10 @@ from __future__ import annotations
 
 import html
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
 from PySide6.QtWidgets import (
     QFrame,
+    QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -237,7 +238,7 @@ class HighlightsPanel(QFrame):
             return
 
         self._empty.setVisible(False)
-        self._apply_filter()
+        self._apply_filter(animate=True)
 
     def _set_filter(self, kind: str | None) -> None:
         self._filter = kind
@@ -245,7 +246,7 @@ class HighlightsPanel(QFrame):
             chip.setChecked(key == kind)
         self._apply_filter()
 
-    def _apply_filter(self) -> None:
+    def _apply_filter(self, animate: bool = False) -> None:
         entries = [
             e for e in self._all_entries
             if self._filter is None or e["kind"] == self._filter
@@ -259,10 +260,37 @@ class HighlightsPanel(QFrame):
         )
         self._count.setVisible(True)
         self._empty.setVisible(not entries)
-        for entry in entries:
+        for index, entry in enumerate(entries):
             card = _HighlightCard(**entry)
             self._layout.addWidget(card)
             self._cards.append(card)
+            if animate:
+                self._schedule_fade(card, index)
+
+    # ---------- появление ----------
+
+    def _schedule_fade(self, card: _HighlightCard, index: int) -> None:
+        # Каскад вместо одновременной вспышки: карточки читаются
+        # сверху вниз, как список приоритетов.
+        delay = min(index, 5) * 30
+        if delay:
+            QTimer.singleShot(delay, lambda c=card: self._fade_in(c))
+        else:
+            self._fade_in(card)
+
+    def _fade_in(self, card: _HighlightCard) -> None:
+        # Отложенный таймер мог сработать после пересборки панели:
+        # к этому моменту карточки уже нет в списке.
+        if card not in self._cards:
+            return
+        effect = QGraphicsOpacityEffect(card)
+        card.setGraphicsEffect(effect)
+        anim = QPropertyAnimation(effect, b"opacity", card)
+        anim.setDuration(180)
+        anim.setStartValue(0.0)
+        anim.setEndValue(1.0)
+        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        anim.start()
 
     # ---------- сбор данных ----------
 
