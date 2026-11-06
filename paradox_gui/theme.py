@@ -68,19 +68,49 @@ QWidget {{
     font-size: 14px;
 }}
 
+/* Подписи не должны рисовать собственный прямоугольник поверх
+   карточек: иначе на плитках и панелях видны тёмные плашки. */
+QLabel {{ background: transparent; }}
+
 QMainWindow, QDialog {{ background-color: {bg}; }}
+
+QToolTip {{
+    background-color: {bg_lighter};
+    color: {text};
+    border: 1px solid {border};
+    border-radius: 4px;
+    padding: 6px 8px;
+}}
+
+QGroupBox {{
+    border: 1px solid {border};
+    border-radius: 8px;
+    margin-top: 16px;
+    padding: 12px 12px 10px;
+}}
+QGroupBox::title {{
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 6px;
+    color: {text_muted};
+}}
+
+QSplitter::handle {{ background: {border}; }}
+QSplitter::handle:horizontal {{ width: 1px; }}
+QSplitter::handle:vertical {{ height: 1px; }}
 
 /* =========================================================================
    МЕНЮ
    ========================================================================= */
 QMenuBar {{
-    background-color: {bg_light};
+    background: transparent;
     border-bottom: 1px solid {border};
-    padding: 0 4px;
+    padding: 2px 4px;
 }}
 QMenuBar::item {{
     background: transparent;
     padding: 6px 12px;
+    border-radius: 4px;
     color: {text_muted};
 }}
 QMenuBar::item:selected {{ background: {bg_lighter}; color: {text}; }}
@@ -107,17 +137,28 @@ QMenu::separator {{
    ========================================================================= */
 QTabWidget::pane {{
     border: none;
+    border-top: 1px solid {border};
     background: {bg};
 }}
+QTabBar {{ background: transparent; }}
 QTabBar::tab {{
-    background: {bg_light};
+    background: transparent;
     color: {text_muted};
-    padding: 8px 18px;
+    padding: 8px 14px;
+    margin-right: 2px;
+    border: none;
     border-bottom: 2px solid transparent;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 13px;
 }}
-QTabBar::tab:hover {{ color: {text}; }}
+QTabBar::tab:hover {{
+    color: {text};
+    background: {bg_light};
+}}
 QTabBar::tab:selected {{
-    color: {accent};
+    color: {text};
+    background: {bg_light};
     border-bottom: 2px solid {accent};
 }}
 
@@ -129,18 +170,37 @@ QPushButton {{
     border: 1px solid {border};
     color: {text};
     padding: 6px 14px;
-    border-radius: 4px;
+    min-height: 26px;
+    border-radius: 6px;
 }}
-QPushButton:hover {{ background-color: {bg_hover}; }}
-QPushButton:disabled {{ color: {text_muted}; background-color: {bg_light}; }}
+QPushButton:hover {{
+    background-color: {bg_hover};
+    border-color: {text_muted};
+}}
+QPushButton:pressed {{ background-color: {bg_light}; }}
+QPushButton:focus {{ border-color: {accent}; }}
+QPushButton:disabled {{
+    color: {text_muted};
+    background-color: {bg_light};
+    border-color: {border};
+}}
 
 QPushButton#primary {{
     background-color: {accent};
     border-color: {accent};
     color: #ffffff;
+    font-weight: 600;
 }}
-QPushButton#primary:hover {{ background-color: {accent_hover}; }}
-QPushButton#primary:disabled {{ background-color: {bg_lighter}; color: {text_muted}; }}
+QPushButton#primary:hover {{
+    background-color: {accent_hover};
+    border-color: {accent_hover};
+}}
+QPushButton#primary:pressed {{ background-color: #3f6bd0; }}
+QPushButton#primary:disabled {{
+    background-color: {bg_lighter};
+    border-color: {border};
+    color: {text_muted};
+}}
 
 QPushButton#danger {{
     background-color: {danger};
@@ -154,11 +214,13 @@ QPushButton#danger {{
 QLineEdit, QPlainTextEdit, QTextEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
     background-color: {bg};
     border: 1px solid {border};
-    border-radius: 4px;
+    border-radius: 6px;
     color: {text};
-    padding: 4px 8px;
+    padding: 5px 9px;
     selection-background-color: {accent};
 }}
+QLineEdit:hover, QComboBox:hover, QSpinBox:hover,
+QDoubleSpinBox:hover {{ border-color: {bg_hover}; }}
 QLineEdit:focus, QPlainTextEdit:focus, QComboBox:focus,
 QSpinBox:focus, QDoubleSpinBox:focus {{
     border-color: {accent};
@@ -204,14 +266,21 @@ QTreeView::branch {{
     background: transparent;
 }}
 QHeaderView::section {{
-    background-color: {bg_lighter};
+    background-color: {bg_light};
     color: {text_muted};
-    padding: 6px 10px;
+    padding: 8px 10px;
     border: none;
     border-bottom: 1px solid {border};
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
 }}
-QTableWidget::item {{ padding: 4px 8px; }}
-QTableWidget::item:selected {{ background: {bg_hover}; }}
+QTableWidget::item {{ padding: 6px 10px; }}
+QTableWidget::item:hover {{ background: {bg_lighter}; }}
+QTableWidget::item:selected {{
+    background: rgba(91, 140, 255, 0.20);
+    color: {text};
+}}
 
 /* =========================================================================
    ПРОГРЕСС-БАР / СТАТУС-БАР / СКРОЛЛБАРЫ
@@ -233,30 +302,35 @@ QStatusBar {{
     background-color: {bg_light};
     border-top: 1px solid {border};
     color: {text_muted};
+    font-size: 12px;
 }}
 QStatusBar::item {{ border: none; }}
+QStatusBar QLabel {{ padding: 2px 6px; }}
 
 QScrollBar:vertical {{
-    background: {bg};
-    width: 10px;
-    margin: 0;
+    background: transparent;
+    width: 8px;
+    margin: 2px;
 }}
 QScrollBar::handle:vertical {{
-    background: {bg_hover};
-    border-radius: 5px;
-    min-height: 24px;
+    background: #464a5c;
+    border-radius: 4px;
+    min-height: 28px;
 }}
+QScrollBar::handle:vertical:hover {{ background: {accent}; }}
 QScrollBar::add-line, QScrollBar::sub-line {{ height: 0; }}
+QScrollBar::add-page, QScrollBar::sub-page {{ background: transparent; }}
 QScrollBar:horizontal {{
-    background: {bg};
-    height: 10px;
-    margin: 0;
+    background: transparent;
+    height: 8px;
+    margin: 2px;
 }}
 QScrollBar::handle:horizontal {{
-    background: {bg_hover};
-    border-radius: 5px;
-    min-width: 24px;
+    background: #464a5c;
+    border-radius: 4px;
+    min-width: 28px;
 }}
+QScrollBar::handle:horizontal:hover {{ background: {accent}; }}
 
 /* =========================================================================
    СЛУЖЕБНЫЕ КЛАССЫ (setObjectName)
@@ -310,18 +384,133 @@ QFrame#summaryTile {{
 QFrame#summaryTile[hasContra="true"] {{
     border: 1px solid rgba(255, 85, 85, 0.5);
 }}
+QFrame#summaryTile:hover {{
+    border-color: #4a4d5e;
+}}
 QLabel#summaryValue {{
     font-size: 22px;
     font-weight: 700;
     color: {accent};
+}}
+QLabel#summaryValue[empty="true"] {{
+    color: {text_muted};
+    font-weight: 500;
 }}
 QLabel#summaryValueContra {{
     font-size: 22px;
     font-weight: 700;
     color: {text};
 }}
+QLabel#summaryValueContra[empty="true"] {{
+    color: {text_muted};
+    font-weight: 500;
+}}
 QLabel#summaryValueContra[hasContra="true"] {{
     color: {danger};
+}}
+
+/* =========================================================================
+   ВИДЖЕТ: панели и карточки (Observations / Highlights / экспорт)
+   ========================================================================= */
+QFrame#obsPanel, QFrame#highPanel, QFrame#card {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 10px;
+}}
+QFrame#obsPanel QFrame {{
+    background: transparent;
+    border: none;
+}}
+QLabel#panelTitle {{
+    font-size: 12px;
+    font-weight: 600;
+    color: {text_muted};
+    letter-spacing: 0.05em;
+}}
+QLabel#metricLabel {{
+    color: {text_muted};
+    font-size: 12px;
+    font-weight: 600;
+}}
+QLabel#metricValue {{
+    color: {text};
+    font-size: 13px;
+}}
+QLabel#panelBody {{
+    color: {text};
+    font-size: 13px;
+}}
+QLabel#panelCount {{
+    color: {text_muted};
+    background-color: {bg_lighter};
+    border-radius: 8px;
+    padding: 0 7px;
+    font-size: 11px;
+    font-weight: 600;
+}}
+
+/* Highlights: цвет полосы и бейджа задаёт динамическое свойство kind. */
+QFrame#highlightCard {{
+    background-color: {bg};
+    border: 1px solid {border};
+    border-left: 3px solid {accent};
+    border-radius: 8px;
+}}
+QFrame#highlightCard[kind="flow"] {{ border-left-color: {info}; }}
+QFrame#highlightCard[kind="ext"]  {{ border-left-color: {high}; }}
+QFrame#highlightCard:hover {{ background-color: {bg_lighter}; }}
+
+QLabel#highlightBadge {{
+    color: {accent};
+    background-color: rgba(91, 140, 255, 0.14);
+    border-radius: 4px;
+    padding: 2px 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}}
+QLabel#highlightBadge[kind="flow"] {{
+    color: {info};
+    background-color: rgba(139, 233, 253, 0.12);
+}}
+QLabel#highlightBadge[kind="ext"] {{
+    color: {high};
+    background-color: rgba(255, 184, 108, 0.14);
+}}
+QLabel#highlightPrimary {{
+    font-family: {mono};
+    font-size: 12px;
+    font-weight: 600;
+    color: {text};
+}}
+QLabel#highlightSecondary {{
+    font-size: 11px;
+    color: {text_muted};
+}}
+QLabel#highlightMetric {{
+    font-family: {mono};
+    font-size: 11px;
+    color: {text_muted};
+}}
+QLabel#highlightEmpty {{
+    color: {text_muted};
+    font-size: 12px;
+    font-style: italic;
+    padding: 2px 0;
+}}
+
+QLabel#pageTitle {{
+    font-size: 18px;
+    font-weight: 600;
+    color: {text};
+}}
+QTextBrowser#exportPreview {{
+    background: {bg};
+    border: 1px solid {border};
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: {mono};
+    font-size: 12px;
 }}
 
 /* =========================================================================
@@ -539,9 +728,13 @@ QPushButton#small {{
 /* QLabel#h1 и QLabel#muted уже используются в SettingsView и RunView,
    но глобального правила не было — цвет брался дефолтный. Вводим. */
 QLabel#h1 {{
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
     color: {text};
+}}
+QLabel#subtitle {{
+    color: {text_muted};
+    font-size: 13px;
 }}
 QLabel#muted {{
     color: {text_muted};
@@ -566,6 +759,7 @@ QTextBrowser {{
     high=SEVERITY["high"],
     medium=SEVERITY["medium"],
     low=SEVERITY["low"],
+    info=SEVERITY["info"],
     **PALETTE,
 )
 

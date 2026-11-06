@@ -34,11 +34,12 @@ class ExportView(QWidget):
         layout.setSpacing(15)
 
         lbl = QLabel(tr("export.title"))
-        lbl.setStyleSheet("font-size: 16px; font-weight: bold; color: #e0e0e0;")
+        lbl.setObjectName("pageTitle")
         layout.addWidget(lbl)
 
         info = QLabel(tr("export.subtitle"))
-        info.setStyleSheet("color: #a0a0b0;")
+        info.setObjectName("muted")
+        info.setWordWrap(True)
         layout.addWidget(info)
 
         ctrl_layout = QHBoxLayout()
@@ -66,7 +67,7 @@ class ExportView(QWidget):
         layout.addLayout(ctrl_layout)
 
         self.preview = QTextBrowser()
-        self.preview.setStyleSheet("background: #2a2a35; border: 1px solid #444; border-radius: 4px; font-family: Consolas, monospace;")
+        self.preview.setObjectName("exportPreview")
         self.preview.setHtml(f"<p style='color:#888;'>{tr('export.empty')}</p>")
         layout.addWidget(self.preview)
 

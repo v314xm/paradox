@@ -453,6 +453,7 @@ STRINGS: dict[str, str] = {
     "abs.tcp": "TCP without answer (SYN)",
     "obs.title": "What the tool saw",
     "high.title": "What caught attention",
+    "high.empty": "Nothing stands out — only background traffic.",
     "contra.section_title": "Contradictions",
     "contra.card_details": "Details",
     "contra.card_no_facts": "No facts.",

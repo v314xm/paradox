@@ -14,20 +14,17 @@ from paradox_gui.i18n import tr
 class _MetricRow(QFrame):
     def __init__(self, label: str):
         super().__init__()
-        self.setStyleSheet("QFrame { background: transparent; }")
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 1, 0, 1)
-        layout.setSpacing(8)
+        layout.setContentsMargins(0, 2, 0, 2)
+        layout.setSpacing(10)
 
         self._label = QLabel(label)
-        self._label.setFixedWidth(70)
-        self._label.setStyleSheet(
-            "color: #a0a0b0; font-size: 12px; font-weight: 600;"
-        )
+        self._label.setObjectName("metricLabel")
+        self._label.setFixedWidth(64)
         layout.addWidget(self._label)
 
         self._value = QLabel("—")
-        self._value.setStyleSheet("color: #e0e0e0; font-size: 13px;")
+        self._value.setObjectName("metricValue")
         self._value.setTextInteractionFlags(Qt.TextSelectableByMouse)
         layout.addWidget(self._value, 1)
 
@@ -38,21 +35,13 @@ class _MetricRow(QFrame):
 class ObservationsPanel(QFrame):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("""
-            ObservationsPanel {
-                background: #282a36;
-                border: 1px solid #3a3d4d;
-                border-radius: 8px;
-            }
-        """)
+        self.setObjectName("obsPanel")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(2)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
 
         title = QLabel(tr("obs.title"))
-        title.setStyleSheet(
-            "color: #e0e0e0; font-size: 14px; font-weight: 600;"
-        )
+        title.setObjectName("panelTitle")
         layout.addWidget(title)
 
         self._row_http = _MetricRow("HTTP")

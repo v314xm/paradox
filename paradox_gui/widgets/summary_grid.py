@@ -57,6 +57,7 @@ class SummaryGrid(QWidget):
         value = QLabel("—")
         value.setObjectName("summaryValueContra" if accent else "summaryValue")
         value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        value.setProperty("empty", True)
 
         label = QLabel(title)
         label.setObjectName("muted")
@@ -82,14 +83,22 @@ class SummaryGrid(QWidget):
 
     def clear(self) -> None:
         """Сброс к состоянию «до анализа»."""
-        for label in self._value_labels.values():
-            label.setText("—")
+        for key in self._value_labels:
+            self._set_label(key, "—")
         self._update_contra_accent(0)
 
     # ---------- внутреннее ----------
 
     def _set_label(self, key: str, text: str) -> None:
-        self._value_labels[key].setText(text)
+        label = self._value_labels[key]
+        label.setText(text)
+        # Пустое значение не должно светиться акцентом: «—» — это
+        # состояние «данных нет», а не метрика.
+        empty = text.strip() in ("", "—")
+        if label.property("empty") != empty:
+            label.setProperty("empty", empty)
+            label.style().unpolish(label)
+            label.style().polish(label)
 
     def _update_contra_accent(self, count) -> None:
         # Свойство ставим и на tile, и на label: QSS-селекторы у нас плоские
