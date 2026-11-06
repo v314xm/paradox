@@ -465,6 +465,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | HTML-отчёт | 1 | 10 | `test_html_reporter.py` |
 | Webshell-маркеры | 1 | 12 | `test_webshell_markers.py` |
 | Плагины и STIX | 2 | 28 | `test_detector_plugins.py` (14), `test_stix_reporter.py` (14) |
+| Версии | 1 | 2 | `test_version_consistency.py` — pyproject = ядро = GUI |
 | Мульти-pcap | 1 | 1 | `test_multi_pcap.py` — базовый merge |
 
 **Ядро проекта:** `test_detectors.py`, `test_beaconing.py`, `test_attack_graph.py`, `test_regressions.py`, `test_timeline.py`.
