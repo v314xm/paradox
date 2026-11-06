@@ -103,10 +103,7 @@ class RunView(QWidget):
         multi_row.setContentsMargins(0, 0, 0, 0)
         self.btn_multi_pcap = QPushButton(tr("run.multi_pcap"))
         self.btn_multi_pcap.setObjectName("small")
-        self.btn_multi_pcap.setToolTip(
-            "Выбрать 2+ pcap файла — они будут склеены в один датасет.\n"
-            "Beaconing, DGA и slow-scan детекторы увидят длинный горизонт."
-        )
+        self.btn_multi_pcap.setToolTip(tr("run.multi_pcap_tooltip"))
         self.btn_multi_pcap.clicked.connect(self._on_multi_pcap_clicked)
         multi_row.addWidget(self.btn_multi_pcap)
         multi_row.addStretch(1)
@@ -225,9 +222,9 @@ class RunView(QWidget):
             return
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Выбрать pcap-файлы для слияния (2+)",
+            tr("run.multi_pcap_dialog"),
             "",
-            "Packet captures (*.pcap *.pcapng *.cap);;Все файлы (*)",
+            tr("run.pcap_filter"),
         )
         if not paths:
             return
@@ -273,17 +270,17 @@ class RunView(QWidget):
             )
             config = build_config_with_overrides(self._config_overrides)
         except ImportError as e:
-            self._on_error(f"Не удалось импортировать Config: {e}")
+            self._on_error(tr("run.err_config_import", err=e))
             return
         except (ValueError, OSError) as e:
-            self._on_error(f"Некорректные настройки: {e}")
+            self._on_error(tr("run.err_config_invalid", err=e))
             return
 
         self._set_busy(True)
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
         self._analysis_t0 = time.monotonic()
-        self.status_label.setText("Извлечение · 0%")
+        self.status_label.setText(tr("run.extracting", pct=0))
 
         # v1.2: если путей > 1 — multi-pcap режим
         _paths_or_path = (
@@ -339,8 +336,11 @@ class RunView(QWidget):
             duration=s.get('duration_sec', 0),
         ))
         self.toasts.show(
-            f"Готово: {s.get('findings', 0)} findings · "
-            f"{s.get('contradictions', 0)} противоречий",
+            tr(
+                "run.toast_done",
+                findings=s.get('findings', 0),
+                contradictions=s.get('contradictions', 0),
+            ),
             "success",
         )
         self.analysis_finished.emit(report)
@@ -349,7 +349,10 @@ class RunView(QWidget):
         if len(self._current_paths) > 1:
             self.drop_zone.set_compact(
                 "",
-                display_name=f"[multi] {len(self._current_paths)} файлов",
+                display_name=tr(
+                    "run.multi_compact",
+                    count=len(self._current_paths),
+                ),
             )
         elif self._current_path:
             self.drop_zone.set_compact(self._current_path)
@@ -395,8 +398,8 @@ class RunView(QWidget):
     def _on_error(self, msg: str) -> None:
         self._stop_requested = False
         self.status_label.setText(tr("run.error", msg=msg))
-        self.toasts.show(f"Ошибка: {msg}", "error")
-        QMessageBox.critical(self, "Ошибка анализа", msg)
+        self.toasts.show(tr("run.toast_error", msg=msg), "error")
+        QMessageBox.critical(self, tr("run.err_title"), msg)
         self.analysis_failed.emit(msg)
 
     # =========================================================================
@@ -504,18 +507,18 @@ class RunView(QWidget):
         self.btn_reset_filter.setVisible(True)
 
         self.toasts.show(
-            f"What-If: удалено {removed_count} находок",
+            tr("run.what_if_removed", count=removed_count),
             "info"
         )
         self.status_label.setText(
-            f"What-If активно · осталось {len(remaining)} findings"
+            tr("run.what_if_active", count=len(remaining))
         )
 
     def _on_reset_what_if(self) -> None:
         self.findings.set_findings(self._original_findings)
         self.btn_reset_filter.setVisible(False)
         self.status_label.setText(
-            f"Фильтр сброшен · {len(self._original_findings)} findings"
+            tr("run.filter_reset", count=len(self._original_findings))
         )
 
     def _on_host_story_requested(self, ip: str) -> None:
@@ -595,7 +598,7 @@ class RunView(QWidget):
         if not (self._worker and self._worker.isRunning()):
             return
         self._stop_requested = True
-        self.status_label.setText("Останавливаю…")
+        self.status_label.setText(tr("run.stopping"))
         self.stop_btn.setEnabled(False)
         self._worker.stop()
 

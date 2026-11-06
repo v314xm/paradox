@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
 from paradox_gui.theme import PALETTE
 from paradox_gui.workers.enrichment_worker import EnrichmentWorker
 
@@ -71,15 +72,11 @@ class EnrichView(QWidget):
         outer.setContentsMargins(20, 20, 20, 20)
         outer.setSpacing(16)
 
-        title = QLabel("Обогащение")
+        title = QLabel(tr("enrich.title"))
         title.setObjectName("h1")
         outer.addWidget(title)
 
-        subtitle = QLabel(
-            "Threat Intel по выбранным IOC. Shodan InternetDB — без ключа, "
-            "AbuseIPDB — нужен ключ (Настройки → Threat Intel). "
-            "Двойной клик по строке — полный JSON."
-        )
+        subtitle = QLabel(tr("enrich.subtitle"))
         subtitle.setObjectName("subtitle")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -88,17 +85,17 @@ class EnrichView(QWidget):
         controls = QHBoxLayout()
         controls.setSpacing(8)
 
-        self._status = QLabel("Сначала прогоните pcap во вкладке «Прогон».")
+        self._status = QLabel(tr("enrich.need_run"))
         self._status.setObjectName("muted")
         controls.addWidget(self._status, stretch=1)
 
-        self._select_all_btn = QPushButton("Выбрать все")
+        self._select_all_btn = QPushButton(tr("enrich.select_all"))
         self._select_all_btn.setObjectName("small")
         self._select_all_btn.clicked.connect(lambda: self._set_all(True))
         self._select_all_btn.setEnabled(False)
         controls.addWidget(self._select_all_btn)
 
-        self._select_none_btn = QPushButton("Снять все")
+        self._select_none_btn = QPushButton(tr("enrich.select_none"))
         self._select_none_btn.setObjectName("small")
         self._select_none_btn.clicked.connect(lambda: self._set_all(False))
         self._select_none_btn.setEnabled(False)
@@ -110,7 +107,7 @@ class EnrichView(QWidget):
         self._progress.setVisible(False)
         controls.addWidget(self._progress)
 
-        self._enrich_btn = QPushButton("Обогатить выбранные")
+        self._enrich_btn = QPushButton(tr("enrich.run"))
         self._enrich_btn.setObjectName("primary")
         self._enrich_btn.setEnabled(False)
         self._enrich_btn.clicked.connect(self._on_enrich)
@@ -128,13 +125,14 @@ class EnrichView(QWidget):
         top_l = QVBoxLayout(top)
         top_l.setContentsMargins(0, 0, 0, 0)
         top_l.setSpacing(4)
-        top_l.addWidget(_section_label("Кандидаты"))
+        top_l.addWidget(_section_label(tr("enrich.section.candidates")))
 
         self._cand_table = QTableWidget()
         self._cand_table.setObjectName("iocCandidates")
         self._cand_table.setColumnCount(4)
         self._cand_table.setHorizontalHeaderLabels(
-            ["", "IOC", "Тип", "Статус"]
+            ["", tr("enrich.col.ioc"), tr("enrich.col.type"),
+             tr("enrich.col.status")]
         )
         self._cand_table.setEditTriggers(
             QTableWidget.EditTrigger.NoEditTriggers
@@ -160,13 +158,14 @@ class EnrichView(QWidget):
         bottom_l = QVBoxLayout(bottom)
         bottom_l.setContentsMargins(0, 0, 0, 0)
         bottom_l.setSpacing(4)
-        bottom_l.addWidget(_section_label("Результаты"))
+        bottom_l.addWidget(_section_label(tr("enrich.section.results")))
 
         self._res_table = QTableWidget()
         self._res_table.setObjectName("iocResults")
         self._res_table.setColumnCount(4)
         self._res_table.setHorizontalHeaderLabels(
-            ["IOC", "Тип", "Провайдер", "Данные"]
+            [tr("enrich.col.ioc"), tr("enrich.col.type"),
+             tr("enrich.col.provider"), tr("enrich.col.data")]
         )
         self._res_table.setEditTriggers(
             QTableWidget.EditTrigger.NoEditTriggers
@@ -210,7 +209,7 @@ class EnrichView(QWidget):
             self._candidates = []
             self._refresh_candidates()
             self._refresh_results()
-            self._update_status("Сначала прогоните pcap во вкладке «Прогон».")
+            self._update_status(tr("enrich.need_run"))
             return
 
         try:
@@ -221,7 +220,7 @@ class EnrichView(QWidget):
             self._candidates = []
             self._refresh_candidates()
             self._refresh_results()
-            self._update_status(f"Ошибка импорта ядра: {e}")
+            self._update_status(tr("enrich.status.import_error", err=e))
             return
 
         findings = report.get("findings") or []
@@ -230,14 +229,11 @@ class EnrichView(QWidget):
         self._refresh_results()
 
         if not self._candidates:
-            self._update_status(
-                "Кандидатов нет: в findings не нашлось внешних IP и "
-                "доменов."
-            )
+            self._update_status(tr("enrich.status.no_candidates"))
             return
 
         self._update_status(
-            f"Готово к обогащению. Кандидатов: {len(self._candidates)}."
+            tr("enrich.status.ready", count=len(self._candidates))
         )
 
     def set_config_overrides(self, overrides: dict) -> None:
@@ -257,8 +253,9 @@ class EnrichView(QWidget):
         selected = self._selected_iocs()
         if not selected:
             QMessageBox.information(
-                self, "Нечего обогащать",
-                "Отметьте хотя бы один IOC в таблице кандидатов.",
+                self,
+                tr("enrich.nothing_title"),
+                tr("enrich.nothing_body"),
             )
             return
 
@@ -270,12 +267,16 @@ class EnrichView(QWidget):
                     object.__setattr__(config, k, v)
         except ImportError as e:
             QMessageBox.critical(
-                self, "Ошибка", f"Не удалось импортировать Config: {e}",
+                self,
+                tr("enrich.error_title"),
+                tr("enrich.config_import_error", err=e),
             )
             return
 
         self._set_busy(True)
-        self._update_status(f"Обогащение {len(selected)} IOC…")
+        self._update_status(
+            tr("enrich.status.running", done=len(selected))
+        )
 
         self._worker = EnrichmentWorker(self._report, config, selected)
         self._worker.finished_ok.connect(self._on_ok)
@@ -296,24 +297,30 @@ class EnrichView(QWidget):
         self._refresh_results()
 
         self._update_status(
-            f"Обогащено {stats.get('iocs_enriched', 0)} из "
-            f"{stats.get('iocs_total', 0)} IOC за "
-            f"{stats.get('duration_sec', 0):.1f} сек."
+            tr(
+                "enrich.status.done",
+                done=stats.get('iocs_enriched', 0),
+                total=stats.get('iocs_total', 0),
+                sec=f"{stats.get('duration_sec', 0):.1f}",
+            )
         )
         self._stats_label.setText(
-            f"Кэш: попаданий {stats.get('cache_hits', 0)}, "
-            f"промахов {stats.get('cache_misses', 0)} · "
-            f"Запросов: {stats.get('provider_calls', 0)} · "
-            f"Ошибок: {stats.get('errors', 0)} · "
-            f"Rate limited: {stats.get('rate_limited', 0)}"
+            tr(
+                "enrich.status.cache",
+                hits=stats.get('cache_hits', 0),
+                misses=stats.get('cache_misses', 0),
+                requests=stats.get('provider_calls', 0),
+                errors=stats.get('errors', 0),
+                limited=stats.get('rate_limited', 0),
+            )
         )
 
         # Сигнал наружу: main_window обновит «Историю».
         self.enrichment_finished.emit()
 
     def _on_error(self, msg: str) -> None:
-        self._update_status(f"Ошибка: {msg}")
-        QMessageBox.critical(self, "Ошибка обогащения", msg)
+        self._update_status(tr("enrich.status.error", err=msg))
+        QMessageBox.critical(self, tr("enrich.err_title"), msg)
 
     def _on_done(self) -> None:
         self._set_busy(False)
@@ -405,7 +412,7 @@ class EnrichView(QWidget):
             status_text = f"✓ {', '.join(sources)}"
             status_color = PALETTE["success"]
         else:
-            status_text = "не обогащён"
+            status_text = tr("enrich.not_enriched")
             status_color = PALETTE["text_muted"]
 
         status_item = QTableWidgetItem(status_text)
@@ -469,10 +476,7 @@ class EnrichView(QWidget):
             self._res_table.setItem(i, R_DATA, data_item)
 
         if not rows:
-            self._stats_label.setText(
-                "Результатов пока нет — выберите IOC сверху и нажмите "
-                "«Обогатить выбранные»."
-            )
+            self._stats_label.setText(tr("enrich.no_results"))
 
     def _find_enrichment(self, ioc: str, source: str):
         for (_, val), per_source in self._enrichment.items():
@@ -499,9 +503,11 @@ class EnrichView(QWidget):
 
         counter_parts = []
         if total:
-            counter_parts.append(f"Выбрано: {selected} из {total}")
+            counter_parts.append(
+                tr("enrich.selected", selected=selected, total=total)
+            )
         if already:
-            counter_parts.append(f"обогащено: {already}")
+            counter_parts.append(tr("enrich.enriched_of", count=already))
         counter = " · ".join(counter_parts)
 
         base = self._base_status or ""

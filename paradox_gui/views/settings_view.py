@@ -243,15 +243,7 @@ class SettingsView(QWidget):
             tr("settings.search.placeholder")
         )
         self._search_line.setClearButtonEnabled(True)
-        self._search_line.setToolTip(
-            "Ищет по имени поля и по описанию (tooltip).\n"
-            "Примеры:\n"
-            "  beaconing  →  все поля детектора beaconing\n"
-            "  энтроп     →  DGA: порог энтропии (совпадение в описании)\n"
-            "  nxdomain   →  три поля NXDOMAIN burst\n"
-            "\n"
-            "Ctrl+F — фокус в поле. Esc — очистить."
-        )
+        self._search_line.setToolTip(tr("settings.search.tooltip"))
         self._search_line.textChanged.connect(self._apply_search)
         self._search_line.installEventFilter(self)
         search_row.addWidget(self._search_line, stretch=1)
@@ -681,9 +673,12 @@ class SettingsView(QWidget):
         parts = [p.description]
         if n_ov or n_dd or n_dc:
             parts.append(
-                f"(параметров: {n_ov}, "
-                f"отключённых детекторов: {n_dd}, "
-                f"правил: {n_dc})"
+                tr(
+                    "settings.header.params",
+                    params=n_ov,
+                    disabled=n_dd,
+                    rules=n_dc,
+                )
             )
         self._profile_hint.setText(" ".join(parts))
 
@@ -1025,8 +1020,11 @@ class SettingsView(QWidget):
                     values[key] = _parse_lines(text)
         if skipped_total:
             self._notify_status(
-                f"Пропущено невалидных токенов: {skipped_total} "
-                f"({'; '.join(previews[:2])})",
+                tr(
+                    "settings.status.invalid_tokens",
+                    count=skipped_total,
+                    tokens="; ".join(previews[:2]),
+                ),
                 level="warn",
             )
         self.config_applied.emit(values)
@@ -1074,7 +1072,10 @@ class SettingsView(QWidget):
 
         te = QPlainTextEdit()
         te.setObjectName("listField")
-        te.setPlaceholderText("Например: 10.0.0.0/8" if is_net else "Например: 80, 443, 8080")
+        te.setPlaceholderText(
+            tr("settings.network.placeholder_nets") if is_net
+            else tr("settings.network.placeholder_ports")
+        )
 
         status_lbl = QLabel("")
         status_lbl.setObjectName("hint")
@@ -1128,13 +1129,14 @@ class SettingsView(QWidget):
                 self._set_invalid(widget, True)
                 self._set_net_status(
                     status_lbl,
-                    f"Ошибка в: {', '.join(set(invalid))}",
+                    tr("settings.network.invalid", tokens=", ".join(set(invalid))),
                     error=True,
                 )
             else:
                 self._set_invalid(widget, False)
                 self._set_net_status(
-                    status_lbl, f"Будет сохранено: {', '.join(valid)}"
+                    status_lbl,
+                    tr("settings.network.will_save", tokens=", ".join(valid)),
                 )
         else:
             valid, invalid = [], []
@@ -1148,7 +1150,10 @@ class SettingsView(QWidget):
                 self._set_invalid(widget, True)
                 self._set_net_status(
                     status_lbl,
-                    f"Невалидные порты: {', '.join(set(invalid))}",
+                    tr(
+                        "settings.network.invalid_ports",
+                        tokens=", ".join(set(invalid)),
+                    ),
                     error=True,
                 )
             else:
@@ -1156,8 +1161,11 @@ class SettingsView(QWidget):
                 self._set_invalid(widget, False)
                 self._set_net_status(
                     status_lbl,
-                    f"Будет сохранено ({len(sorted_valid)}): "
-                    f"{', '.join(map(str, sorted_valid))}",
+                    tr(
+                        "settings.network.will_save_n",
+                        count=len(sorted_valid),
+                        tokens=", ".join(map(str, sorted_valid)),
+                    ),
                 )
 
     def _load_network(self) -> None:
@@ -1233,10 +1241,7 @@ class SettingsView(QWidget):
 
         # --- TCP Reassembly ---
         cb_reassembly = QCheckBox(tr("settings.perf.reassembly"))
-        lbl_reassembly = QLabel(
-            "Собирает полные HTTP-запросы и TLS-хендшейки. "
-            "Выключите для максимальной скорости."
-        )
+        lbl_reassembly = QLabel(tr("settings.perf.reassembly_hint"))
         lbl_reassembly.setObjectName("hint")
         lbl_reassembly.setWordWrap(True)
         form.addRow(cb_reassembly, lbl_reassembly)
@@ -1246,10 +1251,7 @@ class SettingsView(QWidget):
 
         # --- File Carve ---
         cb_carve = QCheckBox(tr("settings.perf.carve"))
-        lbl_carve = QLabel(
-            "Находит скачанные скрипты и бинарники (SHA256, MIME). "
-            "Тело файла на диск не пишется."
-        )
+        lbl_carve = QLabel(tr("settings.perf.carve_hint"))
         lbl_carve.setObjectName("hint")
         lbl_carve.setWordWrap(True)
         form.addRow(cb_carve, lbl_carve)
@@ -1258,10 +1260,7 @@ class SettingsView(QWidget):
         self._field_hints["file_carve_enabled"] = lbl_carve
 
         cb_write = QCheckBox(tr("settings.perf.write_body"))
-        lbl_write = QLabel(
-            "Создает файлы в reports/carved/. Включайте только "
-            "если уверены в безопасности."
-        )
+        lbl_write = QLabel(tr("settings.perf.write_body_hint"))
         lbl_write.setObjectName("hintDanger")
         lbl_write.setWordWrap(True)
         form.addRow(cb_write, lbl_write)
@@ -1443,19 +1442,38 @@ class SettingsView(QWidget):
         try:
             import yara
         except ImportError:
-            QMessageBox.warning(self, "YARA", "Модуль yara-python не установлен.\nЗапустите: pip install yara-python")
+            QMessageBox.warning(
+                self, "YARA", tr("settings.yara.err_module")
+            )
             return
 
         path = self._yara_path.text().strip()
         if not path:
-            QMessageBox.warning(self, "YARA", "Укажите путь к файлу правил (.yar)")
+            QMessageBox.warning(
+                self, "YARA", tr("settings.yara.err_no_path")
+            )
             return
 
         try:
             rules = yara.compile(filepath=path)
-            QMessageBox.information(self, "YARA", f"Успешно! Загружено правил: {sum(1 for _ in rules)}")
+            QMessageBox.information(
+                self,
+                "YARA",
+                tr(
+                    "settings.yara.ok_loaded",
+                    count=sum(1 for _ in rules),
+                ),
+            )
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка в правилах", f"{type(e).__name__}:\n{e}")
+            QMessageBox.critical(
+                self,
+                tr("settings.yara.err_rules_title"),
+                tr(
+                    "settings.yara.err_rules",
+                    type=type(e).__name__,
+                    err=e,
+                ),
+            )
 
 
 
@@ -1483,7 +1501,7 @@ class SettingsView(QWidget):
         self._output_dir = QLineEdit()
         self._output_dir.setPlaceholderText("reports")
         self._output_dir.setFixedWidth(420)
-        form.addRow("Каталог отчётов (output_dir)", self._output_dir)
+        form.addRow(tr("settings.reports.output_dir"), self._output_dir)
         self._reports_inputs["output_dir"] = self._output_dir
 
         outer.addWidget(scroll, stretch=1)
@@ -1677,7 +1695,9 @@ class SettingsView(QWidget):
         self._yara_inputs = {}
 
         self._yara_path = QLineEdit()
-        self._yara_path.setPlaceholderText("По умолчанию (rules/default.yar)")
+        self._yara_path.setPlaceholderText(
+            tr("settings.yara.path_placeholder")
+        )
         self._yara_path.setFixedWidth(420)
 
         btn_browse = QPushButton(tr("settings.yara.browse"))
@@ -1704,8 +1724,10 @@ class SettingsView(QWidget):
     def _browse_yara_file(self) -> None:
         from PySide6.QtWidgets import QFileDialog
         path, _ = QFileDialog.getOpenFileName(
-            self, "Выбрать YARA-файл", "",
-            "YARA Rules (*.yar *.yara);;Все файлы (*)"
+            self,
+            tr("settings.yara.dialog_title"),
+            "",
+            tr("settings.yara.filter"),
         )
         if path:
             self._yara_path.setText(path)
@@ -1804,9 +1826,7 @@ class SettingsView(QWidget):
         show_cb.toggled.connect(self._toggle_api_keys_visibility)
         form.addRow("", show_cb)
 
-        shodan_note = QLabel(
-            "Shodan InternetDB не требует ключа — работает из коробки."
-        )
+        shodan_note = QLabel(tr("settings.ti.shodan_note"))
         shodan_note.setObjectName("hint")
         shodan_note.setWordWrap(True)
         form.addRow("", shodan_note)

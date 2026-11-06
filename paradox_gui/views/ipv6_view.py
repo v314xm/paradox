@@ -10,6 +10,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox_gui.i18n import tr
+
 
 class IPv6View(QWidget):
     def __init__(self, parent=None):
@@ -27,12 +29,13 @@ class IPv6View(QWidget):
         top_layout.setContentsMargins(0, 0, 0, 0)
         top_layout.setSpacing(6)
 
-        self.lbl_summary = QLabel("IPv6: Нет данных")
+        self.lbl_summary = QLabel(tr("ipv6.no_data"))
         self.lbl_summary.setObjectName("sectionTitle")
         top_layout.addWidget(self.lbl_summary)
 
         self.table_neighbors = self._make_table(
-            ["IPv6 Адрес", "MAC-адрес", "Роль"], "ipv6Neighbors"
+            [tr("ipv6.col_ip"), tr("ipv6.col_mac"), tr("ipv6.col_role")],
+            "ipv6Neighbors",
         )
         top_layout.addWidget(self.table_neighbors)
         splitter.addWidget(top_widget)
@@ -43,12 +46,13 @@ class IPv6View(QWidget):
         bottom_layout.setContentsMargins(0, 0, 0, 0)
         bottom_layout.setSpacing(6)
 
-        self.lbl_flows = QLabel("IPv6 Потоки (Top by Bytes)")
+        self.lbl_flows = QLabel(tr("ipv6.flows_title"))
         self.lbl_flows.setObjectName("sectionTitle")
         bottom_layout.addWidget(self.lbl_flows)
 
         self.table_flows = self._make_table(
-            ["Src IPv6", "Dst IPv6", "Bytes"], "ipv6Flows"
+            [tr("ipv6.col_src"), tr("ipv6.col_dst"), tr("ipv6.col_bytes")],
+            "ipv6Flows",
         )
         bottom_layout.addWidget(self.table_flows)
         splitter.addWidget(bottom_widget)
@@ -84,16 +88,21 @@ class IPv6View(QWidget):
         routers = ndp.get("routers", [])
 
         self.lbl_summary.setText(
-            f"Всего NDP-пакетов: {total} | "
-            f"Соседей: {len(neighbors)} | "
-            f"Роутеров: {len(routers)}"
+            tr(
+                "ipv6.summary",
+                total=total,
+                neighbors=len(neighbors),
+                routers=len(routers),
+            )
         )
 
         all_nodes = []
         for n in neighbors:
-            all_nodes.append((n.get("ip", ""), n.get("mac", ""), "Сосед (NDP)"))
+            all_nodes.append(
+                (n.get("ip", ""), n.get("mac", ""), tr("ipv6.role_neighbor"))
+            )
         for r_ip in routers:
-            all_nodes.append((r_ip, "—", "Роутер (RA)"))
+            all_nodes.append((r_ip, "—", tr("ipv6.role_router")))
 
         self.table_neighbors.setRowCount(len(all_nodes))
         for row, (ip, mac, role) in enumerate(all_nodes):
