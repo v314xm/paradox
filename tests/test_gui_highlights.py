@@ -138,6 +138,55 @@ def test_first_card_fades_in(qapp):
     assert all(c.graphicsEffect() is None for c in panel.cards())
 
 
+def test_click_copies_identifier_and_double_click_opens_host(qapp):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QSignalSpy, QTest
+
+    from paradox_gui.i18n import tr
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_report())
+
+    assert panel.cards()[0].copy_value() == "evil.example/upload"
+    assert panel.cards()[3].copy_value() == "203.0.113.9:443"
+    assert panel.cards()[5].copy_value() == "203.0.113.9"
+    assert tr("high.copy_hint") in panel.cards()[0].toolTip()
+    assert tr("high.copy_hint_host") in panel.cards()[5].toolTip()
+
+    copy_spy = QSignalSpy(panel.copy_requested)
+    QTest.mouseClick(panel.cards()[0], Qt.MouseButton.LeftButton)
+    assert copy_spy.count() == 1
+    assert copy_spy.at(0)[0] == "evil.example/upload"
+
+    # Клик по самому тексту тоже копирует, пока нет выделения.
+    QTest.mouseClick(panel.cards()[0]._primary, Qt.MouseButton.LeftButton)
+    assert copy_spy.count() == 2
+
+    host_spy = QSignalSpy(panel.host_story_requested)
+    QTest.mouseDClick(panel.cards()[5], Qt.MouseButton.LeftButton)
+    assert host_spy.count() == 1
+    assert host_spy.at(0)[0] == "203.0.113.9"
+
+    # Двойной клик по карточке без IP ничего не открывает.
+    QTest.mouseDClick(panel.cards()[0], Qt.MouseButton.LeftButton)
+    assert host_spy.count() == 1
+
+
+def test_run_view_wires_click_to_clipboard(qapp):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication
+
+    from paradox_gui.views.run_view import RunView
+
+    view = RunView()
+    view.load_report(_report())
+
+    QTest.mouseClick(view.highlights.cards()[0], Qt.MouseButton.LeftButton)
+    assert QApplication.clipboard().text() == "evil.example/upload"
+
+
 def test_values_are_plain_text_not_html(qapp):
     from paradox_gui.widgets.highlights_panel import HighlightsPanel
 

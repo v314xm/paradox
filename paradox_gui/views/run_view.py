@@ -8,6 +8,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QFileDialog,
     QHBoxLayout,
@@ -147,6 +148,10 @@ class RunView(QWidget):
         self.absence = AbsencePanel()
         layout.addWidget(self.absence)
         self.highlights = HighlightsPanel()
+        self.highlights.copy_requested.connect(self._on_highlight_copied)
+        self.highlights.host_story_requested.connect(
+            self._on_host_story_requested
+        )
         layout.addWidget(self.highlights)
 
 
@@ -519,6 +524,10 @@ class RunView(QWidget):
         story = build_host_story(self._last_report, ip)
         dialog = HostStoryDialog(ip, story, self)
         dialog.exec()
+
+    def _on_highlight_copied(self, value: str) -> None:
+        QApplication.clipboard().setText(value)
+        self.toasts.show(tr("high.copied", value=value), "info")
 
     def _on_finding_details(self, finding: dict) -> None:
         FindingDialog(finding, parent=self).exec()

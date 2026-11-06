@@ -11,7 +11,13 @@ from __future__ import annotations
 
 import html
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
+from PySide6.QtCore import (
+    QEasingCurve,
+    QPropertyAnimation,
+    Qt,
+    QTimer,
+    Signal,
+)
 from PySide6.QtWidgets import (
     QFrame,
     QGraphicsOpacityEffect,
@@ -53,11 +59,19 @@ class _ElidedLabel(QLabel):
 
     QLabel не умеет elide сам, а wordWrap ломает ритм карточек.
     Полный текст храним отдельно — он уходит в tooltip карточки.
+
+    Клик по тексту должен копировать значение, но при этом нельзя
+    отнимать выделение протяжкой. Поэтому клик эмитим только на
+    release без выделения и без смещения мыши.
     """
+
+    clicked = Signal()
+    double_clicked = Signal()
 
     def __init__(self, text: str, parent=None) -> None:
         super().__init__(parent)
         self._full_text = text
+        self._press_pos = None
         self.setSizePolicy(
             QSizePolicy.Policy.Ignored,
             QSizePolicy.Policy.Preferred,
@@ -71,6 +85,28 @@ class _ElidedLabel(QLabel):
     def resizeEvent(self, event) -> None:  # noqa: N802 (Qt API)
         super().resizeEvent(event)
         self._apply_elide()
+
+    def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._press_pos = event.position().toPoint()
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        super().mouseReleaseEvent(event)
+        if (
+            event.button() == Qt.MouseButton.LeftButton
+            and self._press_pos is not None
+            and not self.selectedText()
+        ):
+            delta = event.position().toPoint() - self._press_pos
+            if delta.manhattanLength() <= 3:
+                self.clicked.emit()
+        self._press_pos = None
+
+    def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        super().mouseDoubleClickEvent(event)
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.double_clicked.emit()
 
     def _apply_elide(self) -> None:
         width = self.width()
@@ -90,18 +126,31 @@ class _ElidedLabel(QLabel):
 class _HighlightCard(QFrame):
     """Один пункт: полоса категории слева, бейдж, текст, метрика."""
 
+    clicked = Signal(str)
+    host_requested = Signal(str)
+
     def __init__(
         self,
         kind: str,
         primary: str,
         secondary: str,
         metric: str,
-        tooltip: str,
+        tooltip: list[str],
+        copy_value: str = "",
+        host_ip: str = "",
     ) -> None:
         super().__init__()
         self.setObjectName("highlightCard")
         self.setProperty("kind", kind)
-        self.setToolTip(_tooltip(tooltip))
+        self._copy_value = copy_value
+        self._host_ip = host_ip
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+        hint = (
+            tr("high.copy_hint_host") if host_ip
+            else tr("high.copy_hint")
+        )
+        self.setToolTip(_tooltip(tooltip + [hint]))
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 8, 12, 8)
@@ -140,6 +189,34 @@ class _HighlightCard(QFrame):
         )
         layout.addWidget(self._metric, 0)
 
+        for label in (self._primary, self._secondary):
+            label.clicked.connect(self._emit_copy)
+            label.double_clicked.connect(self._emit_host)
+
+    # ---------- действия ----------
+
+    def mousePressEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._emit_copy()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802 (Qt API)
+        if event.button() == Qt.MouseButton.LeftButton and self._host_ip:
+            self._emit_host()
+            event.accept()
+            return
+        super().mouseDoubleClickEvent(event)
+
+    def _emit_copy(self) -> None:
+        if self._copy_value:
+            self.clicked.emit(self._copy_value)
+
+    def _emit_host(self) -> None:
+        if self._host_ip:
+            self.host_requested.emit(self._host_ip)
+
     # Доступ к содержимому нужен тестам: проверять elide по пикселям
     # неудобно, а исходные значения должны сохраняться целиком.
     def primary_text(self) -> str:
@@ -151,11 +228,17 @@ class _HighlightCard(QFrame):
     def metric_text(self) -> str:
         return self._metric.text()
 
+    def copy_value(self) -> str:
+        return self._copy_value
+
     def kind(self) -> str:
         return self.property("kind") or ""
 
 
 class HighlightsPanel(QFrame):
+    copy_requested = Signal(str)
+    host_story_requested = Signal(str)
+
     def __init__(self):
         super().__init__()
         self.setObjectName("highPanel")
@@ -262,6 +345,8 @@ class HighlightsPanel(QFrame):
         self._empty.setVisible(not entries)
         for index, entry in enumerate(entries):
             card = _HighlightCard(**entry)
+            card.clicked.connect(self.copy_requested.emit)
+            card.host_requested.connect(self.host_story_requested.emit)
             self._layout.addWidget(card)
             self._cards.append(card)
             if animate:
@@ -315,6 +400,7 @@ class HighlightsPanel(QFrame):
                 "primary": f"{method} {uri}",
                 "secondary": host,
                 "metric": size,
+                "copy_value": f"{host}{uri}",
                 "tooltip": [
                     f"{method} {uri}",
                     f"host: {host}",
@@ -334,6 +420,7 @@ class HighlightsPanel(QFrame):
                 "primary": f"{src} → {dst}:{port}",
                 "secondary": direction,
                 "metric": size,
+                "copy_value": f"{dst}:{port}",
                 "tooltip": [
                     f"{src} → {dst}:{port}",
                     f"direction: {direction}",
@@ -352,6 +439,8 @@ class HighlightsPanel(QFrame):
                 "primary": ip,
                 "secondary": roles,
                 "metric": _fmt_bytes(bytes_in) if bytes_in else "",
+                "copy_value": ip,
+                "host_ip": ip,
                 "tooltip": [
                     f"{ip}",
                     f"roles: {roles}",
