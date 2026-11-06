@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHeaderView,
     QLabel,
+    QSizePolicy,
     QTableWidget,
     QTableWidgetItem,
     QTabWidget,
@@ -15,9 +16,16 @@ from paradox_gui.i18n import tr
 
 
 class AbsencePanel(QFrame):
+    # Минимум таблицы: ~8 строк видны сразу, без скролла внутри вкладки.
+    _MIN_TABLE_HEIGHT = 280
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("card")
+        self.setSizePolicy(
+            QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Expanding,
+        )
         self._build_ui()
         self.setVisible(False)
 
@@ -56,10 +64,10 @@ class AbsencePanel(QFrame):
 
         layout.addWidget(self.tabs)
 
-    @staticmethod
-    def _make_table(headers: list[str]) -> QTableWidget:
+    def _make_table(self, headers: list[str]) -> QTableWidget:
         table = QTableWidget(0, len(headers))
         table.setObjectName("absTable")
+        table.setMinimumHeight(self._MIN_TABLE_HEIGHT)
         table.setHorizontalHeaderLabels(headers)
         table.horizontalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch

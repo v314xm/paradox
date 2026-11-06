@@ -3,8 +3,9 @@
 Собирает ContradictionCard'ы из report["contradictions"]. Если список
 пуст — секция полностью скрывается.
 
-ВАЖНО: секция НЕ растёт выше 260px. Иначе её внутренний QScrollArea
-раздувает секцию и давит FindingsTable ниже.
+Высота следит за содержимым: две-три карточки видны целиком, а на
+четырёх включается внутренний скролл — иначе длинный список правил
+уводит FindingsTable за край экрана.
 """
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -24,15 +25,15 @@ from paradox_gui.widgets.contradiction_card import ContradictionCard
 class ContradictionsSection(QFrame):
     details_requested = Signal(object)
 
+    # Выше четырёх карточек список уходит во внутренний скролл.
+    _MAX_LIST_HEIGHT = 380
+
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName("card")
-        # Жёсткий потолок — 260px. Это ключевое: даже если QScrollArea
-        # внутри захочет больше, физически не сможет.
-        self.setMaximumHeight(260)
         self.setSizePolicy(
             QSizePolicy.Policy.Preferred,
-            QSizePolicy.Policy.Maximum,
+            QSizePolicy.Policy.Preferred,
         )
         self._build_ui()
         self.setVisible(False)
@@ -58,12 +59,14 @@ class ContradictionsSection(QFrame):
         self._list_layout.setSpacing(6)
         # БЕЗ addStretch — он раздувает sizeHint контейнера.
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setWidget(self._list_container)
-        layout.addWidget(scroll)
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self._scroll.setWidget(self._list_container)
+        layout.addWidget(self._scroll)
 
     def set_contradictions(self, contradictions: list[dict]) -> None:
         self._clear_cards()
@@ -75,12 +78,30 @@ class ContradictionsSection(QFrame):
             card = ContradictionCard(contra)
             card.details_requested.connect(self.details_requested)
             self._list_layout.addWidget(card)
+        self._fit_height()
         self.setVisible(True)
 
     def clear(self) -> None:
         self._clear_cards()
         self._count_label.setText("")
         self.setVisible(False)
+
+    def _fit_height(self) -> None:
+        """Высота по содержимому: карточки видны целиком, без обрезки."""
+        self._list_container.adjustSize()
+        content = min(
+            self._list_layout.sizeHint().height(),
+            self._MAX_LIST_HEIGHT,
+        )
+        chrome = (
+            self.layout().contentsMargins().top()
+            + self.layout().contentsMargins().bottom()
+            + self.layout().itemAt(0).sizeHint().height()
+            + self.layout().spacing()
+        )
+        self._scroll.setMinimumHeight(content)
+        self.setMinimumHeight(content + chrome)
+        self.setMaximumHeight(content + chrome)
 
     def _clear_cards(self) -> None:
         while self._list_layout.count():
