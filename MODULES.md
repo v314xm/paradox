@@ -36,7 +36,7 @@
 |---|---|---|
 | `__init__.py` | 1 | `__version__ = "1.4.0"` |
 | `__main__.py` | 6 | `python -m paradox` → `cli.main()` |
-| `cli.py` | 165 | CLI: аргументы, `-o`, `--enrich`, `--stix`, `--plugins` |
+| `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
 | `config.py` | 892 | Все настройки (frozen dataclass), валидация |
 | `models.py` | 349 | `Finding`, `FlowKey`, `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
 | `pipeline.py` | 621 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect` |
@@ -352,6 +352,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `markdown_reporter.py` | 976 | `render_markdown` — 11 секций (TL;DR, Timeline, Carved, Сводка, Сущности, Findings, Противоречия, HTTP, IOC, Top-10 flows) |
 | `flow_report.py` | 231 | `build_flow_report`, `build_dns_report`, `build_http_report`, `build_http_object_report` |
 | `ioc_reporter.py` | 349 | **v1.0.0** — `build_ioc_report`, `write_ioc_files` (txt/csv/json/suricata/queries) |
+| `html_reporter.py` | 338 | `render_html`, `write_html` — самодостаточный HTML (печать в PDF), экранирование значений |
 | `stix_reporter.py` | 153 | `build_stix_bundle`, `render_stix_json`, `write_stix` — STIX 2.1, детерминированные UUIDv5; используется CLI (`--stix`) и GUI |
 
 **`_CHAIN_ORDER`** в markdown_reporter — порядок findings в TL;DR (pivot=5, web_scanner=10 … large_transfer=110).
@@ -362,7 +363,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ## GUI
 
-Пакет `paradox_gui/` — **11 931 строка**. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
+Пакет `paradox_gui/` — **13 479 строк**. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
 
 ### Корень
 
@@ -393,10 +394,10 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `run_view.py` | 627 | **Прогон** — drop zone, summary, findings, кнопки «Граф связей/атаки/Файлы/What-If» |
 | `history_view.py` | 551 | **История** — список прогонов + HTML-превью |
 | `enrich_view.py` | 548 | **Обогащение** — IOC-выбор + результаты |
-| `settings_view.py` | 2021 | **Настройки** — 12 секций, профили, поиск |
+| `settings_view.py` | 2163 | **Настройки** — 12 секций, профили, поиск |
 | `ipv6_view.py` | 114 | **IPv6** — NDP + потоки |
 | `timeline_view.py` | 251 | **Таймлайн** — kill-chain tree |
-| `export_view.py` | 190 | **Экспорт** — CSV/STIX preview |
+| `export_view.py` | 154 | **Экспорт** — CSV/STIX/HTML preview |
 | `diff_view.py` | 190 | **Сравнение** — **v1.2.0** diff двух JSON-отчётов |
 | `roadmap_view.py` | 100 | **Развитие** — статический roadmap |
 | `quick_check_window.py` | 339 | Отдельное окно быстрой проверки IOC |
@@ -459,8 +460,9 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Анализаторы | 3 | 21 | `test_attack_graph.py` (15) |
 | Агрегаторы | 1 | 10 | `test_aggregators_entities.py` |
 | Enrichment | 15 | 92 | `test_enricher_orchestrator.py` (11) |
-| GUI (offscreen) | 12 | 66 | `test_provider_card.py` (8), `test_editable_list.py` (12) |
+| GUI (offscreen) | 12 | 73 | `test_provider_card.py` (8), `test_editable_list.py` (12) |
 | Регрессии / FP | 2 | 42 | `test_regressions.py` — FP-каталог |
+| HTML-отчёт | 1 | 10 | `test_html_reporter.py` |
 | Webshell-маркеры | 1 | 12 | `test_webshell_markers.py` |
 | Плагины и STIX | 2 | 28 | `test_detector_plugins.py` (14), `test_stix_reporter.py` (14) |
 | Мульти-pcap | 1 | 1 | `test_multi_pcap.py` — базовый merge |
@@ -500,11 +502,11 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | IPv6 в IOC reporter — есть, но не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
 | TLS 1.3 certificate зашифрован | Правила на сертификатах работают только для TLS 1.2 | Технический лимит |
 | `markdown_reporter.py` — 976 строк | Сложно поддерживать | Разбить на подмодули |
-| `settings_view.py` — 2021 строка | Монолит | Разбить по секциям |
+| `settings_view.py` — 2163 строки | Монолит | Разбить по секциям |
 | `contradictions/facts.py` — 927 строк | Один файл на 7 экстракторов | Разбить по source |
 | `entities.py` дублирует полярность findings с `facts.py` | Рассинхрон → FP | Вынести в общий модуль |
-| Нет `pyproject.toml [project.scripts]` entry point | `paradox` не в PATH после `pip install -e` | 5 строк |
-| `__version__` в `paradox/__init__.py` и `paradox_gui/__init__.py` = `"1.0.0"`, а тег `v1.2.0` | Version drift | Поднять до `"1.2.0"` |
+| ~~Нет entry point~~ | Закрыто: `paradox` в `[project.scripts]` | — |
+| ~~Version drift~~ | Закрыто: `1.4.0` в коде и теге | — |
 
 ### Технический долг (не блокеры)
 

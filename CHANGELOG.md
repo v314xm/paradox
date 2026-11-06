@@ -6,6 +6,17 @@
 ## [Unreleased]
 
 ### Добавлено
+- CLI: `paradox capture.pcap --html` пишет `<report>.html`.
+  `paradox/reporters/html_reporter.py` — самодостаточный отчёт
+  (сводка, протоколы, findings по severity, противоречия с фактами,
+  таймлайн, IOC), весь CSS внутри, все значения экранируются.
+- GUI: HTML-отчёт в вкладке «Экспорт» — тот же `render_html`
+  ядра, что и `--html` в CLI; самодостаточный файл печатается
+  в PDF из браузера.
+- GUI: секция «Плагины» в настройках — включение загрузки,
+  каталог с выбором через диалог, кнопка «Проверить» показывает
+  загруженные детекторы и число ошибок; значения уходят
+  в Config через `config_applied` (`plugins_enabled`, `plugins_dir`).
 - STIX 2.1 в CLI: `paradox capture.pcap --stix` пишет
   `<report>.stix.json` рядом с JSON. Логика вынесена из GUI
   в ядро — `paradox/reporters/stix_reporter.py`: детерминированные

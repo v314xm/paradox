@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1167%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1184%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1167 тестов.**
+**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1184 теста.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -102,10 +102,10 @@ Timeline: port_scan → ftp_brute_force → command_injection → beaconing → 
 - **Прогон** — drop zone, прогресс по фазам, summary, findings с фильтрами, противоречия, «Граф связей», «Файлы» (carved), What-If (исключить IP/домен → пересчитать).
 - **История** — все прогоны сессии, клик → детали.
 - **Обогащение** — Threat Intel по выбранным IOC.
-- **Настройки** — 11 секций Config с тултипами, профили (Default/CTF/Corporate), отключение детекторов и правил.
+- **Настройки** — 12 секций Config с тултипами, профили (Default/CTF/Corporate), отключение детекторов и правил, секция «Плагины» (включение, каталог, проверка загрузки).
 - **IPv6** — NDP-соседи, роутеры.
 - **Таймлайн** — kill-chain фазы с фильтрами.
-- **Экспорт** — CSV findings + STIX 2.1 bundle.
+- **Экспорт** — CSV findings, STIX 2.1 bundle и самодостаточный HTML-отчёт (печать в PDF из браузера).
 - **Сравнение (B1)** — два JSON-отчёта → что добавилось / исчезло / изменилось. Для повторного триажа одного и того же pcap через день/неделю.
 
 ### Сравнение прогонов (B1)
@@ -136,6 +136,7 @@ paradox capture.pcap                          # JSON + Markdown в reports/
 paradox capture.pcap -o reports/today.json    # конкретный путь
 paradox capture.pcap --enrich                 # + Threat Intel
 paradox capture.pcap --stix                   # + STIX 2.1 bundle
+paradox capture.pcap --html                   # + HTML-отчёт (печать в PDF)
 paradox capture.pcap --plugins                # + детекторы из ~/.paradox/plugins
 paradox capture.pcap -o reports/              # директория
 ```
@@ -145,6 +146,7 @@ paradox capture.pcap -o reports/              # директория
 - `reports/<pcap>.report.json` — полный отчёт (schema_version, provenance, contradictions)
 - `reports/<pcap>.report.md` — TL;DR, timeline, findings, IOC
 - `reports/<pcap>.report.stix.json` — STIX 2.1 bundle (с `--stix`)
+- `reports/<pcap>.report.html` — самодостаточный HTML-отчёт (с `--html`)
 - `reports/iocs.txt` `iocs.csv` `iocs.json` `suricata.rules` `queries.txt` — IOC-экспорт
 
 ## Производительность
@@ -198,11 +200,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~20 сек, 1167 passed
+pytest -m "not slow"           # ~20 сек, 1184 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1167 тестов в 133 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+1184 теста в 135 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
 
 Покрытие:
 
@@ -256,7 +258,7 @@ pre-commit install
 
 ## Roadmap
 
-- **1.4.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (8 вкладок), B1 (сравнение прогонов), 1167 тестов.
+- **1.4.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (8 вкладок), B1 (сравнение прогонов), 1184 теста.
 - **Дальше** — HTTP/2-парсер (h2-фреймы + HPACK), stream mode для pcap > 2 ГБ, PDF-экспорт, вкладка плагинов в GUI, CI-workflow.
 - **Backlog** — SMB relay, DHCP starvation, DoH-аномалии.
 

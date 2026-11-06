@@ -1,6 +1,7 @@
-"""Вкладка Экспорта (CSV и STIX) с копированием в буфер."""
+"""Вкладка Экспорта (CSV, STIX, HTML) с копированием в буфер."""
 import csv
 import html
+from pathlib import Path
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox.reporters.html_reporter import render_html
 from paradox.reporters.stix_reporter import render_stix_json
 from paradox_gui.i18n import tr
 
@@ -44,6 +46,7 @@ class ExportView(QWidget):
         self.format_combo = QComboBox()
         self.format_combo.addItem(tr("export.fmt_csv"), "csv")
         self.format_combo.addItem(tr("export.fmt_stix"), "stix")
+        self.format_combo.addItem(tr("export.fmt_html"), "html")
         self.format_combo.setMinimumWidth(250)
         self.format_combo.currentIndexChanged.connect(self._update_preview)
         ctrl_layout.addWidget(self.format_combo)
@@ -89,14 +92,23 @@ class ExportView(QWidget):
     def _generate_stix(self) -> str:
         return render_stix_json(self._report)
 
+    def _generate_html(self) -> str:
+        return render_html(self._report)
+
+    def _generate(self, fmt: str) -> str:
+        if fmt == "csv":
+            return self._generate_csv()
+        if fmt == "stix":
+            return self._generate_stix()
+        if fmt == "html":
+            return self._generate_html()
+        return ""
+
     def _update_preview(self):
         if not self._report: return
 
         fmt = self.format_combo.currentData()
-        if fmt == "csv":
-            self._current_export_data = self._generate_csv()
-        else:
-            self._current_export_data = self._generate_stix()
+        self._current_export_data = self._generate(fmt)
 
         # Экранируем HTML-символы для безопасного отображения
         display_text = html.escape(self._current_export_data)
@@ -115,21 +127,28 @@ class ExportView(QWidget):
         if not self._report: return
         fmt = self.format_combo.currentData()
 
-        if fmt == "csv":
-            path, _ = QFileDialog.getSaveFileName(self, "Сохранить CSV", "findings.csv", "CSV (*.csv)")
-            if not path: return
-            try:
-                with open(path, "w", encoding="utf-8") as f:
-                    f.write(self._current_export_data)
-                QMessageBox.information(self, "Success", tr("export.csv_saved"))
-            except Exception as e:
-                QMessageBox.critical(self, tr("export.err_save"), str(e))
-        else:
-            path, _ = QFileDialog.getSaveFileName(self, "Сохранить STIX", "bundle.json", "JSON (*.json)")
-            if not path: return
-            try:
-                with open(path, "w", encoding="utf-8") as f:
-                    f.write(self._current_export_data)
-                QMessageBox.information(self, "Success", tr("export.stix_saved"))
-            except Exception as e:
-                QMessageBox.critical(self, tr("export.err_save"), str(e))
+        specs = {
+            "csv": (
+                "Сохранить CSV", "findings.csv", "CSV (*.csv)",
+                "export.csv_saved",
+            ),
+            "stix": (
+                "Сохранить STIX", "bundle.json", "JSON (*.json)",
+                "export.stix_saved",
+            ),
+            "html": (
+                "Сохранить HTML", "report.html", "HTML (*.html)",
+                "export.html_saved",
+            ),
+        }
+        title, default_name, file_filter, ok_key = specs[fmt]
+        path, _ = QFileDialog.getSaveFileName(
+            self, title, default_name, file_filter,
+        )
+        if not path:
+            return
+        try:
+            Path(path).write_text(self._current_export_data, encoding="utf-8")
+            QMessageBox.information(self, "Success", tr(ok_key))
+        except Exception as e:
+            QMessageBox.critical(self, tr("export.err_save"), str(e))

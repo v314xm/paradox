@@ -4,6 +4,7 @@ from pathlib import Path
 
 from paradox.config import Config
 from paradox.pipeline import run_pipeline
+from paradox.reporters.html_reporter import write_html
 from paradox.reporters.json_reporter import write_json, write_markdown
 from paradox.reporters.stix_reporter import write_stix
 
@@ -88,6 +89,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Дополнительно выгрузить STIX 2.1 bundle (рядом с JSON)",
     )
     parser.add_argument(
+        "--html",
+        action="store_true",
+        help="Дополнительно HTML-отчёт (открыть в браузере, печать в PDF)",
+    )
+    parser.add_argument(
         "--plugins",
         action="store_true",
         help="Загрузить детекторы из ~/.paradox/plugins/*.py",
@@ -149,6 +155,11 @@ def main(argv: list[str] | None = None) -> None:
         stix_out = out.with_suffix(".stix.json")
         write_stix(report, stix_out)
 
+    html_out = None
+    if args.html:
+        html_out = out.with_suffix(".html")
+        write_html(report, html_out)
+
     s = report["summary"]
     print()
     print(f"packets:            {s['packets']}")
@@ -162,3 +173,5 @@ def main(argv: list[str] | None = None) -> None:
     print(f"report Markdown:    {md_out}")
     if stix_out is not None:
         print(f"report STIX:        {stix_out}")
+    if html_out is not None:
+        print(f"report HTML:        {html_out}")
