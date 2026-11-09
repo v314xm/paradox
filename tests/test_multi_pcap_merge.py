@@ -216,7 +216,8 @@ def test_arp_macs_merge_by_ip_and_mac():
 
 # ================== tcp_streams ==================
 
-def test_tcp_streams_concatenated():
+def test_tcp_stream_collision_is_not_concatenated():
+    """Один 5-tuple из разных файлов нельзя склеивать в один поток."""
     k1 = FlowKey("tcp", "10.0.0.1", "1.1.1.1", 12345, 80)
     k2 = FlowKey("tcp", "10.0.0.1", "1.1.1.1", 12346, 80)
     s1 = CaptureState()
@@ -225,8 +226,11 @@ def test_tcp_streams_concatenated():
     s2.tcp_streams[k1] = b"HTTP/1.1"
     s2.tcp_streams[k2] = b"POST"
     merged = merge_capture_states([s1, s2])
-    assert merged.tcp_streams[k1] == b"GET / HTTP/1.1"
+
+    # Первый поток сохраняется как был, второй не приклеивается.
+    assert merged.tcp_streams[k1] == b"GET / "
     assert merged.tcp_streams[k2] == b"POST"
+    assert merged.extractor_errors["multi_pcap_stream_conflict"] == 1
 
 
 # ================== http_objects / tls_certs / carved_files ==================

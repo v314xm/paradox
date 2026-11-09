@@ -62,6 +62,32 @@ def test_dns_query_collected_by_src():
     assert state.dns_queries_by_src["10.0.0.5"]["example.com"] == 1
 
 
+def test_dns_over_tcp_strips_length_prefix():
+    state = CaptureState()
+    msg = _build_dns_query("tcp.example")
+    payload = len(msg).to_bytes(2, "big") + msg
+    record = _record(payload, "10.0.0.5", "8.8.8.8", 40000, 53)
+    record.proto = "tcp"
+
+    DNSExtractor().process(record, state)
+
+    assert state.dns_queries["tcp.example"] == 1
+
+
+def test_nxdomain_on_query_is_not_counted():
+    """rcode=3 в запросе (qr=0) — не NXDOMAIN-ответ."""
+    state = CaptureState()
+    payload = bytearray(_build_dns_query("bad.example"))
+    payload[2:4] = (0x0103).to_bytes(2, "big")  # qr=0, rcode=3
+
+    DNSExtractor().process(
+        _record(bytes(payload), "10.0.0.5", "8.8.8.8", 40000, 53), state,
+    )
+
+    assert state.dns_nxdomain["bad.example"] == 0
+    assert state.dns_nxdomain_by_src == {}
+
+
 def test_dns_query_from_server_side_uses_dst_as_client():
     state = CaptureState()
     payload = _build_dns_query("example.com")

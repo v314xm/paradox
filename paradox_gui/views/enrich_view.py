@@ -17,7 +17,7 @@
     Ядро читает ABUSEIPDB_API_KEY из os.environ в момент запроса.
     Ключ выставляется в Настройках → Threat Intel.
 """
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -327,10 +327,11 @@ class EnrichView(QWidget):
         # finished приходит до фактического завершения QThread: без
         # wait() последняя ссылка может умереть, пока поток ещё
         # раскручивается. Как в RunView._on_thread_done.
-        w = self._worker
-        if w is not None:
+        w = self.sender()
+        if isinstance(w, QThread):
             w.wait(2000)
-        self._worker = None
+            if self._worker is w:
+                self._worker = None
 
     def is_busy(self) -> bool:
         return bool(self._worker and self._worker.isRunning())

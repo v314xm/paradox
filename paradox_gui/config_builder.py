@@ -17,10 +17,13 @@ def build_config_with_overrides(overrides: dict[str, Any] | None = None):
     в котором:
       - пересобирается dga_allowlist (extra | cloud_tunnel | ip_check);
       - brute_force_excluded_ports = alias на dc_service_ports;
-      - выполняется _validate();
-      - создаётся output_dir.mkdir().
+      - выполняется _validate().
     Поэтому после наложения overrides явно вызываем __post_init__() —
     он идемпотентен.
+
+    output_dir создаётся здесь, а не в Config: конструктор конфига
+    не должен писать на диск (он вызывается и в тестах, и на
+    read-only носителях).
 
     Исключение — dga_allowlist. __post_init__ собирает его из
     _dga_allowlist_extra | cloud_tunnel_domains | ip_check_services.
@@ -46,5 +49,7 @@ def build_config_with_overrides(overrides: dict[str, Any] | None = None):
             object.__setattr__(
                 config, "dga_allowlist", overrides["dga_allowlist"],
             )
+
+    config.output_dir.mkdir(parents=True, exist_ok=True)
 
     return config

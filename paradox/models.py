@@ -2,6 +2,8 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from paradox.taxonomy import SEVERITY_BY_TYPE as _SEVERITY_BY_TYPE
+
 
 @dataclass
 class HostIdentity:
@@ -21,44 +23,11 @@ class HostIdentity:
             "realm": self.realm,
         }
 
-# v0.9.0: карта тип finding → severity по умолчанию.
+# v0.9.0: карта тип finding → severity по умолчанию живёт в
+# paradox/taxonomy.py. Здесь оставлен алиас для обратной совместимости.
 #
 # Детектор может задать severity явно. Если оставил "medium" —
 # применяется эта карта.
-_SEVERITY_BY_TYPE: dict[str, str] = {
-    "command_injection": "high",
-    "brute_force": "high",
-    "ftp_brute_force": "high",
-    "ssh_brute_force": "high",
-    "lateral_movement": "high",
-    "ja3_malware": "high",
-    "ja3s_malware": "high",
-    "script_download": "high",
-    "yara_match": "high",
-    "http_binary_upload": "high",
-    "php_download": "high",
-    "webshell_upload": "critical",
-    "webshell_signature": "critical",
-
-    "port_scan": "medium",
-    "web_scanner": "medium",
-    "vulnerable_path": "medium",
-    "beaconing": "medium",
-    "dns_tunneling": "medium",
-    "suspicious_port": "medium",
-    "cloud_tunnel": "medium",
-    "cloud_tunnel_domain": "medium",
-    "sni_mismatch": "medium",
-    "dga_domain": "medium",
-    "smtp_spam": "medium",
-    "sni_without_dns": "medium",
-    "large_transfer": "medium",
-    "carved_file": "medium",
-
-    "nxdomain_burst": "low",
-    "typosquatting": "low",
-    "ip_check_service": "low",
-}
 
 
 def _first_from_list(v):
@@ -312,8 +281,12 @@ class CaptureState:
     arp_macs: dict[str, dict[str, list]] = field(default_factory=dict)
     # TCP reassembly: склеенные потоки по FlowKey
     tcp_streams: dict[FlowKey, bytes] = field(default_factory=dict)
-    carved_files: list = field(default_factory=list)
+    # Сколько потоков было собрано до освобождения сырых байтов:
+    # после post-extract state.tcp_streams очищается, чтобы не держать
+    # до 200 МБ в памяти.
+    tcp_streams_total: int = 0
     tcp_streams_truncated: set[FlowKey] = field(default_factory=set)
+    carved_files: list = field(default_factory=list)
     # HTTP-объекты, извлечённые из tcp_streams
     # ключ — (FlowKey запроса, FlowKey ответа) или одиночный FlowKey
     http_objects: list = field(default_factory=list)

@@ -661,6 +661,10 @@ class Config:
     # --- flow report ---
     flow_report_top_n: int = 500
 
+    # --- absence ---
+    # Потолок строк в секциях «DNS без ответа» и «TCP без ответа».
+    absence_top_n: int = 100
+
     # --- plugins ---
     # Пользовательские детекторы из ~/.paradox/plugins/*.py.
     # По умолчанию выключено: плагин — это код, который будет
@@ -727,7 +731,6 @@ class Config:
         )
 
         self._validate()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _validate(self) -> None:
         errors: list[str] = []
@@ -868,6 +871,8 @@ class Config:
             errors.append("gateway_min_unique_dsts must be > 0")
         if self.flow_report_top_n <= 0:
             errors.append("flow_report_top_n must be > 0")
+        if self.absence_top_n <= 0:
+            errors.append("absence_top_n must be > 0")
         if not str(self.plugins_dir).strip():
             errors.append("plugins_dir must not be empty")
         if self.web_scanner_min_distinct_paths <= 0:

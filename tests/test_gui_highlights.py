@@ -212,6 +212,23 @@ def test_repeated_update_replaces_cards(qapp):
     assert panel._count.isVisible() is False
 
 
+def test_clear_drops_cards_and_restores_empty_state(qapp):
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_report())
+    assert panel.cards()
+
+    panel.clear()
+
+    assert panel.cards() == []
+    assert panel._count.isVisible() is False
+    assert panel._count.text() == ""
+    assert panel._empty.isHidden() is False
+    assert all(not chip.isChecked() or key is None
+               for key, chip in panel._chips.items())
+
+
 def test_theme_defines_highlight_card_styles():
     from paradox_gui.theme import QSS
 

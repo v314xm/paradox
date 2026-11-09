@@ -34,6 +34,7 @@ from paradox.detectors.typosquatting import TyposquattingDetector
 from paradox.detectors.vulnerable_path import VulnerablePathDetector
 from paradox.detectors.webshell_markers import WebShellMarkersDetector
 from paradox.detectors.yara_detector import YARADetector
+from paradox.errors import ParadoxInputError
 from paradox.extractors.arp_history import ARPMacHistoryExtractor
 from paradox.extractors.dhcp import DHCPExtractor
 from paradox.extractors.dns import DNSExtractor
@@ -134,6 +135,17 @@ def _extract(
     import sys
     import time
 
+    if not pcap_path.is_file():
+        raise ParadoxInputError(f"файл не найден: {pcap_path}")
+
+    with pcap_path.open("rb") as probe:
+        magic = probe.read(4)
+    if magic == b"\x0a\x0d\x0d\x0a":
+        raise ParadoxInputError(
+            f"{pcap_path.name}: pcapng не поддержан. "
+            "Сконвертируйте в pcap: editcap -F pcap in.pcapng out.pcap"
+        )
+
     file_size = pcap_path.stat().st_size
     last_update = time.monotonic()
     update_interval = 2.0
@@ -148,7 +160,13 @@ def _extract(
             max_total_bytes=config.tcp_reassembly_max_total_bytes,
         )
 
-    reader = RawPcapReader(str(pcap_path))
+    try:
+        reader = RawPcapReader(str(pcap_path))
+    except Exception as exc:
+        raise ParadoxInputError(
+            f"{pcap_path.name}: не удалось прочитать pcap "
+            f"({type(exc).__name__}: {exc})"
+        ) from exc
     try:
         for raw_data, metadata in reader:
             state.packet_count += 1
@@ -168,7 +186,11 @@ def _extract(
                 1_000_000_000 if getattr(reader, "nano", False) else 1_000_000
             )
             ts = metadata.sec + metadata.usec / frac_denom
-            record = parse_packet(raw_data, ts)
+            try:
+                record = parse_packet(raw_data, ts)
+            except Exception:
+                state.extractor_errors["parse"] += 1
+                continue
 
             # Reassembly до экстракторов
             if reassembler is not None:
@@ -211,6 +233,7 @@ def _extract(
     if reassembler is not None:
         reassembler.finalize_all()
         state.tcp_streams = reassembler.all_streams()
+        state.tcp_streams_total = len(state.tcp_streams)
         state.tcp_streams_truncated = reassembler.truncated_flows()
 
     # Post-extract: HTTP-объекты, X.509, carve. Не зависят от флага
@@ -252,6 +275,11 @@ def _extract(
 
     if on_progress is not None:
         on_progress(file_size, file_size)
+
+    # Сырые байты потоков больше не нужны: HTTP-объекты, сертификаты
+    # и carved-файлы уже извлечены. Без очистки state держал бы
+    # до 200 МБ до конца прогона.
+    state.tcp_streams.clear()
 
     if show_progress:
         elapsed = time.monotonic() - start
@@ -443,7 +471,7 @@ def _build_report(
         "files": [c.to_dict() for c in state.carved_files],
         "mitre": _summarize_mitre(findings),
     }
-    absence_report = analyze_absence(state)
+    absence_report = analyze_absence(state, top_n=config.absence_top_n)
 
     entities = build_entities(
         state, findings, config, contradictions=contradictions,
@@ -506,7 +534,7 @@ def _build_report(
             "findings": len(findings),
             "contradictions": len(contradictions),
             "extractor_errors": dict(state.extractor_errors),
-            "tcp_streams": len(state.tcp_streams),
+            "tcp_streams": state.tcp_streams_total or len(state.tcp_streams),
             "tcp_streams_truncated": len(state.tcp_streams_truncated),
             "http_objects": len(state.http_objects),
             "carved_files": len(state.carved_files),
@@ -532,7 +560,8 @@ def _build_report(
     }
 
 
-def run_pipeline(    pcap_path: Path,
+def run_pipeline(
+    pcap_path: str | Path,
     config: Config,
     should_stop: Callable[[], bool] | None = None,
     on_progress: Callable[[int, int], None] | None = None,
@@ -540,6 +569,7 @@ def run_pipeline(    pcap_path: Path,
     detectors: list | None = None,
     rules: list | None = None,
 ) -> dict:
+    pcap_path = Path(pcap_path)
     state = CaptureState()
 
     _extract(
@@ -566,7 +596,7 @@ def run_pipeline(    pcap_path: Path,
 
 
 def run_multi_pipeline(
-    pcap_paths: list[Path],
+    pcap_paths: list[str | Path],
     config: Config,
     should_stop: Callable[[], bool] | None = None,
     on_progress: Callable[[int, int], None] | None = None,
@@ -586,6 +616,8 @@ def run_multi_pipeline(
 
     if not pcap_paths:
         raise ValueError("pcap_paths is empty")
+
+    pcap_paths = [Path(p) for p in pcap_paths]
 
     # 1. Извлечение
     states = []

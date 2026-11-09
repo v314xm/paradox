@@ -16,35 +16,8 @@ from typing import Any
 from paradox.config import Config
 from paradox.models import Finding
 from paradox.net_utils import is_internal_ip
-
-SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
-SEVERITY_WEIGHT = {"critical": 1.0, "high": 0.75, "medium": 0.5, "low": 0.25, "info": 0.1}
-
-PHASE_ORDER = {
-    "recon": 10, "initial_access": 20, "execution": 30,
-    "persistence": 40, "lateral_movement": 50, "c2": 60,
-    "exfiltration": 70, "impact": 80, "other": 999,
-}
-
-_PHASE_OF_TYPE = {
-    "port_scan": "recon", "web_scanner": "recon",
-    "vulnerable_path": "initial_access", "brute_force": "initial_access",
-    "ftp_brute_force": "initial_access", "ssh_brute_force": "initial_access",
-    "typosquatting": "initial_access",
-    "command_injection": "execution", "script_download": "execution",
-    "carved_file": "execution", "yara_match": "execution",
-    "beaconing": "c2", "dns_tunneling": "c2", "dga_domain": "c2",
-    "cloud_tunnel": "c2", "cloud_tunnel_domain": "c2", "ja3_malware": "c2",
-    "ip_check_service": "c2", "sni_without_dns": "c2",
-    "sni_mismatch": "c2", "suspicious_port": "c2", "nxdomain_burst": "c2",
-    "lateral_movement": "lateral_movement",
-    "large_transfer": "exfiltration",
-    "http_binary_upload": "exfiltration",
-    "php_download": "execution",
-    "webshell_upload": "execution",
-    "webshell_signature": "execution",
-    "smtp_spam": "impact",
-}
+from paradox.taxonomy import PHASE_BY_TYPE as _PHASE_OF_TYPE
+from paradox.taxonomy import PHASE_ORDER, SEVERITY_RANK, SEVERITY_WEIGHT
 
 _ENTRY_PHASES = frozenset({"initial_access", "execution"})
 _IMPACT_PHASES = frozenset({"c2", "exfiltration", "impact"})

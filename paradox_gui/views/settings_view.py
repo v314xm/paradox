@@ -2141,6 +2141,7 @@ class SettingsView(QWidget):
             self._allowlist_inputs,
             self._dga_inputs,
             self._reports_inputs,
+            self._plugins_inputs,
             self._ti_inputs,
             self._yara_inputs,
         ):

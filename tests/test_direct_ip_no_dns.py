@@ -5,7 +5,8 @@ from paradox.contradictions.rules.g_direct_ip_no_dns import (
 )
 
 
-def _connect(src, dst, ports=None, bytes_sent=5000, resolved=False):
+def _connect(src, dst, ports=None, bytes_sent=5000, resolved=False,
+             flows=1):
     return Fact(
         source="flow",
         subject=src,
@@ -16,6 +17,7 @@ def _connect(src, dst, ports=None, bytes_sent=5000, resolved=False):
         evidence={
             "dst_ip": dst,
             "ports": ports or [443],
+            "flows": flows,
             "bytes_sent": bytes_sent,
             "resolved": resolved,
         },
@@ -49,15 +51,36 @@ def test_three_dsts_no_dns_medium():
     assert "DNS-запросов — ноль" in res[0].resolution_hint
 
 
-# 2. 1 dst, 10+ ports → срабатывает (много обращений к одному IP)
-def test_one_dst_many_ports():
+# 2. 1 dst, 10+ flows → срабатывает (много обращений к одному IP)
+def test_one_dst_many_flows():
     facts = [
-        _connect("192.168.1.5", "1.2.3.4",
-                 ports=list(range(1000, 1010))),
+        _connect("192.168.1.5", "1.2.3.4", ports=[443], flows=10),
     ]
     rule = DirectIpNoDnsRule()
     res = rule.find_contradictions(facts)
     assert len(res) == 1
+
+
+# 2b. Много портов, но один flow — это не «10 обращений».
+def test_one_dst_many_ports_one_flow_is_not_enough():
+    facts = [
+        _connect("192.168.1.5", "1.2.3.4",
+                 ports=list(range(1000, 1010)), flows=1),
+    ]
+    rule = DirectIpNoDnsRule()
+    assert rule.find_contradictions(facts) == []
+
+
+# 2c. Клиент делал DNS-запросы в этом же pcap → правило молчит.
+def test_client_with_dns_queries_is_skipped():
+    facts = [
+        _connect("192.168.1.5", "1.2.3.4"),
+        _connect("192.168.1.5", "5.6.7.8"),
+        _connect("192.168.1.5", "9.10.11.12"),
+        _dns("192.168.1.5"),
+    ]
+    rule = DirectIpNoDnsRule()
+    assert rule.find_contradictions(facts) == []
 
 
 # 3. Все dst резолвились через DNS → не срабатывает.

@@ -23,14 +23,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from paradox.reporters.stix_reporter import extract_iocs
+from paradox.taxonomy import SEVERITY_ORDER as _SEVERITY_ORDER
 
-_SEVERITY_ORDER = {
-    "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 3,
-    "info": 4,
-}
 _EVIDENCE_LIMIT = 4000
 
 _STYLE = """

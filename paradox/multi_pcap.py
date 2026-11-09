@@ -150,12 +150,17 @@ def merge_capture_states(
                     dst[2] += entry[2]
 
         # --- TCP streams ---
+        # Потоки уже разобраны post-extract внутри каждого файла:
+        # http_objects/tls_certs/carved_files лежат отдельно. Склеивать
+        # байты одного 5-tuple из разных pcap нельзя — на стыке
+        # получится поток, которого не было, и ложные совпадения.
         for key, stream in st.tcp_streams.items():
             if key not in merged.tcp_streams:
                 merged.tcp_streams[key] = stream
             else:
-                merged.tcp_streams[key] += stream
+                merged.extractor_errors["multi_pcap_stream_conflict"] += 1
         merged.tcp_streams_truncated.update(st.tcp_streams_truncated)
+        merged.tcp_streams_total += st.tcp_streams_total or len(st.tcp_streams)
 
         # --- HTTP objects / TLS certs / carved files ---
         merged.http_objects.extend(st.http_objects)

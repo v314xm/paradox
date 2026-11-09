@@ -122,4 +122,12 @@ class ObservationsPanel(QFrame):
             "—" if n_carved == 0 else tr("obs.carved", count=n_carved)
         )
 
+    def clear(self) -> None:
+        """Сбросить панель перед новым прогоном."""
+        for row in (
+            self._row_http, self._row_dns, self._row_flows,
+            self._row_hosts, self._row_tcp, self._row_carved,
+        ):
+            row.set_value("—")
+
 # AUTO-COMPACTED-OBSERVATIONS

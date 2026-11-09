@@ -549,8 +549,7 @@ class MainWindow(QMainWindow):
         # >>> /ОСТАНОВКА <<<
 
     def _on_open_settings(self) -> None:
-        # «Настройки» — четвёртый таб (индекс 3) после перестановки.
-        self.tabs.setCurrentIndex(3)
+        self.tabs.setCurrentIndex(self.tabs.indexOf(self.settings_view))
 
     def _on_help_reference(self) -> None:
         QMessageBox.information(
@@ -645,6 +644,11 @@ class MainWindow(QMainWindow):
         # Новый прогон — старые выдержки уже не про этот отчёт.
         if getattr(self, "_payload_window", None) is not None:
             self._payload_window.clear()
+        # Старые IOC и превью экспорта тоже относятся к прошлому pcap.
+        if hasattr(self, "enrich_view"):
+            self.enrich_view.set_report(None)
+        if hasattr(self, "export_view"):
+            self.export_view.clear()
 
     def _on_analysis_finished(self, report: object) -> None:
         s = report.get("summary", {}) if isinstance(report, dict) else {}

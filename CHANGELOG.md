@@ -3,6 +3,40 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/).
 Версии: семантическое версионирование (major.minor.patch).
 
+## [Unreleased]
+
+### Исправлено
+- `run_pipeline` / `run_multi_pipeline` принимают `str | Path`; раньше
+  строка падала на `pcap_path.stat()`.
+- Не-pcap и `.pcapng` дают `ParadoxInputError` и код выхода 3 вместо
+  трейсбека; у CLI появился `--version`.
+- Multi-pcap больше не склеивает байты одного 5-tuple из разных файлов:
+  коллизия считается в `extractor_errors.multi_pcap_stream_conflict`.
+- `direct_ip_no_dns` молчит, если клиент делал DNS-запросы, и считает
+  реальные flows, а не порты.
+- Одно определение internal/external IP (`net_utils.ip_scope`) для
+  IOC, STIX, entities и детекторов; CGNAT и IPv6 в любой форме.
+- DNS: NXDOMAIN считается только по ответам (без двойного счёта),
+  DNS-over-TCP снимает 2-байтный length-prefix.
+- GUI: `Ctrl+,` открывает «Настройки», слоты `finished` используют
+  `self.sender()`, у Quick Check есть `closeEvent`, панели очищаются
+  между прогонами, настройки плагинов восстанавливаются.
+- Сборка: абсолютные пути убраны из `Paradox.spec`, один путь сборки
+  с иконкой, `SHA256SUMS` рядом с установщиком, исправлена
+  двойная кодировка `build_installer.py` и `paradox.iss`.
+
+### Добавлено
+- `paradox/taxonomy.py` — единый источник правды о ролях, MITRE,
+  фазах и severity; `tests/test_taxonomy.py` не даёт типам findings
+  выпасть из таблиц.
+- `tools/coverage_gate.py` — локальный порог покрытия (ядро 80%,
+  GUI 30%) в обход известного `0xC0000005` на выходе pytest.
+- `SECURITY.md` и `docs/OPERATIONS.md`.
+- Лимиты `absence_top_n` и top-N для NXDOMAIN в отчёте.
+
+### Изменено
+- 1288 тестов (было 1258), покрытие ядра 85.4%.
+
 ## [1.5.0] — 2026-11-09
 
 ### Добавлено

@@ -12,22 +12,15 @@ from typing import Any, Protocol, runtime_checkable
 
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
+from paradox.taxonomy import SEVERITY_ORDER, SEVERITY_WEIGHT
 
-SEVERITY_ORDER: dict[str, int] = {
-    "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 3,
-    "info": 4,
-}
-
-SEVERITY_WEIGHT: dict[str, float] = {
-    "critical": 1.0,
-    "high": 0.75,
-    "medium": 0.5,
-    "low": 0.25,
-    "info": 0.1,
-}
+__all__ = [
+    "Contradiction",
+    "ContradictionRule",
+    "Fact",
+    "SEVERITY_ORDER",
+    "SEVERITY_WEIGHT",
+]
 
 
 @dataclass(frozen=True)

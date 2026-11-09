@@ -2,11 +2,25 @@ import argparse
 import sys
 from pathlib import Path
 
+from paradox import __version__
 from paradox.config import Config
-from paradox.pipeline import run_pipeline
+from paradox.errors import ParadoxInputError
 from paradox.reporters.html_reporter import write_html
 from paradox.reporters.json_reporter import write_json, write_markdown
 from paradox.reporters.stix_reporter import write_stix
+
+# Загружается лениво: импорт pipeline тянет scapy, который печатает
+# предупреждение о libpcap даже для `--version`. Тесты патчат этот
+# символ, поэтому он остаётся атрибутом модуля.
+run_pipeline = None
+
+
+def _pipeline():
+    global run_pipeline
+    if run_pipeline is None:
+        from paradox.pipeline import run_pipeline as _run
+        run_pipeline = _run
+    return run_pipeline
 
 
 def _ask_pcap_path() -> Path:
@@ -79,6 +93,11 @@ def _resolve_output(
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="paradox")
     parser.add_argument(
+        "--version",
+        action="version",
+        version=f"paradox {__version__}",
+    )
+    parser.add_argument(
         "--enrich",
         action="store_true",
         help="Обогатить findings через Shodan InternetDB (требует сети)",
@@ -121,7 +140,13 @@ def main(argv: list[str] | None = None) -> None:
             sys.exit(2)
 
     config = Config(plugins_enabled=args.plugins)
-    report = run_pipeline(pcap_path, config)
+    pipeline = _pipeline()
+
+    try:
+        report = pipeline(pcap_path, config)
+    except ParadoxInputError as exc:
+        print(f"ошибка входа: {exc}", file=sys.stderr)
+        sys.exit(3)
 
     # Обогащение findings (опционально, --enrich)
     if args.enrich:

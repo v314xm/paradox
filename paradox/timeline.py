@@ -35,67 +35,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from paradox.models import Finding
-
-# Маппинг тип finding → kill-chain фаза.
-# Тип вне мапы → phase="other", chain_order=999 (в конце).
-_PHASE_BY_TYPE: dict[str, str] = {
-    # Reconnaissance
-    "port_scan": "recon",
-    "web_scanner": "recon",
-
-    # Initial Access
-    "vulnerable_path": "initial_access",
-    "brute_force": "initial_access",
-    "ftp_brute_force": "initial_access",
-    "ssh_brute_force": "initial_access",
-    "typosquatting": "initial_access",
-
-    # Execution
-    "command_injection": "execution",
-    "script_download": "execution",
-    "php_download": "execution",
-    "webshell_upload": "execution",
-    "webshell_signature": "execution",
-    "carved_file": "execution",
-    "yara_match": "execution",
-
-    # Command and Control
-    "beaconing": "c2",
-    "dns_tunneling": "c2",
-    "dga_domain": "c2",
-    "cloud_tunnel": "c2",
-    "cloud_tunnel_domain": "c2",
-    "ja3_malware": "c2",
-    "ja3s_malware": "c2",
-    "http_binary_upload": "exfiltration",
-    "ip_check_service": "c2",
-    "sni_without_dns": "c2",
-    "sni_mismatch": "c2",
-    "suspicious_port": "c2",
-    "nxdomain_burst": "c2",
-
-    # Lateral Movement
-    "lateral_movement": "lateral_movement",
-
-    # Exfiltration
-    "large_transfer": "exfiltration",
-
-    # Impact
-    "smtp_spam": "impact",
-}
-
-# Численный порядок фаз. Чем меньше — тем раньше в kill-chain.
-_PHASE_ORDER: dict[str, int] = {
-    "recon":             10,
-    "initial_access":    20,
-    "execution":         30,
-    "persistence":       40,
-    "lateral_movement":  50,
-    "c2":                60,
-    "exfiltration":      70,
-    "impact":            80,
-    "other":             999,
-}
+from paradox.taxonomy import PHASE_BY_TYPE as _PHASE_BY_TYPE
+from paradox.taxonomy import PHASE_ORDER as _PHASE_ORDER
 
 # Маппинг rule contradictions → фаза.
 _PHASE_BY_RULE: dict[str, str] = {

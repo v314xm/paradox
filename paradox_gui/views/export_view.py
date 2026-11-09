@@ -79,6 +79,14 @@ class ExportView(QWidget):
         self.btn_copy.setEnabled(True)
         self._update_preview()
 
+    def clear(self) -> None:
+        """Сбросить превью перед новым прогоном."""
+        self._report = None
+        self._current_export_data = ""
+        self.btn_export.setEnabled(False)
+        self.btn_copy.setEnabled(False)
+        self.preview.setHtml(f"<p>{tr('export.empty')}</p>")
+
     def _generate_csv(self) -> str:
         import io
         output = io.StringIO()

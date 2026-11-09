@@ -1,7 +1,7 @@
 """QuickCheckWindow — немодальное окно быстрой проверки IOC."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QComboBox,
@@ -313,10 +313,27 @@ class QuickCheckWindow(QWidget):
         self._status.setText(tr("quick_check.error", msg=msg))
 
     def _on_thread_done(self) -> None:
-        w = self._worker
-        if w is not None:
+        w = self.sender()
+        if isinstance(w, QThread):
             w.wait(2000)
-        self._worker = None
+            if self._worker is w:
+                self._worker = None
+
+    def closeEvent(self, event) -> None:
+        """Не уничтожать работающий QThread вместе с окном."""
+        w = self._worker
+        if w is not None and w.isRunning():
+            w.requestInterruption()
+            if not w.wait(10000):
+                QMessageBox.warning(
+                    self,
+                    tr("error.stop_failed.title"),
+                    tr("error.stop_failed.body"),
+                )
+                event.ignore()
+                return
+            self._worker = None
+        super().closeEvent(event)
 
     def _set_busy(self, busy: bool) -> None:
         self._check_btn.setEnabled(not busy)

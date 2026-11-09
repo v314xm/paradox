@@ -80,3 +80,23 @@ def test_absence_table_shows_several_rows(qapp):
         table.height() - table.horizontalHeader().height()
     ) // table.rowHeight(0)
     assert rows >= 7
+
+
+def test_absence_clear_hides_panel_and_drops_rows(qapp):
+    from paradox_gui.widgets.absence_panel import AbsencePanel
+
+    panel = AbsencePanel()
+    panel.update_report({
+        "absence": {
+            "dns_unanswered": [{"qname": "a.example", "count": 1}],
+            "tcp_unanswered": [{"src_ip": "10.0.0.1", "dst_ip": "10.0.0.2",
+                                "dst_port": 80, "packets": 1}],
+        },
+    })
+    assert panel.isHidden() is False
+
+    panel.clear()
+
+    assert panel.isHidden() is True
+    assert panel.table_dns.rowCount() == 0
+    assert panel.table_tcp.rowCount() == 0

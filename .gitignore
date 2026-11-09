@@ -120,8 +120,6 @@ batch_run.log
 Thumbs.db
 desktop.ini
 *.zip
-Paradox.spec
-paradox.ico
 coverage.txt
 coverage_report.txt
 .coverage

@@ -23,8 +23,16 @@ class DNSExtractor:
         if not record.payload:
             return
 
+        payload = record.payload
+        # DNS over TCP: 2-байтный length-prefix перед сообщением.
+        # Без снятия префикса scapy видит мусор и теряет запрос.
+        if record.proto == "tcp" and len(payload) >= 2:
+            msg_len = int.from_bytes(payload[:2], "big")
+            if 0 < msg_len <= len(payload) - 2:
+                payload = payload[2:2 + msg_len]
+
         try:
-            dns = DNS(record.payload)
+            dns = DNS(payload)
         except Exception:
             return
 
@@ -59,10 +67,10 @@ class DNSExtractor:
         else:
             client_ip = record.src_ip
 
-        # NXDOMAIN — свойство ответа, но считаем до разделения по qr:
-        # исторически rcode=3 учитывался независимо от qr, и менять
-        # это поведение в рамках фикса двойного счёта не нужно.
-        if dns.rcode == 3:  # NXDOMAIN
+        # NXDOMAIN — свойство ответа (qr=1). Раньше rcode=3
+        # учитывался и на запросе, из-за чего один и тот же NXDOMAIN
+        # при наличии обоих пакетов считался дважды.
+        if dns.qr == 1 and dns.rcode == 3:
             state.dns_nxdomain[name] += 1
             if client_ip:
                 state.dns_nxdomain_by_src[client_ip] += 1

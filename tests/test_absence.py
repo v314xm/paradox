@@ -8,6 +8,8 @@ def test_absence_empty():
     res = analyze_absence(state)
     assert res["dns_unanswered"] == []
     assert res["tcp_unanswered"] == []
+    assert res["dns_unanswered_total"] == 0
+    assert res["tcp_unanswered_total"] == 0
 
 
 def test_absence_dns_unanswered():
@@ -45,3 +47,14 @@ def test_absence_tcp_answered():
 
     res = analyze_absence(state)
     assert len(res["tcp_unanswered"]) == 0
+
+
+def test_absence_caps_lists_but_keeps_totals():
+    state = CaptureState()
+    for i, count in enumerate((10, 30, 20)):
+        state.dns_queries[f"n{i}.example"] = count
+
+    res = analyze_absence(state, top_n=2)
+
+    assert [d["count"] for d in res["dns_unanswered"]] == [30, 20]
+    assert res["dns_unanswered_total"] == 3

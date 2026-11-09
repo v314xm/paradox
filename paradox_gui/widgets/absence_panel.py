@@ -110,3 +110,10 @@ class AbsencePanel(QFrame):
             self.tabs.setCurrentIndex(1)
         elif not tcp_data:
             self.tabs.setCurrentIndex(0)
+
+    def clear(self) -> None:
+        """Сбросить таблицы перед новым прогоном."""
+        self.table_dns.setRowCount(0)
+        self.table_tcp.setRowCount(0)
+        self.tabs.setCurrentIndex(0)
+        self.setVisible(False)

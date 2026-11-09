@@ -322,6 +322,19 @@ class HighlightsPanel(QFrame):
         self._empty.setVisible(False)
         self._apply_filter(animate=True)
 
+    def clear(self) -> None:
+        """Сбросить карточки перед новым прогоном."""
+        self._all_entries = []
+        self._filter = None
+        self._clear_cards()
+        self._count.setText("")
+        self._count.setVisible(False)
+        self._empty.setText(tr("high.empty"))
+        self._empty.setVisible(True)
+        for key, chip in self._chips.items():
+            chip.setChecked(key is None)
+            chip.setVisible(False)
+
     def _set_filter(self, kind: str | None) -> None:
         self._filter = kind
         for key, chip in self._chips.items():

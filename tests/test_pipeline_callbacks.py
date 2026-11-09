@@ -1,7 +1,7 @@
 """Тесты callbacks в run_pipeline: on_progress, on_phase, should_stop."""
 from unittest.mock import MagicMock
 
-from scapy.all import DNS, DNSQR, IP, UDP, Ether, wrpcap
+from scapy.all import DNS, DNSQR, IP, TCP, UDP, Ether, Raw, wrpcap
 
 from paradox.config import Config
 from paradox.pipeline import run_pipeline
@@ -54,3 +54,37 @@ def test_pipeline_should_stop_not_triggered(tmp_path):
 
     report = run_pipeline(pcap, config, should_stop=lambda: False)
     assert report["summary"]["packets"] == 1
+
+
+def test_pipeline_accepts_str_path(tmp_path):
+    """Публичный API принимает str, а не только Path."""
+    pcap = _build_pcap(tmp_path)
+    config = Config(tcp_reassembly_enabled=False, file_carve_enabled=False)
+
+    report = run_pipeline(str(pcap), config)
+
+    assert report["summary"]["packets"] == 1
+    assert report["provenance"]["pcap_path"] == str(pcap)
+
+
+def test_stream_count_survives_buffer_release(tmp_path):
+    """Сырые потоки освобождаются, но счётчик в summary остаётся."""
+    syn = (
+        Ether() / IP(src="10.0.0.5", dst="10.0.0.9")
+        / TCP(sport=40000, dport=80, flags="S", seq=1000)
+    )
+    data = (
+        Ether() / IP(src="10.0.0.5", dst="10.0.0.9")
+        / TCP(sport=40000, dport=80, flags="PA", seq=1001)
+        / Raw(b"GET / HTTP/1.1\r\nHost: example.com\r\n\r\n")
+    )
+    pcap = tmp_path / "tcp.pcap"
+    wrpcap(str(pcap), [syn, data])
+
+    report = run_pipeline(
+        pcap,
+        Config(tcp_reassembly_enabled=True, file_carve_enabled=False),
+    )
+
+    assert report["summary"]["tcp_streams"] == 1
+    assert report["summary"]["tcp_streams_truncated"] == 0

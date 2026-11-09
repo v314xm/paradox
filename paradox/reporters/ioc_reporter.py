@@ -22,6 +22,7 @@ from pathlib import Path
 
 from paradox.config import Config
 from paradox.net_utils import is_internal_ip
+from paradox.taxonomy import SEVERITY_RANK as _SEVERITY_RANK
 
 # Типы findings, из которых достаём домены.
 _DOMAIN_FINDING_TYPES = frozenset({
@@ -47,10 +48,7 @@ _IP_FINDING_TYPES = frozenset({
     "reverse_asymmetry",
 })
 
-# Приоритет severity для IOC.
-_SEVERITY_RANK = {
-    "critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0,
-}
+# Приоритет severity для IOC — из единой таксономии.
 
 
 def _sev_ge(sev: str, threshold: str) -> bool:

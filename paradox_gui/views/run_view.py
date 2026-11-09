@@ -6,7 +6,7 @@ summary grid + секция противоречий + таблица findings.
 import time
 from pathlib import Path
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -550,14 +550,14 @@ class RunView(QWidget):
         # приходит РАНЬШЕ, чем C++-объект отпустит ресурсы. Без
         # wait() можно потерять ссылку на ещё живой QThread, и
         # следующий сборщик мусора уронит процесс без traceback.
-        w = self._worker
-        if w is not None:
-            # 2000 мс — с запасом. На практике поток к моменту
-            # сигнала finished почти всегда уже мёртв, возврат
-            # мгновенный. Если бы ждали долго — тут был бы UI-фриз,
-            # но этого не происходит.
+        w = self.sender()
+        if isinstance(w, QThread):
             w.wait(2000)
-        self._worker = None
+            # Следующий прогон мог уже поставить новый воркер:
+            # обнуляем ссылку только если она всё ещё указывает
+            # на завершившийся поток.
+            if self._worker is w:
+                self._worker = None
 
         # Сбрасываем накопленный мусор от прогона. На больших pcap
         # это десятки тысяч мелких объектов. Без ручного вызова
@@ -578,6 +578,9 @@ class RunView(QWidget):
         self.summary.clear()
         self.contradictions.clear()
         self.findings.clear()
+        self.observations.clear()
+        self.absence.clear()
+        self.highlights.clear()
         self._last_report = None
         self._original_findings = []
         if hasattr(self, "btn_carved"):

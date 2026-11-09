@@ -1,15 +1,18 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1258%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1288%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1258 тестов.**
+**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1288 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
 ![Paradox GUI](docs/assets/main.png)
+
+Эксплуатация — [docs/OPERATIONS.md](docs/OPERATIONS.md) · безопасность и модель
+доверия — [SECURITY.md](SECURITY.md) · сайт — [paradoxtool.ru](https://paradoxtool.ru).
 
 ## Чем отличается
 
@@ -35,9 +38,11 @@ paradox capture.pcap          # CLI → JSON + Markdown
 python -m paradox_gui         # GUI
 ```
 
-Python 3.11+. Windows / Linux / macOS.
+Python 3.11+. Исходники запускаются на Windows / Linux / macOS;
+готовый установщик пока только для Windows.
 
 Готовый `.exe` — в [Releases](https://github.com/v314xm/paradox/releases).
+Windows: установка, обновление, удаление, где лежат данные — [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
 ### Пример вывода
 
@@ -103,7 +108,7 @@ Timeline: port_scan → ftp_brute_force → command_injection → beaconing → 
 - **История** — все прогоны сессии, клик → детали.
 - **Код инжекта** — выдержки тел, на которых сработали детекторы инъекций и веб-шеллов: цепочка декодирования URL → Base64 → Gzip/Deflate, подсветка sinks/источников, hexdump для бинаря и статический предпросмотр разметки без исполнения. Окно `Ctrl+Shift+P` — для второго монитора.
 - **Обогащение** — Threat Intel по выбранным IOC.
-- **Настройки** — 12 секций Config с тултипами, профили (Default/CTF/Corporate), отключение детекторов и правил, секция «Плагины» (включение, каталог, проверка загрузки).
+- **Настройки** — 13 секций Config с тултипами, профили (Default/CTF/Corporate), отключение детекторов и правил, секция «Плагины» (включение, каталог, проверка загрузки).
 - **IPv6** — NDP-соседи, роутеры.
 - **Таймлайн** — kill-chain фазы с фильтрами.
 - **Экспорт** — CSV findings, STIX 2.1 bundle и самодостаточный HTML-отчёт (печать в PDF из браузера).
@@ -150,6 +155,9 @@ paradox capture.pcap -o reports/              # директория
 - `reports/<pcap>.report.html` — самодостаточный HTML-отчёт (с `--html`)
 - `reports/iocs.txt` `iocs.csv` `iocs.json` `suricata.rules` `queries.txt` — IOC-экспорт
 
+Коды выхода, лимиты pcap и RAM, где лежат данные и что делать при пустом
+отчёте — [docs/OPERATIONS.md](docs/OPERATIONS.md).
+
 ## Производительность
 
 | Размер | Пакетов | Время |
@@ -193,7 +201,7 @@ Timeline строится после contradictions (нужны оба исто�
 | Detectors | DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, ja3s_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, http_binary_upload, php_payload, webshell_markers, yara | 24 |
 | Contradictions | см. таблицу выше | 12 |
 | Analyzers | absence, counterfactual (What-If), story, ndp | 4 |
-| Reporters | JSON, Markdown, flow report, IOC (txt/csv/json/suricata/kql) | 4 |
+| Reporters | JSON, Markdown, flow report, IOC (txt/csv/json/suricata/kql), HTML, STIX 2.1 | 6 |
 | Enrichment (опционально) | Shodan InternetDB, AbuseIPDB, VirusTotal, GreyNoise, AlienVault OTX, URLScan, URLhaus, MalwareBazaar, ThreatFox | 9 |
 
 MITRE ATT&CK маппинг для всех findings.
@@ -201,11 +209,14 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~20 сек, 1258 passed
+pytest -m "not slow"           # ~20 сек, 1288 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1258 тестов в 147 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+1288 тестов в 153 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+На Windows полный прогон может завершиться кодом `0xC0000005` уже после
+всех тестов (баг выхода pytest/PySide6); результат считайте по
+`--junitxml`, а не по коду возврата.
 
 Покрытие:
 
@@ -244,14 +255,14 @@ pre-commit install
 - Пороги детекторов (beaconing jitter, nxdomain window, port_scan min_dsts)
 - Allowlist (CDN, DoH, Windows Update)
 - Отключение детекторов / правил
-- Плагины: `plugins_enabled`, `plugins_dir` (по умолчанию `~/.paradox/plugins`)
+- Плагины: `plugins_enabled`, `plugins_dir` (по умолчанию `~/.paradox/plugins`). Плагин — это Python-код с правами пользователя, см. [SECURITY.md](SECURITY.md).
 - API-ключи Threat Intel (в keyring, не в JSON)
 - Профили: Default / CTF (сниженные пороги) / Corporate (шумные детекторы выключены)
 
 ## Требования
 
 - Python 3.11+
-- `scapy` ≥ 2.5 (DNS payload + fallback pcapng)
+- `scapy` ≥ 2.5 (DNS payload и разбор сложных протоколов)
 - `pyyaml` ≥ 6.0
 - `PySide6` (только для GUI)
 - `yara-python` (опционально, для YARA-правил)
@@ -259,9 +270,14 @@ pre-commit install
 
 ## Roadmap
 
-- **1.5.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), «Код инжекта», B1 (сравнение прогонов), 1258 тестов.
-- **Дальше** — HTTP/2-парсер (h2-фреймы + HPACK), stream mode для pcap > 2 ГБ, PDF-экспорт, вкладка плагинов в GUI, CI-workflow.
-- **Backlog** — SMB relay, DHCP starvation, DoH-аномалии.
+Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
+
+- **1.5.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), «Код инжекта», B1 (сравнение прогонов), 1288 теста.
+- **Волна 1 — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
+- **Волна 2 — детекция.** `rare_external_ip`, `long_connections`, context-aware `sni_mismatch` без 73 FP на FIN-2015, cross-finding «успешный брутфорс», медленный beaconing на реальном C2. Каждое изменение — с замером на трёх эталонных захватах.
+- **Дальше** — волны 3–4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
+
+CI-workflow в репозитории нет: пока его не добавят (решение владельца, см. TODO.md), «1288 passed» — локальная цифра.
 
 ## Вклад
 

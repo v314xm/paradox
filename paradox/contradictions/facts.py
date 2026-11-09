@@ -31,53 +31,22 @@ from ipaddress import ip_address
 from paradox.config import Config
 from paradox.contradictions.base import Fact
 from paradox.models import CaptureState, Finding, make_session_key
-from paradox.net_utils import is_internal_ip
+from paradox.net_utils import is_internal_ip, is_public_ip
+from paradox.taxonomy import SRC_ROLE_BY_TYPE
 
 # =====================================================================
 # Attack facts: кто кого атакует по findings
 # =====================================================================
 
-# Типы findings, где src АТАКУЕТ dst.
-# Полярность: src = attacker, dst = victim.
-#
-# Синхронизировано с entities.py (блок role_tags). Если добавляешь
-# новый детектор атаки — обнови оба места.
-_ATTACK_TYPES: frozenset[str] = frozenset({
-    "brute_force",
-    "ftp_brute_force",
-    "ssh_brute_force",
-    "vulnerable_path",
-    "command_injection",
-    "port_scan",
-    "web_scanner",
-    "lateral_movement",
-    # Сервер отдал payload, клиент его скачал: src=attacker, dst=victim.
-    "yara_match",
-})
-
-# Типы findings, где src — ЖЕРТВА (или инициатор), dst — C2/exfil-получатель.
-#
-# suspicious_port: internal src стучится на C2 dst — src жертва, не
-# атакующий. В entities.py та же полярность (victim_tag на src).
-_VICTIM_SIGNAL_TYPES: frozenset[str] = frozenset({
-    "beaconing",
-    "dns_tunneling",
-    "script_download",
-    "nxdomain_burst",
-    "ja3_malware",
-    "sni_without_dns",
-    "dga_domain",
-    # cloud_tunnel_domain — фактический type CloudTunnelDetector
-    # (детектор name="cloud_tunnel"). Без псевдонима жертва
-    # cloud-tunnel не попадала в victim_of → victim_makes_attack
-    # её не видел, а ветка в entities.py была мёртвой.
-    "cloud_tunnel",
-    "cloud_tunnel_domain",
-    "ip_check_service",
-    "typosquatting",
-    "suspicious_port",
-    "smtp_spam",
-})
+# Полярность задаётся один раз в paradox/taxonomy.py.
+# src = attacker, dst = victim для _ATTACK_TYPES;
+# src = victim, dst = C2/exfil-получатель для _VICTIM_SIGNAL_TYPES.
+_ATTACK_TYPES = frozenset(
+    t for t, role in SRC_ROLE_BY_TYPE.items() if role == "attacker"
+)
+_VICTIM_SIGNAL_TYPES = frozenset(
+    t for t, role in SRC_ROLE_BY_TYPE.items() if role == "victim"
+)
 
 
 def _ts(f: Finding) -> float:
@@ -750,24 +719,9 @@ def extract_protocol_on_port_facts(
 # Direct-IP / DNS facts: hardcoded IP в обход DNS
 # =====================================================================
 
-def _looks_like_public_ip(ip: str) -> bool:
-    """
-    Грубая отсечка: не internal, не multicast, не link-local.
-    Используем ту же логику, что и Config.private_networks —
-    если внутри проекта что-то поменяется, здесь отстанет.
-
-    Проще: util-проверка через ipaddress. Не тянем net_utils, чтобы
-    не плодить зависимости внутри contradictions/.
-    """
-    try:
-        addr = ip_address(ip)
-    except ValueError:
-        return False
-    if addr.is_private or addr.is_loopback or addr.is_link_local:
-        return False
-    if addr.is_multicast or addr.is_reserved or addr.is_unspecified:
-        return False
-    return True
+def _looks_like_public_ip(ip: str, config: Config) -> bool:
+    """Публичный адрес по единой классификации net_utils."""
+    return is_public_ip(ip, config)
 
 
 def extract_direct_ip_facts(
@@ -791,20 +745,22 @@ def extract_direct_ip_facts(
       - только external dst (внутренний обмен — не в зону правила);
       - min_bucket_size: пропускаем единичные flows — мусор.
     """
-    # (src_ip, dst_ip) → набор портов + суммарные байты.
+    # (src_ip, dst_ip) → набор портов, число flows + суммарные байты.
     buckets: dict[tuple[str, str], dict] = {}
 
     for key, flow in state.flows.items():
-        if not _looks_like_public_ip(key.dst_ip):
+        if not _looks_like_public_ip(key.dst_ip, config):
             continue
         pair = (key.src_ip, key.dst_ip)
         b = buckets.setdefault(pair, {
             "ports": set(),
+            "flows": 0,
             "bytes": 0,
             "first_ts": None,
         })
         if key.dst_port is not None:
             b["ports"].add(key.dst_port)
+        b["flows"] += 1
         b["bytes"] += flow.bytes_sent
         if flow.first_ts is not None:
             if b["first_ts"] is None or flow.first_ts < b["first_ts"]:
@@ -827,6 +783,7 @@ def extract_direct_ip_facts(
             evidence={
                 "dst_ip": dst,
                 "ports": sorted(b["ports"]),
+                "flows": b["flows"],
                 "bytes_sent": b["bytes"],
                 "resolved": resolved,
             },

@@ -106,12 +106,15 @@ def build_dns_report(
         for name, count in state.dns_nxdomain.items()
     ]
     nxdomain.sort(key=lambda d: (-d["count"], d["name"]))
+    nxdomain_total = len(nxdomain)
 
     return {
         "unique_count": len(state.dns_queries),
         "total_queries": sum(state.dns_queries.values()),
         "top_by_count": by_count,
-        "nxdomain": nxdomain,
+        "nxdomain": nxdomain[:top_n],
+        "nxdomain_unique": nxdomain_total,
+        "nxdomain_total": sum(state.dns_nxdomain.values()),
     }
 
 

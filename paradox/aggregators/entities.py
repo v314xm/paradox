@@ -27,6 +27,7 @@ from typing import Any
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 from paradox.net_utils import is_internal_ip
+from paradox.taxonomy import SCANNER_TYPES, SRC_ROLE_BY_TYPE
 
 
 @dataclass
@@ -298,97 +299,22 @@ def build_entities(
                 ent.findings_indices.append(idx)
 
             tags = role_tags.setdefault(ip, set())
-            ftype = f.type
+            role = SRC_ROLE_BY_TYPE.get(f.type)
+            if role is None:
+                # large_transfer — статистика объёма, не роль;
+                # carved_file — событие timeline. Роль не выводим.
+                continue
 
-            if ftype in ("brute_force", "vulnerable_path",
-                         "ftp_brute_force", "ssh_brute_force",
-                         "command_injection"):
-                # src = атакующий, dst = цель
-                if side == "src":
-                    tags.add("attacker_tag")
-                else:
-                    tags.add("victim_tag")
-            elif ftype in ("port_scan", "web_scanner"):
-                # Сканеры выделяем в отдельную роль: это разведка.
-                if side == "src":
-                    tags.add("attacker_tag")
+            if side == "src":
+                tags.add(
+                    "attacker_tag" if role == "attacker" else "victim_tag"
+                )
+                if f.type in SCANNER_TYPES:
                     tags.add("scanner_tag")
-                else:
-                    tags.add("victim_tag")
-
-            elif ftype == "lateral_movement":
-                # src = скомпрометированный хост (pivot), dst = следующая цель
-                # Помечаем src как attacker (он атакует), dst как victim.
-                # Роль victim_candidate у pivot'а выигрывает по приоритету
-                # (см. ниже), потому что у него уже есть victim_tag от
-                # brute_force.
-                if side == "src":
-                    tags.add("attacker_tag")
-                else:
-                    tags.add("victim_tag")
-
-            elif ftype == "script_download":
-                # ИНВЕРТИРОВАНО: src = жертва (качает payload),
-                # dst = источник malware (attacker)
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
-
-            elif ftype in ("beaconing", "dns_tunneling"):
-                # src = жертва (отстукивает), dst = C2
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
-
-            elif ftype == "large_transfer":
-                # large_transfer — статистика объёма, не роль.
-                # Шлюз, качающий 2 GB обновлений, — не victim и не attacker.
-                # Роль определится ниже через flows_out / unique_dsts
-                # (gateway_candidate) или останется без роли, если хост
-                # просто много передал. Помечать здесь victim/attacker
-                # нельзя: вытесняет настоящих жертв из топа сущностей
-                # и ломает TL;DR.
-                #
-                # findings_indices при этом всё равно пополняется
-                # (строки выше) — large_transfer виден в findings
-                # сущности и в отчёте, просто без роли.
-                pass
-
-            elif ftype in ("ja3_malware", "sni_without_dns",
-                           "dga_domain", "typosquatting",
-                           "cloud_tunnel", "cloud_tunnel_domain",
-                           "ip_check_service", "smtp_spam"):
-                # Внешние индикаторы, src = инициатор
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
-
-            elif ftype == "nxdomain_burst":
-                # src = жертва: инфекция резолвит DGA-домены,
-                # либо сканер перебирает мусорные имена.
-                # Finding приходит только для src-стороны.
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
-
-            elif ftype == "suspicious_port":
-                # src = жертва (внутренний хост стучится наружу),
-                # dst = C2 (внешний сервер на подозрительном порту)
-                if side == "src":
-                    tags.add("victim_tag")
-                else:
-                    tags.add("attacker_tag")
-
             else:
-                # Fallback: src = attacker, dst = victim
-                if side == "src":
-                    tags.add("attacker_tag")
-                else:
-                    tags.add("victim_tag")
+                tags.add(
+                    "victim_tag" if role == "attacker" else "attacker_tag"
+                )
 
     # --- pivot-субъекты из contradictions ---
     pivot_ips = _pivot_subjects(contradictions)

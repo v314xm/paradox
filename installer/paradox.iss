@@ -1,10 +1,10 @@
-; installer/paradox.iss вЂ” РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ tools/build_installer.py
-; РЎРѕР±СЂР°С‚СЊ: ISCC.exe installer\paradox.iss
+﻿; installer/paradox.iss — генерируется tools/build_installer.py
+; Собрать: ISCC.exe installer\paradox.iss
 
 #define AppName "Paradox"
 #define AppVersion "1.5.0"
 #define AppPublisher "Andrey Grigoryev"
-#define AppCopyright "В© 2026 Andrey Grigoryev (v314xm)"
+#define AppCopyright "© 2026 Andrey Grigoryev (v314xm)"
 
 [Setup]
 AppId={{D4C7B3F1-9A2E-4E8B-B6F0-5E7A1C2D3F40}}

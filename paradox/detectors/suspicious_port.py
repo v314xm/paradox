@@ -21,6 +21,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
+from paradox.net_utils import is_internal_ip
 
 
 class SuspiciousPortDetector:
@@ -103,4 +104,4 @@ class SuspiciousPortDetector:
         return findings
 
     def _is_private(self, ip: str, config: Config) -> bool:
-        return any(ip.startswith(prefix) for prefix in config.private_networks)
+        return is_internal_ip(ip, config)

@@ -25,71 +25,19 @@ from __future__ import annotations
 # v0.8.0: timeline
 from ipaddress import ip_address
 
+from paradox.taxonomy import chain_order_for, mitre_label
+
 # ---------------------------------------------------------------------
-# MITRE ATT&CK маппинг: тип finding → ID + тактика
-# Источник: https://attack.mitre.org/
-#
-# ВАЖНО: это fallback. Если у Finding есть instance-level
-# mitre_techniques (заполнены детектором — например large_transfer
-# по direction), используем их, а не этот словарь.
+# MITRE ATT&CK: fallback берётся из paradox/taxonomy.py.
+# Если у Finding есть instance-level mitre_techniques (например,
+# large_transfer по direction) — используем их.
 # ---------------------------------------------------------------------
-_MITRE_MAP: dict[str, str] = {
-    "brute_force":        "T1110 (Brute Force)",
-    "ftp_brute_force":    "T1110.001 (Password Guessing)",
-    "command_injection":  "T1059 (Command & Scripting Interpreter)",
-    "script_download":    "T1105 (Ingress Tool Transfer)",
-    "lateral_movement":   "T1021 (Remote Services)",
-    "large_transfer":     "T1041 (Exfil Over C2 Channel)",
-    "beaconing":          "T1071 (Application Layer Protocol)",
-    "dns_tunneling":      "T1071.004 (DNS)",
-    "dga_domain":         "T1568.002 (Domain Generation Algorithms)",
-    "typosquatting":      "T1583.001 (Acquire Infrastructure: Domains)",
-    "vulnerable_path":    "T1190 (Exploit Public-Facing App)",
-    "web_scanner":        "T1595.002 (Vulnerability Scanning)",
-    "port_scan":          "T1046 (Network Service Discovery)",
-    "sni_without_dns":    "T1071.001 (Web Protocols)",
-    "ja3_malware":        "T1071.001 (Web Protocols)",
-    "ja3_tool":           "—",
-    "cloud_tunnel":       "T1572 (Protocol Tunneling)",
-    "ip_check_service":   "T1590.005 (IP Addresses)",
-    "nxdomain_burst":     "T1568 (Dynamic Resolution)",
-    "suspicious_port":    "T1571 (Non-Standard Port)",
-    "carved_file":        "T1105 (Ingress Tool Transfer)",
-    "yara_match":         "T1204 (User Execution)",
-}
 
 
 # ---------------------------------------------------------------------
-# Kill-chain ordering
-# Порядок отражает типичную последовательность атаки.
-# Не найденные типы не влияют; незнакомые типы уезжают в конец.
+# Kill-chain ordering — в paradox/taxonomy.py (CHAIN_ORDER).
+# Незнакомые типы уезжают в конец.
 # ---------------------------------------------------------------------
-_CHAIN_ORDER: dict[str, int] = {
-    "pivot":              5,   # pivot — уже компромисс, показываем первым
-    "web_scanner":       10,
-    "port_scan":         20,
-    "vulnerable_path":   30,
-    "command_injection": 40,
-    "brute_force":       50,
-    "ftp_brute_force":   55,
-    "script_download":   60,
-    "carved_file":       65,
-    "yara_match":        67,
-    "suspicious_port":   70,
-    "ja3_malware":       75,
-    "ja3_tool":          76,
-    "beaconing":         80,
-    "dns_tunneling":     82,
-    "dga_domain":        84,
-    "nxdomain_burst":    86,
-    "typosquatting":     88,
-    "cloud_tunnel":      90,
-    "sni_without_dns":   92,
-    "ip_check_service":  94,
-    "lateral_movement": 100,
-    "large_transfer":   110,
-}
-_CHAIN_UNKNOWN = 999
 
 
 # ---------------------------------------------------------------------
@@ -157,17 +105,17 @@ def _mitre_for_finding(f: dict) -> str:
     Instance-level mitre_techniques приоритетнее type-map.
 
     large_transfer знает про T1041/T1105 сам (по direction),
-    а _MITRE_MAP знает только общий T1041.
+    а таксономия знает только общий T1041.
     """
     techniques = f.get("mitre_techniques") or ()
     if techniques:
         return ", ".join(techniques)
-    return _MITRE_MAP.get(f.get("type", ""), "—")
+    return mitre_label(str(f.get("type", "")))
 
 
 # Совместимость: старое имя, использовалось в timeline/findings.
 def _mitre_for(finding_type: str) -> str:
-    return _MITRE_MAP.get(finding_type, "—")
+    return mitre_label(finding_type)
 
 
 # ---------------------------------------------------------------------
@@ -238,10 +186,7 @@ def _chain_for(findings: list[dict]) -> list[str]:
         if t and t not in seen:
             seen.add(t)
             ordered.append(t)
-    return sorted(
-        ordered,
-        key=lambda t: (_CHAIN_ORDER.get(t, _CHAIN_UNKNOWN), t),
-    )
+    return sorted(ordered, key=lambda t: (chain_order_for(t), t))
 
 
 def _render_tldr(report: dict) -> list[str]:
@@ -622,6 +567,12 @@ def render_markdown(report: dict) -> str:
     extractor_errors = summary.get("extractor_errors") or {}
     if extractor_errors:
         lines.append(f"- **Ошибки экстракторов:** `{extractor_errors}`")
+    truncated_streams = summary.get("tcp_streams_truncated", 0)
+    if truncated_streams:
+        lines.append(
+            f"- **⚠️ Обрезано TCP-потоков:** {truncated_streams}. "
+            "HTTP-объекты, веб-шеллы и YARA могли не увидеть часть трафика."
+        )
     lines.append("")
 
     # --- entities ---
