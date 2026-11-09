@@ -181,3 +181,15 @@ def test_download_and_upload_are_separate():
 
 def test_empty_state():
     assert WebShellMarkersDetector().run(CaptureState(), Config()) == []
+
+
+def test_payload_sample_is_kept_for_viewer():
+    from paradox.payload_excerpt import decode_sample
+
+    findings = WebShellMarkersDetector().run(
+        _state([_response(_PHP_SHELL)]), Config(),
+    )
+
+    sample = findings[0].evidence["payload_samples"][0]
+    assert sample["direction"] == "response"
+    assert decode_sample(sample) == _PHP_SHELL

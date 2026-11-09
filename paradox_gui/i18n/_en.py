@@ -12,6 +12,7 @@ STRINGS: dict[str, str] = {
     "tab.settings": "Settings",
     "tab.ipv6": "IPv6",
     "tab.timeline": "Timeline",
+    "tab.payload": "Injected code",
     "tab.export": "Export",
     "tab.diff": "Diff",
 
@@ -26,6 +27,7 @@ STRINGS: dict[str, str] = {
     "menu.file.quit": "Quit",
     "menu.tools": "Tools",
     "menu.tools.quick_check": "Quick IOC check…",
+    "menu.tools.payload": "Injected code…",
     "menu.help": "Help",
     "menu.help.reference": "Reference",
     "menu.help.about": "About",
@@ -657,6 +659,46 @@ STRINGS: dict[str, str] = {
     "find.col.mitre": "MITRE",
     "find.col.first_seen": "First seen",
     "find.count_filtered": "({shown} of {total})",
+
+    # --- Injected code (payload view) ---
+    "payload.title": "Injected code",
+    "payload.subtitle":
+        "Excerpt of the request or response body that triggered an "
+        "injection or webshell detector. Shown as plain text: nothing "
+        "is executed or rendered as HTML.",
+    "payload.safe_hint":
+        "View only. The text stays in memory — this tab writes nothing "
+        "to disk.",
+    "payload.empty":
+        "No body excerpts in this report. They appear when command_injection, "
+        "php_payload or webshell_signature fires.",
+    "payload.item_tooltip": "{direction} · {size} bytes",
+    "payload.direction.request": "request",
+    "payload.direction.response": "response",
+    "payload.meta": "{size} bytes",
+    "payload.truncated": "excerpt {shown} of {size} bytes",
+    "payload.binary_hint": "Binary body — hexdump shown:",
+    "payload.hex_more": "… {total} more bytes not shown",
+    "payload.hex": "Hex",
+    "payload.variant.raw": "as received",
+    "payload.variant.url": "URL-decoded",
+    "payload.variant.base64": "Base64",
+    "payload.variant.gzip": "Gzip",
+    "payload.variant.deflate": "Deflate",
+    "payload.variant_tooltip":
+        "Body representation: as received or after a decode chain "
+        "(URL → Base64 → Gzip/Deflate).",
+    "payload.decoded_note": "shown after {steps}",
+    "payload.copy": "Copy",
+    "payload.copied": "Copied to clipboard",
+    "payload.preview": "Preview",
+    "payload.preview_tooltip":
+        "Static markup preview: scripts, forms, iframes and external "
+        "resources removed; PHP is not executed.",
+    "payload.preview_hint":
+        "Static preview: markup is sanitized, scripts and external "
+        "resources are not loaded, server-side code is not executed.",
+    "payload.preview_empty": "No markup to preview in this excerpt.",
 
     # --- Provider card ---
     "provider.no_data": "No data from this provider.",

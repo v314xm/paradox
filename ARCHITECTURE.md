@@ -335,8 +335,8 @@ GUI (paradox_gui/)
 Отдельный пакет, ядро не трогает — работает через
 run_pipeline/run_multi_pipeline в QThread.
 
-8 вкладок: Прогон, История, Обогащение, Настройки, IPv6,
-Таймлайн, Экспорт, Сравнение.
+9 вкладок: Прогон, История, Код инжекта, Обогащение, Настройки,
+IPv6, Таймлайн, Экспорт, Сравнение.
 
 Workers (QThread): AnalysisWorker (принимает str | list[str]),
 EnrichmentWorker, QuickCheckWorker.

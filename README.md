@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1186%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1258%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1186 тестов.**
+**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1258 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -97,10 +97,11 @@ Timeline: port_scan → ftp_brute_force → command_injection → beaconing → 
 
 ## GUI
 
-8 вкладок: Прогон / История / Обогащение / Настройки / IPv6 / Таймлайн / Экспорт / Сравнение.
+9 вкладок: Прогон / История / Код инжекта / Обогащение / Настройки / IPv6 / Таймлайн / Экспорт / Сравнение.
 
 - **Прогон** — drop zone, прогресс по фазам, summary, findings с фильтрами, противоречия, «Граф связей», «Файлы» (carved), What-If (исключить IP/домен → пересчитать).
 - **История** — все прогоны сессии, клик → детали.
+- **Код инжекта** — выдержки тел, на которых сработали детекторы инъекций и веб-шеллов: цепочка декодирования URL → Base64 → Gzip/Deflate, подсветка sinks/источников, hexdump для бинаря и статический предпросмотр разметки без исполнения. Окно `Ctrl+Shift+P` — для второго монитора.
 - **Обогащение** — Threat Intel по выбранным IOC.
 - **Настройки** — 12 секций Config с тултипами, профили (Default/CTF/Corporate), отключение детекторов и правил, секция «Плагины» (включение, каталог, проверка загрузки).
 - **IPv6** — NDP-соседи, роутеры.
@@ -200,11 +201,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~20 сек, 1186 passed
+pytest -m "not slow"           # ~20 сек, 1258 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1186 тестов в 136 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+1258 тестов в 147 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
 
 Покрытие:
 
@@ -258,7 +259,7 @@ pre-commit install
 
 ## Roadmap
 
-- **1.4.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (8 вкладок), B1 (сравнение прогонов), 1186 тестов.
+- **1.5.0 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), «Код инжекта», B1 (сравнение прогонов), 1258 тестов.
 - **Дальше** — HTTP/2-парсер (h2-фреймы + HPACK), stream mode для pcap > 2 ГБ, PDF-экспорт, вкладка плагинов в GUI, CI-workflow.
 - **Backlog** — SMB relay, DHCP starvation, DoH-аномалии.
 

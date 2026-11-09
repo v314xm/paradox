@@ -859,6 +859,26 @@ QLabel#statusLine[level="warn"] {{ color: {high}; }}
 QLabel#statusLine[level="error"] {{ color: {danger}; }}
 QLineEdit#searchField {{ min-width: 240px; }}
 QPlainTextEdit#listField {{ min-height: 60px; }}
+/* Код инжекта: только текст, крупный моно-шрифт, без переносов. */
+QPlainTextEdit#payloadViewer {{
+    background-color: {bg};
+    border: 1px solid {border};
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: {mono};
+    font-size: 12px;
+    color: {text};
+}}
+QListWidget#payloadList::item {{ padding: 6px 8px; }}
+QComboBox#payloadVariant {{ min-width: 170px; }}
+/* Статический предпросмотр payload'а: только разметка, без скриптов. */
+QTextBrowser#payloadPreview {{
+    background-color: {bg_light};
+    border: 1px solid {border};
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: {text};
+}}
 QLabel#statusVersion {{
     color: {text_muted};
     padding: 0 8px;

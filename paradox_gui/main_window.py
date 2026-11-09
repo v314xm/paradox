@@ -60,6 +60,8 @@ from paradox_gui.views.history_view import HistoryView
 from paradox_gui.views.ipv6_view import IPv6View
 
 # >>> ИМПОРТЫ VIEWS <<<
+from paradox_gui.views.payload_view import PayloadView
+from paradox_gui.views.payload_window import PayloadWindow
 from paradox_gui.views.run_view import RunView
 from paradox_gui.views.settings_view import SettingsView
 from paradox_gui.views.timeline_view import TimelineView
@@ -252,6 +254,31 @@ class MainWindow(QMainWindow):
             tr("menu.tools.quick_check"), "Ctrl+Shift+I",
             self._on_quick_check,
         ))
+        self._act_payload = self._act(
+            tr("menu.tools.payload"), "Ctrl+Shift+P",
+            self._on_payload_window,
+        )
+        m.addAction(self._act_payload)
+
+    def _on_payload_window(self) -> None:
+        """Открыть/показать окно «Код инжекта» с текущим отчётом.
+
+        Окно живёт отдельно от вкладок: его можно держать рядом с
+        основным и не терять при переключении отчёта. При новом
+        прогоне MainWindow сам обновит его, если окно создано.
+        """
+        if getattr(self, "_payload_window", None) is None:
+            # Без parent: окно должно жить самостоятельной жизнью и не
+            # прятаться вместе с главным при сворачивании.
+            self._payload_window = PayloadWindow()
+
+        report = self.run_view.last_report() if hasattr(
+            self, "run_view",
+        ) else None
+        self._payload_window.set_report(report)
+        self._payload_window.show()
+        self._payload_window.raise_()
+        self._payload_window.activateWindow()
 
     def _on_quick_check(self) -> None:
         """Открыть/показать окно быстрой проверки.
@@ -333,6 +360,7 @@ class MainWindow(QMainWindow):
         self.settings_view = SettingsView(store=self._settings_store)
         self.enrich_view = EnrichView()
         self.history_view = HistoryView()
+        self.payload_view = PayloadView()
         self.ipv6_view = IPv6View()
         self.timeline_view = TimelineView()
         self.export_view = ExportView()
@@ -341,6 +369,8 @@ class MainWindow(QMainWindow):
         self.run_view.analysis_finished.connect(self._on_analysis_finished)
         self.run_view.analysis_failed.connect(self._on_analysis_failed)
         self.run_view.analysis_cancelled.connect(self._on_analysis_cancelled)
+        # Новый прогон — старые выдержки уже не про этот отчёт.
+        self.run_view.analysis_started.connect(self.payload_view.clear)
 
         self.settings_view.thresholds_applied.connect(
             self.run_view.set_config_overrides
@@ -367,6 +397,7 @@ class MainWindow(QMainWindow):
 
         self.tabs.addTab(self.run_view, tr("tab.run"))
         self.tabs.addTab(self.history_view, tr("tab.history"))
+        self.tabs.addTab(self.payload_view, tr("tab.payload"))
         self.tabs.addTab(self.enrich_view, tr("tab.enrich"))
         self.tabs.addTab(self.settings_view, tr("tab.settings"))
         self.tabs.addTab(self.ipv6_view, tr("tab.ipv6"))
@@ -611,6 +642,9 @@ class MainWindow(QMainWindow):
         self._act_stop.setEnabled(True)
         self._act_analyze.setEnabled(False)
         # >>> /ОСТАНОВКА <<<
+        # Новый прогон — старые выдержки уже не про этот отчёт.
+        if getattr(self, "_payload_window", None) is not None:
+            self._payload_window.clear()
 
     def _on_analysis_finished(self, report: object) -> None:
         s = report.get("summary", {}) if isinstance(report, dict) else {}
@@ -627,6 +661,14 @@ class MainWindow(QMainWindow):
         if isinstance(report, dict) and hasattr(self, "history_view"):
             self.history_view.add_run(report)
         # >>> /ИСТОРИЯ <<<
+
+        # >>> КОД ИНЖЕКТА <<<
+        if isinstance(report, dict):
+            if hasattr(self, "payload_view"):
+                self.payload_view.update_data(report)
+            if getattr(self, "_payload_window", None) is not None:
+                self._payload_window.set_report(report)
+        # >>> /КОД ИНЖЕКТА <<<
 
         # >>> ОБОГАЩЕНИЕ <<<
         # Каждый новый прогон сбрасывает состояние вкладки «Обогащение»:
@@ -835,6 +877,12 @@ class MainWindow(QMainWindow):
                 )
                 event.ignore()
                 return
+
+        # Окно «Код инжекта» живёт независимо от главного, но вместе
+        # с приложением: иначе после закрытия остаётся осиротевшее окно.
+        payload_window = getattr(self, "_payload_window", None)
+        if payload_window is not None:
+            payload_window.close()
 
         super().closeEvent(event)
 

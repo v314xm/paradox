@@ -12,6 +12,7 @@ STRINGS: dict[str, str] = {
     "tab.settings": "Настройки",
     "tab.ipv6": "IPv6",
     "tab.timeline": "Таймлайн",
+    "tab.payload": "Код инжекта",
     "tab.export": "Экспорт",
     "tab.diff": "Сравнение",
 
@@ -26,6 +27,7 @@ STRINGS: dict[str, str] = {
     "menu.file.quit": "Выход",
     "menu.tools": "Инструменты",
     "menu.tools.quick_check": "Быстрая проверка IOC…",
+    "menu.tools.payload": "Код инжекта…",
     "menu.help": "Помощь",
     "menu.help.reference": "Справка",
     "menu.help.about": "О программе",
@@ -657,6 +659,46 @@ STRINGS: dict[str, str] = {
     "find.col.mitre": "MITRE",
     "find.col.first_seen": "First seen",
     "find.count_filtered": "({shown} из {total})",
+
+    # --- Код инжекта (payload view) ---
+    "payload.title": "Код инжекта",
+    "payload.subtitle":
+        "Выдержка тела запроса или ответа, на котором сработал детектор "
+        "инъекций или веб-шеллов. Показана как текст: ничего не "
+        "исполняется и не отрисовывается как HTML.",
+    "payload.safe_hint":
+        "Просмотр без выполнения. Текст только в памяти — на диск "
+        "вкладка ничего не пишет.",
+    "payload.empty":
+        "В отчёте нет выдержек тел. Они появляются, когда срабатывает "
+        "command_injection, php_payload или webshell_signature.",
+    "payload.item_tooltip": "{direction} · {size} байт",
+    "payload.direction.request": "запрос",
+    "payload.direction.response": "ответ",
+    "payload.meta": "{size} байт",
+    "payload.truncated": "выдержка {shown} из {size} байт",
+    "payload.binary_hint": "Бинарное тело — показан hexdump:",
+    "payload.hex_more": "… ещё {total} байт не показаны",
+    "payload.hex": "Hex",
+    "payload.variant.raw": "как пришло",
+    "payload.variant.url": "URL-декод",
+    "payload.variant.base64": "Base64",
+    "payload.variant.gzip": "Gzip",
+    "payload.variant.deflate": "Deflate",
+    "payload.variant_tooltip":
+        "Представление тела: как пришло или после декодирования цепочки "
+        "(URL → Base64 → Gzip/Deflate).",
+    "payload.decoded_note": "показано после {steps}",
+    "payload.copy": "Скопировать",
+    "payload.copied": "Скопировано в буфер",
+    "payload.preview": "Предпросмотр",
+    "payload.preview_tooltip":
+        "Статический предпросмотр разметки: скрипты, формы, iframe и "
+        "внешние ресурсы удалены, PHP не исполняется.",
+    "payload.preview_hint":
+        "Статический предпросмотр: разметка очищена, скрипты и внешние "
+        "ресурсы не загружаются, серверный код не исполняется.",
+    "payload.preview_empty": "В выдержке нет разметки для предпросмотра.",
 
     # --- Provider card ---
     "provider.no_data": "Нет данных у провайдера.",

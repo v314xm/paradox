@@ -37,6 +37,7 @@ from urllib.parse import unquote
 from paradox.config import Config
 from paradox.detectors._http_body import body_for_scan
 from paradox.models import CaptureState, Finding
+from paradox.payload_excerpt import make_sample
 
 
 @dataclass
@@ -45,6 +46,7 @@ class _Bucket:
     matched_high: Counter = field(default_factory=Counter)
     matched_medium: Counter = field(default_factory=Counter)
     body_samples: list[bytes] = field(default_factory=list)
+    payload_sample: dict | None = None
     methods: set[str] = field(default_factory=set)
     hosts: set[str] = field(default_factory=set)
     dst_ips: set[str] = field(default_factory=set)
@@ -69,6 +71,7 @@ class CommandInjectionDetector:
 
             # Текст для поиска: URI + body (декодированный)
             haystack_parts: list[str] = []
+            scan_body: bytes | None = None
             if obj.uri:
                 haystack_parts.append(obj.uri)
                 # декодированный вариант — %3d → "=", %2f → "/"
@@ -82,6 +85,7 @@ class CommandInjectionDetector:
                 # иначе не виден. В бинаре после распаковки — не ищем.
                 payload = body_for_scan(obj, config)
                 if payload:
+                    scan_body = payload
                     raw_text = payload.decode("iso-8859-1", errors="ignore")
                     haystack_parts.append(raw_text)
                     # url-decode (form-urlencoded)
@@ -121,6 +125,14 @@ class CommandInjectionDetector:
                 b.matched_medium[p] += 1
             if len(b.body_samples) < 3 and obj.body:
                 b.body_samples.append(obj.body[:256])
+            if (
+                b.payload_sample is None
+                and scan_body
+                and getattr(config, "payload_excerpt_enabled", True)
+            ):
+                b.payload_sample = make_sample(
+                    scan_body, obj=obj, direction="request", config=config,
+                )
             if obj.method:
                 b.methods.add(obj.method)
             if obj.headers and obj.headers.get("host"):
@@ -173,6 +185,8 @@ class CommandInjectionDetector:
                     s.decode("iso-8859-1", errors="replace")[:200]
                     for s in b.body_samples
                 ]
+            if b.payload_sample:
+                evidence["payload_samples"] = [b.payload_sample]
 
             findings.append(Finding(
                 type="command_injection",

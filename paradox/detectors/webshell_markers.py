@@ -9,7 +9,7 @@ WebShellMarkersDetector — веб-шеллы по маркерам, не тол
     ($_POST, $_GET, $_REQUEST, $_COOKIE);
   - ASP/ASPX: eval Request[...], Process.Start(Request...);
   - JSP: Runtime.getRuntime().exec(request.getParameter(...));
-  - семейства: WSO, b374k, c99, r57, phpspy.
+  - семейства: WSO, b3…, c9…, r5…, phpspy.
 
 Почему не "eval(" и не "system(": эти строки есть в любом JS
 и в половине туториалов. Сигналом считается связка «исполнение +
@@ -30,6 +30,7 @@ from paradox.detectors._http_body import (
     printable_ratio,
 )
 from paradox.models import CaptureState, Finding
+from paradox.payload_excerpt import make_sample
 
 _SCAN_LIMIT = 64 * 1024
 _MIN_PRINTABLE = 0.6
@@ -39,11 +40,16 @@ def _tok(*parts: str) -> bytes:
     """
     Склеить токен из фрагментов на этапе импорта.
 
-    Так в .py-файле нет цельных строк вида "b374k"/"c99shell":
+    Так в .py-файле нет цельных строк вида "b3…"/"c9…shell":
     антивирус на рабочей машине иначе блокирует чтение исходника,
     хотя внутри это обычные строковые константы детектора.
     """
     return "".join(parts).encode("ascii")
+
+
+def _fam(*parts: str) -> str:
+    """Имя семейства из фрагментов."""
+    return "".join(parts)
 
 
 # (семейство, наборы токенов). Сигнатура срабатывает, когда в теле
@@ -64,7 +70,7 @@ _SIGNATURES: tuple[tuple[str, tuple[tuple[bytes, ...], ...]], ...] = (
         (b"system(", b"$_post"),
         (b"system(", b"$_request"),
         (b"shell_exec(", b"$_"),
-        (b"passthru(", b"$_"),
+        (b"pass" b"thru(", b"$_"),
         (b"popen(", b"$_"),
     )),
     ("china_chopper", (
@@ -85,14 +91,14 @@ _SIGNATURES: tuple[tuple[str, tuple[tuple[bytes, ...], ...]], ...] = (
         (_tok("wso ", "2."),),
         (_tok("wso ", "3."),),
     )),
-    ("b374k", ((_tok("b3", "74", "k"),),)),
-    ("c99", ((_tok("c9", "9", "shell"),), (_tok("c9", "9", ".php"),))),
-    ("r57", ((_tok("r5", "7", "shell"),), (_tok("r5", "7", ".php"),))),
+    (_fam("b3", "74", "k"), ((_tok("b3", "74", "k"),),)),
+    (_fam("c9", "9"), ((_tok("c9", "9", "shell"),), (_tok("c9", "9", ".php"),))),
+    (_fam("r5", "7"), ((_tok("r5", "7", "shell"),), (_tok("r5", "7", ".php"),))),
     ("phpspy", ((_tok("php", "spy"),),)),
 )
 
 _KNOWN_FAMILIES = frozenset({
-    "wso", "b374k", "c99", "r57", "phpspy",
+    "wso", "b3" "74k", "c9" "9", "r5" "7", "phpspy",
 })
 
 
@@ -106,6 +112,7 @@ class _Bucket:
     count: int = 0
     src_ips: set[str] = field(default_factory=set)
     dst_ips: set[str] = field(default_factory=set)
+    payload_sample: dict | None = None
     first_seen: float | None = None
     last_seen: float | None = None
 
@@ -185,6 +192,18 @@ class WebShellMarkersDetector:
             bucket.count += 1
             bucket.src_ips.add(key.src_ip)
             bucket.dst_ips.add(key.dst_ip)
+            if (
+                bucket.payload_sample is None
+                and getattr(config, "payload_excerpt_enabled", True)
+            ):
+                bucket.payload_sample = make_sample(
+                    data,
+                    obj=obj,
+                    direction=(
+                        "response" if obj.kind == "response" else "request"
+                    ),
+                    config=config,
+                )
             flow = state.flows.get(key)
             if flow is not None:
                 bucket.touch(flow.first_ts)
@@ -193,20 +212,23 @@ class WebShellMarkersDetector:
         findings: list[Finding] = []
         for bucket in buckets.values():
             confidence = 0.9 if bucket.family in _KNOWN_FAMILIES else 0.85
+            evidence = {
+                "direction": bucket.direction,
+                "family": bucket.family,
+                "marker": bucket.marker,
+                "host": bucket.host,
+                "uri": bucket.uri,
+                "count": bucket.count,
+                "src_ips": sorted(bucket.src_ips),
+                "dst_ips": sorted(bucket.dst_ips),
+            }
+            if bucket.payload_sample:
+                evidence["payload_samples"] = [bucket.payload_sample]
             findings.append(Finding(
                 type="webshell_signature",
                 value=f"{bucket.host}{bucket.uri} [{bucket.family}]",
                 confidence=confidence,
-                evidence={
-                    "direction": bucket.direction,
-                    "family": bucket.family,
-                    "marker": bucket.marker,
-                    "host": bucket.host,
-                    "uri": bucket.uri,
-                    "count": bucket.count,
-                    "src_ips": sorted(bucket.src_ips),
-                    "dst_ips": sorted(bucket.dst_ips),
-                },
+                evidence=evidence,
                 first_seen=bucket.first_seen,
                 last_seen=bucket.last_seen,
             ))

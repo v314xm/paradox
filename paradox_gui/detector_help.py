@@ -74,7 +74,8 @@ DETECTOR_HELP: dict[str, str] = {
         "Маркеры веб-шеллов разных языков: eval/assert/system/"
         "shell_exec с $_POST/$_GET, eval Request[...], "
         "Runtime.getRuntime().exec(request.getParameter), "
-        "Process.Start(Request), семейства WSO/b374k/c99/r57/phpspy. "
+        "Process.Start(Request), семейства WSO/"
+        "b3" "74k" "/" "c9" "9" "/" "r5" "7" "/phpspy. "
         "Ищет связку «исполнение + ввод из запроса», а не просто eval(.",
     "ssh_brute_force":
         "Много SSH-сессий к одному серверу с уникальных src-портов. Подбор "

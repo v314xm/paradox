@@ -106,6 +106,7 @@ def main() -> int:
             sys.executable, "-m", "PyInstaller",
             "--noconfirm", "--windowed", "--onedir",
             "--name", APP_NAME,
+            "--version-file", str(INSTALLER_DIR / "version_info.txt"),
             "--collect-submodules", "paradox",
             "--collect-submodules", "paradox_gui",
             "--hidden-import", "PySide6.QtSvg",

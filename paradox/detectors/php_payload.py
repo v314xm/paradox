@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 from paradox.config import Config
 from paradox.detectors._http_body import decoded_body
 from paradox.models import CaptureState, Finding
+from paradox.payload_excerpt import make_sample
 
 PHP_OPEN = b"<?php"
 _BOM_WS = b"\xef\xbb\xbf\x00 \t\r\n"
@@ -67,6 +68,7 @@ class _Bucket:
     content_types: set[str] = field(default_factory=set)
     status_codes: set[int] = field(default_factory=set)
     max_body_size: int = 0
+    payload_sample: dict | None = None
     first_seen: float | None = None
     last_seen: float | None = None
 
@@ -130,6 +132,18 @@ class PhpPayloadDetector:
             if obj.status_code is not None:
                 b.status_codes.add(obj.status_code)
             b.max_body_size = max(b.max_body_size, len(data))
+            if (
+                b.payload_sample is None
+                and getattr(config, "payload_excerpt_enabled", True)
+            ):
+                b.payload_sample = make_sample(
+                    data,
+                    obj=obj,
+                    direction=(
+                        "response" if obj.kind == "response" else "request"
+                    ),
+                    config=config,
+                )
 
             flow = state.flows.get(key)
             if flow is not None:
@@ -159,6 +173,8 @@ class PhpPayloadDetector:
                 "max_body_size": b.max_body_size,
                 "marker": "<?php",
             }
+            if b.payload_sample:
+                evidence["payload_samples"] = [b.payload_sample]
 
             findings.append(Finding(
                 type=b.kind,

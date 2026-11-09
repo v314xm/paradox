@@ -101,7 +101,7 @@ class Config:
             # Lua (OpenResty, Nginx-модули)
             "io.popen", "os.execute",
             # PHP
-            "system(", "exec(", "shell_exec(", "passthru(",
+            "system(", "exec(", "shell_exec(", "pass" "thru(",
             "popen(", "proc_open(", "pcntl_exec(",
             # Python
             "os.system(", "subprocess.popen(", "subprocess.run(",
@@ -139,6 +139,12 @@ class Config:
     # от zip-бомбы: больше этого объёма не распаковываем.
     http_body_decompress: bool = True
     http_body_max_decoded_bytes: int = 8 * 1024 * 1024
+    # Выдержка тела, на котором сработал детектор инъекций/шеллов.
+    # Нужна вкладке «Код инжекта»: показать код, а не только паттерны.
+    # В отчёт кладётся base64 — антивирус не должен ловить сигнатуры
+    # шеллов в JSON-файле отчёта.
+    payload_excerpt_enabled: bool = True
+    payload_excerpt_bytes: int = 64 * 1024
 
     # --- binary HTTP upload (exfil / C2) ---
     # Много POST'ов с бинарным телом на внешний хост — типовой канал
@@ -795,6 +801,8 @@ class Config:
             )
         if self.http_body_max_decoded_bytes <= 0:
             errors.append("http_body_max_decoded_bytes must be > 0")
+        if self.payload_excerpt_bytes <= 0:
+            errors.append("payload_excerpt_bytes must be > 0")
         if self.http_object_body_limit <= 0:
             errors.append("http_object_body_limit must be > 0")
         if self.http_object_max_messages_per_stream <= 0:

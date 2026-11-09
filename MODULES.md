@@ -34,7 +34,7 @@
 
 | Файл | Строк | Что делает |
 |---|---|---|
-| `__init__.py` | 1 | `__version__ = "1.4.0"` |
+| `__init__.py` | 1 | `__version__ = "1.5.0"` |
 | `__main__.py` | 6 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
 | `config.py` | 892 | Все настройки (frozen dataclass), валидация |
@@ -47,6 +47,7 @@
 | `net_utils.py` | 39 | `is_internal_ip`, `classify_direction` |
 | `reassembler.py` | 162 | `TCPReassembler` — склейка TCP по seq |
 | `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
+| `payload_excerpt.py` | 78 | Выдержки тел в base64 для «Кода инжекта» |
 | `http_object.py` | 324 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining) |
 | `http_parse.py` | 106 | Быстрый `parse_request` первого сегмента |
 | `tls_parse.py` | 181 | `extract_sni(ClientHello)` |
@@ -371,7 +372,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 |---|---|---|
 | `__main__.py` | ~30 | Патчит `sys.stdout/stderr` на devnull (PyInstaller --windowed) |
 | `app.py` | 62 | `QApplication` + splash + main window |
-| `main_window.py` | 860 | 8 вкладок, меню, `ClickableLabel` (лого + версия), статус-бар |
+| `main_window.py` | 900 | 9 вкладок, меню, `ClickableLabel` (лого + версия), статус-бар |
 | `theme.py` | 575 | QSS-тема (генерируется кодом) |
 | `splash.py` | 159 | **v1.2.0** — Splash screen с прогресс-баром |
 | `logo.py` | 110 | **v1.2.0** — `render_logo`, `get_app_icon`, `logo_label` |
@@ -386,13 +387,17 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `field_help.py` | 222 | Tooltips полей Config |
 | `contradiction_help.py` | ~50 | Tooltips правил |
 | `ioc_utils.py` | 81 | `detect_ioc_type`, `provider_link` |
+| `payload_decode.py` | 151 | Цепочка URL → Base64 → Gzip/Deflate |
+| `payload_highlighter.py` | 158 | Язык по содержимому, sinks/источники |
+| `payload_preview.py` | 221 | Санитайзер разметки для предпросмотра |
 
-### Views — 8 вкладок
+### Views — 9 вкладок
 
 | Файл | Строк | Вкладка |
 |---|---|---|
 | `run_view.py` | 627 | **Прогон** — drop zone, summary, findings, кнопки «Граф связей/атаки/Файлы/What-If» |
 | `history_view.py` | 551 | **История** — список прогонов + HTML-превью |
+| `payload_view.py` | 580 | **Код инжекта** — выдержки тел, декодирование, подсветка, предпросмотр |
 | `enrich_view.py` | 548 | **Обогащение** — IOC-выбор + результаты |
 | `settings_view.py` | 2163 | **Настройки** — 12 секций, профили, поиск |
 | `ipv6_view.py` | 114 | **IPv6** — NDP + потоки |
@@ -401,6 +406,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `diff_view.py` | 190 | **Сравнение** — **v1.2.0** diff двух JSON-отчётов |
 | `roadmap_view.py` | 100 | **Развитие** — статический roadmap |
 | `quick_check_window.py` | 339 | Отдельное окно быстрой проверки IOC |
+| `payload_window.py` | 44 | Окно «Код инжекта» (`Ctrl+Shift+P`), без parent |
 
 ### Dialogs
 
@@ -507,7 +513,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `contradictions/facts.py` — 927 строк | Один файл на 7 экстракторов | Разбить по source |
 | `entities.py` дублирует полярность findings с `facts.py` | Рассинхрон → FP | Вынести в общий модуль |
 | ~~Нет entry point~~ | Закрыто: `paradox` в `[project.scripts]` | — |
-| ~~Version drift~~ | Закрыто: `1.4.0` в коде и теге | — |
+| ~~Version drift~~ | Закрыто: `1.5.0` в коде и теге | — |
 
 ### Технический долг (не блокеры)
 

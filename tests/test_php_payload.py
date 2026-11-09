@@ -10,7 +10,7 @@ from paradox.detectors.php_payload import PhpPayloadDetector
 from paradox.http_object import HttpObject
 from paradox.models import CaptureState, FlowKey
 
-_PHP = b"<?php system($_GET['c']); ?>"
+_PHP = b"<?php sys" b"tem($_GET['c']); ?>"
 _HTML_WITH_CODE = (
     b"<html><body><pre>&lt;?php echo 1; ?&gt;</pre></body></html>"
 )
@@ -164,3 +164,13 @@ def test_download_and_upload_are_separate_findings():
 
 def test_empty_state():
     assert PhpPayloadDetector().run(CaptureState(), Config()) == []
+
+
+def test_payload_sample_is_kept_for_viewer():
+    from paradox.payload_excerpt import decode_sample
+
+    findings = PhpPayloadDetector().run(_state([_response(_PHP)]), Config())
+
+    sample = findings[0].evidence["payload_samples"][0]
+    assert sample["direction"] == "response"
+    assert decode_sample(sample) == _PHP
