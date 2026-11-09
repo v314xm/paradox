@@ -2,7 +2,7 @@
 ; Собрать: ISCC.exe installer\paradox.iss
 
 #define AppName "Paradox"
-#define AppVersion "1.5.0"
+#define AppVersion "1.5.1"
 #define AppPublisher "Andrey Grigoryev"
 #define AppCopyright "© 2026 Andrey Grigoryev (v314xm)"
 

@@ -3,7 +3,7 @@
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/).
 Версии: семантическое версионирование (major.minor.patch).
 
-## [Unreleased]
+## [1.5.1] — 2026-11-09
 
 ### Исправлено
 - `run_pipeline` / `run_multi_pipeline` принимают `str | Path`; раньше
