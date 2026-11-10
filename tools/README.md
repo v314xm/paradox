@@ -14,9 +14,9 @@ Dev-скрипты. Не часть пакета `paradox/`, не импорти
 - `verify_all.py` — ruff + полный pytest. Итог берётся из junit-отчёта,
   потому что на Windows pytest иногда умирает на выходе с `0xC0000005`
   уже после прогона. `--skip-lint` — только тесты.
-- `coverage_gate.py` — пороги покрытия: ядро ≥ 80%, GUI не ниже базовой
-  линии. Гоняет свой pytest с `coverage run` и переживает тот же
-  `0xC0000005`. Запускать перед релизом.
+- `coverage_gate.py` — пороги покрытия: ядро ≥ 80%, GUI ≥ 50%. Гоняет
+  полный pytest (GUI-тесты входят) с `coverage run` и переживает
+  `0xC0000005` / `0xC0000409` на выходе. Запускать перед релизом.
 - `build_installer.py` — единственный путь сборки: PyInstaller по
   `Paradox.spec` → `dist/Paradox.exe` → Inno Setup → `dist/SHA256SUMS`.
 - `build_icon.py` — пересобирает `paradox.ico` из `render_logo()`.
