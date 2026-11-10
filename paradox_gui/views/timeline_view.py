@@ -1,4 +1,6 @@
 """Вкладка Kill-Chain Таймлайн (Умный парсинг v4)."""
+from html import escape
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtWidgets import (
@@ -199,12 +201,15 @@ class TimelineView(QWidget):
 
         html = (
             f"<h2 style='color:{PALETTE['accent']}; margin-bottom:5px;'>"
-            f"{data.get('type', '?')}</h2>"
+            f"{escape(str(data.get('type', '?')))}</h2>"
         )
-        html += f"<p><b>{tr('timeline.phase_label')}</b> {data.get('phase', '?')}</p>"
+        html += (
+            f"<p><b>{tr('timeline.phase_label')}</b> "
+            f"{escape(str(data.get('phase', '?')))}</p>"
+        )
 
         mitre = data.get('mitre_id')
-        html += f"<p><b>MITRE:</b> {mitre if mitre else '—'}</p>"
+        html += f"<p><b>MITRE:</b> {escape(str(mitre)) if mitre else '—'}</p>"
 
         conf = data.get("confidence", 0)
         conf_color = _conf_color(conf)
@@ -214,17 +219,22 @@ class TimelineView(QWidget):
         if reasons:
             html += f"<h4 style='color:{muted};'>{tr('timeline.reasons_label')}</h4><ul>"
             for r in reasons:
-                html += f"<li>{r}</li>"
+                html += f"<li>{escape(str(r))}</li>"
             html += "</ul>"
 
         ev = data.get("evidence") or {}
         if ev:
             html += f"<h4 style='color:{muted};'>{tr('timeline.evidence_label')}</h4><ul>"
             for k, v in ev.items():
-                html += f"<li><b>{k}:</b> {v}</li>"
+                html += f"<li><b>{escape(str(k))}:</b> {escape(str(v))}</li>"
             html += "</ul>"
 
-        html += f"<hr><h4 style='color:{muted};'>{tr('timeline.description_label')}</h4><p style='line-height:1.4;'>{data.get('description', '')}</p>"
+        html += (
+            f"<hr><h4 style='color:{muted};'>"
+            f"{tr('timeline.description_label')}</h4>"
+            f"<p style='line-height:1.4;'>"
+            f"{escape(str(data.get('description', '')))}</p>"
+        )
 
         self.details.setHtml(html)
 

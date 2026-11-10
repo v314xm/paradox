@@ -169,12 +169,20 @@
       `_add_bool_row`, `_add_int_row_pf`, `_reset_thresholds`, `_field_hints`,
       `_act_analyze_cfg`, `_stop_requested`, `findings_table` маркер
       `# ← ЭТА СТРОКА`, `tests/reports` и `tests/tests`.
+      Сделано 2026-11-10: удалены `_PLACEHOLDER_TEXT`, `_placeholder_page`
+      (в `main_window.py`; в `settings_view.py` он живой fallback),
+      `_add_bool_row`, `_add_int_row_pf`, `_reset_thresholds`. Список был
+      устаревшим: `_field_hints`, `_act_analyze_cfg`, `_stop_requested`
+      используются, маркер `# ← ЭТО СТРОКА` давно убран. Осталось удалить
+      каталоги `tests/reports` и `tests/tests` — ждут решения владельца.
 - [ ] **P2** Удалить 13 `*.bak`-снимков из `paradox_gui/` и
       `tests/test_i18n.py.*.bak`; убрать `.pyc` без `.py`
       (`widgets/__pycache__/empty_states...`).
-- [ ] **P2** Экранировать данные отчёта перед `setHtml` в `timeline_view` и
+- [x] **P2** Экранировать данные отчёта перед `setHtml` в `timeline_view` и
       `host_story_dialog` (как уже сделано в `history_view`); убрать
       русский литерал-сентинел `"Другие внешние"` из `graph_dialog`.
+      Сделано: `html.escape` на всех полях из отчёта; в графе остался
+      только структурный признак подсети (`"/" in ip`).
 
 ## 1.6 Тесты, покрытие, гигиена
 

@@ -436,15 +436,6 @@ class MainWindow(QMainWindow):
         vbox.addWidget(self.tabs, stretch=1)
         self.setCentralWidget(container)
 
-    def _placeholder_page(self, title: str) -> QWidget:
-        w = QWidget()
-        layout = QVBoxLayout(w)
-        lbl = QLabel(tr("placeholder.coming_soon", title=title))
-        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lbl.setObjectName("muted")
-        layout.addWidget(lbl)
-        return w
-
     # =========================================================================
     # STATUS BAR
     # =========================================================================

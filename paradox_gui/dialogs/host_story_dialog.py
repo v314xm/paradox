@@ -1,5 +1,6 @@
 """Диалоговое окно истории хоста (таймлайн)."""
 from datetime import datetime
+from html import escape
 
 from PySide6.QtWidgets import (
     QDialog,
@@ -44,7 +45,9 @@ class HostStoryDialog(QDialog):
         summary = story.get("summary", {})
 
         html = _DOC_CSS
-        html += f"<h2>{tr('story.timeline', ip=story.get('target_ip', '?'))}</h2>"
+        html += (
+            f"<h2>{tr('story.timeline', ip=escape(str(story.get('target_ip', '?'))))}</h2>"
+        )
         html += f"<p><b>{tr('story.total')}</b> {summary.get('total_events', 0)} "
         html += f"| <b>{tr('story.findings')}</b> {summary.get('findings_count', 0)} "
         html += f"| <b>{tr('story.flows')}</b> {summary.get('flows_count', 0)}</p><hr>"
@@ -64,8 +67,12 @@ class HostStoryDialog(QDialog):
 
                 if ev["type"] == "flow":
                     d = ev["data"]
-                    src = f"{d.get('src_ip')}:{d.get('src_port', '')}"
-                    dst = f"{d.get('dst_ip')}:{d.get('dst_port', '')}"
+                    src = escape(
+                        f"{d.get('src_ip')}:{d.get('src_port', '')}"
+                    )
+                    dst = escape(
+                        f"{d.get('dst_ip')}:{d.get('dst_port', '')}"
+                    )
                     byt = d.get('bytes', 0)
                     html += (
                         f"<li><b class='mono'>[{time_str}]</b> "
@@ -73,8 +80,8 @@ class HostStoryDialog(QDialog):
                     )
                 elif ev["type"] == "finding":
                     d = ev["data"]
-                    ftype = d.get('type', '?')
-                    val = d.get('value', '')
+                    ftype = escape(str(d.get('type', '?')))
+                    val = escape(str(d.get('value', '')))
                     html += (
                         f"<li><b class='mono'>[{time_str}]</b> "
                         f"<span class='danger'>"

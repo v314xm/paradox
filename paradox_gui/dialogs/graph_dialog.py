@@ -65,7 +65,7 @@ class InteractiveNode(QGraphicsEllipseItem):
         roles = roles or []
         total_bytes = total_bytes or 0
 
-        if ip == "Другие внешние" or "/" in ip:
+        if "/" in ip:
             color = QColor(PALETTE["text_muted"])
         elif "pivot" in roles or "attacker_candidate" in roles:
             color = QColor(PALETTE["danger"])
@@ -94,7 +94,8 @@ class InteractiveNode(QGraphicsEllipseItem):
         super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event):
-        if self.ip not in ("Другие внешние",) and "/" not in self.ip and HAS_STORY:
+        # Узлы-подсети ("10.0.0.0/24") — не хосты, истории у них нет.
+        if "/" not in self.ip and HAS_STORY:
             self.dialog.open_host_story(self.ip)
         super().mouseDoubleClickEvent(event)
 

@@ -117,22 +117,6 @@ _CONTRADICTIONS = (
 )
 
 
-# Описания секций, которые пока не реализованы.
-# HTML, потому что QLabel умеет rich text из коробки.
-_PLACEHOLDER_TEXT = {
-    "general": (
-        "<b>Что будет.</b> Общие настройки: <b>язык интерфейса</b> "
-        "(русский / английский), путь к отчётам по умолчанию, "
-        "поведение при старте (открывать последний pcap или пустую "
-        "вкладку), тема оформления (сейчас тёмная — единственная)."
-        "<br><br>"
-        "<b>Почему пусто.</b> Сейчас эти значения либо захардкожены "
-        "в GUI, либо не критичны. Появятся, когда появится вторая "
-        "локализация или несколько профилей работы."
-    ),
-}
-
-
 # =============================================================================
 # Хелперы парсинга списков из текстовых полей
 # =============================================================================
@@ -915,9 +899,6 @@ class SettingsView(QWidget):
             elif isinstance(widget, QDoubleSpinBox):
                 widget.setValue(float(value))
 
-    def _reset_thresholds(self) -> None:
-        self._load_thresholds()
-
     def _apply_thresholds(self) -> None:
         values = {}
         for key, widget in self._threshold_inputs.items():
@@ -1280,18 +1261,6 @@ class SettingsView(QWidget):
 
         self._load_performance()
         return w
-
-    def _add_bool_row(self, form, key, label):
-        cb = QCheckBox()
-        form.addRow(self._label_with_hint(label, key), cb)
-        self._perf_inputs[key] = cb
-
-    def _add_int_row_pf(self, form, key, label, lo, hi):
-        sp = QSpinBox()
-        sp.setRange(lo, hi)
-        sp.setFixedWidth(180)
-        form.addRow(self._label_with_hint(label, key), sp)
-        self._perf_inputs[key] = sp
 
     def _load_performance(self) -> None:
         try:
