@@ -213,10 +213,11 @@ pytest -m "not slow"           # ~25 сек, 1312 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1312 тестов в 155 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
-На Windows полный прогон может завершиться кодом `0xC0000005` уже после
-всех тестов (баг выхода pytest/PySide6); результат считайте по
-`--junitxml`, а не по коду возврата.
+1312 тестов в 155 файлах. CI-workflow — `.github/workflows/ci.yml`:
+ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
+может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
+pytest/PySide6); результат считайте по `--junitxml`, а не по коду
+возврата.
 
 Покрытие:
 
@@ -278,7 +279,8 @@ pre-commit install
 - **Волна 2 — детекция.** `rare_external_ip`, `long_connections`, context-aware `sni_mismatch` без 73 FP на FIN-2015, cross-finding «успешный брутфорс», медленный beaconing на реальном C2. Каждое изменение — с замером на трёх эталонных захватах.
 - **Дальше** — волны 3–4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
 
-CI-workflow в репозитории нет: пока его не добавят (решение владельца, см. TODO.md), «1312 passed» — локальная цифра.
+CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
+цифра «1312 passed» — локальный замер на Windows.
 
 ## Вклад
 
