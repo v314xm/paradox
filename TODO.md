@@ -11,7 +11,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1252 non-GUI + 51 GUI = **1303** | `pytest --junitxml`, `-k "not gui"` |
+| Тесты | 1252 non-GUI + 60 GUI = **1312** | `pytest --junitxml`, `-k "not gui"` |
 | Покрытие ядра | **85.4%** | `coverage run`, non-GUI тесты |
 | Покрытие GUI | **36.5%** | там же; GUI-тесты в замер не входили |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -196,12 +196,19 @@
 - [x] **P1** Локальный coverage-гейт: `tools/coverage_gate.py` с порогами
       (ядро ≥ 80%, GUI — не ниже базовой линии), обход `0xC0000005` через
       `--junitxml` и `coverage run`. Запускать перед релизом.
-- [ ] **P2** Тесты на жизненный цикл воркеров (`AnalysisWorker`,
+- [x] **P2** Тесты на жизненный цикл воркеров (`AnalysisWorker`,
       `EnrichmentWorker`, `QuickCheckWorker`): отмена, повторный запуск,
       закрытие окна. Сейчас на них нет ни одного теста.
-- [ ] **P2** Регрессии разложены по трём пересекающимся файлам
+      Сделано: `tests/test_gui_workers.py` (9 тестов) — успех, отмена
+      через `PipelineCancelled`, ошибка, фильтр отключённых детекторов,
+      кэш и сбой провайдера в `QuickCheckWorker`, закрытие оркестратора
+      в `EnrichmentWorker`. Сигналы проверяются вызовом `run()` без
+      event loop.
+- [x] **P2** Регрессии разложены по трём пересекающимся файлам
       (`test_regressions`, `test_p0_regressions`, `test_p1_regressions`) —
       зафиксировать правило, куда писать новую.
+      Сделано: `tests/README.md` — FP → `test_regressions`, аудиторские
+      P0/P1 → `test_p0/1_regressions`, функциональность → тематический файл.
 - [ ] **P2** Пометить маркерами GUI/сетевые/pcap-тесты; `slow` сейчас только
       у двух тестов.
 

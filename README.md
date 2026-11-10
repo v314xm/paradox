@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1303%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1312%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1303 теста.**
+**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1312 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -209,11 +209,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1303 passed
+pytest -m "not slow"           # ~25 сек, 1312 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1303 теста в 154 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
+1312 тестов в 155 файлах. CI-workflow в репозитории пока нет — тесты гоняются локально.
 На Windows полный прогон может завершиться кодом `0xC0000005` уже после
 всех тестов (баг выхода pytest/PySide6); результат считайте по
 `--junitxml`, а не по коду возврата.
@@ -272,13 +272,13 @@ pre-commit install
 
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
-- **1.5.1 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1303 теста.
+- **1.5.1 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1312 тестов.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
 - **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
 - **Волна 2 — детекция.** `rare_external_ip`, `long_connections`, context-aware `sni_mismatch` без 73 FP на FIN-2015, cross-finding «успешный брутфорс», медленный beaconing на реальном C2. Каждое изменение — с замером на трёх эталонных захватах.
 - **Дальше** — волны 3–4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
 
-CI-workflow в репозитории нет: пока его не добавят (решение владельца, см. TODO.md), «1303 passed» — локальная цифра.
+CI-workflow в репозитории нет: пока его не добавят (решение владельца, см. TODO.md), «1312 passed» — локальная цифра.
 
 ## Вклад
 
