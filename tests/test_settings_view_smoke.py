@@ -9,6 +9,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
 
+pytestmark = pytest.mark.gui
+
 
 @pytest.fixture(scope="module")
 def qapp():

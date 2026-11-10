@@ -8,6 +8,8 @@ import pytest
 
 from paradox.integrations.base import EnrichmentResult
 
+pytestmark = pytest.mark.gui
+
 
 @pytest.fixture(scope="module")
 def qapp():

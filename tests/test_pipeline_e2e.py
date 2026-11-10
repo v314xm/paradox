@@ -1,8 +1,12 @@
 import hashlib
 from unittest.mock import patch
 
+import pytest
+
 from paradox.config import Config
 from paradox.pipeline import run_pipeline
+
+pytestmark = pytest.mark.pcap
 
 
 @patch("paradox.pipeline.RawPcapReader")
