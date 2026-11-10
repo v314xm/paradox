@@ -1,49 +1,55 @@
 # tools/
 
-Dev-скрипты. Не часть пакета `paradox/`, не импортируются
-ядром и GUI. Запускаются вручную из корня репозитория.
+Dev-скрипты. Не часть пакета `paradox/`, не импортируются ядром и GUI,
+в дистрибутив не попадают. Запускаются вручную из корня репозитория:
 
-Зависимости — те же, что у проекта: `pip install -e .`
+```powershell
+.venv\Scripts\python.exe tools\<script>.py
+```
+
+Зависимости — те же, что у проекта: `pip install -e ".[dev,gui]"`.
+
+## Проверка и релиз
+
+- `verify_all.py` — ruff + полный pytest. Итог берётся из junit-отчёта,
+  потому что на Windows pytest иногда умирает на выходе с `0xC0000005`
+  уже после прогона. `--skip-lint` — только тесты.
+- `coverage_gate.py` — пороги покрытия: ядро ≥ 80%, GUI не ниже базовой
+  линии. Гоняет свой pytest с `coverage run` и переживает тот же
+  `0xC0000005`. Запускать перед релизом.
+- `build_installer.py` — единственный путь сборки: PyInstaller по
+  `Paradox.spec` → `dist/Paradox.exe` → Inno Setup → `dist/SHA256SUMS`.
+- `build_icon.py` — пересобирает `paradox.ico` из `render_logo()`.
 
 ## Диагностика
 
-- `diagnose.py` — проверяет наличие C2-доменов в `dns_queries`.
-  Запускается отдельно от pipeline, читает pcap сам.
-  Полезен при отладке DGA/cloud_tunnel на новом датасете.
+- `check_attack_graph.py` — прогоняет `run_pipeline` и проверяет, что
+  в отчёте есть непустой `attack_graph`.
+- `split_pcap.py` — режет pcap на две половины (для ручной проверки
+  multi-pcap).
+- `test_multi_pcap.py` — ручной прогон `run_multi_pipeline` на двух
+  половинках одного pcap. Автотест этого не покрывает.
 
-- `portscan_check.py` — считает `dst_port` с одного `src_ip`
-  к одному `dst_ip`. Помогает отличить horizontal scan
-  от обычного серфинга.
+## Документация
 
-- `ssh_check.py` — все flows на порт 22 с разбивкой per `src_ip`.
-  Отличает brute-force (много коротких flows) от одной
-  длинной сессии и от port-скана.
+- `docs_inventory.py` — инвентаризация модулей/тестов для README и
+  MODULES: считает строки, детекторы, экстракторы.
 
-- `diag_nbns.py` — разовый разбор NBNS-пакетов. Проверяет,
-  что `NBNSExtractor` извлекает hostname корректно.
+## Гигиена репозитория
 
-- `diag_kerberos.py` — разовый разбор Kerberos AS-REQ/AS-REP.
-  Проверяет извлечение `cname`, `crealm`, `sname`.
+- `cleanup_before_publish.py` — показывает и удаляет мусор перед
+  публикацией (по подтверждению). Защищены исходники, тесты, README,
+  `pyproject.toml`, `.git`.
+- `backups/`, `fixes/` — снимки `*.bak_*` от прошлых массовых правок.
+  Только история, скриптами не читаются.
 
-## Батч-прогоны
+## Разовое / наследие
 
-- `batch_analyze.py` — массовый прогон `run_pipeline` по всем
-  pcap из папки (FIRST-2015 и аналоги). Ищет `.pcap`, `.pcapng`,
-  `.cap`, `snort.log.*` рекурсивно. Сохраняет `batch_results.json`
-  и `reports_batch/<name>.json`. Результаты пишутся после каждого
-  файла — можно прервать Ctrl+C.
+Эти скрипты — одноразовые миграции прошлых волн. Повторный запуск
+ничего не улучшит, нужны только для археологии:
 
-## Синтетика для тестов
-
-- `make_test_pcap.py` — генератор синтетического pcap
-  с заданными flows/DNS/TLS. Используется для ручной проверки
-  детекторов на контролируемом примере.
-
-## Запуск
-
-Из корня репозитория:
-
-```powershell
-python tools/diagnose.py path\to\capture.pcap
-python tools/batch_analyze.py D:\datasets\FIRST-2015
-python tools/make_test_pcap.py
+- `improve_v11.py` — точечные фиксы v1.1 (идемпотентные патчи).
+- `sync_gui_severity.py` — синхронизация severity-меток GUI с ядром.
+- `fix_utils.py` — общий помощник патчинга для скриптов выше.
+- `make_dump.py` / `extract_dump.py` — упаковка исходников в текстовый
+  dump и обратная распаковка (для передачи кода целиком).
