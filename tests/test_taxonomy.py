@@ -80,6 +80,26 @@ def test_severity_values_are_known():
     assert not bad, f"неизвестная severity: {bad}"
 
 
+def test_finding_severity_defaults_from_map():
+    """Детектор не задал severity — берётся значение из карты."""
+    from paradox.models import Finding
+
+    finding = Finding(type="webshell_upload", value="x", confidence=0.9)
+
+    assert finding.severity == SEVERITY_BY_TYPE["webshell_upload"]
+
+
+def test_explicit_medium_severity_wins_over_map():
+    """Явный "medium" не перетирается картой (раньше это было невозможно)."""
+    from paradox.models import Finding
+
+    finding = Finding(
+        type="webshell_upload", value="x", confidence=0.9, severity="medium",
+    )
+
+    assert finding.severity == "medium"
+
+
 def test_outbound_exfil_marks_src_as_victim():
     """Исходящая загрузка — жертва отдаёт данные, а не атакует."""
     from paradox.contradictions.facts import extract_attack_facts

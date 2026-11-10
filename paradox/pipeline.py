@@ -125,13 +125,49 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+class _HashingReader:
+    """Файловый объект для RawPcapReader, считающий sha256 прочитанного.
+
+    RawPcapReader читает pcap строго последовательно (read/tell, без
+    seek), поэтому хэш всего файла считается за тот же проход, что и
+    разбор пакетов, — второй проход по файлу не нужен.
+    """
+
+    def __init__(self, fh) -> None:
+        self._fh = fh
+        self._hash = hashlib.sha256()
+        self.bytes_hashed = 0
+        self.name = getattr(fh, "name", "")
+
+    def read(self, size: int = -1) -> bytes:
+        data = self._fh.read(size)
+        self._hash.update(data)
+        self.bytes_hashed += len(data)
+        return data
+
+    def tell(self) -> int:
+        return self._fh.tell()
+
+    def close(self) -> None:
+        self._fh.close()
+
+    def hexdigest(self) -> str:
+        return self._hash.hexdigest()
+
+
 def _extract(
     pcap_path: Path,
     state: CaptureState,
     config: Config,
     should_stop: Callable[[], bool] | None = None,
     on_progress: Callable[[int, int], None] | None = None,
-) -> None:
+) -> str | None:
+    """Разобрать pcap в state.
+
+    Возвращает sha256 файла, если его удалось посчитать за проход
+    целиком (файл прочитан до конца), иначе None — вызывающий считает
+    хэш отдельно.
+    """
     import sys
     import time
 
@@ -160,9 +196,11 @@ def _extract(
             max_total_bytes=config.tcp_reassembly_max_total_bytes,
         )
 
+    hasher = _HashingReader(pcap_path.open("rb"))
     try:
-        reader = RawPcapReader(str(pcap_path))
+        reader = RawPcapReader(hasher)
     except Exception as exc:
+        hasher.close()
         raise ParadoxInputError(
             f"{pcap_path.name}: не удалось прочитать pcap "
             f"({type(exc).__name__}: {exc})"
@@ -287,6 +325,12 @@ def _extract(
             f"\r  done: {state.packet_count:,} packets in {elapsed:.1f}s"
             + " " * 20
         )
+
+    # Хэш валиден, только если прочитан весь файл: при обрезанном
+    # хвосте (trailing garbage) отдаём None, и вызывающий пересчитает.
+    if hasher.bytes_hashed == file_size:
+        return hasher.hexdigest()
+    return None
 
 
 def _detect(
@@ -518,9 +562,9 @@ def _build_report(
             ioc_files = {}
 
     ndp_report = {
-        "total": getattr(state, "ndp_total", 0),
-        "neighbors": [{"ip": k, "mac": v} for k, v in getattr(state, "ndp_neighbors", {}).items()],
-        "routers": list(getattr(state, "ndp_routers", set())),
+        "total": state.ndp_total,
+        "neighbors": [{"ip": k, "mac": v} for k, v in state.ndp_neighbors.items()],
+        "routers": list(state.ndp_routers),
     }
 
     return {
@@ -572,7 +616,7 @@ def run_pipeline(
     pcap_path = Path(pcap_path)
     state = CaptureState()
 
-    _extract(
+    pcap_sha256 = _extract(
         pcap_path, state, config,
         should_stop=should_stop,
         on_progress=on_progress,
@@ -587,7 +631,7 @@ def run_pipeline(
     provenance = {
         "tool_version": __version__,
         "pcap_path": str(pcap_path),
-        "pcap_sha256": sha256_file(pcap_path),
+        "pcap_sha256": pcap_sha256 or sha256_file(pcap_path),
     }
     return _build_report(
         state, findings, config, provenance,

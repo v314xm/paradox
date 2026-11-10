@@ -4,6 +4,7 @@ import struct
 from dataclasses import dataclass
 
 from paradox.extractors.ndp import NDPExtractor
+from paradox.models import CaptureState
 
 
 @dataclass
@@ -15,17 +16,15 @@ class MockRecord:
     payload: bytes
 
 
-class MockState:
-    pass
-
-
 def _mac_option(opt_type, mac_str):
     mac_bytes = bytes.fromhex(mac_str.replace(":", ""))
     return struct.pack("!BB", opt_type, 1) + mac_bytes
 
 
 def test_ndp_extractor():
-    state = MockState()
+    # CaptureState, а не подделка: поля NDP объявлены в dataclass,
+    # экстрактор не должен создавать их на лету.
+    state = CaptureState()
     extractor = NDPExtractor()
 
     # NA (neighbor advertisement)

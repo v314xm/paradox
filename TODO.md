@@ -71,8 +71,11 @@
 - [x] **P1** `paradox capture.pcap --version`; зафиксировать коды выхода
       (0 — успех, 2 — нет файла, 3 — формат, 4 — внутренняя ошибка) и
       описать их в `OPERATIONS.md`.
-- [ ] **P2** `sha256_file` читает pcap вторым полным проходом после разбора.
+- [x] **P2** `sha256_file` читает pcap вторым полным проходом после разбора.
       Считать хэш в том же цикле или до него по открытому файлу.
+      Сделано: `_HashingReader` считает sha256 в том же проходе, что и
+      `RawPcapReader`; второй проход остался только страховкой на случай
+      неполного чтения.
 
 ## 1.3 Единая таксономия findings — `paradox/taxonomy.py`
 
@@ -93,11 +96,16 @@
       `detectors/mitre_map.py`, `reporters/markdown_reporter.py`,
       `timeline.py`, `attack_graph.py`, `contradictions/base.py`,
       `reporters/{ioc,html}_reporter.py`.
-- [ ] **P1** `Finding.severity: str | None = None`: сейчас детектор не может
+- [x] **P1** `Finding.severity: str | None = None`: сейчас детектор не может
       явно поставить `medium` для типа, у которого в карте стоит `high`.
-- [ ] **P2** Убрать расхождения MITRE: `brute_force` T1110.001 vs T1110,
+      Сделано: `None` — «взять из карты», любое заданное значение (в том
+      числе `medium`) остаётся как есть.
+- [x] **P2** Убрать расхождения MITRE: `brute_force` T1110.001 vs T1110,
       `script_download` T1189 vs T1105, `command_injection` (T1190,T1059)
       vs T1059, `lateral_movement` T1021.00x vs T1021.
+      Сделано вместе с волной 1: после сведения в `taxonomy.py` копий
+      больше нет. Осознанные исключения — `large_transfer` (техника по
+      направлению) и `carved_file` в timeline.
 
 ## 1.4 Тихие потери данных и неверные вердикты
 
@@ -126,7 +134,7 @@
 - [x] **P1** DNS: NXDOMAIN считается по каждому пакету ответа (ratio > 1.0),
       DNS-over-TCP не снимает 2-байтный length-prefix. Дедуп по
       `(client, qname, txid)`, снять префикс.
-- [ ] **P1** `CaptureState` — объявить `ndp_total`, `ndp_neighbors`,
+- [x] **P1** `CaptureState` — объявить `ndp_total`, `ndp_neighbors`,
       `ndp_routers` полями dataclass вместо `hasattr`/`getattr` в трёх местах.
 - [ ] **P2** YARA: нет `rules/default.yar` → детектор всегда пуст; правила
       компилируются заново каждый прогон; матчится только первые 64 байта.

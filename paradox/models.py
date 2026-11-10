@@ -26,8 +26,9 @@ class HostIdentity:
 # v0.9.0: карта тип finding → severity по умолчанию живёт в
 # paradox/taxonomy.py. Здесь оставлен алиас для обратной совместимости.
 #
-# Детектор может задать severity явно. Если оставил "medium" —
-# применяется эта карта.
+# Детектор может задать severity явно (включая "medium" для типа, у
+# которого в карте стоит "high"). Если severity не задана вовсе —
+# применяется эта карта, затем "medium".
 
 
 def _first_from_list(v):
@@ -76,7 +77,9 @@ class Finding:
     src_ip: str | None = None
     dst_ip: str | None = None
     dst_port: int | None = None
-    severity: str = "medium"   # critical | high | medium | low | info
+    # None — детектор не задал, severity берётся из карты по типу.
+    # Явно заданное значение (в т.ч. "medium") не переопределяется.
+    severity: str | None = None
 
     first_seen: float | None = None
     last_seen: float | None = None
@@ -98,7 +101,7 @@ class Finding:
         Порядок:
           1. Одиночные ключи (src_ip / dst_ip / dst_port) — приоритет.
           2. Агрегированные (top_src_ips / dst_ips / dst_ports) — fallback.
-          3. severity — из _SEVERITY_BY_TYPE, если осталось "medium".
+          3. severity — из _SEVERITY_BY_TYPE, если детектор её не задал.
         """
         ev = self.evidence or {}
         if self.src_ip is None:
@@ -117,8 +120,8 @@ class Finding:
             self.dst_port = (
                 ev.get("dst_port") or _first_from_list(ev.get("dst_ports"))
             )
-        if self.severity == "medium" and self.type in _SEVERITY_BY_TYPE:
-            self.severity = _SEVERITY_BY_TYPE[self.type]
+        if self.severity is None:
+            self.severity = _SEVERITY_BY_TYPE.get(self.type, "medium")
         if not self.confidence_reasons and self.evidence:
             from paradox.detectors.explainer import build_reasons
             self.confidence_reasons = build_reasons(self.evidence)
@@ -279,6 +282,15 @@ class CaptureState:
     # Формат [first, last, count] — list, а не tuple, потому что count
     # инкрементируется in-place на каждом ARP-пакете.
     arp_macs: dict[str, dict[str, list]] = field(default_factory=dict)
+
+    # IPv6 NDP (RFC 4861): аналог ARP для IPv6.
+    #   ndp_total      — сколько NDP-пакетов разобрано
+    #   ndp_neighbors  — IPv6 → MAC из NA/NS
+    #   ndp_routers    — IPv6-адреса, приславшие Router Advertisement
+    ndp_total: int = 0
+    ndp_neighbors: dict[str, str] = field(default_factory=dict)
+    ndp_routers: set[str] = field(default_factory=set)
+
     # TCP reassembly: склеенные потоки по FlowKey
     tcp_streams: dict[FlowKey, bytes] = field(default_factory=dict)
     # Сколько потоков было собрано до освобождения сырых байтов:

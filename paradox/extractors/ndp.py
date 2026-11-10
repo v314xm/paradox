@@ -114,14 +114,6 @@ class NDPExtractor:
         if not ndp:
             return
 
-        # Инициализация структур в state при первом NDP-пакете
-        if not hasattr(state, "ndp_neighbors"):
-            state.ndp_neighbors = {}
-        if not hasattr(state, "ndp_routers"):
-            state.ndp_routers = set()
-        if not hasattr(state, "ndp_total"):
-            state.ndp_total = 0
-
         state.ndp_total += 1
 
         if ndp.kind == "na" and ndp.target_ip and ndp.target_mac:
