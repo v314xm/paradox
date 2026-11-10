@@ -985,13 +985,6 @@ QTextBrowser#graphInfo, QTextBrowser#storyBrowser {{
     padding: 8px 12px;
     color: {text};
 }}
-QTextBrowser#roadmapBrowser {{
-    background-color: {bg};
-    border: 1px solid {border};
-    border-radius: 8px;
-    padding: 16px 20px;
-    color: {text};
-}}
 QGraphicsView {{
     background-color: {bg};
     border: 1px solid {border};
@@ -1185,7 +1178,7 @@ QPushButton#small {{
 }}
 
 /* =========================================================================
-   ВИДЖЕТ: RoadmapView + общие h1 / muted
+   ВИДЖЕТ: общие h1 / muted
    ========================================================================= */
 /* QLabel#h1 и QLabel#muted уже используются в SettingsView и RunView,
    но глобального правила не было — цвет брался дефолтный. Вводим. */

@@ -456,7 +456,6 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `diff_view.py` | 297 | **Сравнение** — diff двух JSON-отчётов |
 | `quick_check_window.py` | 332 | Отдельное окно быстрой проверки IOC |
 | `payload_window.py` | 44 | Окно «Код инжекта» (`Ctrl+Shift+P`), без parent |
-| `roadmap_view.py` | 102 | Статический roadmap v0.7.0; к вкладкам **не подключён** (кандидат на удаление — TODO.md) |
 
 Секции настроек: Общие, Пороги, Детекторы, Противоречия,
 Allowlist, DGA, Brute force, Сеть, Отчёты, Плагины, YARA,
@@ -565,7 +564,6 @@ Threat Intel, Производительность.
 | HTTP/2 не разбирается | h2-трафик виден только как flow | h2-фреймы + HPACK |
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
-| `roadmap_view.py` не подключён | Мёртвый файл с устаревшим roadmap | Удалить (единственный роадмап — TODO.md) |
 | `test_multi_pcap.py` — ручной скрипт под skip | Нет pytest-точки входа | Удалить |
 | `markdown_reporter.py` — 943 строки | Сложно поддерживать | Разбить на подмодули |
 | `settings_view.py` — 2219 строк | Монолит | Разбить по секциям |
