@@ -314,8 +314,14 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
 - [ ] **P0** Разбить `paradox_gui/views/settings_view.py` (2218) на пакет
       `settings/`: `constants`, `parsers`, `builders`, `view`, `pages/*`.
       Границы уже размечены комментариями.
-- [ ] **P0** Разбить `paradox_gui/theme.py` (1296) на `theme/`:
+- [x] **P0** Разбить `paradox_gui/theme.py` (1296) на `theme/`:
       `palette`, `qss_global`, `qss_widgets`, `assets`, `apply`, `win32`.
+      Сделано 2026-11-10: пакет `paradox_gui/theme/` — `palette.py`,
+      `qss_global.py` (базовые правила), `qss_widgets.py` (служебные
+      классы и виджеты), `qss.py` (сборка), `assets.py` (шевроны),
+      `apply.py`; `__init__.py` реэкспортирует прежний API. Win32-кода
+      в файле не было — `win32` в списке оказался лишним. QSS сверен
+      с прежним шаблоном побайтово.
 - [ ] **P1** Разбить `main_window.py` (900) на `shortcuts`, `menus`,
       `export`, `actions`, `window`.
 - [ ] **P1** Разбить `markdown_reporter.py` (992) на `markdown/format`,

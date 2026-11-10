@@ -104,7 +104,7 @@ class HistoryView(QWidget):
         outer.setSpacing(16)
 
         title = QLabel(tr("history.title"))
-        title.setObjectName("h1")  # QSS-стиль из theme.py
+        title.setObjectName("h1")  # QSS-стиль из theme/qss_widgets.py
         outer.addWidget(title)
 
         subtitle = QLabel(tr("history.subtitle"))
@@ -121,7 +121,7 @@ class HistoryView(QWidget):
         # Слева — список прогонов. Фиксированная ширина 320px: даёт
         # стабильную левую колонку и оставляет место под HTML справа.
         self._list = QListWidget()
-        self._list.setObjectName("historyList")  # стиль в theme.py
+        self._list.setObjectName("historyList")  # стиль в theme/qss_widgets.py
         # Подписываемся на смену строки сразу при сборке UI. При
         # добавлении первой записи сработает автоматически — не надо
         # вручную вызывать _on_row_changed.
@@ -338,7 +338,7 @@ class HistoryView(QWidget):
     def _render_html(self, report: dict) -> str:
         """Компактный HTML-разбор отчёта.
 
-        Цвета — вручную согласованы с PALETTE/theme.py. QTextBrowser
+        Цвета — вручную согласованы с PALETTE/theme/palette.py. QTextBrowser
         рендерит свой QTextDocument, QSS из theme сюда не течёт.
 
         Структура: <style> + последовательность секций (Файл, Сводка,

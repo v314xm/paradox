@@ -25,6 +25,10 @@
 
 ### Изменено
 - 26 детекторов, 1341 тест (было 24 и 1312).
+- `paradox_gui/theme.py` разбит на пакет `theme/`: `palette`,
+  `qss_global`, `qss_widgets`, `qss`, `assets`, `apply`. Внешний API
+  (`from paradox_gui.theme import PALETTE, QSS, apply_theme, ...`) не
+  изменился, собранный QSS сверен с прежним побайтово.
 - `sni_mismatch` перепроверен на FIN-2015: 0 findings вместо
   заявленных в TODO 73 — сравнение с DNS-ответами и CDN-allowlist
   уже закрыли шум.

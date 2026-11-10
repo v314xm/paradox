@@ -416,7 +416,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `__main__.py` | 26 | Патчит `sys.stdout/stderr` на devnull (PyInstaller --windowed) |
 | `app.py` | 92 | `QApplication` + splash + main window |
 | `main_window.py` | 900 | 9 вкладок, меню, `ClickableLabel` (лого + версия), статус-бар |
-| `theme.py` | 1296 | QSS-тема (генерируется кодом) |
+| `theme/` | 7 файлов | QSS-тема: `palette`, `qss_global`, `qss_widgets`, `qss`, `assets`, `apply` |
 | `splash.py` | 161 | **v1.2.0** — Splash screen с прогресс-баром |
 | `logo.py` | 110 | **v1.2.0** — `render_logo`, `get_app_icon`, `logo_label` |
 | `_runtime_hook.py` | 90 | PyInstaller: faulthandler → `Paradox-error.log` |
@@ -568,7 +568,7 @@ Threat Intel, Производительность.
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
 | `markdown_reporter.py` — 983 строки | Сложно поддерживать | Разбить на подмодули |
 | `settings_view.py` — 2188 строк | Монолит | Разбить по секциям |
-| `theme.py` — 1289 строк | Монолит | Разбить на пакет |
+| `main_window.py` — 900 строк | Монолит | Разбить на подмодули |
 | `contradictions/facts.py` — 907 строк | Один файл на 8 экстракторов | Разбить по source |
 
 ### Технический долг (не блокеры)
