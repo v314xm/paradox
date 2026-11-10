@@ -136,9 +136,11 @@
       `(client, qname, txid)`, снять префикс.
 - [x] **P1** `CaptureState` — объявить `ndp_total`, `ndp_neighbors`,
       `ndp_routers` полями dataclass вместо `hasattr`/`getattr` в трёх местах.
-- [ ] **P2** YARA: нет `rules/default.yar` → детектор всегда пуст; правила
+- [x] **P2** YARA: нет `rules/default.yar` → детектор всегда пуст; правила
       компилируются заново каждый прогон; матчится только первые 64 байта.
       Добавить правила через `importlib.resources`, кэш по mtime, полное тело.
+      Сделано: `paradox/rules/default.yar` (`.spec` + package-data), кэш по
+      `(путь, mtime, размер)`, скан `CarvedFile.body` целиком.
 - [ ] **P2** X.509: сертификат, начинающийся не с handshake record или
       размазанный по нескольким TLS-записям, теряется; ошибки DER глотаются
       без счётчика. Добавить `tls_cert_parse_errors` и секцию `certificates`

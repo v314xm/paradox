@@ -14,7 +14,7 @@ a = Analysis(
     [os.path.join(ROOT, 'paradox_gui', '__main__.py')],
     pathex=[ROOT],
     binaries=[],
-    datas=[],
+    datas=[(os.path.join(ROOT, 'paradox', 'rules'), 'paradox/rules')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

@@ -74,7 +74,11 @@ _MAGIC = [
 
 @dataclass
 class CarvedFile:
-    """Метаданные payload'а. Никакого body в памяти после возврата."""
+    """Метаданные payload'а.
+
+    Тело не копируется: поле `body` — ссылка на bytes, которые уже
+    лежат в state.http_objects, и живёт столько же, сколько они.
+    """
     sha256: str
     ext: str
     size: int
@@ -90,6 +94,10 @@ class CarvedFile:
     # Нужно timeline для сортировки. None если flow уже удалён или
     # не имел first_ts (теоретически).
     first_ts: float | None = None
+    # Ссылка на тело, пока оно живо в state.http_objects. Нужна YARA,
+    # чтобы матчить payload целиком, а не первые 64 байта. В отчёт
+    # (to_dict) не попадает: тела уже есть в http_objects.
+    body: bytes | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -194,6 +202,7 @@ def carve_files(
             truncated=obj.truncated,
             saved_path=saved_path,
             first_ts=first_ts,
+            body=obj.body,
         ))
 
     return carved

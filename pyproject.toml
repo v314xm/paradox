@@ -84,6 +84,11 @@ dev = [
 include = ["paradox*", "paradox_gui*"]
 exclude = ["tests*", "tools*"]
 
+# Встроенные YARA-правила: должны попасть и в wheel, и в exe
+# (Paradox.spec добавляет их как datas).
+[tool.setuptools.package-data]
+paradox = ["rules/*.yar"]
+
 
 # -----------------------------------------------------------------------------
 # pytest

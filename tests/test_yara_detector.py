@@ -32,6 +32,7 @@ class MockCarvedFile:
     dst_ip: str = "10.0.0.1"
     truncated: bool = False
     first_ts: float | None = None
+    body: bytes | None = None
 
 
 @dataclass
@@ -238,3 +239,60 @@ def test_yara_no_matches(mock_yara):
 
     assert findings == []
     assert mock_yara.compile.called
+
+
+# =============================================================================
+# 4. ВСТРОЕННЫЕ ПРАВИЛА И КЭШ КОМПИЛЯЦИИ
+# =============================================================================
+
+@pytest.mark.skipif(not HAS_YARA, reason="yara-python not installed")
+def test_default_rules_dir_is_shipped():
+    """Встроенные правила есть в пакете, а не только в исходниках."""
+    from paradox.detectors.yara_detector import _default_rules_path
+
+    assert _default_rules_path() is not None
+
+
+@pytest.mark.skipif(not HAS_YARA, reason="yara-python not installed")
+def test_marker_beyond_first_64_bytes_is_found():
+    """Матчится всё тело payload'а, а не только первые 64 байта."""
+    body = b"JUNK" * 100 + b"meterpreter"
+    state = CaptureState()
+    state.carved_files = [
+        # В первых 64 байтах маркера нет — только полное тело даёт матч.
+        MockCarvedFile(first_bytes_hex=body[:64].hex(), body=body),
+    ]
+
+    findings = YARADetector().run(state, MockConfig())
+
+    assert [f.value for f in findings] == ["Paradox_Meterpreter_Stage"]
+    assert findings[0].severity == "high"
+
+
+def test_rules_compilation_is_cached(tmp_path):
+    """Правила компилируются один раз; правка файла сбрасывает кэш."""
+    from paradox.detectors import yara_detector
+
+    rule_file = tmp_path / "cached.yar"
+    rule_file.write_text(
+        'rule Cached { strings: $a = "X" condition: $a }',
+        encoding="utf-8",
+    )
+
+    with patch.object(yara_detector, "yara") as mock_yara:
+        mock_yara.compile.return_value = MagicMock(match=lambda **_: [])
+        yara_detector._RULES_CACHE.clear()
+        state = CaptureState()
+        config = MockConfig(yara_rules_path=str(rule_file))
+
+        YARADetector().run(state, config)
+        YARADetector().run(state, config)
+        assert mock_yara.compile.call_count == 1
+
+        # Другой размер → другой ключ кэша.
+        rule_file.write_text(
+            'rule Cached2 { strings: $a = "XX" condition: $a }',
+            encoding="utf-8",
+        )
+        YARADetector().run(state, config)
+        assert mock_yara.compile.call_count == 2
