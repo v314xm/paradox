@@ -494,8 +494,8 @@ IPv4-адресах.
 sni_mismatch шумит на CDN (73 FP на FIN-2015): нужен
 context-aware allowlist.
 
-tests/test_multi_pcap.py — ручной скрипт под skip, не pytest;
-слияние покрыто tests/test_multi_pcap_merge.py (21 тест).
+Слияние multi-pcap покрыто tests/test_multi_pcap_merge.py (21 тест);
+ручной прогон на двух половинах pcap — tools/test_multi_pcap.py.
 
 CI-workflow в репозитории нет: прогон тестов локальный.
 

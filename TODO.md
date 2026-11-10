@@ -193,8 +193,9 @@
 
 ## 1.6 Тесты, покрытие, гигиена
 
-- [ ] **P1** Удалить `tests/test_multi_pcap.py` — это ручной скрипт под
+- [x] **P1** Удалить `tests/test_multi_pcap.py` — это ручной скрипт под
       `skip`, слияние уже покрыто `tests/test_multi_pcap_merge.py` (21 тест).
+      Сделано: удалён; ручной прогон остался в `tools/test_multi_pcap.py`.
 - [x] **P1** Расширить `tests/test_version_consistency.py`: сейчас сверяются
       только `pyproject` ↔ ядро ↔ GUI. Добавить `installer/version_info.txt`,
       `installer/paradox.iss`, `docs/index.html`, README; туда же — проверку
@@ -229,8 +230,9 @@
       Оставить один путь и описать его.
 - [x] **P1** `SHA256SUMS` в релизе + пометка «бинарник не подписан» рядом
       с кнопкой скачивания в README и на сайте.
-- [ ] **P1** Удалить легаси `installer/pcap-triage.iss` (v1.0.0, другой
+- [x] **P1** Удалить легаси `installer/pcap-triage.iss` (v1.0.0, другой
       AppId) — он создаёт вторую запись в «Установке и удалении».
+      Сделано: удалён; единственный установщик — `installer/paradox.iss`.
 - [x] **P1** Починить mojibake `В© 2026` в `installer/paradox.iss`
       (шаблон в `tools/build_installer.py`).
 - [x] **P2** Сайт: 28.1 с против 19 с в README на одном и том же захвате;
