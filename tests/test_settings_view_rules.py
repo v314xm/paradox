@@ -41,7 +41,7 @@ def test_gui_covers_all_core_rules():
     missing = core - gui
     assert not missing, (
         f"В GUI нет правил: {sorted(missing)}. "
-        f"Добавь их в _CONTRADICTIONS в settings_view.py."
+        f"Добавь их в _CONTRADICTIONS в settings/constants.py."
     )
 
 
@@ -66,7 +66,10 @@ def test_nxdomain_window_in_thresholds_widget():
     Тянем исходник и ищем ключ в вызове _add_int_row / _add_float_row.
     Без инстанцирования Qt-виджета.
     """
-    src = Path(__file__).resolve().parent.parent / "paradox_gui" / "views" / "settings_view.py"
+    src = (
+        Path(__file__).resolve().parent.parent
+        / "paradox_gui" / "views" / "settings" / "pages" / "thresholds.py"
+    )
     text = src.read_text(encoding="utf-8")
     assert '"nxdomain_burst_window_sec"' in text, (
         "nxdomain_burst_window_sec не выведен в Пороги"

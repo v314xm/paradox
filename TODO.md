@@ -311,9 +311,15 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
 Цель: 335 МБ быстрее 15 с, предсказуемая память, файлы, которые можно
 читать.
 
-- [ ] **P0** Разбить `paradox_gui/views/settings_view.py` (2218) на пакет
+- [x] **P0** Разбить `paradox_gui/views/settings_view.py` (2218) на пакет
       `settings/`: `constants`, `parsers`, `builders`, `view`, `pages/*`.
-      Границы уже размечены комментариями.
+      Сделано 2026-11-10: `view.py` (679) — сигналы, каркас, поиск,
+      загрузка/сохранение; `builders.py` — общие строители форм;
+      `constants.py` — секции/детекторы/правила; `parsers.py` — порты и
+      строки; `pages/` — 13 миксинов по странице. `settings_view.py`
+      остался совместимым фасадом на 30 строк, поэтому `main_window` и
+      тесты не менялись. Набор из 85 методов сверен с прежним классом —
+      потерь нет.
 - [x] **P0** Разбить `paradox_gui/theme.py` (1296) на `theme/`:
       `palette`, `qss_global`, `qss_widgets`, `assets`, `apply`, `win32`.
       Сделано 2026-11-10: пакет `paradox_gui/theme/` — `palette.py`,

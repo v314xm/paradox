@@ -454,7 +454,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `history_view.py` | 588 | **История** — список прогонов + HTML-превью |
 | `payload_view.py` | 580 | **Код инжекта** — выдержки тел, декодирование, подсветка, предпросмотр |
 | `enrich_view.py` | 578 | **Обогащение** — IOC-выбор + результаты |
-| `settings_view.py` | 2218 | **Настройки** — 13 секций, профили, поиск |
+| `settings/` | 2582 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
 | `ipv6_view.py` | 126 | **IPv6** — NDP + потоки |
 | `timeline_view.py` | 259 | **Таймлайн** — kill-chain tree |
 | `export_view.py` | 163 | **Экспорт** — CSV/STIX/HTML preview |
@@ -567,7 +567,6 @@ Threat Intel, Производительность.
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
 | `markdown_reporter.py` — 983 строки | Сложно поддерживать | Разбить на подмодули |
-| `settings_view.py` — 2188 строк | Монолит | Разбить по секциям |
 | `main_window.py` — 900 строк | Монолит | Разбить на подмодули |
 | `contradictions/facts.py` — 907 строк | Один файл на 8 экстракторов | Разбить по source |
 

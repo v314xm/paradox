@@ -25,6 +25,11 @@
 
 ### Изменено
 - 26 детекторов, 1341 тест (было 24 и 1312).
+- `paradox_gui/views/settings_view.py` (2218 строк) разбит на пакет
+  `views/settings/`: `view.py` (каркас, поиск, загрузка/сохранение),
+  `builders.py`, `parsers.py`, `constants.py` и `pages/*` — по миксину
+  на страницу. `settings_view.py` оставлен тонким фасадом, внешние
+  импорты и тесты не менялись.
 - `paradox_gui/theme.py` разбит на пакет `theme/`: `palette`,
   `qss_global`, `qss_widgets`, `qss`, `assets`, `apply`. Внешний API
   (`from paradox_gui.theme import PALETTE, QSS, apply_theme, ...`) не
