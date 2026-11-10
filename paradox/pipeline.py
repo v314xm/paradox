@@ -3,8 +3,6 @@ import logging
 from collections.abc import Callable
 from pathlib import Path
 
-from scapy.utils import RawPcapReader
-
 from paradox import __version__
 from paradox.aggregators.entities import build_entities
 from paradox.analyzers.absence import analyze_absence
@@ -53,6 +51,7 @@ from paradox.extractors.tls import TLSExtractor
 from paradox.file_carve import carve_files
 from paradox.models import CaptureState
 from paradox.parsers import parse_packet
+from paradox.pcap_reader import PcapFormatError, PcapRecordReader
 from paradox.reassembler import TCPReassembler
 from paradox.reporters.flow_report import (
     build_dns_report,
@@ -129,36 +128,6 @@ def sha256_file(path: Path, chunk_size: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
-class _HashingReader:
-    """Файловый объект для RawPcapReader, считающий sha256 прочитанного.
-
-    RawPcapReader читает pcap строго последовательно (read/tell, без
-    seek), поэтому хэш всего файла считается за тот же проход, что и
-    разбор пакетов, — второй проход по файлу не нужен.
-    """
-
-    def __init__(self, fh) -> None:
-        self._fh = fh
-        self._hash = hashlib.sha256()
-        self.bytes_hashed = 0
-        self.name = getattr(fh, "name", "")
-
-    def read(self, size: int = -1) -> bytes:
-        data = self._fh.read(size)
-        self._hash.update(data)
-        self.bytes_hashed += len(data)
-        return data
-
-    def tell(self) -> int:
-        return self._fh.tell()
-
-    def close(self) -> None:
-        self._fh.close()
-
-    def hexdigest(self) -> str:
-        return self._hash.hexdigest()
-
-
 def _extract(
     pcap_path: Path,
     state: CaptureState,
@@ -200,17 +169,16 @@ def _extract(
             max_total_bytes=config.tcp_reassembly_max_total_bytes,
         )
 
-    hasher = _HashingReader(pcap_path.open("rb"))
     try:
-        reader = RawPcapReader(hasher)
+        hasher = PcapRecordReader(pcap_path.open("rb"))
     except Exception as exc:
-        hasher.close()
         raise ParadoxInputError(
             f"{pcap_path.name}: не удалось прочитать pcap "
             f"({type(exc).__name__}: {exc})"
         ) from exc
+    reader = hasher
     try:
-        for raw_data, metadata in reader:
+        for raw_data, ts in reader:
             state.packet_count += 1
 
             if (
@@ -220,14 +188,8 @@ def _extract(
             ):
                 raise PipelineCancelled()
 
-            bytes_read = reader.f.tell()
+            bytes_read = reader.bytes_hashed
 
-            # nanosecond-pcap хранит в usec наносекунды — знаменатель
-            # разный, иначе время уезжает до +1000 с и ломает окна.
-            frac_denom = (
-                1_000_000_000 if getattr(reader, "nano", False) else 1_000_000
-            )
-            ts = metadata.sec + metadata.usec / frac_denom
             try:
                 record = parse_packet(raw_data, ts)
             except Exception:
@@ -268,6 +230,10 @@ def _extract(
                             "extractor %s failed (first occurrence)",
                             ex.name,
                         )
+    except PcapFormatError as exc:
+        raise ParadoxInputError(
+            f"{pcap_path.name}: {exc}"
+        ) from exc
     finally:
         reader.close()
 

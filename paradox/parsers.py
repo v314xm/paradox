@@ -39,6 +39,12 @@ VLAN_TAG_LEN = 4
 IPV4_MIN_HEADER_LEN = 20
 TCP_MIN_HEADER_LEN = 20
 UDP_HEADER_LEN = 8
+
+# Заголовки читаются одним unpack_from: на 627k пакетов это заметно
+# дешевле, чем по одному struct.unpack_from на поле.
+_ETH = struct.Struct("!6s6sH")
+_IPV4 = struct.Struct("!BBHHHBBH4s4s")
+_TCP = struct.Struct("!HHIIBBHHH")
 ARP_BASE_HEADER_LEN = 8  # без адресов
 
 # --- ethertype ---
@@ -53,7 +59,7 @@ IP_PROTO_TCP = 6
 IP_PROTO_UDP = 17
 
 
-@dataclass
+@dataclass(slots=True)
 class PacketRecord:
     """Нормализованный пакет для экстракторов.
 
@@ -112,10 +118,9 @@ def parse_packet(raw: bytes, ts: float) -> PacketRecord:
     if length < ETHERNET_HEADER_LEN:
         return rec
 
-    rec.eth_dst = raw[0:6].hex(":")
-    rec.eth_src = raw[6:12].hex(":")
-
-    ethertype = struct.unpack_from("!H", raw, 12)[0]
+    rec.eth_dst, rec.eth_src, ethertype = _ETH.unpack_from(raw, 0)
+    rec.eth_dst = rec.eth_dst.hex(":")
+    rec.eth_src = rec.eth_src.hex(":")
     offset = ETHERNET_HEADER_LEN
 
     # 802.1Q VLAN
@@ -171,24 +176,27 @@ def _parse_ipv4(raw: bytes, rec: PacketRecord, offset: int) -> None:
     if length < offset + IPV4_MIN_HEADER_LEN:
         return
 
-    ihl = (raw[offset] & 0x0F) * 4
+    (
+        ver_ihl, _tos, total_len, ip_id, flags_frag,
+        _ttl, ip_proto, _checksum, src, dst,
+    ) = _IPV4.unpack_from(raw, offset)
+
+    ihl = (ver_ihl & 0x0F) * 4
     if ihl < IPV4_MIN_HEADER_LEN or length < offset + ihl:
         return
 
-    rec.ip_proto = raw[offset + 9]
-    rec.ip_id = struct.unpack_from("!H", raw, offset + 4)[0]
+    rec.ip_proto = ip_proto
+    rec.ip_id = ip_id
 
-    flags_frag = struct.unpack_from("!H", raw, offset + 6)[0]
     rec.ip_mf = bool((flags_frag >> 13) & 1)
     rec.ip_frag_offset = (flags_frag & 0x1FFF) * 8
 
-    rec.src_ip = socket.inet_ntoa(raw[offset + 12:offset + 16])
-    rec.dst_ip = socket.inet_ntoa(raw[offset + 16:offset + 20])
+    rec.src_ip = socket.inet_ntoa(src)
+    rec.dst_ip = socket.inet_ntoa(dst)
 
     # total length определяет реальный конец IP-пакета. Без него
     # Ethernet-padding (кадры меньше 60 байт) попадает в payload и
     # в reassembler'е занимает offset реального сегмента.
-    total_len = struct.unpack_from("!H", raw, offset + 2)[0]
     if total_len >= IPV4_MIN_HEADER_LEN and offset + total_len <= length:
         ip_end = offset + total_len
     else:
@@ -220,14 +228,19 @@ def _parse_tcp(raw: bytes, rec: PacketRecord, offset: int, end: int) -> None:
         rec.proto = "tcp"
         return
 
-    rec.src_port = struct.unpack_from("!H", raw, offset)[0]
-    rec.dst_port = struct.unpack_from("!H", raw, offset + 2)[0]
-    rec.tcp_seq = struct.unpack_from("!I", raw, offset + 4)[0]
-    rec.tcp_ack = struct.unpack_from("!I", raw, offset + 8)[0]
+    (
+        src_port, dst_port, tcp_seq, tcp_ack,
+        data_off_flags, tcp_flags, _win, _checksum, _urg,
+    ) = _TCP.unpack_from(raw, offset)
 
-    data_offset = (raw[offset + 12] >> 4) * 4
+    rec.src_port = src_port
+    rec.dst_port = dst_port
+    rec.tcp_seq = tcp_seq
+    rec.tcp_ack = tcp_ack
+
+    data_offset = (data_off_flags >> 4) * 4
     data_offset = max(data_offset, TCP_MIN_HEADER_LEN)
-    rec.tcp_flags = raw[offset + 13]
+    rec.tcp_flags = tcp_flags
 
     payload_start = offset + data_offset
     rec.payload = raw[payload_start:end] if payload_start < end else b""

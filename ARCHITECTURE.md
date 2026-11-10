@@ -10,7 +10,8 @@
 PCAP
 │
 ▼
-RawPcapReader; pcapng отвергается с подсказкой editcap
+PcapRecordReader (свой читатель, sha256 за тот же проход);
+pcapng отвергается с подсказкой editcap
 │
 ▼
 parse_packet (struct.unpack) → PacketRecord

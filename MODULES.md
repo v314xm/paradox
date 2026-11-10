@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 18 911, GUI — 17 388, всего 36 299
+**Строк кода:** ядро — 19 015, GUI — 17 383, всего 36 398
   (замер 2026-11-10)
-**Тестов:** 1342 в 157 файлах (замер 2026-11-10)
+**Тестов:** 1351 в 158 файлах (замер 2026-11-10)
 
 ---
 
@@ -38,9 +38,10 @@
 | `__init__.py` | 1 | `__version__ = "1.5.1"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
-| `config.py` | 899 | Все настройки (frozen dataclass), валидация |
-| `models.py` | 378 | `Finding`, `FlowKey`, `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
-| `pipeline.py` | 622 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect`, `_build_report` |
+| `config.py` | 1017 | Все настройки (frozen dataclass), валидация |
+| `models.py` | 370 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
+| `pipeline.py` | 689 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect`, `_build_report` |
+| `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
 | `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
 | `multi_pcap.py` | 187 | `merge_capture_states(states)` — слияние N датасетов |
 | `timeline.py` | 320 | `build_timeline`, `summarize_by_phase`, kill-chain |
@@ -93,7 +94,7 @@
 
 ## Парсеры
 
-### `parsers.py` (288 строк)
+### `parsers.py` (301 строка)
 Быстрый разбор пакетов через `struct.unpack`. Без scapy. Поддержано: Ethernet, 802.1Q VLAN, IPv4 (фрагментация), TCP (seq/ack/flags), UDP, ICMP, ARP.
 
 **Класс `PacketRecord`:** L2-L4 поля + payload + `ipv6_meta` (dict).
@@ -511,7 +512,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1342 теста в 157 файлах** (замер 2026-11-10, после GUI-разбиения).
+**1351 тест в 158 файлах** (замер 2026-11-10, после ускорения разбора).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 

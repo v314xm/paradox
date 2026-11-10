@@ -30,6 +30,7 @@ _TCP_FIN = 0x01
 _TCP_SYN = 0x02
 _TCP_RST = 0x04
 _TCP_ACK = 0x10
+_TCP_SYN_FIN_RST = _TCP_SYN | _TCP_FIN | _TCP_RST
 
 _UINT32_MASK = 0xFFFFFFFF
 
@@ -77,6 +78,13 @@ class TCPReassembler:
         if record.tcp_seq is None:
             return
 
+        flags = record.tcp_flags or 0
+
+        # Чистый ACK без данных и без закрытия: ключ строить незачем.
+        # Таких пакетов на эталоне ~227k из 627k.
+        if not record.payload and not (flags & _TCP_SYN_FIN_RST):
+            return
+
         key = FlowKey(
             proto="tcp",
             src_ip=record.src_ip,
@@ -84,8 +92,6 @@ class TCPReassembler:
             src_port=record.src_port,
             dst_port=record.dst_port,
         )
-
-        flags = record.tcp_flags or 0
 
         # Новый сеанс — SYN без ACK
         if (flags & _TCP_SYN) and not (flags & _TCP_ACK):

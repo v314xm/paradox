@@ -36,6 +36,22 @@ def test_missing_file_raises_input_error(tmp_path):
         run_pipeline(tmp_path / "absent.pcap", Config(file_carve_enabled=False))
 
 
+def test_truncated_record_raises_input_error(tmp_path):
+    """Запись обещает 10 байт, а в файле 3 — это ошибка формата."""
+    header = (
+        b"\xd4\xc3\xb2\xa1" + (2).to_bytes(2, "little")
+        + (4).to_bytes(2, "little") + b"\x00" * 16
+    )
+    record = (1).to_bytes(4, "little") + b"\x00" * 4 + (10).to_bytes(
+        4, "little",
+    ) + (10).to_bytes(4, "little") + b"abc"
+    pcap = tmp_path / "truncated.pcap"
+    pcap.write_bytes(header + record)
+
+    with pytest.raises(ParadoxInputError, match="оборван"):
+        run_pipeline(pcap, Config(file_carve_enabled=False))
+
+
 def test_cli_corrupt_pcap_exits_3(tmp_path, capsys):
     bad = tmp_path / "corrupt.pcap"
     bad.write_bytes(b"garbage")

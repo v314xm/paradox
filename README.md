@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1342%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1351%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 26 детекторов, 12 правил противоречий, GUI, 1342 теста.**
+**PCAP triage: 26 детекторов, 12 правил противоречий, GUI, 1351 тест.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -163,12 +163,12 @@ paradox capture.pcap -o reports/              # директория
 | Размер | Пакетов | Время |
 |---|---|---|
 | 152 МБ | 232k | 12 сек (с TCP reassembly) |
-| 334 МБ | 627k | 23–28 сек |
+| 334 МБ | 627k | 14.4 сек (после волны 3; было 23–28) |
 | 4.7 ГБ (58 файлов) | 9.5M | 10 мин полный батч |
 
 Память — ~106 МБ на 334 МБ файл.
 
-В основе — собственный парсер пакетов на `struct.unpack`, без scapy dissect. 39× ускорение против чистого scapy. Scapy используется точечно — только для сложных payload.
+В основе — собственный парсер пакетов на `struct.unpack` и собственный читатель pcap (`pcap_reader.py`) без scapy dissect. 39× ускорение против чистого scapy. Scapy используется точечно — только для сложных payload.
 
 ## Архитектура
 
@@ -209,11 +209,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1340 passed
+pytest -m "not slow"           # ~25 сек, 1349 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1342 теста в 157 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1351 тест в 158 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -274,15 +274,15 @@ pre-commit install
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
 - **1.5.1 (текущий релиз)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1288 тестов.
-- **main (ещё не выпущено)** — волна 2: 26 детекторов, 1342 теста. Добавлены `rare_external_ip`, `long_connections`, `successful_bruteforce` (перебор + URI вида `loginok`/`dashboard`). `sni_mismatch` на FIN-2015 замерен заново: 0 findings вместо прежних 73.
-- **Волна 3 (в работе).** `theme.py`, `settings_view.py` и `main_window.py` разбиты на пакеты (`theme/`, `views/settings/`, `window/`); внешние импорты сохранены фасадами. Дальше — `markdown_reporter`, `facts`, `config`/`pipeline`, профилирование и цель < 15 с на 335 МБ.
+- **main (ещё не выпущено)** — волна 2+: 26 детекторов, 1351 тест. Добавлены `rare_external_ip`, `long_connections`, `successful_bruteforce` (перебор + URI вида `loginok`/`dashboard`). `sni_mismatch` на FIN-2015 замерен заново: 0 findings вместо прежних 73.
+- **Волна 3 (в работе).** `theme.py`, `settings_view.py` и `main_window.py` разбиты на пакеты (`theme/`, `views/settings/`, `window/`); внешние импорты сохранены фасадами. Разбор 335 МБ ускорен с 24.2 до 14.4 с — цель «меньше 15 с» достигнута. Дальше — `markdown_reporter`, `facts`, `config`/`pipeline` и stream mode для pcap > 2 ГБ.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
 - **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
 - **Волна 2 — детекция.** Сделано: `rare_external_ip` и `long_connections` с фильтром по DNS-ответам, cross-finding «успешный брутфорс»; `sni_mismatch` проверен на FIN-2015 (0 findings). Осталось: JA3 браузеров (нужны проверенные хеши) и прогон slow-beaconing на реальном C2 с интервалом > часа. Каждое изменение — с замером на трёх эталонных захватах.
 - **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1342 passed» — локальный замер на Windows.
+цифра «1351 passed» — локальный замер на Windows.
 
 ## Вклад
 

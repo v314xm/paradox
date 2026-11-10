@@ -13,11 +13,11 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1213 без Qt + 129 GUI = **1342** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1222 без Qt + 129 GUI = **1351** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **54.7%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
-| Прогон 335 МБ / 627 694 пакетов | **23–28 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc |
+| Прогон 335 МБ / 627 694 пакетов | **14.4 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc (было 24.2 с) |
 | Пик Python-heap | ~32 МБ | tracemalloc (с замедлением прогона) |
 
 ---
@@ -74,14 +74,17 @@
       сейчас вылетают трейсбеком из `RawPcapReader`. Ввести
       `ParadoxInputError` с понятным сообщением, перехватывать в CLI и GUI;
       `.pcapng` — либо поддержать `PcapNgReader`, либо явно отказать.
+      Сделано: pcapng, отсутствие файла и обрезанная запись →
+      `ParadoxInputError` (код 3); собственный `PcapRecordReader`
+      бросает `PcapFormatError`, pipeline переводит его в ошибку входа.
 - [x] **P1** `paradox capture.pcap --version`; зафиксировать коды выхода
       (0 — успех, 2 — нет файла, 3 — формат, 4 — внутренняя ошибка) и
       описать их в `OPERATIONS.md`.
 - [x] **P2** `sha256_file` читает pcap вторым полным проходом после разбора.
       Считать хэш в том же цикле или до него по открытому файлу.
-      Сделано: `_HashingReader` считает sha256 в том же проходе, что и
-      `RawPcapReader`; второй проход остался только страховкой на случай
-      неполного чтения.
+      Сделано: `PcapRecordReader` считает sha256 в том же проходе,
+      что и разбор; второй проход остался только страховкой на случай
+      хвостового мусора.
 
 ## 1.3 Единая таксономия findings — `paradox/taxonomy.py`
 
@@ -342,14 +345,25 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
 - [ ] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,
       `facts_tls`; убрать `extract_facts`, который не вызывается и уже
       потерял cert-факты.
-- [ ] **P1** `config.py` (899): вынести валидацию в таблицу
+- [ ] **P1** `config.py` (1017): вынести валидацию в таблицу
       `(name, predicate, message)`; убрать `mkdir` из `__post_init__`
       (создание `reports/` при каждом `Config()`).
-- [ ] **P1** `pipeline.py` (622): `pipeline/extract.py`,
+- [ ] **P1** `pipeline.py` (689): `pipeline/extract.py`,
       `pipeline/summarize.py`, `pipeline/report.py`, тонкий фасад.
-- [ ] **P1** Профилирование и цель < 15 с на 335 МБ: один проход по flows в
+- [x] **P1** Профилирование и цель < 15 с на 335 МБ: один проход по flows в
       `build_entities`, `findings_indices` как `set`, `heapq.nlargest` в
       `flow_report`, один `findings_dicts` вместо трёх сериализаций.
+      Сделано 2026-11-10: **24.2 → 14.4 с** на `CyberCampTask.pcap`
+      (8 findings, 2 contradictions, sha256 сходится с файлом). Выигрыш
+      дали не отчёты, а пакетный цикл: собственный читатель pcap
+      `paradox/pcap_reader.py` вместо `RawPcapReader` (без обвязки
+      scapy), заголовки Ethernet/IPv4/TCP одним `struct.unpack_from`,
+      `FlowKey` как `NamedTuple`, `PacketRecord` со `slots`, быстрый
+      выход reassembler'а на чистых ACK и sha256 пачками по 64 КБ.
+      Профиль: 49.1 → 42.2 с под cProfile, то есть ускорение не за счёт
+      отключения работы. Отчёты (`findings_dicts` и т.п.) остались в
+      плане: на 8 findings их вклад < 0.5 с, оптимизировать раньше
+      пакетного цикла было бессмысленно.
 - [ ] **P1** Stream mode для pcap > 2 ГБ: не держать все потоки и отчёты в
       памяти, отдавать секции по мере готовности.
 - [ ] **P2** Один HTTP-парсер: `http_parse.py` и `http_object.py` по-разному

@@ -1,6 +1,6 @@
 from collections import Counter
 from dataclasses import asdict, dataclass, field
-from typing import Any
+from typing import Any, NamedTuple
 
 from paradox.taxonomy import SEVERITY_BY_TYPE as _SEVERITY_BY_TYPE
 
@@ -138,13 +138,16 @@ class Finding:
         return d
 
 
-@dataclass(frozen=True)
-class FlowKey:
+class FlowKey(NamedTuple):
     """
     Направленный 5-tuple. Направление НЕ нормализуется:
     A→B и B→A — два разных ключа.
 
     Для двунаправленной агрегации использовать make_session_key.
+
+    NamedTuple, а не dataclass: ключ хэшируется и сравнивается на
+    каждом пакете (627k на эталонном захвате), а tuple-хэш и tuple-eq
+    выполняются в C. На профиле это ~2.5 млн сравнений и ~0.8 с.
     """
     proto: str
     src_ip: str
