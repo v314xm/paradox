@@ -158,6 +158,7 @@ def merge_capture_states(
         # --- HTTP objects / TLS certs / carved files ---
         merged.http_objects.extend(st.http_objects)
         merged.tls_certs.extend(st.tls_certs)
+        merged.tls_cert_parse_errors += st.tls_cert_parse_errors
         merged.carved_files.extend(st.carved_files)
 
         # --- SSH / SMTP ---

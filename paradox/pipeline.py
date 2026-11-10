@@ -567,6 +567,28 @@ def _build_report(
         "routers": list(state.ndp_routers),
     }
 
+    cert_limit = config.flow_report_top_n
+    certificates_report = {
+        "total": len(state.tls_certs),
+        "parse_errors": state.tls_cert_parse_errors,
+        "truncated": len(state.tls_certs) > cert_limit,
+        "items": [
+            {
+                "src_ip": key.src_ip,
+                "dst_ip": key.dst_ip,
+                "dst_port": key.dst_port,
+                "subject_cn": cert.subject_cn,
+                "issuer_cn": cert.issuer_cn,
+                "self_signed": cert.is_self_signed,
+                "not_before": cert.not_before,
+                "not_after": cert.not_after,
+                "san_dns": list(cert.san_dns),
+                "san_ips": list(cert.san_ips),
+            }
+            for key, cert in state.tls_certs[:cert_limit]
+        ],
+    }
+
     return {
         "schema_version": "0.3.0",
         "provenance": provenance,
@@ -582,6 +604,8 @@ def _build_report(
             "tcp_streams_truncated": len(state.tcp_streams_truncated),
             "http_objects": len(state.http_objects),
             "carved_files": len(state.carved_files),
+            "certificates": len(state.tls_certs),
+            "tls_cert_parse_errors": state.tls_cert_parse_errors,
             **direction_summary,
             "protocols": protocol_summary,
         },
@@ -591,6 +615,7 @@ def _build_report(
         },
         "dns": dns_report,
         "ndp": ndp_report,
+        "certificates": certificates_report,
         "flows": flow_report,
         "http": http_report,
         "http_objects": http_objects_report,

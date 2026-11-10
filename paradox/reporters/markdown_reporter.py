@@ -583,6 +583,9 @@ def render_markdown(report: dict) -> str:
     # --- NDP ---
     lines.extend(_render_ndp(report))
 
+    # --- Certificates ---
+    lines.extend(_render_certificates(report))
+
     # --- findings ---
     lines.extend(_render_findings(findings))
 
@@ -938,6 +941,43 @@ def _render_ndp(report: dict) -> list[str]:
         lines.append("|---|---|")
         for n in neighbors:
             lines.append(f"| `{n.get('ip', '?')}` | `{n.get('mac', '?')}` |")
+        lines.append("")
+
+    return lines
+
+
+def _render_certificates(report: dict) -> list[str]:
+    certs = report.get("certificates") or {}
+    total = certs.get("total", 0)
+    parse_errors = certs.get("parse_errors", 0)
+    items = certs.get("items") or []
+
+    if not total and not parse_errors:
+        return []
+
+    lines = [f"## X.509 сертификаты ({total})", ""]
+
+    if items:
+        lines.append("| Сервер | CN | Issuer | Действует до | Self-signed |")
+        lines.append("|---|---|---|---|---|")
+        for c in items:
+            port = c.get("dst_port")
+            port_text = port if port is not None else "?"
+            server = f"`{c.get('dst_ip', '?')}:{port_text}`"
+            lines.append(
+                f"| {server} | {_escape_cell(c.get('subject_cn') or '—')} "
+                f"| {_escape_cell(c.get('issuer_cn') or '—')} "
+                f"| {c.get('not_after') or '?'} "
+                f"| {'да' if c.get('self_signed') else '—'} |"
+            )
+        lines.append("")
+
+    if certs.get("truncated"):
+        lines.append("Показаны не все сертификаты (лимит top-N).")
+        lines.append("")
+
+    if parse_errors:
+        lines.append(f"⚠️ Не удалось разобрать DER-сертификатов: {parse_errors}.")
         lines.append("")
 
     return lines

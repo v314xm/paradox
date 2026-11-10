@@ -109,3 +109,42 @@ def test_two_handshake_in_one_record():
     cert = parse_certificate_from_stream(stream)
     assert cert is not None
     assert cert.subject_cn == "example.com"
+
+
+def test_certificate_split_across_records():
+    """Certificate message больше одной TLS-записи — не теряется."""
+    der = _cert("example.com", "Test CA")
+    msg = _handshake_message(11, _certificate_body_tls12(der))
+    half = len(msg) // 2
+    stream = (
+        _tls_record(_handshake_message(2, b""))
+        + _tls_record(msg[:half])
+        + _tls_record(msg[half:])
+    )
+    cert = parse_certificate_from_stream(stream)
+    assert cert is not None
+    assert cert.subject_cn == "example.com"
+
+
+def test_stream_with_garbage_prefix():
+    """Мусор в начале потока не мешает найти хендшейк."""
+    der = _cert("example.com", "Test CA")
+    stream = b"\x00\x01\x02" + _stream_with_certificate(der)
+    cert = parse_certificate_from_stream(stream)
+    assert cert is not None
+    assert cert.subject_cn == "example.com"
+
+
+def test_der_parse_error_is_counted():
+    """Битый DER считается через on_der_error, а не теряется молча."""
+    # TLS 1.2 body: chain_len=5, cert_len=2, DER = 30 00 (SEQUENCE без детей).
+    body = b"\x00\x00\x05\x00\x00\x02\x30\x00"
+    stream = _tls_record(_handshake_message(11, body))
+
+    errors: list[int] = []
+    cert = parse_certificate_from_stream(
+        stream, on_der_error=lambda: errors.append(1),
+    )
+
+    assert cert is None
+    assert len(errors) == 1

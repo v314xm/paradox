@@ -307,6 +307,10 @@ class CaptureState:
     # list[tuple[FlowKey, Certificate]] — как carved_files,
     # чтобы не плодить импорт-цикл models ↔ x509_cert.
     tls_certs: list = field(default_factory=list)
+    # Сертификаты, которые нашли в потоке, но не смогли разобрать как
+    # DER. Счётчик виден в summary: молчаливый ноль маскирует битые
+    # хендшейки и ошибки парсера.
+    tls_cert_parse_errors: int = 0
 
     # v0.9.0: SSH баннеры (RFC 4253).
     # server: (ip, port) -> software version, напр. "OpenSSH_8.2p1"

@@ -128,3 +128,30 @@ def test_markdown_ndp_section():
     md = render_markdown(report)
     assert "IPv6" in md or "NDP" in md
     assert "fe80::1" in md
+
+
+def test_markdown_certificates_section():
+    """Сертификаты и ошибки их разбора видны в отчёте."""
+    report = _base(certificates={
+        "total": 1,
+        "parse_errors": 2,
+        "truncated": False,
+        "items": [{
+            "src_ip": "10.0.0.5",
+            "dst_ip": "203.0.113.9",
+            "dst_port": 443,
+            "subject_cn": "example.com",
+            "issuer_cn": "Test CA",
+            "self_signed": False,
+            "not_before": "2026-01-01T00:00:00",
+            "not_after": "2027-01-01T00:00:00",
+            "san_dns": ["example.com"],
+            "san_ips": [],
+        }],
+    })
+    md = render_markdown(report)
+
+    assert "X.509" in md
+    assert "example.com" in md
+    assert "203.0.113.9:443" in md
+    assert "2" in md  # счётчик ошибок DER

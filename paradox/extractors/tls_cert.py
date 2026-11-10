@@ -44,6 +44,9 @@ class TlsCertificateExtractor:
 
         seen = {_cert_key(k, c) for k, c in state.tls_certs}
 
+        def _count_parse_error() -> None:
+            state.tls_cert_parse_errors += 1
+
         for key, flow in state.flows.items():
             if not flow.sni:
                 continue
@@ -59,7 +62,9 @@ class TlsCertificateExtractor:
             if not stream:
                 continue
 
-            cert = parse_certificate_from_stream(stream)
+            cert = parse_certificate_from_stream(
+                stream, on_der_error=_count_parse_error,
+            )
             if cert is None:
                 continue
 
