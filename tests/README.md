@@ -33,7 +33,17 @@ python -m pytest -q --junitxml=.qwen\tmp\junit.xml
 
 ## Маркеры
 
-- `slow` — тяжёлые тесты (реальные pcap, длинные прогоны). Быстрый
-  прогон: `pytest -m "not slow"`.
-- GUI-тесты ставят `QT_QPA_PLATFORM=offscreen` в начале файла и берут
-  `QApplication` из фикстуры; в имя файла идёт `test_gui_*`.
+Зарегистрированы в `pyproject.toml`, чтобы `pytest -m` не ругался
+на неизвестный маркер:
+
+- `slow` — тяжёлые прогоны. Быстрый набор: `pytest -m "not slow"`.
+- `gui` — нужен `QApplication` (offscreen). Такие файлы ставят
+  `QT_QPA_PLATFORM=offscreen` до импорта Qt и объявляют
+  `pytestmark = pytest.mark.gui`. Выбор: `pytest -m gui`,
+  только ядро: `pytest -m "not gui"`.
+- `pcap` — тест разбирает настоящий pcap-формат (файл или байты),
+  а не подменяет читатель моком.
+- `network` — тест ходит в реальную сеть. Сейчас таких нет: внешние
+  сервисы замоканы, поэтому `pytest -m "not network"` ничего не
+  меняет. Маркер зарезервирован, чтобы будущий сетевой тест нельзя
+  было перепутать с обычным.

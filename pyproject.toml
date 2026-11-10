@@ -102,6 +102,9 @@ testpaths = ["tests"]
 addopts = "-q --tb=short -p no:cacheprovider -p no:cov"
 markers = [
     "slow: тяжёлые тесты, не для CI по умолчанию",
+    "gui: требует QApplication/Qt (offscreen), без дисплея",
+    "pcap: разбирает настоящий pcap-формат (файлы или байты)",
+    "network: ходит в сеть; сейчас таких тестов нет, маркер — задел",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:scapy.*",
