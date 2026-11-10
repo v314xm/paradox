@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1213 без Qt + 128 GUI = **1341** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1213 без Qt + 129 GUI = **1342** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **54.7%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -328,8 +328,15 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       `apply.py`; `__init__.py` реэкспортирует прежний API. Win32-кода
       в файле не было — `win32` в списке оказался лишним. QSS сверен
       с прежним шаблоном побайтово.
-- [ ] **P1** Разбить `main_window.py` (900) на `shortcuts`, `menus`,
+- [x] **P1** Разбить `main_window.py` (900) на `shortcuts`, `menus`,
       `export`, `actions`, `window`.
+      Сделано 2026-11-10: пакет `paradox_gui/window/` (`window` 267,
+      `actions` 306, `menus` 246, `export` 101, `shortcuts` 50);
+      `main_window.py` — фасад на 23 строки. Все 36 методов на месте,
+      окно проверено оффскрин; добавлен тест на совпадение
+      `TAB_TITLES` с вкладками (попутно восстановлен `TAB_TITLES`,
+      который импортировал `tools/docs_inventory.py`, но в файле его
+      не было).
 - [ ] **P1** Разбить `markdown_reporter.py` (992) на `markdown/format`,
       `sections_entities`, `sections_traffic`, `sections_analysis`.
 - [ ] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,

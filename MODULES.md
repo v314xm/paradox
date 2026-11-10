@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 18 911, GUI — 16 805, всего 35 716
+**Строк кода:** ядро — 18 911, GUI — 17 388, всего 36 299
   (замер 2026-11-10)
-**Тестов:** 1341 в 156 файлах (замер 2026-11-10)
+**Тестов:** 1342 в 157 файлах (замер 2026-11-10)
 
 ---
 
@@ -407,7 +407,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ## GUI
 
-Пакет `paradox_gui/` — **16 926 строк**. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
+Пакет `paradox_gui/` — **17 388 строк**. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
 
 ### Корень
 
@@ -415,7 +415,8 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 |---|---|---|
 | `__main__.py` | 26 | Патчит `sys.stdout/stderr` на devnull (PyInstaller --windowed) |
 | `app.py` | 92 | `QApplication` + splash + main window |
-| `main_window.py` | 900 | 9 вкладок, меню, `ClickableLabel` (лого + версия), статус-бар |
+| `main_window.py` | 23 | Совместимый фасад `paradox_gui/window/` |
+| `window/` | 995 | Главное окно: `window` (каркас, вкладки, статус-бар), `menus`, `actions`, `export`, `shortcuts` |
 | `theme/` | 7 файлов | QSS-тема: `palette`, `qss_global`, `qss_widgets`, `qss`, `assets`, `apply` |
 | `splash.py` | 161 | **v1.2.0** — Splash screen с прогресс-баром |
 | `logo.py` | 110 | **v1.2.0** — `render_logo`, `get_app_icon`, `logo_label` |
@@ -510,7 +511,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1341 тест в 156 файлах** (замер 2026-11-10, после волны 2).
+**1342 теста в 157 файлах** (замер 2026-11-10, после GUI-разбиения).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
@@ -567,7 +568,6 @@ Threat Intel, Производительность.
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
 | `markdown_reporter.py` — 983 строки | Сложно поддерживать | Разбить на подмодули |
-| `main_window.py` — 900 строк | Монолит | Разбить на подмодули |
 | `contradictions/facts.py` — 907 строк | Один файл на 8 экстракторов | Разбить по source |
 
 ### Технический долг (не блокеры)
