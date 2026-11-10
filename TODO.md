@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1222 без Qt + 129 GUI = **1351** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1232 без Qt + 129 GUI = **1361** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -308,6 +308,13 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       pcap в эталонах нет; slow-путь покрыт синтетическими тестами.
 - [x] **P2** `ja3s_malware`: `ja3s_known_tools` в Config не читался —
       ключ удалён (он был пустым и нигде не использовался).
+- [x] **P1** `encoded_payload` (добавлено 2026-11-10 по кейсу
+      `POST /wpfilebase-pro/stats-sink.php`): base64/hex в query или
+      теле формы, декодирующийся в URL/домен. Реальный кейс:
+      10-пакетный захват, `site=aHR0cHM6Ly9taW5maW4uc2FtcmVnaW9uLnJ1`,
+      до детектора findings было 0. На трёх эталонах — 0 FP. Сделано:
+      `paradox/detectors/encoded_payload.py`,
+      `tests/test_encoded_payload.py` (10 тестов).
 
 # Волна 3 — Архитектура и скорость (v1.7.0)
 

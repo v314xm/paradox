@@ -157,7 +157,7 @@ flow по `FlowKey` и падают явно, если его нет.
 `SessionKey` + `make_session_key()` — нормализованный двунаправленный
 ключ. Используется в `session_sni` и `reverse_asymmetry`.
 
-## Слой 4. Детекторы (`detectors/`) — 26
+## Слой 4. Детекторы (`detectors/`) — 27
 
 Чистые функции над `CaptureState`. `run(state, config) -> list[Finding]`.
 
@@ -172,6 +172,7 @@ flow по `FlowKey` и падают явно, если его нет.
 | typosquatting | SLD contains + levenshtein |
 | sni_mismatch | SNI без DNS-ответа |
 | rare_external_ip | 1–2 соединения на внешний IP без DNS-ответа и без SNI/Host |
+| encoded_payload | base64/hex в query/теле формы, декодируется в URL или домен |
 | long_connections | TCP наружу >30 мин без имени на неслужебном порту |
 | ja3_malware | из `ja3_known_malware` |
 | ja3s_malware | серверный JA3S из `ja3s_known_malware` |

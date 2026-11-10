@@ -14,6 +14,7 @@ from paradox.detectors.cloud_tunnel import CloudTunnelDetector
 from paradox.detectors.command_injection import CommandInjectionDetector
 from paradox.detectors.dga import DGADetector
 from paradox.detectors.dns_tunneling import DNSTunnelingDetector
+from paradox.detectors.encoded_payload import EncodedPayloadDetector
 from paradox.detectors.ftp_brute_force import FTPBruteForceDetector
 from paradox.detectors.http_binary_upload import HttpBinaryUploadDetector
 from paradox.detectors.ip_check_service import IPCheckServiceDetector
@@ -96,6 +97,7 @@ DETECTORS = [
     TyposquattingDetector(),
     SNIMismatchDetector(),
     RareExternalIPDetector(),
+    EncodedPayloadDetector(),
     JA3MalwareDetector(),
     JA3SMalwareDetector(),
     BruteForceDetector(),

@@ -467,6 +467,15 @@ class Config:
         }),
     )
 
+    # --- encoded payload ---
+    # Значение query/тела формы, которое декодируется из base64/hex в
+    # URL или домен: так прячут адрес C2, редирект или сайт-источник
+    # при телеметрии. Пример: site=aHR0cHM6Ly9taW5maW4uc2FtcmVnaW9uLnJ1
+    # Порог по длине отсекает короткие токены, которые тоже иногда
+    # выглядят как base64.
+    encoded_payload_min_value_len: int = 16
+    encoded_payload_max_decoded_len: int = 512
+
     # --- long connections ---
     # TCP-сессия внутренний→внешний, установленная в захвате (виден
     # SYN), которая живёт дольше получаса и не представилась ни SNI,
@@ -920,6 +929,14 @@ class Config:
         ):
             errors.append(
                 "rare_external_ip_excluded_ports must be in range 1..65535"
+            )
+        if self.encoded_payload_min_value_len <= 0:
+            errors.append(
+                "encoded_payload_min_value_len must be > 0"
+            )
+        if self.encoded_payload_max_decoded_len <= 0:
+            errors.append(
+                "encoded_payload_max_decoded_len must be > 0"
             )
         if self.long_connection_min_duration_sec <= 0:
             errors.append(

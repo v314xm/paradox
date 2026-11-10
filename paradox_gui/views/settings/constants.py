@@ -27,6 +27,7 @@ _DETECTORS = (
     ("typosquatting",      "Typosquatting"),
     ("sni_mismatch",       "SNI mismatch"),
     ("rare_external_ip",   "Rare external IP"),
+    ("encoded_payload",    "Encoded payload"),
     ("long_connections",   "Long connections"),
     ("ja3_malware",        "JA3 malware"),
     ("ja3s_malware",       "JA3S malware"),
