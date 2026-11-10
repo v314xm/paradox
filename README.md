@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1312%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1341%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 24 детектора, 12 правил противоречий, GUI, 1312 тестов.**
+**PCAP triage: 26 детекторов, 12 правил противоречий, GUI, 1341 тест.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -209,11 +209,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1312 passed
+pytest -m "not slow"           # ~25 сек, 1339 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1312 тестов в 155 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1341 тест в 156 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -223,7 +223,7 @@ pytest/PySide6); результат считайте по `--junitxml`, а не 
 
 - Парсеры (TLS, X.509 DER, Kerberos, NBNS, HTTP, IPv6)
 - Все 12 extractors
-- Все 24 детектора + MITRE-map
+- Все 26 детекторов + MITRE-map
 - Все 12 правил contradictions
 - Reassembler, HTTPObject (keep-alive, gzip/deflate), JA3/JA3S, YARA
 - Регрессионные тесты на реальные FP (`test_regressions.py`, 42 теста)
@@ -233,7 +233,7 @@ pytest/PySide6); результат считайте по `--junitxml`, а не 
 ## Проверено на
 
 - **FIRST-2015 Hands-on Network Forensics** — 58 pcap, 9.5M пакетов, 4.7 ГБ, 10 минут. 386 findings, 11 contradictions, 0 ошибок.
-- **CTF CyberCampTask** — 334 МБ, 627k пакетов. 7 findings, 2 contradictions, 0 FP. Pivot-правило находит 192.168.1.12.
+- **CTF CyberCampTask** — 334 МБ, 627k пакетов. 8 findings (включая `successful_bruteforce` после 218 POST в `/loginok.html`), 2 contradictions, 0 FP. Pivot-правило находит 192.168.1.12.
 - **MTA 2025-06-13** — malware-traffic-analysis.net. 10 findings (4 typosquatting, 3 бинарные выгрузки, 2 lateral movement, 1 cloud tunnel), 2 contradictions. Профиль жертвы 5/5 (IP, MAC, hostname, username, realm).
 
 ## Установка
@@ -273,14 +273,15 @@ pre-commit install
 
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
-- **1.5.1 (текущая)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1312 тестов.
+- **1.5.1 (текущий релиз)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1288 тестов.
+- **main (ещё не выпущено)** — волна 2: 26 детекторов, 1341 тест. Добавлены `rare_external_ip`, `long_connections`, `successful_bruteforce` (перебор + URI вида `loginok`/`dashboard`). `sni_mismatch` на FIN-2015 замерен заново: 0 findings вместо прежних 73.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
 - **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
-- **Волна 2 — детекция.** `rare_external_ip`, `long_connections`, context-aware `sni_mismatch` без 73 FP на FIN-2015, cross-finding «успешный брутфорс», медленный beaconing на реальном C2. Каждое изменение — с замером на трёх эталонных захватах.
+- **Волна 2 — детекция.** Сделано: `rare_external_ip` и `long_connections` с фильтром по DNS-ответам, cross-finding «успешный брутфорс»; `sni_mismatch` проверен на FIN-2015 (0 findings). Осталось: JA3 браузеров (нужны проверенные хеши) и прогон slow-beaconing на реальном C2 с интервалом > часа. Каждое изменение — с замером на трёх эталонных захватах.
 - **Дальше** — волны 3–4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1312 passed» — локальный замер на Windows.
+цифра «1341 passed» — локальный замер на Windows.
 
 ## Вклад
 

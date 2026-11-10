@@ -88,9 +88,6 @@ class Config:
     ja3s_known_malware: Mapping[str, str] = field(
         default_factory=lambda: MappingProxyType({}),
     )
-    ja3s_known_tools: Mapping[str, str] = field(
-        default_factory=lambda: MappingProxyType({}),
-    )
 
     # --- command injection ---
     # Паттерны RCE в HTTP URI/body. Два уровня confidence.
@@ -441,6 +438,75 @@ class Config:
         ),
     )
 
+    # --- rare external ip ---
+    # Внутренний клиент открыл 1–2 соединения к внешнему адресу,
+    # которого нет в DNS-ответах этого захвата и который не назван
+    # ни через SNI, ни через HTTP Host.
+    #
+    # Наивный порог «1–2 flow к внешнему IP» даёт 52 кандидата на
+    # 2025-06-13 и 36 на FIRST-2015 — все легитимные сервисы.
+    # Поэтому сравнение с dns_answers_by_ip обязательно, а не
+    # опционально: без него правило непригодно.
+    rare_external_ip_max_connections: int = 2
+    rare_external_ip_allowlist_ips: frozenset[str] = field(
+        default_factory=frozenset,
+    )
+    # Инфраструктурные порты: обращения к ним по IP — норма
+    # (резолверы, NTP, multicast-службы, DoT).
+    rare_external_ip_excluded_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({
+            53,     # DNS
+            67, 68,  # DHCP
+            123,    # NTP
+            137, 138,  # NetBIOS
+            853,    # DNS-over-TLS
+            1900,   # SSDP
+            3702,   # WS-Discovery
+            5353,   # mDNS
+            5355,   # LLMNR
+        }),
+    )
+
+    # --- long connections ---
+    # TCP-сессия внутренний→внешний, установленная в захвате (виден
+    # SYN), которая живёт дольше получаса и не представилась ни SNI,
+    # ни HTTP Host. Похоже на keepalive C2 или reverse shell в одном
+    # соединении. Объём оценивают large_transfer и reverse_asymmetry,
+    # здесь важна только длительность.
+    long_connection_min_duration_sec: int = 1800
+    long_connection_min_packets: int = 5
+    # Порты служб, для которых долгая сессия — штатный режим:
+    # SSH, почта (IDLE), VPN, БД, RDP/VNC, локальные прокси.
+    long_connection_excluded_ports: frozenset[int] = field(
+        default_factory=lambda: frozenset({
+            22,     # SSH
+            25, 110, 143, 465, 587, 993, 995,  # почта
+            1194, 1723,          # OpenVPN / PPTP
+            3306, 5432, 6379,    # БД
+            3389, 5900,          # RDP / VNC
+            8080, 8443,          # локальные прокси
+        }),
+    )
+    # Имена, для которых долгое соединение — норма (push-каналы,
+    # обновления, CDN). Проверка по суффиксу SNI/Host.
+    long_connection_allowlist_suffixes: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "windows.com",
+            "wns.windows.com",
+            "microsoft.com",
+            "msedge.net",
+            "apple.com",
+            "icloud.com",
+            "google.com",
+            "googleapis.com",
+            "gstatic.com",
+            "cloudflare.com",
+            "akamai.net",
+            "akamaized.net",
+            "amazonaws.com",
+        ),
+    )
+
     # --- port service mismatch ---
     # Какие протоколы разрешены на порту. Ключ — порт, значение —
     # набор допустимых протоколов. Протокол детектируется в facts.py:
@@ -626,6 +692,25 @@ class Config:
         "/cpanel", "/webmail", "/phpmyadmin", "/pma",
         "/session", "/oauth", "/api/token",
     ))
+    # URI, которые выглядят как «вход удался»: успешный ответ,
+    # дашборд, страница после логина. Срабатывает только вместе с
+    # brute_force на ту же пару (src, dst, port) — сам по себе этот
+    # признак ничего не значит.
+    #
+    # Ограничение: в FlowStats нет HTTP-статуса, поэтому «success» —
+    # это имя endpoint'а, а не подтверждённый 200. Отсюда confidence
+    # ниже, чем у явного перехвата учётных данных.
+    bruteforce_success_uri_hints: frozenset[str] = field(
+        default_factory=lambda: _frozen(
+            "loginok",
+            "login_ok",
+            "loginsuccess",
+            "login-success",
+            "/success",
+            "success.",
+            "dashboard",
+        ),
+    )
 
     # --- vulnerable paths ---
     vulnerable_paths: Mapping[str, str] = field(default_factory=lambda: MappingProxyType({
@@ -825,6 +910,30 @@ class Config:
 
         if self.large_transfer_min_bytes <= 0:
             errors.append("large_transfer_min_bytes must be > 0")
+        if self.rare_external_ip_max_connections <= 0:
+            errors.append(
+                "rare_external_ip_max_connections must be > 0"
+            )
+        if any(
+            p <= 0 or p > 65535
+            for p in self.rare_external_ip_excluded_ports
+        ):
+            errors.append(
+                "rare_external_ip_excluded_ports must be in range 1..65535"
+            )
+        if self.long_connection_min_duration_sec <= 0:
+            errors.append(
+                "long_connection_min_duration_sec must be > 0"
+            )
+        if self.long_connection_min_packets <= 0:
+            errors.append("long_connection_min_packets must be > 0")
+        if any(
+            p <= 0 or p > 65535
+            for p in self.long_connection_excluded_ports
+        ):
+            errors.append(
+                "long_connection_excluded_ports must be in range 1..65535"
+            )
         if self.lateral_movement_min_flows_port_only <= 0:
             errors.append("lateral_movement_min_flows_port_only must be > 0")
         if not self.lateral_movement_ports:
@@ -858,6 +967,10 @@ class Config:
         if self.brute_force_min_rate_flows_per_sec <= 0:
             errors.append(
                 "brute_force_min_rate_flows_per_sec must be > 0"
+            )
+        if not self.bruteforce_success_uri_hints:
+            errors.append(
+                "bruteforce_success_uri_hints must not be empty"
             )
         if self.dc_min_service_flows <= 0:
             errors.append("dc_min_service_flows must be > 0")

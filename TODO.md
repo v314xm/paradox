@@ -1,7 +1,9 @@
 # TODO — Paradox: роадмап после 1.5.0
 
-Состояние на 2026-11-09. Версия **1.5.1**, тег `v1.5.1`; волна 1 — коммит `c4e0535`.
-Сделанное — в `CHANGELOG.md`, описание модулей — в `MODULES.md`.
+Состояние на 2026-11-10. Последний релиз — **1.5.1**, тег `v1.5.1`;
+волна 1 — коммит `c4e0535`. Волна 2 сделана по коду в `main`, но ещё
+не выпущена. Сделанное — в `CHANGELOG.md`, описание модулей — в
+`MODULES.md`.
 
 Приоритеты: **P0** — неверный вердикт, потеря данных или сломанный релиз;
 **P1** — заметная ошибка или риск; **P2** — долг, который пока не жжёт.
@@ -11,11 +13,11 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1184 без Qt + 128 GUI = **1312** | `pytest --junitxml`, маркер `gui` |
-| Покрытие ядра | **85.4%** | `coverage run`, non-GUI тесты |
-| Покрытие GUI | **36.5%** | там же; GUI-тесты в замер не входили |
+| Тесты | 1213 без Qt + 128 GUI = **1341** | `pytest --junitxml`, маркер `gui` |
+| Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
+| Покрытие GUI | **54.7%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
-| Прогон 335 МБ / 627 694 пакетов | **23–28 с**, 7 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc |
+| Прогон 335 МБ / 627 694 пакетов | **23–28 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc |
 | Пик Python-heap | ~32 МБ | tracemalloc (с замедлением прогона) |
 
 ---
@@ -260,21 +262,49 @@
 Цель: меньше ложных срабатываний при большем покрытии, каждое изменение —
 с замером на трёх эталонных захватах.
 
-- [ ] **P1** `rare_external_ip` — 1–2 flow к внешнему IP. Наивный вариант на
-      эталонах дал 52 «редких» адреса; нужен дизайн: минимум flows, окно,
-      allowlist CDN/обновлений, исключение уже покрытых beaconing.
-- [ ] **P1** `long_connections` — сессии > 30 минут. 39 длинных NTP/SMB/SSDP
-      сессий на эталонах; нужен фильтр по протоколу и направлению.
-- [ ] **P1** `sni_mismatch` — 73 FP на FIN-2015. Context-aware allowlist:
-      если CDN резолвится в этом же pcap — не шуметь.
-- [ ] **P1** `SuccessfulBruteforceLogin` — cross-finding: `brute_force` +
-      URI с `loginok/success/dashboard` (в CyberCampTask после 218 POST).
-- [ ] **P2** JA3 браузеров — только проверенные хеши Chrome/Firefox, иначе
-      источник FP; сейчас `ja3_ua_mismatch` работает на tool/malware.
-- [ ] **P2** Медленный beaconing: slow-режим есть, проверить на реальном
-      C2 с интервалом > часа и описать пороги в OPERATIONS.
-- [ ] **P2** `ja3s_malware`: `ja3s_known_tools` в Config не читается —
-      либо подключить, либо удалить ключ.
+Замеры 2026-11-10 (до/после): 2025-06-13 — 10 findings, FIRST-2015 — 0,
+CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила на
+эталонах молчат — это проверено, а не предположено.
+
+- [x] **P1** `rare_external_ip` — 1–2 соединения к внешнему IP.
+      Наивный вариант на эталонах дал 52 «редких» адреса. Дизайн:
+      обязательный фильтр «IP не встречался в `dns_answers_by_ip`»
+      плюс «нет SNI/Host», «виден SYN», allowlist адресов и
+      инфрапортов. На обоих эталонах — 0 кандидатов после фильтра.
+      Без DNS-ответов в захвате детектор молчит.
+      Сделано: `paradox/detectors/rare_external_ip.py`,
+      `tests/test_rare_external_ip.py` (14 тестов).
+- [x] **P1** `long_connections` — сессии > 30 минут. 39 длинных
+      NTP/SMB/SSDP сессий на эталонах — это UDP-агрегаты по 5-tuple,
+      а не сессии. Дизайн: только TCP, только видимый SYN, только
+      внутренний→внешний, ≥ 30 мин, ≥ 5 пакетов, без имени из
+      allowlist, порты SSH/почты/VPN/БД/RDP/VNC исключены.
+      Замер: во всех трёх эталонах одна такая сессия — WNS
+      (`client.wns.windows.com`), она в allowlist → 0 findings.
+      Сделано: `paradox/detectors/long_connections.py`,
+      `tests/test_long_connections.py` (13 тестов).
+- [x] **P1** `sni_mismatch` — 73 FP на FIN-2015. Проверка 2026-11-10:
+      детектор даёт **0** findings на FIN-2015. Сравнение с
+      DNS-ответами и CDN-allowlist уже закрыли прежний шум (пункт
+      описывал состояние до 1.5.1). Отдельный код не потребовался.
+- [x] **P1** `SuccessfulBruteforceLogin` — cross-finding: `brute_force` +
+      URI с `loginok/success/dashboard`. Сделано внутри
+      `brute_force.py`: второй finding `successful_bruteforce` на тот
+      же bucket. На CyberCampTask срабатывает (218 POST в
+      `/loginok.html`), findings 7 → 8. HTTP-статуса в FlowStats нет,
+      поэтому confidence ≤ 0.85 и `http_status_known=false`.
+- [ ] **P2** JA3 браузеров — только проверенные хеши Chrome/Firefox,
+      иначе источник FP; сейчас `ja3_ua_mismatch` работает на
+      tool/malware. Проверено 2026-11-10: в эталонных захватах
+      браузерные JA3 есть, но подтвердить их принадлежность Chrome/
+      Firefox нечем (у клиента нет браузерного UA). Нужен список
+      проверенных хешей от владельца — без него добавлять нельзя.
+- [ ] **P2** Медленный beaconing: пороги описаны в
+      `docs/OPERATIONS.md` (fast/slow, таблица и ограничения).
+      Осталось прогнать на реальном C2 с интервалом > часа — такого
+      pcap в эталонах нет; slow-путь покрыт синтетическими тестами.
+- [x] **P2** `ja3s_malware`: `ja3s_known_tools` в Config не читался —
+      ключ удалён (он был пустым и нигде не использовался).
 
 # Волна 3 — Архитектура и скорость (v1.7.0)
 

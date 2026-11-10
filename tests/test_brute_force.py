@@ -15,12 +15,13 @@ from paradox.models import CaptureState, FlowKey, FlowStats
 
 
 def _add_flow(state, src_ip, dst_ip, sport, dport,
-              packets=1, bytes_sent=100, ts=1.0):
+              packets=1, bytes_sent=100, ts=1.0, uri=None):
     key = FlowKey(proto="tcp", src_ip=src_ip, dst_ip=dst_ip,
                   src_port=sport, dst_port=dport)
     state.flows[key] = FlowStats(
         packets=packets, bytes_sent=bytes_sent,
         first_ts=ts, last_ts=ts,
+        http_uri=uri,
     )
 
 
@@ -182,6 +183,63 @@ def test_flow_without_dst_port_ignored():
                       dst_ip="192.168.1.12", src_port=None, dst_port=None)
         state.flows[key] = FlowStats(packets=1, bytes_sent=50,
                                      first_ts=1.0, last_ts=1.0)
+
+    findings = BruteForceDetector().run(state, Config())
+
+    assert findings == []
+
+
+# ---------- cross-finding: успешный вход после перебора ----------
+
+def test_bruteforce_with_success_uri_gives_second_finding():
+    """Перебор по loginok.html: brute_force + successful_bruteforce."""
+    state = CaptureState()
+    for i in range(230):
+        _add_flow(
+            state,
+            "10.0.1.50", "192.168.1.12", 50000 + i, 80,
+            packets=2, uri="/loginok.html",
+        )
+
+    findings = BruteForceDetector().run(state, Config())
+
+    types = sorted(f.type for f in findings)
+    assert types == ["brute_force", "successful_bruteforce"]
+
+    success = next(f for f in findings
+                   if f.type == "successful_bruteforce")
+    assert success.value == "10.0.1.50 -> 192.168.1.12:80"
+    assert success.src_ip == "10.0.1.50"
+    assert success.dst_ip == "192.168.1.12"
+    assert success.evidence["success_uris"] == ["/loginok.html"]
+    assert success.evidence["http_status_known"] is False
+    assert success.confidence < 0.9
+
+
+def test_bruteforce_without_success_uri_gives_one_finding():
+    """Обычная login-страница: только brute_force."""
+    state = CaptureState()
+    for i in range(230):
+        _add_flow(
+            state,
+            "10.0.1.50", "192.168.1.12", 50000 + i, 80,
+            packets=2, uri="/login.php",
+        )
+
+    findings = BruteForceDetector().run(state, Config())
+
+    assert [f.type for f in findings] == ["brute_force"]
+
+
+def test_success_uri_alone_is_not_a_finding():
+    """Пять запросов к dashboard — не перебор и не успешный вход."""
+    state = CaptureState()
+    for i in range(5):
+        _add_flow(
+            state,
+            "10.0.1.50", "192.168.1.12", 50000 + i, 80,
+            packets=2, uri="/dashboard",
+        )
 
     findings = BruteForceDetector().run(state, Config())
 

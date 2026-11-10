@@ -25,6 +25,7 @@ from __future__ import annotations
 SEVERITY_BY_TYPE: dict[str, str] = {
     "command_injection": "high",
     "brute_force": "high",
+    "successful_bruteforce": "high",
     "ftp_brute_force": "high",
     "ssh_brute_force": "high",
     "lateral_movement": "high",
@@ -46,6 +47,8 @@ SEVERITY_BY_TYPE: dict[str, str] = {
     "cloud_tunnel": "medium",
     "cloud_tunnel_domain": "medium",
     "sni_mismatch": "medium",
+    "rare_external_ip": "medium",
+    "long_connection": "medium",
     "dga_domain": "medium",
     "smtp_spam": "medium",
     "sni_without_dns": "medium",
@@ -81,6 +84,7 @@ SEVERITY_ORDER: dict[str, int] = {
 SRC_ROLE_BY_TYPE: dict[str, str] = {
     # src атакует dst
     "brute_force": "attacker",
+    "successful_bruteforce": "attacker",
     "ftp_brute_force": "attacker",
     "ssh_brute_force": "attacker",
     "vulnerable_path": "attacker",
@@ -103,6 +107,8 @@ SRC_ROLE_BY_TYPE: dict[str, str] = {
     "ja3s_malware": "victim",
     "sni_without_dns": "victim",
     "sni_mismatch": "victim",
+    "rare_external_ip": "victim",
+    "long_connection": "victim",
     "dga_domain": "victim",
     "cloud_tunnel": "victim",
     "cloud_tunnel_domain": "victim",
@@ -130,6 +136,7 @@ MITRE_BY_TYPE: dict[str, tuple[str, ...]] = {
 
     # Initial Access
     "brute_force": ("T1110.001",),
+    "successful_bruteforce": ("T1110.001", "T1078"),
     "ftp_brute_force": ("T1110.001",),
     "ssh_brute_force": ("T1110.001", "T1021.004"),
     "script_download": ("T1189",),
@@ -156,6 +163,8 @@ MITRE_BY_TYPE: dict[str, tuple[str, ...]] = {
     "ja3_malware": ("T1071.001",),
     "ja3s_malware": ("T1071.001",),
     "sni_mismatch": ("T1071.001",),
+    "rare_external_ip": ("T1071.001",),
+    "long_connection": ("T1071",),
 
     # Lateral Movement
     "lateral_movement": ("T1021.001", "T1021.002", "T1021.006"),
@@ -170,6 +179,7 @@ MITRE_NAMES: dict[str, str] = {
     "T1595.002": "Vulnerability Scanning",
     "T1190": "Exploit Public-Facing App",
     "T1110.001": "Password Guessing",
+    "T1078": "Valid Accounts",
     "T1021.004": "Remote Services: SSH",
     "T1189": "Drive-by Compromise",
     "T1583.001": "Acquire Infrastructure: Domains",
@@ -181,6 +191,7 @@ MITRE_NAMES: dict[str, str] = {
     "T1041": "Exfiltration Over C2 Channel",
     "T1016": "System Network Configuration Discovery",
     "T1071.001": "Web Protocols",
+    "T1071": "Application Layer Protocol",
     "T1105": "Ingress Tool Transfer",
     "T1505.003": "Server Software Component: Web Shell",
     "T1071.004": "DNS",
@@ -218,6 +229,7 @@ PHASE_BY_TYPE: dict[str, str] = {
     # Initial Access
     "vulnerable_path": "initial_access",
     "brute_force": "initial_access",
+    "successful_bruteforce": "initial_access",
     "ftp_brute_force": "initial_access",
     "ssh_brute_force": "initial_access",
     "typosquatting": "initial_access",
@@ -243,6 +255,8 @@ PHASE_BY_TYPE: dict[str, str] = {
     "ip_check_service": "c2",
     "sni_without_dns": "c2",
     "sni_mismatch": "c2",
+    "rare_external_ip": "c2",
+    "long_connection": "c2",
     "suspicious_port": "c2",
     "nxdomain_burst": "c2",
 
@@ -282,6 +296,7 @@ CHAIN_ORDER: dict[str, int] = {
     "vulnerable_path": 30,
     "command_injection": 40,
     "brute_force": 50,
+    "successful_bruteforce": 51,
     "ftp_brute_force": 55,
     "ssh_brute_force": 57,
     "script_download": 60,
@@ -296,11 +311,13 @@ CHAIN_ORDER: dict[str, int] = {
     "beaconing": 80,
     "http_binary_upload": 81,
     "dns_tunneling": 82,
+    "long_connection": 83,
     "dga_domain": 84,
     "nxdomain_burst": 86,
     "typosquatting": 88,
     "cloud_tunnel": 90,
     "cloud_tunnel_domain": 90,
+    "rare_external_ip": 91,
     "sni_without_dns": 92,
     "sni_mismatch": 93,
     "ip_check_service": 94,

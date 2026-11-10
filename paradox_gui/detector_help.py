@@ -30,6 +30,14 @@ DETECTOR_HELP: dict[str, str] = {
     "sni_mismatch":
         "SNI в TLS ClientHello не совпадает с ожидаемым доменом. "
         "Domain fronting или подмена сертификата.",
+    "rare_external_ip":
+        "Внутренний хост 1–2 раза сходил на внешний IP, которого нет "
+        "в DNS-ответах захвата и который не назван ни SNI, ни Host. "
+        "Похоже на зашитый в малварь адрес C2 без домена.",
+    "long_connections":
+        "TCP-сессия наружу живёт дольше 30 минут, но не представилась "
+        "ни SNI, ни Host, и порт не служебный. Keepalive C2, "
+        "reverse shell или туннель в одном соединении.",
     "ja3_malware":
         "Отпечаток TLS-клиента совпадает с базой malware: "
         "Cobalt Strike, Trickbot, Emotet.",

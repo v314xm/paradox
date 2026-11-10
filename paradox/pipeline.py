@@ -23,9 +23,11 @@ from paradox.detectors.ja3_malware import JA3MalwareDetector
 from paradox.detectors.ja3s_malware import JA3SMalwareDetector
 from paradox.detectors.large_transfer import LargeTransferDetector
 from paradox.detectors.lateral_movement import LateralMovementDetector
+from paradox.detectors.long_connections import LongConnectionDetector
 from paradox.detectors.nxdomain_burst import NXDOMAINBurstDetector
 from paradox.detectors.php_payload import PhpPayloadDetector
 from paradox.detectors.port_scan import PortScanDetector
+from paradox.detectors.rare_external_ip import RareExternalIPDetector
 from paradox.detectors.smtp_spam import SMTP_SpamDetector
 from paradox.detectors.sni_mismatch import SNIMismatchDetector
 from paradox.detectors.ssh_brute_force import SSHBruteForceDetector
@@ -94,11 +96,13 @@ DETECTORS = [
     IPCheckServiceDetector(),
     TyposquattingDetector(),
     SNIMismatchDetector(),
+    RareExternalIPDetector(),
     JA3MalwareDetector(),
     JA3SMalwareDetector(),
     BruteForceDetector(),
     FTPBruteForceDetector(),
     BeaconingDetector(),
+    LongConnectionDetector(),
     DNSTunnelingDetector(),
     SSHBruteForceDetector(),       # v0.9.0
     SMTP_SpamDetector(),           # v0.9.0

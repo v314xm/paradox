@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 18 509, GUI — 16 795, всего 35 304
+**Строк кода:** ядро — 18 911, GUI — 16 805, всего 35 716
   (замер 2026-11-10)
-**Тестов:** 1312 в 155 файлах (замер 2026-11-10)
+**Тестов:** 1341 в 156 файлах (замер 2026-11-10)
 
 ---
 
@@ -62,7 +62,7 @@
 
 - `cloud_tunnel_domains` (7), `ip_check_services` (8), `ip_check_service_ips` (4)
 - `ja3_known_malware` (7), `ja3_known_tools` (3), `ja3s_known_malware` (по
-  умолчанию пуст), `ja3s_known_tools` (пуст и пока не читается — см. ниже)
+  умолчанию пуст)
 - `command_injection_patterns_high` / `_medium`, `command_injection_min_patterns=1`
 - `http_body_decompress=True`, `http_body_max_decoded_bytes` = 8 МБ
 - `payload_excerpt_enabled=True`, `payload_excerpt_bytes` = 64 КБ
@@ -148,7 +148,7 @@ Post-extract вызывается из `_extract` после чтения все
 
 Слой `paradox/detectors/`. Contract: `LocalDetector` — `name`, `run(state, config) -> list[Finding]`.
 
-**24 детектора.**
+**26 детекторов.**
 
 | Детектор | Строк | Что ищет |
 |---|---|---|
@@ -160,9 +160,11 @@ Post-extract вызывается из `_extract` после чтения все
 | `ip_check_service.py` | 113 | ip-api.com/ifconfig.me (DNS+SNI+Host+direct IP) |
 | `typosquatting.py` | 157 | SLD близок к бренду (contains/levenshtein) |
 | `sni_mismatch.py` | 122 | SNI без DNS-ответа |
+| `rare_external_ip.py` | 134 | 1–2 соединения на внешний IP без DNS-ответа и без SNI/Host |
+| `long_connections.py` | 98 | TCP наружу >30 мин без имени на неслужебном порту |
 | `ja3_malware.py` | 82 | JA3 из `ja3_known_malware` |
 | `ja3s_malware.py` | 84 | JA3S из `ja3s_known_malware` (v1.4; по умолчанию список пуст) |
-| `brute_force.py` | 188 | HTTP-перебор (src_ports, URI-ratio, rate) |
+| `brute_force.py` | 227 | HTTP-перебор (src_ports, URI-ratio, rate) + `successful_bruteforce` |
 | `ftp_brute_force.py` | 99 | 20+ flows на порт 21 |
 | `beaconing.py` | 283 | Jitter + multi-tenant + payload stddev + slow-режим |
 | `dns_tunneling.py` | 121 | Длинные уникальные qname под одним base |
@@ -197,6 +199,9 @@ Post-extract вызывается из `_extract` после чтения все
 - **webshell_markers:** набор токенов целиком в первых 64 КБ; HTML-ответы и тела с printable < 0.6 пропускаются; confidence 0.85, известные семейства — 0.9
 - **decompression:** gzip/x-gzip + deflate (zlib и raw), magic-сниффинг `1f 8b`; лимит `http_body_max_decoded_bytes` = 8 МБ; brotli/zstd не сканируются
 - **nxdomain_burst:** threshold=5, window=60s, min_ratio=0.2
+- **rare_external_ip:** 1–2 соединения (`rare_external_ip_max_connections`), IP нет в `dns_answers_by_ip`, нет SNI/Host, инфрапорты (53/67/68/123/137/138/853/1900/3702/5353/5355) исключены; без DNS-ответов в захвате молчит
+- **long_connections:** TCP internal→external, SYN виден, ≥1800s, ≥5 пакетов, SNI/Host не из allowlist, порты SSH/почты/VPN/БД/RDP/VNC/прокси исключены
+- **successful_bruteforce:** только вместе с `brute_force` на ту же пару; URI с `loginok`/`login_ok`/`/success`/`dashboard`; HTTP-статуса в FlowStats нет, confidence ≤0.85
 - **dns_tunneling:** qname≥50, long≥20, queries≥50
 - **large_transfer:** 100 MB, `large_transfer_include_reverse` — сумма обоих направлений
 - **port_scan:** ≥10 уникальных dst, ≤3 flow на dst, excluded={80,443}
@@ -505,7 +510,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1312 тестов в 155 файлах** (замер 2026-11-10, после волны 1).
+**1341 тест в 156 файлах** (замер 2026-11-10, после волны 2).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
@@ -552,9 +557,8 @@ Threat Intel, Производительность.
 
 | Проблема | Влияние | Направление |
 |---|---|---|
-| `sni_mismatch` шумит (73 FP на FIN-2015) | Много noise | Context-aware allowlist |
-| JA3-браузеров нет в `ja3_known_tools` | `ja3_ua_mismatch` работает только на tool/malware | Только проверенные хеши |
-| `ja3s_known_tools` объявлен в Config, но не читается | Мёртвый ключ | Подключить или удалить |
+| `sni_mismatch` шумит? | Замер 2026-11-10: 0 findings на FIN-2015 — сравнение с DNS-ответами и CDN-allowlist уже закрывают прежние 73 FP | Перепроверять на новых захватах |
+| JA3-браузеров нет в `ja3_known_tools` | `ja3_ua_mismatch` работает только на tool/malware | Нужны проверенные хеши от владельца |
 | `ja3s_known_malware` пуст по умолчанию | `ja3s_malware` молчит до ручного заполнения | Дизайн: нужны проверенные хеши |
 | TLS 1.3 certificate зашифрован | Правила на сертификатах только для TLS 1.2 | Технический лимит |
 | `internal→internal` зашифрованный C2 | Вне зоны видимости | Нужен разбор протоколов |

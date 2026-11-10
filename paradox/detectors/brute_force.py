@@ -48,6 +48,10 @@ class _Bucket:
     bytes_sent_total: int = 0
     src_ports: set[int] = field(default_factory=set)
     uris: set[str] = field(default_factory=set)
+    # URI, похожие на «вход удался» (loginok, dashboard). Нужны
+    # для cross-finding successful_bruteforce: сам по себе признак
+    # ничего не значит, только вместе с перебором.
+    success_uris: set[str] = field(default_factory=set)
     first_seen: float | None = None
     last_seen: float | None = None
 
@@ -98,6 +102,12 @@ class BruteForceDetector:
             uri = _normalize_uri(flow.http_uri)
             if uri:
                 bucket.uris.add(uri)
+                lowered = uri.lower()
+                if any(
+                    hint in lowered
+                    for hint in config.bruteforce_success_uri_hints
+                ):
+                    bucket.success_uris.add(uri)
 
             bucket.touch(flow.first_ts)
             bucket.touch(flow.last_ts)
@@ -183,6 +193,34 @@ class BruteForceDetector:
                 first_seen=bucket.first_seen,
                 last_seen=bucket.last_seen,
             ))
+
+            # --- Cross-finding: перебор + endpoint «вход удался» ---
+            # Тот же bucket, вторая находка: подбор шёл по URI, имя
+            # которого само сообщает об успешном входе (loginok,
+            # dashboard). Статуса ответа в FlowStats нет, поэтому это
+            # вероятность, а не доказательство.
+            if bucket.success_uris:
+                findings.append(Finding(
+                    type="successful_bruteforce",
+                    value=f"{src_ip} -> {dst_ip}:{dst_port}",
+                    confidence=min(0.85, round(confidence - 0.05, 3)),
+                    src_ip=src_ip,
+                    dst_ip=dst_ip,
+                    dst_port=dst_port,
+                    evidence={
+                        "src_ip": src_ip,
+                        "dst_ip": dst_ip,
+                        "dst_port": dst_port,
+                        "success_uris": sorted(bucket.success_uris),
+                        "flow_count": flow_count,
+                        "unique_src_ports": unique_src_ports,
+                        "packets_total": bucket.packets_total,
+                        "duration_sec": round(duration, 2),
+                        "http_status_known": False,
+                    },
+                    first_seen=bucket.first_seen,
+                    last_seen=bucket.last_seen,
+                ))
 
         findings.sort(key=lambda f: (-f.confidence, f.value))
         return findings

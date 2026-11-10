@@ -33,7 +33,7 @@ Post-extract (после чтения всех пакетов)
    (после этого tcp_streams освобождаются)
 │
 ▼
-Detectors (24) → Findings
+Detectors (26) → Findings
 │
 ▼
 ContradictionDetector (12 правил)
@@ -156,7 +156,7 @@ flow по `FlowKey` и падают явно, если его нет.
 `SessionKey` + `make_session_key()` — нормализованный двунаправленный
 ключ. Используется в `session_sni` и `reverse_asymmetry`.
 
-## Слой 4. Детекторы (`detectors/`) — 24
+## Слой 4. Детекторы (`detectors/`) — 26
 
 Чистые функции над `CaptureState`. `run(state, config) -> list[Finding]`.
 
@@ -170,9 +170,11 @@ flow по `FlowKey` и падают явно, если его нет.
 | ip_check_service | 4 источника (DNS/SNI/Host/direct) |
 | typosquatting | SLD contains + levenshtein |
 | sni_mismatch | SNI без DNS-ответа |
+| rare_external_ip | 1–2 соединения на внешний IP без DNS-ответа и без SNI/Host |
+| long_connections | TCP наружу >30 мин без имени на неслужебном порту |
 | ja3_malware | из `ja3_known_malware` |
 | ja3s_malware | серверный JA3S из `ja3s_known_malware` |
-| brute_force | HTTP-перебор |
+| brute_force | HTTP-перебор (+ `successful_bruteforce` при success-URI) |
 | ftp_brute_force | 20+ flows на 21 |
 | ssh_brute_force | 20+ SSH-баннеров |
 | smtp_spam | 50+ RCPT TO |
@@ -345,7 +347,7 @@ JSON/Markdown/HTML/STIX пишутся из CLI или GUI: сам `run_pipeline
 
 ```python
 EXTRACTORS = [FlowExtractor(), ..., NDPExtractor()]  # 12, flow первым
-DETECTORS  = [...24...]                              # порядок не важен
+DETECTORS  = [...26...]                              # порядок не важен
 RULES      = [...12...]                              # порядок не важен
 ```
 
