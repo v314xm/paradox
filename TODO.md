@@ -15,7 +15,7 @@
 |---|---|---|
 | Тесты | 1222 без Qt + 129 GUI = **1351** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
-| Покрытие GUI | **54.7%** | там же, GUI-тесты входят в прогон |
+| Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
 | Прогон 335 МБ / 627 694 пакетов | **14.4 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc (было 24.2 с) |
 | Пик Python-heap | ~32 МБ | tracemalloc (с замедлением прогона) |
