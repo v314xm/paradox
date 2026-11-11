@@ -42,7 +42,7 @@
   со `slots`, reassembler не строит ключ для чистых ACK, sha256
   считается пачками. Findings и contradictions на трёх эталонах не
   изменились, sha256 в provenance сверен с файлом.
-- 27 детекторов, 1369 тестов (было 24 и 1312).
+- 27 детекторов, 1381 тест (было 24 и 1312).
 - `paradox/contradictions/facts.py` (908 строк) разложен по источникам:
   `facts_attack` (полярность findings), `facts_net` (ARP, asymmetry,
   protocol-on-port, direct IP) и `facts_tls` (SNI/Host, JA3/UA,
@@ -51,6 +51,12 @@
   `_base_domain`. Неиспользуемый dispatcher `extract_facts`, который
   к тому же потерял cert-факты, удалён; AST всех 17 оставшихся
   определений сверен с прежним модулем.
+- Два ASN.1 TLV-ридера слиты в `paradox/der.py`: `x509_der.py` держал
+  строгий разбор с деревом `DerNode`, `kerberos_parse.py` — свой
+  мягкий `_read_tlv` с усечением длины на обрыве TCP. Теперь один
+  `read_tlv(strict=...)`, общий на оба; `x509_der.py` остался
+  фасадом на 61 строку, Kerberos потерял 47 строк дубля. X.509 на
+  CyberCampTask — 24 сертификата, 0 ошибок разбора; отчёт совпал.
 - `entities.py` и `attack_graph.py` больше не выводят роли независимо:
   `ENTRY_ROLES`, `IMPACT_ROLES`, `ENTRY_PHASES`, `IMPACT_PHASES` и
   `pivot_subjects()` живут в `taxonomy.py`. Оба модуля читают одни и

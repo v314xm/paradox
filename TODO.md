@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1240 без Qt + 129 GUI = **1369** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1252 без Qt + 129 GUI = **1381** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -430,8 +430,17 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       удалены, строковые роли заменены константами). Отчёт на
       CyberCampTask совпал побайтово; тест на помощник — в
       `test_taxonomy.py`.
-- [ ] **P2** Слить два ASN.1 TLV-ридера (`x509_der`, `kerberos_parse`) в
+- [x] **P2** Слить два ASN.1 TLV-ридера (`x509_der`, `kerberos_parse`) в
       `paradox/der.py`.
+      Сделано 2026-11-11: в `der.py` (266) переехали константы тэгов,
+      `DerError`, `DerNode`, `parse_der` и хелперы, плюс общий
+      `read_tlv(data, pos=0, strict=True)` — строгий для X.509 и
+      мягкий (усечение на обрыве) для Kerberos.
+      `kerberos_parse._read_tlv` удалён (−47 строк), вызовы идут в
+      `der.read_tlv`; `x509_der.py` — фасад на 61 строку, внешние
+      импорты не менялись. X.509 на CyberCampTask: 24 сертификата,
+      0 ошибок разбора, отчёт совпал побайтово. Тесты:
+      `tests/test_der.py` (9) на оба режима.
 
 # Волна 4 — Платформа v2.0
 

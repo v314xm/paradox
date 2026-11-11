@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from paradox.der import read_tlv as _read_tlv
+
 # --- теги ASN.1, которые нас интересуют ---
 TAG_INTEGER = 0x02
 TAG_OCTET_STRING = 0x04
@@ -287,52 +289,3 @@ def _extract_first_string(data: bytes) -> str | None:
         return text or None
     except (ValueError, IndexError):
         return None
-
-
-
-def _read_tlv(
-    data: bytes, pos: int, strict: bool = True,
-) -> tuple[int, int, bytes, int]:
-    """
-    Прочитать TLV: (tag, length, value, next_pos).
-
-    Поддерживает короткую и длинную (0x81, 0x82) формы длины.
-
-    Если strict=False и заявленная длина больше доступного буфера,
-    length усекается до len(data) - pos. Это позволяет разбирать
-    фрагментированные TCP-сообщения: получаем pvno, msg_type, cname
-    из начала, не падая на обрыве.
-    """
-    if pos >= len(data):
-        raise ValueError("EOF")
-
-    tag = data[pos]
-    pos += 1
-
-    if pos >= len(data):
-        raise ValueError("EOF in length")
-
-    length = data[pos]
-    pos += 1
-
-    if length & 0x80:
-        num_bytes = length & 0x7F
-        if num_bytes == 0 or num_bytes > 4:
-            raise ValueError("unsupported length form")
-        if pos + num_bytes > len(data):
-            if strict:
-                raise ValueError("length bytes overrun")
-            length = 0
-        else:
-            length = int.from_bytes(data[pos:pos + num_bytes], "big")
-            pos += num_bytes
-
-    if pos + length > len(data):
-        if strict:
-            raise ValueError("value overruns buffer")
-        # lenient: отдаём что есть
-        length = len(data) - pos
-
-    value = data[pos:pos + length]
-    next_pos = pos + length
-    return tag, length, value, next_pos
