@@ -118,3 +118,21 @@ def test_outbound_exfil_marks_src_as_victim():
     assert ("10.0.0.5", "victim_of") in pairs
     assert ("203.0.113.9", "attacker_of") in pairs
     assert ("10.0.0.5", "attacker_of") not in pairs
+
+
+def test_pivot_subjects_filters_by_rule():
+    """Pivot собирается одним помощником для entities и attack_graph."""
+    from paradox.taxonomy import pivot_subjects
+
+    class _Contradiction:
+        def __init__(self, rule: str, subject: str) -> None:
+            self.rule = rule
+            self.subject = subject
+
+    contradictions = [
+        _Contradiction("victim_makes_attack", "10.0.0.5"),
+        _Contradiction("mac_ip_conflict", "10.0.0.6"),
+    ]
+
+    assert pivot_subjects(contradictions) == {"10.0.0.5"}
+    assert pivot_subjects(None) == set()

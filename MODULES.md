@@ -285,9 +285,9 @@ Directed graph атаки из findings + contradictions. Узлы = IP, рёб�
 
 **`build_attack_graph(findings, config, entities, contradictions, max_paths=10, max_depth=6)`**
 
-- Entry: внутренние `victim_candidate` или (external→internal с initial_access)
-- Impact: внешние `c2_candidate` / `attacker_candidate` или impact-phase
-- Pivot: из `victim_makes_attack`
+- Entry: внутренние с ролью из `ENTRY_ROLES` или (external→internal в фазе из `ENTRY_PHASES`)
+- Impact: внешние с ролью из `IMPACT_ROLES` или фаза из `IMPACT_PHASES`
+- Pivot: `taxonomy.pivot_subjects(contradictions)` — тот же помощник, что у `entities`
 - `_PHASE_OF_TYPE` маппинг тип → фаза kill-chain
 
 Ошибка сборки не валит прогон: в отчёте остаётся пустой граф.

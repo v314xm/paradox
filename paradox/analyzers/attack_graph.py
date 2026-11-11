@@ -16,11 +16,18 @@ from typing import Any
 from paradox.config import Config
 from paradox.models import Finding
 from paradox.net_utils import is_internal_ip
+from paradox.taxonomy import (
+    ENTRY_PHASES,
+    ENTRY_ROLES,
+    IMPACT_PHASES,
+    IMPACT_ROLES,
+    PHASE_ORDER,
+    SEVERITY_RANK,
+    SEVERITY_WEIGHT,
+    pivot_subjects,
+)
 from paradox.taxonomy import PHASE_BY_TYPE as _PHASE_OF_TYPE
-from paradox.taxonomy import PHASE_ORDER, SEVERITY_RANK, SEVERITY_WEIGHT
 
-_ENTRY_PHASES = frozenset({"initial_access", "execution"})
-_IMPACT_PHASES = frozenset({"c2", "exfiltration", "impact"})
 _MAX_RAW_PATHS = 5000
 
 
@@ -170,30 +177,18 @@ def _build_edges(findings: list[Finding]) -> list[AttackEdge]:
     return edges
 
 
-def _collect_pivots(contradictions: list | None) -> set[str]:
-    if not contradictions:
-        return set()
-    out: set[str] = set()
-    for c in contradictions:
-        if getattr(c, "rule", None) == "victim_makes_attack":
-            subj = getattr(c, "subject", None)
-            if subj:
-                out.add(subj)
-    return out
-
-
 def _detect_entry_impact(edges: list[AttackEdge], config: Config) -> tuple[set[str], set[str]]:
     entries: set[str] = set()
     impacts: set[str] = set()
     for e in edges:
         dst_int = is_internal_ip(e.dst, config)
         src_int = is_internal_ip(e.src, config)
-        if dst_int and not src_int and e.phase in _ENTRY_PHASES:
+        if dst_int and not src_int and e.phase in ENTRY_PHASES:
             entries.add(e.dst)
         # Impact-target — только ВНЕШНИЙ хост в фазе c2/exfil/impact.
         # Раньше сюда же добавлялся internal dst: любой внутренний
         # сервер, к которому шёл C2-трафик, объявлялся «целью атаки».
-        if not dst_int and e.phase in _IMPACT_PHASES:
+        if not dst_int and e.phase in IMPACT_PHASES:
             impacts.add(e.dst)
     return entries, impacts
 
@@ -204,11 +199,10 @@ def _entity_entries_impacts(entities: Any) -> tuple[set[str], set[str]]:
     entries: set[str] = set()
     impacts: set[str] = set()
     for e in getattr(entities, "internal", []) or []:
-        if "victim_candidate" in (e.roles or []):
+        if ENTRY_ROLES & set(e.roles or []):
             entries.add(e.ip)
     for e in getattr(entities, "external", []) or []:
-        roles = e.roles or []
-        if "c2_candidate" in roles or "attacker_candidate" in roles:
+        if IMPACT_ROLES & set(e.roles or []):
             impacts.add(e.ip)
     return entries, impacts
 
@@ -342,7 +336,7 @@ def build_attack_graph(
     max_depth: int = 6,
 ) -> AttackGraph:
     edges = _build_edges(findings)
-    pivots = _collect_pivots(contradictions)
+    pivots = pivot_subjects(contradictions)
 
     entries_e, impacts_e = _entity_entries_impacts(entities)
     entries_f, impacts_f = _detect_entry_impact(edges, config)

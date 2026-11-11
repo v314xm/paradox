@@ -51,6 +51,11 @@
   `_base_domain`. Неиспользуемый dispatcher `extract_facts`, который
   к тому же потерял cert-факты, удалён; AST всех 17 оставшихся
   определений сверен с прежним модулем.
+- `entities.py` и `attack_graph.py` больше не выводят роли независимо:
+  `ENTRY_ROLES`, `IMPACT_ROLES`, `ENTRY_PHASES`, `IMPACT_PHASES` и
+  `pivot_subjects()` живут в `taxonomy.py`. Оба модуля читают одни и
+  те же константы, дублирующая выборка pivot удалена; JSON-отчёт на
+  CyberCampTask не изменился.
 - `paradox/pipeline.py` (689 строк) разложен на пакет по этапам:
   `extract` (пакетный цикл и `EXTRACTORS`), `detect` (`DETECTORS`),
   `summarize` (направления, L4/L7, MITRE) и `report` (`_build_report`);

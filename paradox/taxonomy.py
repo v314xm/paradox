@@ -127,6 +127,41 @@ SCANNER_TYPES: frozenset[str] = frozenset({"port_scan", "web_scanner"})
 
 
 # ---------------------------------------------------------------------
+# Роли сущностей → точки входа и воздействия (attack_graph)
+# ---------------------------------------------------------------------
+# Роли ставит aggregators/entities.py; attack_graph читает их, а не
+# выводит entry/impact заново из собственных списков фаз.
+
+ENTRY_ROLES: frozenset[str] = frozenset({"victim_candidate"})
+IMPACT_ROLES: frozenset[str] = frozenset({
+    "c2_candidate", "attacker_candidate",
+})
+
+# Фазы — запасной путь, когда ролей нет (entities не переданы).
+ENTRY_PHASES: frozenset[str] = frozenset({"initial_access", "execution"})
+IMPACT_PHASES: frozenset[str] = frozenset({"c2", "exfiltration", "impact"})
+
+# Правило contradictions, которым помечается pivot.
+PIVOT_RULE = "victim_makes_attack"
+
+
+def pivot_subjects(contradictions: list | None) -> set[str]:
+    """IP, для которых сработало правило victim_makes_attack.
+
+    Duck-typing: taxonomy не импортирует contradictions (цикл импортов).
+    Контракт: у объекта есть атрибуты .rule (str) и .subject (str).
+    """
+    out: set[str] = set()
+    for c in contradictions or ():
+        if getattr(c, "rule", None) != PIVOT_RULE:
+            continue
+        subject = getattr(c, "subject", None)
+        if subject:
+            out.add(subject)
+    return out
+
+
+# ---------------------------------------------------------------------
 # MITRE ATT&CK
 # ---------------------------------------------------------------------
 

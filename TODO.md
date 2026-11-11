@@ -421,8 +421,15 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       LF-only и пустой URI сохранили прежнее поведение, JSON-отчёт на
       CyberCampTask совпал побайтово. Тесты: по одному кейсу в
       `test_http_parse.py` и `test_http_object.py`.
-- [ ] **P2** `attack_graph` и `entities` независимо выводят роли и фазы —
+- [x] **P2** `attack_graph` и `entities` независимо выводят роли и фазы —
       свести к `taxonomy.py` + одному role engine.
+      Сделано 2026-11-11: в `taxonomy.py` переехали `ENTRY_ROLES`,
+      `IMPACT_ROLES`, `ENTRY_PHASES`, `IMPACT_PHASES`, `PIVOT_RULE` и
+      `pivot_subjects()`; `entities` и `attack_graph` вызывают их
+      вместо своих копий (`_pivot_subjects` и `_collect_pivots`
+      удалены, строковые роли заменены константами). Отчёт на
+      CyberCampTask совпал побайтово; тест на помощник — в
+      `test_taxonomy.py`.
 - [ ] **P2** Слить два ASN.1 TLV-ридера (`x509_der`, `kerberos_parse`) в
       `paradox/der.py`.
 

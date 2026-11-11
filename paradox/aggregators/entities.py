@@ -27,7 +27,7 @@ from typing import Any
 from paradox.config import Config
 from paradox.models import CaptureState, Finding
 from paradox.net_utils import is_internal_ip
-from paradox.taxonomy import SCANNER_TYPES, SRC_ROLE_BY_TYPE
+from paradox.taxonomy import SCANNER_TYPES, SRC_ROLE_BY_TYPE, pivot_subjects
 
 
 @dataclass
@@ -178,25 +178,6 @@ def _ips_from_finding(f: Finding) -> list[tuple[str, str]]:
     return result
 
 
-def _pivot_subjects(contradictions: list[Any] | None) -> set[str]:
-    """
-    Собрать IP, для которых сработало правило victim_makes_attack.
-
-    Duck-typing: contradictions/ импортируется в pipeline, а entities.py
-    не должен от него зависеть (циклы импортов). Контракт: у объекта
-    есть атрибуты .rule (str) и .subject (str).
-    """
-    if not contradictions:
-        return set()
-    out: set[str] = set()
-    for c in contradictions:
-        if getattr(c, "rule", None) == "victim_makes_attack":
-            subj = getattr(c, "subject", None)
-            if subj:
-                out.add(subj)
-    return out
-
-
 def build_entities(
     state: CaptureState,
     findings: list[Finding],
@@ -317,7 +298,7 @@ def build_entities(
                 )
 
     # --- pivot-субъекты из contradictions ---
-    pivot_ips = _pivot_subjects(contradictions)
+    pivot_ips = pivot_subjects(contradictions)
 
     # --- роли ---
     for ent in buckets.values():
