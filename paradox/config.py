@@ -100,6 +100,12 @@ _VALIDATION_RULES: tuple[_ValidationRule, ...] = (
                     "http_body_max_decoded_bytes must be > 0"),
     _ValidationRule("payload_excerpt_bytes", _positive,
                     "payload_excerpt_bytes must be > 0"),
+    _ValidationRule("payload_multipart_file_bytes", _positive,
+                    "payload_multipart_file_bytes must be > 0"),
+    _ValidationRule("payload_multipart_max_parts", _positive,
+                    "payload_multipart_max_parts must be > 0"),
+    _ValidationRule("payload_multipart_total_bytes", _positive,
+                    "payload_multipart_total_bytes must be > 0"),
     _ValidationRule("http_object_body_limit", _positive,
                     "http_object_body_limit must be > 0"),
     _ValidationRule("http_object_max_messages_per_stream", _positive,
@@ -329,6 +335,13 @@ class Config:
     # шеллов в JSON-файле отчёта.
     payload_excerpt_enabled: bool = True
     payload_excerpt_bytes: int = 64 * 1024
+    # multipart/form-data: поле и файл разбираются отдельно, чтобы
+    # файл, начинающийся за границей общей выдержки, всё равно был
+    # виден в «Коде инжекта». Бюджет ограничен, чтобы отчёт не рос.
+    payload_multipart_enabled: bool = True
+    payload_multipart_file_bytes: int = 64 * 1024
+    payload_multipart_max_parts: int = 32
+    payload_multipart_total_bytes: int = 256 * 1024
 
     # --- binary HTTP upload (exfil / C2) ---
     # Много POST'ов с бинарным телом на внешний хост — типовой канал

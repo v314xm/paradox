@@ -18,6 +18,7 @@ import base64
 import hashlib
 
 from paradox.config import Config
+from paradox.payload_analysis import split_multipart
 
 #: Доля печатных байт, при которой выдержку показываем текстом.
 TEXT_RATIO = 0.85
@@ -52,7 +53,7 @@ def make_sample(
     excerpt = data[:limit]
     headers = (getattr(obj, "headers", None) or {})
 
-    return {
+    sample = {
         "direction": direction,
         "method": getattr(obj, "method", None) or "",
         "host": headers.get("host") or "",
@@ -67,6 +68,61 @@ def make_sample(
         "is_text": is_text(excerpt),
         "text_b64": base64.b64encode(excerpt).decode("ascii"),
     }
+    parts = _multipart_parts(data, config)
+    if parts:
+        sample["parts"] = parts
+    return sample
+
+
+def _multipart_parts(data: bytes, config: Config) -> list[dict]:
+    """Части multipart/form-data с выдержкой каждого файла.
+
+    Общая выдержка — первые N байт тела, поэтому файл из формы может
+    начинаться уже за её границей. Здесь каждый файл сохраняется
+    отдельно, с собственным offset и префиксом, а общий бюджет
+    ограничен `payload_multipart_total_bytes`.
+    """
+    if not getattr(config, "payload_multipart_enabled", True):
+        return []
+    parts = split_multipart(
+        data,
+        max_parts=max(
+            1, int(getattr(config, "payload_multipart_max_parts", 32)),
+        ),
+    )
+    if not parts:
+        return []
+
+    field_limit = max(1, int(getattr(config, "payload_excerpt_bytes", 8192)))
+    file_limit = max(
+        1, int(getattr(config, "payload_multipart_file_bytes", 65536)),
+    )
+    budget = max(
+        1, int(getattr(config, "payload_multipart_total_bytes", 262144)),
+    )
+
+    out: list[dict] = []
+    for part in parts:
+        limit = file_limit if part.kind == "file" else field_limit
+        excerpt = part.data[:limit]
+        if len(excerpt) > budget:
+            excerpt = excerpt[:budget]
+        out.append({
+            "kind": part.kind,
+            "name": part.name,
+            "filename": part.filename,
+            "content_type": part.content_type,
+            "offset": part.offset,
+            "size": part.size,
+            "sha256": hashlib.sha256(part.data).hexdigest(),
+            "excerpt_size": len(excerpt),
+            "excerpt_truncated": len(excerpt) < part.size,
+            "excerpt_b64": base64.b64encode(excerpt).decode("ascii"),
+        })
+        budget -= len(excerpt)
+        if budget <= 0:
+            break
+    return out
 
 
 def decode_sample(sample: dict) -> bytes:
