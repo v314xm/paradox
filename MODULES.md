@@ -6,7 +6,7 @@
 
 **Версия ядра:** 1.6.0 (тег git: v1.6.0)
 **Версия GUI:** 1.6.0 (тег git: v1.6.0)
-**Строк кода:** ядро — 22 297, GUI — 17 458, всего 39 755
+**Строк кода:** ядро — 23 158, GUI — 18 328, всего 41 486
   (замер 2026-11-11)
 **Тестов:** 1464 в 174 файлах (замер 2026-11-11)
 
@@ -38,7 +38,7 @@
 | `__init__.py` | 1 | `__version__ = "1.6.0"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 221 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog` |
-| `config.py` | 1032 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `config.py` | 1045 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
 | `models.py` | 431 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
 | `pipeline/` | 829 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
@@ -49,7 +49,10 @@
 | `net_utils.py` | 58 | `is_internal_ip`, `classify_direction` |
 | `reassembler.py` | 211 | `TCPReassembler` — склейка TCP по seq |
 | `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
-| `payload_excerpt.py` | 78 | Выдержки тел в base64 для «Кода инжекта» |
+| `payload_excerpt.py` | 134 | Выдержки тел в base64; части multipart с префиксом каждого файла |
+| `payload_analysis.py` | 432 | Тип файла, хеши, строки, IOC, энтропия, вложенные PE/ELF/ZIP/PDF |
+| `payload_deobfuscate.py` | 240 | Безопасные слои Base64/Gzip/Hex/PowerShell/JS/PHP |
+| `payload_export.py` | 120 | Markdown-заметка кейса с редакцией секретов |
 | `http_object.py` | 321 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining); request-line режется общим `parse_request_line` |
 | `http_parse.py` | 135 | `parse_request_line` (URI с пробелами), быстрый `parse_request` первого сегмента |
 | `tls_cert.py` | 122 | `parse_certificate_from_stream` — X.509 из TLS |
@@ -73,7 +76,9 @@
   умолчанию пуст)
 - `command_injection_patterns_high` / `_medium`, `command_injection_min_patterns=1`
 - `http_body_decompress=True`, `http_body_max_decoded_bytes` = 8 МБ
-- `payload_excerpt_enabled=True`, `payload_excerpt_bytes` = 64 КБ
+- `payload_excerpt_enabled=True`, `payload_excerpt_bytes` = 64 КБ,
+  `payload_multipart_file_bytes` = 64 КБ,
+  `payload_multipart_total_bytes` = 256 КБ
 - `http_binary_upload_min_posts=3`, `http_binary_upload_min_body_bytes=1024`,
   `http_text_content_types`, `http_binary_upload_ignored_content_types`
 - `suspicious_ports` (8), `private_networks`, `dc_service_ports` (5)
@@ -452,7 +457,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `field_help.py` | 230 | Tooltips полей Config |
 | `contradiction_help.py` | 49 | Tooltips правил |
 | `ioc_utils.py` | 81 | `detect_ioc_type`, `provider_link` |
-| `payload_decode.py` | 151 | Цепочка URL → Base64 → Gzip/Deflate |
+| `payload_decode.py` | 152 | Цепочка URL → Base64 → Gzip/Deflate; `Variant.label` для деобфускации |
 | `payload_highlighter.py` | 158 | Язык по содержимому, sinks/источники |
 | `payload_preview.py` | 221 | Санитайзер разметки для статического предпросмотра |
 
@@ -474,7 +479,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 |---|---|---|
 | `run_view.py` | 685 | **Прогон** — drop zone, summary, findings, кнопки «Граф связей/атаки/Файлы/What-If» |
 | `history_view.py` | 588 | **История** — список прогонов + HTML-превью |
-| `payload_view.py` | 580 | **Код инжекта** — выдержки тел, декодирование, подсветка, предпросмотр |
+| `payload_view.py` | 1353 | **Код инжекта** — поиск, hex-страницы, части multipart, деобфускация, инспектор, экспорт |
 | `enrich_view.py` | 578 | **Обогащение** — IOC-выбор + результаты |
 | `settings/` | 2611 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
 | `ipv6_view.py` | 126 | **IPv6** — NDP + потоки |
@@ -532,7 +537,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1464 теста в 174 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP, AD-детекторы, DCSync и HTTP/2 + TLS).
+**1486 тестов в 178 файлах** (замер 2026-11-11, волна 5: Payload Workbench, multipart, деобфускация и HTTP/2 + TLS).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 

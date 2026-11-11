@@ -56,6 +56,7 @@ from PySide6.QtWidgets import (
 from paradox.payload_analysis import PayloadAnalysis, analyze_payload
 from paradox.payload_deobfuscate import deobfuscate
 from paradox.payload_excerpt import decode_sample, is_text
+from paradox.payload_export import build_markdown
 from paradox_gui.i18n import tr
 from paradox_gui.payload_decode import Variant, build_variants
 from paradox_gui.payload_highlighter import PayloadHighlighter, detect_language
@@ -350,6 +351,12 @@ class PayloadView(QWidget):
         self._save_btn.clicked.connect(self._on_save)
         row.addWidget(self._save_btn)
 
+        self._export_btn = QPushButton(tr("payload.export"))
+        self._export_btn.setObjectName("small")
+        self._export_btn.setEnabled(False)
+        self._export_btn.clicked.connect(self._on_export)
+        row.addWidget(self._export_btn)
+
         self._hex_box = QCheckBox(tr("payload.hex"))
         self._hex_box.setEnabled(False)
         self._hex_box.toggled.connect(self._on_hex_toggled)
@@ -468,6 +475,7 @@ class PayloadView(QWidget):
         self._count.setVisible(False)
         self._copy_btn.setEnabled(False)
         self._save_btn.setEnabled(False)
+        self._export_btn.setEnabled(False)
         self._hex_box.setEnabled(False)
         self._parts_combo.clear()
         self._parts_combo.setVisible(False)
@@ -514,6 +522,7 @@ class PayloadView(QWidget):
         self._count.setVisible(False)
         self._copy_btn.setEnabled(False)
         self._save_btn.setEnabled(False)
+        self._export_btn.setEnabled(False)
         self._hex_box.setEnabled(False)
         self._parts_combo.clear()
         self._parts_combo.setVisible(False)
@@ -636,6 +645,7 @@ class PayloadView(QWidget):
         data = self._current.raw
         self._copy_btn.setEnabled(True)
         self._save_btn.setEnabled(bool(data))
+        self._export_btn.setEnabled(bool(data))
         self._hex_box.setEnabled(bool(data))
         self._preview_btn.setEnabled(is_text(data))
         if not is_text(data):
@@ -652,6 +662,7 @@ class PayloadView(QWidget):
         self._hex_page = 0
         data = self._current_data()
         self._save_btn.setEnabled(bool(data))
+        self._export_btn.setEnabled(bool(data))
         self._hex_box.setEnabled(bool(data))
         self._preview_btn.setEnabled(is_text(data))
         if not is_text(data):
@@ -1209,6 +1220,57 @@ class PayloadView(QWidget):
             self._flash(tr("payload.save_error", error=str(exc)))
             return
         self._flash(tr("payload.saved", path=path))
+
+    def _export_markdown(self) -> str:
+        payload = self._current
+        if payload is None:
+            return ""
+        data = self._selected_variant().data or self._current_data()
+        analysis = self._analysis or analyze_payload(data)
+        part = self._current_part()
+        meta = {
+            "finding_type": payload.finding_type,
+            "finding_value": payload.finding_value,
+            "direction": payload.direction,
+            "method": payload.method,
+            "host": payload.host,
+            "uri": payload.uri,
+            "content_type": payload.content_type,
+            "truncated": payload.truncated,
+        }
+        if part is not None:
+            meta["content_type"] = part.content_type
+            meta["truncated"] = part.truncated
+        variant = self._selected_variant()
+        return build_markdown(
+            data=data,
+            analysis=analysis,
+            meta=meta,
+            variant_label="" if variant.is_raw() else _variant_label(variant),
+            occurrences=self.occurrences(),
+        )
+
+    def _on_export(self) -> None:
+        markdown = self._export_markdown()
+        if not markdown:
+            return
+        sha = hashlib.sha256(
+            self._selected_variant().data or self._current_data(),
+        ).hexdigest()[:16]
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            tr("payload.export_dialog"),
+            f"payload_{sha}.md",
+        )
+        if not path:
+            return
+        try:
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write(markdown)
+        except OSError as exc:
+            self._flash(tr("payload.save_error", error=str(exc)))
+            return
+        self._flash(tr("payload.exported", path=path))
 
     def _on_save_embedded(self) -> None:
         data = self._selected_variant().data or self._current_data()

@@ -186,3 +186,19 @@ def test_deobfuscated_variant_is_selected(qapp):
         for i in range(view._variant_combo.count())
     ]
     assert any("Deflate" in label for label in labels)
+
+
+def test_export_markdown_redacts_secrets(qapp):
+    from paradox_gui.views.payload_view import PayloadView
+
+    view = PayloadView()
+    view.update_data(_report(_sample(
+        b"password=hunter2 url=http://evil.example/x",
+    )))
+
+    markdown = view._export_markdown()
+
+    assert "hunter2" not in markdown
+    assert "<redacted>" in markdown
+    assert "http://evil.example/x" in markdown
+    assert "SHA256" in markdown

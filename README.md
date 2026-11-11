@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1464%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1486%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 30 детекторов, 12 правил противоречий, GUI, 1464 теста.**
+**PCAP triage: 30 детекторов, 12 правил противоречий, GUI, 1486 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -211,11 +211,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1464 passed
+pytest -m "not slow"           # ~25 сек, 1486 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1464 теста в 174 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1486 тестов в 178 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -286,7 +286,7 @@ pre-commit install
 - **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, MISP export, REST API, нативный PDF.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1464 passed» — локальный замер на Windows.
+цифра «1486 passed» — локальный замер на Windows.
 
 ## Вклад
 

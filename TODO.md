@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1335 без Qt + 129 GUI = **1464** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1349 без Qt + 137 GUI = **1486** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -525,6 +525,27 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       QSS-правилом `#roadmapBrowser`, десятая вкладка не нужна.
 - [x] **Версия 1.3.0 в CHANGELOG** — восстановлена по коммитам
       (см. п. 1.1).
+
+# Волна 5 — Payload Workbench (после 1.6.0)
+
+- [x] **P1** Анализ payload'а: тип/MIME, SHA256/MD5, строки, IOC,
+      энтропия по блокам, вложенные PE/ELF/ZIP/PDF (секции PE,
+      список файлов ZIP).
+- [x] **P1** Multipart-части в `payload_samples.parts`: имя, файл,
+      offset, размер, хеш и префикс файла за границей 64 КБ.
+- [x] **P1** Безопасная деобфускация: Base64/Gzip/Deflate/hex,
+      PowerShell `-EncodedCommand`, JS `fromCharCode` и escapes,
+      PHP `str_rot13`, HTML entities.
+- [x] **P1** Workbench: поиск `Ctrl+F`, hex-страницы, выбор части,
+      копирование, сохранение, перенос/шрифт, инспектор, повторы
+      payload'а.
+- [x] **P1** Экспорт Markdown с редакцией паролей/токенов/
+      `Authorization`.
+- [ ] **P2** Вкладки/пины/заметки с сохранением в `history.db` —
+      нужна схема таблицы и решение по срокам хранения.
+- [ ] **P2** Сравнение двух выдержек side-by-side.
+- [ ] **P2** YARA по кнопке — нужен проброс пути к правилам в GUI.
+- [ ] **P2** Поиск одинаковых payload по всей истории прогонов.
 
 # Сделано в 1.5.0 (не повторять)
 

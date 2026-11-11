@@ -355,9 +355,25 @@ JSON/Markdown/HTML/STIX пишутся из CLI или GUI: сам `run_pipeline
 
 Тело берётся после снятия content-encoding — ровно то, что видел
 детектор; лимит `payload_excerpt_bytes` (64 КБ). В base64 — чтобы
-антивирус не ловил цельные сигнатуры шеллов в JSON-отчёте. GUI
-декодирует выдержку в памяти (вкладка «Код инжекта» и окно
-`Ctrl+Shift+P`), цепочка URL → Base64 → Gzip/Deflate.
+антивирус не ловил цельные сигнатуры шеллов в JSON-отчёте.
+
+Для `multipart/form-data` добавляется `parts`: `kind`, `name`,
+`filename`, `content_type`, `offset`, `size`, `sha256`, `excerpt_b64`
+и `excerpt_truncated`. Каждый файл получает собственный префикс
+(`payload_multipart_file_bytes`, по умолчанию 64 КБ) даже если он
+начинается за общей выдержкой; суммарный бюджет —
+`payload_multipart_total_bytes` (256 КБ). Это позволяет «Коду
+инжекта» показать файл, которого нет в первых 64 КБ тела.
+
+GUI (`paradox_gui/views/payload_view.py`) декодирует выдержку в
+памяти: вкладка «Код инжекта» и окно `Ctrl+Shift+P`. Возможности:
+поиск с переходом по совпадениям, hex-страницы по 4 КБ, выбор части
+multipart, цепочка URL → Base64 → Gzip/Deflate плюс безопасная
+деобфускация (`payload_deobfuscate.py`), инспектор
+(`payload_analysis.py`: тип, хеши, строки, IOC, энтропия, вложенные
+PE/ELF/ZIP/PDF) и экспорт в Markdown с редакцией секретов
+(`payload_export.py`). Ничего не исполняется; запись на диск — только
+по явной кнопке.
 
 ## Плагины детекторов (`detector_plugins.py`, v1.5.0)
 
