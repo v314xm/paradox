@@ -39,6 +39,7 @@ class Variant:
 
     steps: tuple[str, ...]
     data: bytes
+    label: str | None = None
 
     def is_raw(self) -> bool:
         return not self.steps
