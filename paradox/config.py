@@ -342,6 +342,9 @@ class Config:
     payload_multipart_file_bytes: int = 64 * 1024
     payload_multipart_max_parts: int = 32
     payload_multipart_total_bytes: int = 256 * 1024
+    # Искать IOC в тексте выдержек и отдавать их в «Обогащение» и
+    # IOC-отчёт. Иначе домен из тела виден только в «Коде инжекта».
+    payload_ioc_extraction: bool = True
 
     # --- binary HTTP upload (exfil / C2) ---
     # Много POST'ов с бинарным телом на внешний хост — типовой канал

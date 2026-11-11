@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1349 без Qt + 137 GUI = **1486** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1353 без Qt + 137 GUI = **1490** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |

@@ -38,7 +38,7 @@
 | `__init__.py` | 1 | `__version__ = "1.6.0"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 221 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog` |
-| `config.py` | 1045 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `config.py` | 1049 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
 | `models.py` | 431 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
 | `pipeline/` | 829 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
@@ -50,7 +50,7 @@
 | `reassembler.py` | 211 | `TCPReassembler` — склейка TCP по seq |
 | `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
 | `payload_excerpt.py` | 134 | Выдержки тел в base64; части multipart с префиксом каждого файла |
-| `payload_analysis.py` | 432 | Тип файла, хеши, строки, IOC, энтропия, вложенные PE/ELF/ZIP/PDF |
+| `payload_analysis.py` | 490 | Тип файла, хеши, строки, IOC, энтропия, вложенные PE/ELF/ZIP/PDF |
 | `payload_deobfuscate.py` | 240 | Безопасные слои Base64/Gzip/Hex/PowerShell/JS/PHP |
 | `payload_export.py` | 120 | Markdown-заметка кейса с редакцией секретов |
 | `http_object.py` | 321 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining); request-line режется общим `parse_request_line` |
@@ -537,7 +537,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1486 тестов в 178 файлах** (замер 2026-11-11, волна 5: Payload Workbench, multipart, деобфускация и HTTP/2 + TLS).
+**1490 тестов в 178 файлах** (замер 2026-11-11, волна 5: Payload Workbench, multipart, деобфускация и HTTP/2 + TLS).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 

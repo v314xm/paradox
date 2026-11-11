@@ -194,6 +194,7 @@ paradox capture.pcap --tls-keylog keys.log
 - **Hex-страницы**: по 4 КБ с offset, «◀/▶» и общим размером; для бинарных тел переключается автоматически.
 - **Деобфускация**: селектор представлений добавляет слои после URL/Base64/Gzip/Deflate — `gzinflate(base64_decode(…))`, PowerShell `-EncodedCommand`, JS `String.fromCharCode`, `\x`-escapes, `str_rot13`, HTML entities. Код не исполняется.
 - **Разбор**: тип, SHA256/MD5, энтропия, строки, URL/домены/IP/e-mail/хеши, вложенные PE/ELF/ZIP/PDF (для PE — секции, для ZIP — список файлов) и повторы того же payload в отчёте.
+- **IOC из тела**: найденные в тексте домены, URL, внешние IP и SHA256 попадают в «Обогащение» и IOC-отчёт с источником `<детектор>:payload`. Отключается `payload_ioc_extraction=False`; TLD-фильтр отсеивает обращения вида `io.popen`/`file.read`.
 - **Копировать** — текст, hex, base64, SHA256 или `Host + URI`.
 - **Сохранить** — только по явной кнопке; сохранение вложенного файла — отдельной кнопкой (без запуска).
 - **Экспорт** — Markdown-заметка кейса с хешами, IOC и выдержкой; пароли, токены и `Authorization` заменяются на `<redacted>`.

@@ -22,6 +22,7 @@ from pathlib import Path
 
 from paradox.config import Config
 from paradox.net_utils import is_internal_ip
+from paradox.payload_analysis import extract_iocs, iter_sample_texts
 from paradox.taxonomy import SEVERITY_RANK as _SEVERITY_RANK
 
 # Типы findings, из которых достаём домены.
@@ -141,6 +142,7 @@ def build_ioc_report(report: dict, config: Config | None = None) -> dict:
         ftype = f.get("type", "")
         value = f.get("value") or ""
         sev = f.get("severity", "medium")
+        ev = f.get("evidence") or {}
 
         if ftype in _DOMAIN_FINDING_TYPES and value:
             _upsert_ioc(
@@ -160,7 +162,6 @@ def build_ioc_report(report: dict, config: Config | None = None) -> dict:
 
         elif ftype == "vulnerable_path" and value:
             # value = URI, вытащим полный URL если есть host.
-            ev = f.get("evidence") or {}
             host = (ev.get("hosts") or [None])[0] if ev.get("hosts") else None
             if host and value.startswith("/"):
                 url = f"http://{host}{value}"
@@ -169,6 +170,39 @@ def build_ioc_report(report: dict, config: Config | None = None) -> dict:
                     {"value": url, "severity": sev, "source": ftype},
                     _SEVERITY_RANK,
                 )
+
+        if getattr(cfg, "payload_ioc_extraction", True):
+            source = f"{ftype}:payload" if ftype else "payload"
+            for sample in ev.get("payload_samples") or []:
+                for chunk in iter_sample_texts(sample):
+                    iocs = extract_iocs(chunk.decode("utf-8", "replace"))
+                    for domain in iocs["domains"]:
+                        _upsert_ioc(
+                            domains, domain,
+                            {"value": domain, "severity": sev,
+                             "source": source},
+                            _SEVERITY_RANK,
+                        )
+                    for ip in iocs["ips"]:
+                        if is_internal_ip(ip, cfg):
+                            continue
+                        _upsert_ioc(
+                            ips, ip,
+                            {"value": ip, "severity": sev, "source": source},
+                            _SEVERITY_RANK,
+                        )
+                    for url in iocs["urls"]:
+                        _upsert_ioc(
+                            urls, url,
+                            {"value": url, "severity": sev, "source": source},
+                            _SEVERITY_RANK,
+                        )
+                    for digest in iocs["hashes"]:
+                        if len(digest) == 64:
+                            sha256.setdefault(digest, {
+                                "value": digest,
+                                "source": source,
+                            })
 
     # sha256 из carved_files.
     for cf in (report.get("carved_files") or {}).get("files", []) or []:

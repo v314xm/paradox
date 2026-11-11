@@ -12,8 +12,12 @@ from paradox.config import Config
 from paradox.integrations.base import EnrichmentResult
 from paradox.integrations.cache import EnrichmentCache
 from paradox.integrations.rate_limit import TokenBucket
+from paradox.payload_analysis import extract_iocs, iter_sample_texts
 
 DEFAULT_RATE_LIMIT_PER_SEC = 5.0
+#: Сколько IOC брать из одной выдержки, чтобы тело с сотней ссылок
+#: не вытеснило остальные findings из очереди обогащения.
+_MAX_PAYLOAD_IOCS = 20
 
 
 class EnricherOrchestrator:
@@ -153,7 +157,9 @@ class EnricherOrchestrator:
 from paradox.net_utils import is_private_ip as _is_private_ip
 
 
-def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
+def collect_iocs_from_findings(
+    findings, include_payload: bool = True,
+) -> list[tuple[str, str]]:
     """
     Вытащить IP и домены из findings для обогащения.
     Работает и с dict, и с Finding.
@@ -163,6 +169,8 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
       Приватные IP пропускаются.
     - evidence["base_domain"], ["sni"], ["host"], ["domain"] — домены.
     - value для findings типа dga_domain, typosquatting и т.п.
+    - текст `payload_samples` (и части multipart): домены и внешние IP,
+      которые упомянуты в теле, но не попали в поля evidence.
     """
     out: list[tuple[str, str]] = []
     ip_fields = {"dst_ip", "src_ip", "ip"}
@@ -194,5 +202,15 @@ def collect_iocs_from_findings(findings) -> list[tuple[str, str]]:
             v = f_value.strip()
             if v and " " not in v and ":" not in v:
                 out.append(("domain", v))
+
+        if include_payload:
+            for sample in ev.get("payload_samples") or []:
+                for chunk in iter_sample_texts(sample):
+                    iocs = extract_iocs(chunk.decode("utf-8", "replace"))
+                    for domain in iocs["domains"][:_MAX_PAYLOAD_IOCS]:
+                        out.append(("domain", domain))
+                    for ip in iocs["ips"][:_MAX_PAYLOAD_IOCS]:
+                        if not _is_private_ip(ip):
+                            out.append(("ip", ip))
 
     return list({(t, v) for (t, v) in out})

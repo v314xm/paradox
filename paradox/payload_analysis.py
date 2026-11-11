@@ -10,6 +10,7 @@ multipart/form-data.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import ipaddress
@@ -37,7 +38,28 @@ _DOMAIN_RE = re.compile(
 _HEX64_RE = re.compile(r"\b[A-Fa-f0-9]{64}\b")
 _HEX40_RE = re.compile(r"\b[A-Fa-f0-9]{40}\b")
 _HEX32_RE = re.compile(r"\b[A-Fa-f0-9]{32}\b")
-_TRAILING_PUNCT = ".,;:!?)]}'\""
+_TRAILING_PUNCT = ".,;:!?)]}'\"]"
+
+#: Правдоподобные TLD: двухбуквенные ccTLD и частые gTLD. Без этого
+#: `io.popen`, `file.read` и `System.out` из кода становились
+#: «доменами» в инспекторе и обогащении.
+_TLD_ALLOWLIST = frozenset({
+    "com", "net", "org", "edu", "gov", "mil", "int", "info", "biz",
+    "name", "pro", "mobi", "asia", "tel", "travel", "jobs", "cat",
+    "coop", "aero", "museum", "post", "io", "ai", "app", "dev",
+    "cloud", "xyz", "online", "site", "store", "shop", "tech", "space",
+    "website", "live", "news", "blog", "club", "top", "vip", "icu",
+    "work", "link", "click", "download", "zip", "mov", "wiki", "email",
+    "digital", "network", "solutions", "services", "company", "group",
+    "agency", "systems", "software", "security", "support", "host",
+    "fun", "life", "world", "today", "center", "academy", "school",
+    "institute", "finance", "money", "bank", "crypto", "exchange",
+    "market", "media", "studio", "design", "art", "photo", "video",
+    "music", "game", "games", "taxi", "city", "country", "global",
+    "one", "plus", "run", "me", "co", "cc", "tv", "su", "ru",
+    # Зарезервированы RFC 2606, но нужны синтетическим тестам.
+    "example", "test", "invalid", "localhost",
+})
 
 _SIGNATURES = (
     (b"MZ", "PE", "application/vnd.microsoft.portable-executable"),
@@ -192,6 +214,9 @@ def extract_iocs(text: str) -> dict[str, list[str]]:
     domains = []
     for candidate in _DOMAIN_RE.findall(text):
         if _IPV4_RE.fullmatch(candidate):
+            continue
+        top_level = candidate.rsplit(".", 1)[-1].lower()
+        if len(top_level) != 2 and top_level not in _TLD_ALLOWLIST:
             continue
         if candidate.lower().endswith((".png", ".jpg", ".gif", ".css", ".js")):
             continue
@@ -400,6 +425,41 @@ def split_multipart(
         if len(parts) >= max_parts:
             break
     return parts
+
+
+def iter_sample_texts(sample: dict):
+    """Текстовые фрагменты выдержки: тело и части multipart.
+
+    Бинарные тела и файлы пропускаются, иначе IOC-поиск начнёт
+    вытаскивать «домены» из сжатых данных.
+    """
+    if not isinstance(sample, dict):
+        return
+    raw = _decode_b64(sample.get("text_b64"))
+    if raw and (sample.get("is_text") or is_text(raw)):
+        yield raw
+    for part in sample.get("parts") or []:
+        if not isinstance(part, dict):
+            continue
+        data = _decode_b64(part.get("excerpt_b64"))
+        if not data:
+            continue
+        content_type = str(part.get("content_type") or "").lower()
+        if (
+            part.get("kind") == "field"
+            or content_type.startswith("text/")
+            or is_text(data)
+        ):
+            yield data
+
+
+def _decode_b64(value) -> bytes:
+    if not isinstance(value, str) or not value:
+        return b""
+    try:
+        return base64.b64decode(value, validate=True)
+    except (ValueError, TypeError):
+        return b""
 
 
 def analyze_payload(

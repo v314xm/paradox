@@ -99,6 +99,18 @@ def test_extract_iocs_ignores_invalid_ips():
     assert "example.org" in iocs["domains"]
 
 
+def test_extract_iocs_skips_code_member_access():
+    """`io.popen` — вызов Lua, а не домен с TLD `popen`."""
+    iocs = extract_iocs(
+        'local h = io.popen("whoami") file.read System.out evil.example'
+    )
+
+    assert "io.popen" not in iocs["domains"]
+    assert "file.read" not in iocs["domains"]
+    assert "System.out" not in iocs["domains"]
+    assert "evil.example" in iocs["domains"]
+
+
 def test_entropy_and_strings():
     assert entropy(b"\x00" * 64) == 0.0
     assert entropy(bytes(range(256))) > 7.9
