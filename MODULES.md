@@ -8,7 +8,7 @@
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
 **Строк кода:** ядро — 19 015, GUI — 17 383, всего 36 398
   (замер 2026-11-10)
-**Тестов:** 1361 в 159 файлах (замер 2026-11-10)
+**Тестов:** 1363 в 159 файлах (замер 2026-11-10)
 
 ---
 
@@ -202,7 +202,7 @@ Post-extract вызывается из `_extract` после чтения все
 - **decompression:** gzip/x-gzip + deflate (zlib и raw), magic-сниффинг `1f 8b`; лимит `http_body_max_decoded_bytes` = 8 МБ; brotli/zstd не сканируются
 - **nxdomain_burst:** threshold=5, window=60s, min_ratio=0.2
 - **rare_external_ip:** 1–2 соединения (`rare_external_ip_max_connections`), IP нет в `dns_answers_by_ip`, нет SNI/Host, инфрапорты (53/67/68/123/137/138/853/1900/3702/5353/5355) исключены; без DNS-ответов в захвате молчит
-- **encoded_payload:** значение ≥16 символов, base64 (std/urlsafe) или hex, декодируется в абсолютный URL/домен (`encoded_payload_min_value_len`, `encoded_payload_max_decoded_len`); тело — только `application/x-www-form-urlencoded` и не обрезанное
+- **encoded_payload:** значение ≥16 символов, base64 (std/urlsafe) или hex, декодируется в абсолютный URL/домен (`encoded_payload_min_value_len`, `encoded_payload_max_decoded_len`); тело — только `application/x-www-form-urlencoded` и не обрезанное; закодированный URL на тот же `Host` пропускается (форма `return=`)
 - **long_connections:** TCP internal→external, SYN виден, ≥1800s, ≥5 пакетов, SNI/Host не из allowlist, порты SSH/почты/VPN/БД/RDP/VNC/прокси исключены
 - **successful_bruteforce:** только вместе с `brute_force` на ту же пару; URI с `loginok`/`login_ok`/`/success`/`dashboard`; HTTP-статуса в FlowStats нет, confidence ≤0.85
 - **dns_tunneling:** qname≥50, long≥20, queries≥50
@@ -514,7 +514,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1361 тест в 159 файлах** (замер 2026-11-10, после детектора encoded_payload).
+**1363 теста в 159 файлах** (замер 2026-11-10, после детектора encoded_payload).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 

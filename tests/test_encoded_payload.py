@@ -139,6 +139,35 @@ def test_non_form_body_ignored():
     assert EncodedPayloadDetector().run(state, Config()) == []
 
 
+def test_encoded_self_url_ignored():
+    """return=http://<тот же Host>/ — обычный параметр формы."""
+    value = base64.b64encode(b"http://11.1.173.2/").decode()
+    state = _state(_request(
+        "/",
+        headers={
+            "host": "11.1.173.2",
+            "content-type": "application/x-www-form-urlencoded",
+        },
+        body=f"return={value}".encode(),
+    ))
+
+    assert EncodedPayloadDetector().run(state, Config()) == []
+
+
+def test_same_url_to_another_host_still_detected():
+    value = base64.b64encode(b"http://11.1.173.2/").decode()
+    state = _state(_request(
+        "/",
+        headers={
+            "host": "portal.example",
+            "content-type": "application/x-www-form-urlencoded",
+        },
+        body=f"return={value}".encode(),
+    ))
+
+    assert len(EncodedPayloadDetector().run(state, Config())) == 1
+
+
 def test_same_param_is_reported_once():
     state = _state(_request(f"/go?next={B64_SITE}&next={B64_SITE}"))
 

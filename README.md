@@ -1,6 +1,6 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1361%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1363%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -209,11 +209,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1359 passed
+pytest -m "not slow"           # ~25 сек, 1361 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1361 тест в 159 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1363 теста в 159 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -274,7 +274,7 @@ pre-commit install
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
 - **1.5.1 (текущий релиз)** — 24 детектора, 12 правил противоречий, GUI (9 вкладок), 1288 тестов.
-- **main (ещё не выпущено)** — волна 2+: 27 детекторов, 1361 тест. Добавлены `rare_external_ip`, `long_connections`, `successful_bruteforce` (перебор + URI вида `loginok`/`dashboard`), `encoded_payload` (base64/hex URL в query). `sni_mismatch` на FIN-2015 замерен заново: 0 findings вместо прежних 73.
+- **main (ещё не выпущено)** — волна 2+: 27 детекторов, 1363 теста. Добавлены `rare_external_ip`, `long_connections`, `successful_bruteforce` (перебор + URI вида `loginok`/`dashboard`), `encoded_payload` (base64/hex URL в query). `sni_mismatch` на FIN-2015 замерен заново: 0 findings вместо прежних 73.
 - **Волна 3 (в работе).** `theme.py`, `settings_view.py` и `main_window.py` разбиты на пакеты (`theme/`, `views/settings/`, `window/`); внешние импорты сохранены фасадами. Разбор 335 МБ ускорен с 24.2 до 14.4 с — цель «меньше 15 с» достигнута. Дальше — `markdown_reporter`, `facts`, `config`/`pipeline` и stream mode для pcap > 2 ГБ.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
 - **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
@@ -282,7 +282,7 @@ pre-commit install
 - **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, HTTP/2 (h2-фреймы + HPACK), SMB2/LDAP и AD-детекторы, REST API.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1361 passed» — локальный замер на Windows.
+цифра «1363 passed» — локальный замер на Windows.
 
 ## Вклад
 

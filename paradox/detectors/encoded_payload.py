@@ -96,6 +96,18 @@ def _decode(value: str, max_len: int) -> tuple[str, str] | None:
     return None
 
 
+def _host_of(text: str) -> str | None:
+    """Хост из абсолютного/протокол-относительного URL."""
+    if not (_URL_RE.match(text) or _PROTO_REL_RE.match(text)):
+        return None
+    try:
+        if text.startswith("//"):
+            return urlsplit("http:" + text).hostname
+        return urlsplit(text).hostname
+    except ValueError:
+        return None
+
+
 class EncodedPayloadDetector:
     name = "encoded_payload"
 
@@ -147,6 +159,15 @@ class EncodedPayloadDetector:
                     continue
                 text, encoding = decoded
                 if not _looks_like_location(text):
+                    continue
+
+                # Ссылка на самого себя (return=http://<тот же Host>/)
+                # — обычный параметр формы, ничего не прячет.
+                request_host = (
+                    (obj.headers or {}).get("host") or ""
+                ).split(":", 1)[0].lower()
+                decoded_host = (_host_of(text) or "").lower()
+                if request_host and decoded_host == request_host:
                     continue
 
                 dedup = (key, param, text, in_body)
