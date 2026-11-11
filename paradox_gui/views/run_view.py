@@ -1,7 +1,9 @@
 """Вкладка «Прогон».
 
 Цепочка: drop zone → QThread(worker) → run_pipeline → report →
-summary grid + секция противоречий + таблица findings.
+наблюдения (с плитками итога) + аномалии + внимание + секция
+противоречий + таблица findings. Итоговые счётчики захвата — в
+нижней строке «Готово».
 """
 import time
 from pathlib import Path
@@ -27,12 +29,13 @@ from paradox_gui.dialogs.contradiction_dialog import ContradictionDialog
 from paradox_gui.dialogs.finding_dialog import FindingDialog
 from paradox_gui.dialogs.graph_dialog import GraphDialog
 from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
+from paradox_gui.formatting import fmt_bytes, fmt_count
 from paradox_gui.i18n import tr
 from paradox_gui.widgets.absence_panel import AbsencePanel
 from paradox_gui.widgets.contradictions_section import ContradictionsSection
 from paradox_gui.widgets.drop_zone import DropZone
+from paradox_gui.widgets.finding_actions import FindingActionsPanel
 from paradox_gui.widgets.findings_table import FindingsTable
-from paradox_gui.widgets.summary_grid import SummaryGrid
 from paradox_gui.widgets.toast import ToastManager
 from paradox_gui.workers.analysis_worker import AnalysisWorker
 
@@ -44,6 +47,13 @@ class RunView(QWidget):
     analysis_started = Signal(str)
     analysis_finished = Signal(object)
     analysis_failed = Signal(str)
+    # >>> ПЕРЕХОДЫ В ИНСТРУМЕНТЫ <<<
+    # Панель справа от находок «проваливается» в инструмент по
+    # выбранной строке: MainWindow переключает вкладку и выделяет
+    # нужную выдержку/IOC. Сам RunView вкладок не знает.
+    payload_requested = Signal(object)
+    enrich_requested = Signal(object)
+    # >>> /ПЕРЕХОДЫ В ИНСТРУМЕНТЫ <<<
     # >>> ОСТАНОВКА <<<
     # Отдельный сигнал от analysis_failed: «остановил пользователь» —
     # не ошибка, и в статус-баре окна должно быть «Остановлено», а не
@@ -86,6 +96,7 @@ class RunView(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.NoFrame)
+        self._scroll = scroll
         inner = QWidget()
         layout = QVBoxLayout(inner)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -133,18 +144,33 @@ class RunView(QWidget):
 
         layout.addLayout(progress_row)
 
-        # --- Summary grid ---
-        self.summary = SummaryGrid()
-        layout.addWidget(self.summary)
+        # --- Наблюдения, аномалии, внимание ---
         self.observations = ObservationsPanel()
+        self.observations.findings_requested.connect(
+            self._scroll_to_findings
+        )
+        self.observations.contradictions_requested.connect(
+            self._scroll_to_contradictions
+        )
+        self.observations.files_requested.connect(self._on_carved_clicked)
+        self.observations.certificates_requested.connect(
+            self._on_certificates_clicked
+        )
         layout.addWidget(self.observations)
 
         self.absence = AbsencePanel()
+        self.absence.host_story_requested.connect(
+            self._on_host_story_requested
+        )
         layout.addWidget(self.absence)
         self.highlights = HighlightsPanel()
         self.highlights.copy_requested.connect(self._on_highlight_copied)
         self.highlights.host_story_requested.connect(
             self._on_host_story_requested
+        )
+        self.highlights.finding_requested.connect(self._on_finding_details)
+        self.highlights.contradiction_requested.connect(
+            self._on_contra_details
         )
         layout.addWidget(self.highlights)
 
@@ -162,43 +188,53 @@ class RunView(QWidget):
         lbl_findings.setObjectName("h1")
         findings_header.addWidget(lbl_findings)
         findings_header.addStretch(1)
-
-        self.btn_graph = QPushButton(tr("run.graph"))
-        self.btn_graph.setObjectName("small")
-        self.btn_graph.setEnabled(False)
-        self.btn_graph.clicked.connect(self._on_graph_clicked)
-        findings_header.addWidget(self.btn_graph)
-
-        self.btn_attack_graph = QPushButton(tr("run.attack_graph"))
-        self.btn_attack_graph.setObjectName("small")
-        self.btn_attack_graph.setEnabled(False)
-        self.btn_attack_graph.clicked.connect(self._on_attack_graph_clicked)
-        findings_header.addWidget(self.btn_attack_graph)
-
-        self.btn_carved = QPushButton(tr("run.files"))
-        self.btn_carved.setObjectName("small")
-        self.btn_carved.setEnabled(False)
-        self.btn_carved.clicked.connect(self._on_carved_clicked)
-        findings_header.addWidget(self.btn_carved)
-
-        self.btn_what_if = QPushButton(tr("run.what_if"))
-        self.btn_what_if.setObjectName("small")
-        self.btn_what_if.setEnabled(False)
-        self.btn_what_if.clicked.connect(self._on_what_if_clicked)
-
-        self.btn_reset_filter = QPushButton(tr("run.reset_filter"))
-        self.btn_reset_filter.setObjectName("filterChip")
-        self.btn_reset_filter.setVisible(False)
-        self.btn_reset_filter.clicked.connect(self._on_reset_what_if)
-
-        findings_header.addWidget(self.btn_what_if)
-        findings_header.addWidget(self.btn_reset_filter)
         layout.addLayout(findings_header)
+
+        # Слева — таблица, справа — колонка действий: по выбранной
+        # находке кнопки-ссылки проваливаются в инструменты.
+        findings_row = QHBoxLayout()
+        findings_row.setContentsMargins(0, 0, 0, 0)
+        findings_row.setSpacing(12)
 
         self.findings = FindingsTable()
         self.findings.row_activated.connect(self._on_finding_details)
         self.findings.host_story_requested.connect(self._on_host_story_requested)
-        layout.addWidget(self.findings, stretch=1)
+        findings_row.addWidget(self.findings, stretch=1)
+
+        self.finding_actions = FindingActionsPanel()
+        self.findings.selection_changed.connect(
+            self.finding_actions.set_finding
+        )
+        self.finding_actions.details_requested.connect(
+            self._on_finding_details
+        )
+        self.finding_actions.payload_requested.connect(
+            self.payload_requested
+        )
+        self.finding_actions.enrich_requested.connect(
+            self.enrich_requested
+        )
+        self.finding_actions.host_story_requested.connect(
+            self._on_host_story_requested
+        )
+        self.finding_actions.copy_requested.connect(
+            self._on_highlight_copied
+        )
+        self.finding_actions.graph_requested.connect(self._on_graph_clicked)
+        self.finding_actions.attack_graph_requested.connect(
+            self._on_attack_graph_clicked
+        )
+        self.finding_actions.carved_requested.connect(
+            self._on_carved_clicked
+        )
+        self.finding_actions.what_if_requested.connect(
+            self._on_what_if_clicked
+        )
+        self.finding_actions.reset_filter_requested.connect(
+            self._on_reset_what_if
+        )
+        findings_row.addWidget(self.finding_actions, stretch=0)
+        layout.addLayout(findings_row)
 
         # --- Статус-строка внизу ---
         self.status_label = QLabel(tr("run.no_file"))
@@ -309,7 +345,6 @@ class RunView(QWidget):
         self._stop_requested = False
         self._last_report = report
         s = report.get("summary", {})
-        self.summary.set_values(s)
         # AUTO-INSERTED-UPDATE-CALL
         if hasattr(self, 'observations'):
             self.observations.update_report(report)
@@ -320,20 +355,22 @@ class RunView(QWidget):
         self.contradictions.set_contradictions(report.get("contradictions", []))
         self._original_findings = report.get("findings", []).copy()
         self.findings.set_findings(self._original_findings)
-        self.btn_what_if.setEnabled(True)
-        self.btn_graph.setEnabled(True)
         _ag = report.get('attack_graph') or {}
         # v1.2.1: включаем если есть ЛЮБЫЕ данные графа (не только paths).
         _has_attack_data = bool(_ag.get('nodes') or _ag.get('paths'))
-        self.btn_attack_graph.setEnabled(_has_attack_data)
-        self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
-        self.btn_reset_filter.setVisible(False)
+        self.finding_actions.set_report_flags(
+            has_report=True,
+            has_attack_graph=_has_attack_data,
+            has_files=bool((report.get('carved_files') or {}).get('total')),
+        )
+        self.finding_actions.set_filter_active(False)
 
         self.status_label.setText(tr(
             "run.done",
-            findings=s.get('findings', 0),
-            contradictions=s.get('contradictions', 0),
-            duration=s.get('duration_sec', 0),
+            packets=self._fmt_count(s.get("packets", 0)),
+            size=self._fmt_size(s.get("size_bytes")),
+            findings=self._fmt_count(s.get("findings", 0)),
+            contradictions=self._fmt_count(s.get("contradictions", 0)),
         ))
         self.toasts.show(
             tr(
@@ -368,7 +405,6 @@ class RunView(QWidget):
         self._stop_requested = False
         self._last_report = report
         s = report.get("summary", {}) or {}
-        self.summary.set_values(s)
         if hasattr(self, "observations"):
             self.observations.update_report(report)
         if hasattr(self, "absence"):
@@ -380,18 +416,19 @@ class RunView(QWidget):
         )
         self._original_findings = report.get("findings", []).copy()
         self.findings.set_findings(self._original_findings)
-        self.btn_what_if.setEnabled(True)
-        self.btn_graph.setEnabled(True)
         _ag = report.get('attack_graph') or {}
-        self.btn_attack_graph.setEnabled(
-            bool(_ag.get('nodes') or _ag.get('paths'))
+        self.finding_actions.set_report_flags(
+            has_report=True,
+            has_attack_graph=bool(_ag.get('nodes') or _ag.get('paths')),
+            has_files=bool((report.get('carved_files') or {}).get('total')),
         )
-        self.btn_carved.setEnabled(bool((report.get('carved_files') or {}).get('total')))
-        self.btn_reset_filter.setVisible(False)
+        self.finding_actions.set_filter_active(False)
         self.status_label.setText(tr(
             "run.loaded",
-            findings=s.get('findings', 0),
-            contradictions=s.get('contradictions', 0),
+            packets=self._fmt_count(s.get("packets", 0)),
+            size=self._fmt_size(s.get("size_bytes")),
+            findings=self._fmt_count(s.get("findings", 0)),
+            contradictions=self._fmt_count(s.get("contradictions", 0)),
         ))
         self._set_busy(False)
 
@@ -471,6 +508,22 @@ class RunView(QWidget):
             return
         CarvedFilesDialog(self._last_report, self).exec()
 
+    def _on_certificates_clicked(self) -> None:
+        if not self._last_report:
+            return
+        from paradox_gui.dialogs.certificates_dialog import (
+            CertificatesDialog,
+        )
+        CertificatesDialog(self._last_report, self).exec()
+
+    def _scroll_to_findings(self) -> None:
+        self._scroll.ensureWidgetVisible(self.findings, 0, 24)
+        self.findings.setFocus()
+
+    def _scroll_to_contradictions(self) -> None:
+        self._scroll.ensureWidgetVisible(self.contradictions, 0, 24)
+        self.contradictions.setFocus()
+
     def _on_graph_clicked(self) -> None:
         if not self._last_report:
             return
@@ -504,7 +557,7 @@ class RunView(QWidget):
         removed_count = res["removed_count"]
 
         self.findings.set_findings(remaining)
-        self.btn_reset_filter.setVisible(True)
+        self.finding_actions.set_filter_active(True)
 
         self.toasts.show(
             tr("run.what_if_removed", count=removed_count),
@@ -516,7 +569,7 @@ class RunView(QWidget):
 
     def _on_reset_what_if(self) -> None:
         self.findings.set_findings(self._original_findings)
-        self.btn_reset_filter.setVisible(False)
+        self.finding_actions.set_filter_active(False)
         self.status_label.setText(
             tr("run.filter_reset", count=len(self._original_findings))
         )
@@ -574,8 +627,17 @@ class RunView(QWidget):
         self.stop_btn.setEnabled(busy)
         # >>> /ОСТАНОВКА <<<
 
+    @staticmethod
+    def _fmt_count(value) -> str:
+        return fmt_count(value or 0)
+
+    @staticmethod
+    def _fmt_size(value) -> str:
+        if not value:
+            return "—"
+        return fmt_bytes(int(value))
+
     def _reset_results(self) -> None:
-        self.summary.clear()
         self.contradictions.clear()
         self.findings.clear()
         self.observations.clear()
@@ -583,14 +645,8 @@ class RunView(QWidget):
         self.highlights.clear()
         self._last_report = None
         self._original_findings = []
-        if hasattr(self, "btn_carved"):
-            self.btn_carved.setEnabled(False)
-            self.btn_carved.setText(tr("run.files"))
-        if hasattr(self, "btn_what_if"):
-            self.btn_what_if.setEnabled(False)
-            self.btn_graph.setEnabled(False)
-            self.btn_attack_graph.setEnabled(False)
-            self.btn_reset_filter.setVisible(False)
+        if hasattr(self, "finding_actions"):
+            self.finding_actions.clear()
 
     # =========================================================================
     # ОСТАНОВКА

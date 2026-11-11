@@ -457,6 +457,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `field_help.py` | 230 | Tooltips полей Config |
 | `contradiction_help.py` | 49 | Tooltips правил |
 | `ioc_utils.py` | 81 | `detect_ioc_type`, `provider_link` |
+| `formatting.py` | 20 | `fmt_bytes` / `fmt_count` — единое форматирование чисел в GUI |
 | `payload_decode.py` | 152 | Цепочка URL → Base64 → Gzip/Deflate; `Variant.label` для деобфускации |
 | `payload_highlighter.py` | 158 | Язык по содержимому, sinks/источники |
 | `payload_preview.py` | 221 | Санитайзер разметки для статического предпросмотра |
@@ -466,8 +467,8 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Файл | Строк | Что делает |
 |---|---|---|
 | `i18n/__init__.py` | 122 | `tr()`, `set_language`, `get_language`, `validate_translations`; fallback текущий → en → ru → сам ключ |
-| `i18n/_ru.py` | 850 | Русские строки (дефолт) |
-| `i18n/_en.py` | 840 | Английские строки |
+| `i18n/_ru.py` | 981 | Русские строки (дефолт) |
+| `i18n/_en.py` | 981 | Английские строки |
 
 Ключи плоские dot-нотации (`tab.run`, `menu.file.open`), подстановка
 через `str.format()`. Склонений нет. Неизвестный язык —
@@ -477,10 +478,10 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 | Файл | Строк | Вкладка |
 |---|---|---|
-| `run_view.py` | 685 | **Прогон** — drop zone, summary, findings, кнопки «Граф связей/атаки/Файлы/What-If» |
+| `run_view.py` | 742 | **Прогон** — drop zone, summary, findings, правая колонка действий («Граф связей/атаки/Файлы/What-If», переходы в «Код инжекта» и «Обогащение») |
 | `history_view.py` | 588 | **История** — список прогонов + HTML-превью |
-| `payload_view.py` | 1353 | **Код инжекта** — поиск, hex-страницы, части multipart, деобфускация, инспектор, экспорт |
-| `enrich_view.py` | 578 | **Обогащение** — IOC-выбор + результаты |
+| `payload_view.py` | 1372 | **Код инжекта** — поиск, hex-страницы, части multipart, деобфускация, инспектор, экспорт |
+| `enrich_view.py` | 620 | **Обогащение** — IOC-выбор + результаты |
 | `settings/` | 2611 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
 | `ipv6_view.py` | 126 | **IPv6** — NDP + потоки |
 | `timeline_view.py` | 259 | **Таймлайн** — kill-chain tree |
@@ -502,6 +503,7 @@ Threat Intel, Производительность.
 | `contradiction_dialog.py` | 195 | Детали Contradiction |
 | `finding_dialog.py` | 189 | Детали Finding |
 | `carved_files_dialog.py` | 155 | Список payload'ов с предупреждением |
+| `certificates_dialog.py` | 127 | TLS-сертификаты: соединение, CN, срок, self-signed, SAN в tooltip |
 | `host_story_dialog.py` | 95 | История хоста |
 | `what_if_dialog.py` | 72 | Ввод исключений для What-If |
 
@@ -509,16 +511,16 @@ Threat Intel, Производительность.
 
 | Файл | Строк | Что |
 |---|---|---|
-| `highlights_panel.py` | 463 | «Что привлекло внимание» — карточки, фильтры, история хоста |
+| `highlights_panel.py` | 684 | «Что привлекло внимание» — приоритетные карточки (противоречия, находки, объём, DNS, HTTP, потоки), фильтры, история хоста |
 | `editable_list.py` | 369 | Список с inline-edit и импортом/экспортом |
-| `findings_table.py` | 344 | Таблица с фильтрами (поиск, тип, conf) |
+| `findings_table.py` | 374 | Таблица с фильтрами (поиск, тип, conf) |
+| `finding_actions.py` | 302 | Правая колонка действий у находок: детали, переходы в «Код инжекта»/«Обогащение», инструменты отчёта |
+| `observations_panel.py` | 472 | «Что видел инструмент»: строки разбора (HTTP/DNS/потоки/хосты/TCP/файлы, трафик, протоколы, TLS, ошибки) + кликабельные плитки итога с severity |
+| `absence_panel.py` | 254 | «Аномалии»: DNS без ответа, TCP без ответа, объём по хостам с выбросами |
 | `provider_card.py` | 222 | Карточка провайдера обогащения |
 | `contradiction_card.py` | 169 | Карточка одного правила |
 | `drop_zone.py` | 158 | Drag&drop + логотип |
-| `summary_grid.py` | 151 | Плитки сводки (packets/flows/findings/contradictions/size/time) |
-| `observations_panel.py` | 125 | «Что видел инструмент» |
 | `toast.py` | 120 | Всплывающие уведомления |
-| `absence_panel.py` | 112 | Оборванные сессии |
 | `contradictions_section.py` | 111 | Секция со скроллом |
 
 ### Workers

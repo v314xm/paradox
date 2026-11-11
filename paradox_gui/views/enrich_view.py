@@ -240,6 +240,47 @@ class EnrichView(QWidget):
         """Мердж переопределений Config из Настроек. Как в RunView."""
         self._config_overrides.update(overrides)
 
+    def focus_finding(self, finding: dict) -> int:
+        """Отметить в списке кандидатов IOC конкретной находки.
+
+        Переход из таблицы находок: IOC считаются тем же
+        `collect_iocs_from_findings`, что и при заполнении таблицы,
+        поэтому отмеченными оказываются ровно те строки, которые
+        пользователь увидел бы глазами. Возвращает их число.
+        """
+        if not isinstance(finding, dict):
+            return 0
+        try:
+            from paradox.integrations.enricher import (
+                collect_iocs_from_findings,
+            )
+        except ImportError:
+            return 0
+
+        wanted = set(collect_iocs_from_findings([finding]))
+        rows = [
+            row for row, key in enumerate(self._candidates)
+            if key in wanted
+        ]
+        if not rows:
+            return 0
+
+        self._cand_table.blockSignals(True)
+        try:
+            for row in rows:
+                item = self._cand_table.item(row, C_CHECK)
+                if item is not None:
+                    item.setCheckState(Qt.CheckState.Checked)
+        finally:
+            self._cand_table.blockSignals(False)
+
+        self._cand_table.selectRow(rows[0])
+        first = self._cand_table.item(rows[0], C_IOC)
+        if first is not None:
+            self._cand_table.scrollToItem(first)
+        self._update_status(None)
+        return len(rows)
+
     # =========================================================================
     # HANDLERS
     # =========================================================================

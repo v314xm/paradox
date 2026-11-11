@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from paradox_gui.formatting import fmt_bytes as _fmt_bytes
 from paradox_gui.i18n import tr
 
 # Больше шести карточек — это уже вторая таблица, а панель должна
@@ -38,20 +39,183 @@ _KIND_TITLES = {
     "http": "HTTP",
     "flow": "FLOW",
     "ext": "EXT",
+    "finding": "FINDING",
+    "contra": "CONTRA",
+    "upload": "UPLOAD",
+    "download": "DOWNLOAD",
+    "dns": "DNS",
 }
 
+#: Чип → какие виды карточек он показывает. None — все.
+_CHIP_GROUPS: dict[str | None, tuple[str, ...] | None] = {
+    None: None,
+    "finding": ("finding",),
+    "contra": ("contra",),
+    "volume": ("upload", "download"),
+    "dns": ("dns",),
+    "http": ("http",),
+    "flow": ("flow",),
+    "ext": ("ext",),
+}
 
-def _fmt_bytes(n: int) -> str:
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if n < 1024:
-            return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
-        n /= 1024
-    return f"{n:.1f} PB"
+_SEVERITY_RANK = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
 
 
 def _tooltip(lines: list[str]) -> str:
     """Tooltip как rich text: иначе IP/URI с '<' ломают разметку."""
     return "<br>".join(html.escape(line) for line in lines if line)
+
+
+def _fact_lines(facts, limit: int = 4) -> list[str]:
+    out = []
+    for fact in facts or []:
+        if not isinstance(fact, dict):
+            continue
+        out.append(
+            f"{fact.get('source', '?')}: {fact.get('key', '?')} = "
+            f"{fact.get('value', '?')}"
+        )
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _contradiction_entries(report: dict) -> list[dict]:
+    """Самое серьёзное противоречие — первым: это и есть «почему важно»."""
+    items = [
+        c for c in (report.get("contradictions") or [])
+        if isinstance(c, dict)
+    ]
+    if not items:
+        return []
+    items.sort(key=lambda c: (
+        _SEVERITY_RANK.get(str(c.get("severity", "")).lower(), 5),
+        -(c.get("confidence") or 0),
+    ))
+    c = items[0]
+    severity = str(c.get("severity") or "?")
+    subject = str(c.get("subject") or "?")
+    rule = str(c.get("rule") or "")
+    hint = str(c.get("resolution_hint") or "")
+    confidence = c.get("confidence")
+    return [{
+        "kind": "contra",
+        "primary": subject,
+        "secondary": f"{severity.upper()} · {hint or rule}",
+        "metric": f"{confidence:.2f}" if isinstance(
+            confidence, (int, float)
+        ) else "",
+        "copy_value": subject,
+        "contradiction": c,
+        "tooltip": [
+            f"{severity.upper()} · {rule}",
+            subject,
+            hint,
+            *_fact_lines(c.get("facts")),
+        ],
+    }]
+
+
+def _finding_entries(report: dict) -> list[dict]:
+    """Две находки с наибольшей уверенностью."""
+    items = [
+        f for f in (report.get("findings") or [])
+        if isinstance(f, dict)
+    ]
+    items.sort(key=lambda f: -(f.get("confidence") or 0))
+
+    entries = []
+    for f in items[:2]:
+        f_type = str(f.get("type") or "?")
+        value = str(f.get("value") or "")
+        confidence = f.get("confidence")
+        mitre = f.get("mitre_techniques") or ()
+        if isinstance(mitre, str):
+            mitre = (mitre,)
+        mitre = tuple(str(t) for t in mitre)
+        src = f.get("src_ip")
+        dst = f.get("dst_ip")
+        metric = (
+            f"{confidence:.2f}" if isinstance(confidence, (int, float)) else ""
+        )
+        entries.append({
+            "kind": "finding",
+            "primary": value or f_type,
+            "secondary": f_type + (f" · {mitre[0]}" if mitre else ""),
+            "metric": metric,
+            "copy_value": value,
+            "finding": f,
+            "tooltip": [
+                f_type,
+                value,
+                f"confidence: {metric}" if metric else "",
+                f"MITRE: {', '.join(mitre)}" if mitre else "",
+                f"{src} → {dst}" if src and dst else "",
+            ],
+        })
+    return entries
+
+
+def _volume_entries(entities: dict) -> list[dict]:
+    """Хост с самым большим переносом: отправка или скачивание."""
+    internal = [
+        e for e in (entities.get("internal") or [])
+        if isinstance(e, dict) and e.get("ip")
+    ]
+    if not internal:
+        return []
+    best = max(
+        internal,
+        key=lambda e: max(
+            int(e.get("bytes_out") or 0), int(e.get("bytes_in") or 0),
+        ),
+    )
+    up = int(best.get("bytes_out") or 0)
+    down = int(best.get("bytes_in") or 0)
+    total = max(up, down)
+    if total <= 0:
+        return []
+
+    upload = up >= down
+    ip = str(best.get("ip"))
+    roles = ", ".join(best.get("roles") or []) or "—"
+    flows = int(best.get("flows_out") or 0) + int(best.get("flows_in") or 0)
+    return [{
+        "kind": "upload" if upload else "download",
+        "primary": ip,
+        "secondary": roles,
+        "metric": ("↑ " if upload else "↓ ") + _fmt_bytes(total),
+        "copy_value": ip,
+        "host_ip": ip,
+        "tooltip": [
+            ip,
+            f"roles: {roles}",
+            f"↑ {_fmt_bytes(up)} · ↓ {_fmt_bytes(down)}",
+            f"flows: {flows}",
+        ],
+    }]
+
+
+def _dns_entries(report: dict) -> list[dict]:
+    """Самый частый NXDOMAIN: домена нет, а хост его спрашивает."""
+    dns = report.get("dns", {}) or {}
+    items = [
+        q for q in (dns.get("nxdomain") or [])
+        if isinstance(q, dict) and q.get("name")
+    ]
+    if not items:
+        return []
+    top = max(items, key=lambda q: int(q.get("count") or 0))
+    count = int(top.get("count") or 0)
+    name = str(top.get("name"))
+    return [{
+        "kind": "dns",
+        "primary": name,
+        "secondary": tr("high.nxdomain", count=count),
+        "metric": str(count),
+        "copy_value": name,
+        "tooltip": [name, tr("high.nxdomain", count=count)],
+    }]
 
 
 class _ElidedLabel(QLabel):
@@ -128,6 +292,8 @@ class _HighlightCard(QFrame):
 
     clicked = Signal(str)
     host_requested = Signal(str)
+    finding_requested = Signal(object)
+    contradiction_requested = Signal(object)
 
     def __init__(
         self,
@@ -138,18 +304,24 @@ class _HighlightCard(QFrame):
         tooltip: list[str],
         copy_value: str = "",
         host_ip: str = "",
+        finding: dict | None = None,
+        contradiction: dict | None = None,
     ) -> None:
         super().__init__()
         self.setObjectName("highlightCard")
         self.setProperty("kind", kind)
         self._copy_value = copy_value
         self._host_ip = host_ip
+        self._finding = finding
+        self._contradiction = contradiction
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        hint = (
-            tr("high.copy_hint_host") if host_ip
-            else tr("high.copy_hint")
-        )
+        if finding is not None or contradiction is not None:
+            hint = tr("high.open_hint")
+        elif host_ip:
+            hint = tr("high.copy_hint_host")
+        else:
+            hint = tr("high.copy_hint")
         self.setToolTip(_tooltip(tooltip + [hint]))
 
         layout = QHBoxLayout(self)
@@ -190,7 +362,7 @@ class _HighlightCard(QFrame):
 
         for label in (self._primary, self._secondary):
             label.clicked.connect(self._emit_copy)
-            label.double_clicked.connect(self._emit_host)
+            label.double_clicked.connect(self._emit_open)
 
     # ---------- действия ----------
 
@@ -202,8 +374,12 @@ class _HighlightCard(QFrame):
         super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event) -> None:  # noqa: N802 (Qt API)
-        if event.button() == Qt.MouseButton.LeftButton and self._host_ip:
-            self._emit_host()
+        if event.button() == Qt.MouseButton.LeftButton and (
+            self._finding is not None
+            or self._contradiction is not None
+            or self._host_ip
+        ):
+            self._emit_open()
             event.accept()
             return
         super().mouseDoubleClickEvent(event)
@@ -212,8 +388,12 @@ class _HighlightCard(QFrame):
         if self._copy_value:
             self.clicked.emit(self._copy_value)
 
-    def _emit_host(self) -> None:
-        if self._host_ip:
+    def _emit_open(self) -> None:
+        if self._finding is not None:
+            self.finding_requested.emit(self._finding)
+        elif self._contradiction is not None:
+            self.contradiction_requested.emit(self._contradiction)
+        elif self._host_ip:
             self.host_requested.emit(self._host_ip)
 
     # Доступ к содержимому нужен тестам: проверять elide по пикселям
@@ -237,6 +417,8 @@ class _HighlightCard(QFrame):
 class HighlightsPanel(QFrame):
     copy_requested = Signal(str)
     host_story_requested = Signal(str)
+    finding_requested = Signal(object)
+    contradiction_requested = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -279,6 +461,10 @@ class HighlightsPanel(QFrame):
         self._chips: dict[str | None, QPushButton] = {}
         specs = (
             (None, tr("high.filter_all")),
+            ("finding", tr("high.filter_findings")),
+            ("contra", tr("high.filter_contra")),
+            ("volume", tr("high.filter_volume")),
+            ("dns", "DNS"),
             ("http", "HTTP"),
             ("flow", tr("high.filter_flow")),
             ("ext", tr("high.filter_ext")),
@@ -305,11 +491,15 @@ class HighlightsPanel(QFrame):
         self._all_entries = self._collect(report)
         self._filter = None
 
-        present = {e["kind"] for e in self._all_entries}
+        # Чипы показываем только для того, что реально попало на панель:
+        # иначе фильтр открывал бы пустой список из-за потолка карточек.
+        present = {e["kind"] for e in self._all_entries[:_MAX_CARDS]}
         for key, chip in self._chips.items():
             chip.setChecked(key is None)
+            kinds = _CHIP_GROUPS.get(key)
             chip.setVisible(
-                bool(self._all_entries) and (key is None or key in present)
+                bool(self._all_entries)
+                and (kinds is None or bool(present.intersection(kinds)))
             )
 
         if not self._all_entries:
@@ -342,9 +532,10 @@ class HighlightsPanel(QFrame):
         self._apply_filter()
 
     def _apply_filter(self, animate: bool = False) -> None:
+        kinds = _CHIP_GROUPS.get(self._filter)
         entries = [
             e for e in self._all_entries
-            if self._filter is None or e["kind"] == self._filter
+            if kinds is None or e["kind"] in kinds
         ][:_MAX_CARDS]
 
         self._clear_cards()
@@ -359,6 +550,10 @@ class HighlightsPanel(QFrame):
             card = _HighlightCard(**entry)
             card.clicked.connect(self.copy_requested.emit)
             card.host_requested.connect(self.host_story_requested.emit)
+            card.finding_requested.connect(self.finding_requested.emit)
+            card.contradiction_requested.connect(
+                self.contradiction_requested.emit
+            )
             self._layout.addWidget(card)
             self._cards.append(card)
             if animate:
@@ -377,12 +572,17 @@ class HighlightsPanel(QFrame):
 
     def _fade_in(self, card: _HighlightCard) -> None:
         # Отложенный таймер мог сработать после пересборки панели:
-        # к этому моменту карточки уже нет в списке.
+        # к этому моменту карточки уже нет в списке. Панель могла быть
+        # и уничтожена целиком — тогда C++-объект карточки удалён, и
+        # любое обращение к нему бросает RuntimeError.
         if card not in self._cards:
             return
-        effect = QGraphicsOpacityEffect(card)
-        card.setGraphicsEffect(effect)
-        anim = QPropertyAnimation(effect, b"opacity", card)
+        try:
+            effect = QGraphicsOpacityEffect(card)
+            card.setGraphicsEffect(effect)
+            anim = QPropertyAnimation(effect, b"opacity", card)
+        except RuntimeError:
+            return
         anim.setDuration(180)
         anim.setStartValue(0.0)
         anim.setEndValue(1.0)
@@ -397,7 +597,13 @@ class HighlightsPanel(QFrame):
         flows = report.get("flows", {}) or {}
         entities = report.get("entities", {}) or {}
 
+        # Порядок = приоритет: сначала то, что объясняет «почему это
+        # важно», затем самые крупные разговоры. Потолок карточек
+        # отрезает хвост, а не начало.
         entries: list[dict] = []
+        entries += _contradiction_entries(report)
+        entries += _finding_entries(report)
+        entries += _volume_entries(entities)
 
         for u in (http.get("top_uris") or [])[:3]:
             method = str(u.get("method", "?"))
@@ -439,6 +645,8 @@ class HighlightsPanel(QFrame):
                     f"bytes: {size}",
                 ],
             })
+
+        entries += _dns_entries(report)
 
         for e in (entities.get("external", []) or [])[:2]:
             ip = str(e.get("ip", "?"))

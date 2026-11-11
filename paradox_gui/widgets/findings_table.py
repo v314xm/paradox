@@ -58,6 +58,8 @@ class FindingsTable(QFrame):
     # object, а не dict — стабильнее в PySide6.
     row_activated = Signal(object)
     host_story_requested = Signal(str)
+    #: Текущая строка (dict) или None — для правой колонки действий.
+    selection_changed = Signal(object)
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -111,11 +113,18 @@ class FindingsTable(QFrame):
                 self._table.setColumnWidth(i, width)
 
         self._table.cellDoubleClicked.connect(self._on_double_click)
+        self._table.itemSelectionChanged.connect(self._emit_selection)
         self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._table.customContextMenuRequested.connect(self._on_context_menu)
         layout.addWidget(self._table)
 
     # ---------- публичный API ----------
+
+    def selected_finding(self) -> dict | None:
+        """Текущая находка или None. Для правой колонки действий."""
+        item = self._table.item(self._table.currentRow(), 0)
+        data = item.data(_ROW_DATA_ROLE) if item is not None else None
+        return data if isinstance(data, dict) else None
 
     def set_findings(self, findings: list[dict]) -> None:
         self._findings_cache = list(findings)
@@ -125,6 +134,7 @@ class FindingsTable(QFrame):
         if not findings:
             self._rebuild_type_filter()
             self._count_label.setText("")
+            self.selection_changed.emit(None)
             self.setVisible(False)
             return
 
@@ -143,6 +153,7 @@ class FindingsTable(QFrame):
     def clear(self) -> None:
         self._table.setRowCount(0)
         self._count_label.setText("")
+        self.selection_changed.emit(None)
         self.setVisible(False)
 
     # ---------- внутреннее ----------
@@ -330,6 +341,25 @@ class FindingsTable(QFrame):
             self._count_label.setText(
                 tr("find.count_filtered", shown=shown, total=total)
             )
+        self._ensure_visible_selection()
+
+    def _ensure_visible_selection(self) -> None:
+        """Держать выбранной видимую строку: панель действий смотрит на неё.
+
+        После фильтрации текущая строка может оказаться скрытой — тогда
+        выбираем первую видимую, чтобы кнопки справа не врали.
+        """
+        row = self._table.currentRow()
+        if row >= 0 and not self._table.isRowHidden(row):
+            return
+        for candidate in range(self._table.rowCount()):
+            if not self._table.isRowHidden(candidate):
+                self._table.selectRow(candidate)
+                return
+        self.selection_changed.emit(None)
+
+    def _emit_selection(self) -> None:
+        self.selection_changed.emit(self.selected_finding())
 
     @staticmethod
     def _format_ts(ts) -> str:

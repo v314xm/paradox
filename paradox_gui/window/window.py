@@ -136,6 +136,9 @@ class MainWindow(
         self.run_view.analysis_cancelled.connect(self._on_analysis_cancelled)
         # Новый прогон — старые выдержки уже не про этот отчёт.
         self.run_view.analysis_started.connect(self.payload_view.clear)
+        # Ссылки из правой панели находок проваливаются в инструмент.
+        self.run_view.payload_requested.connect(self._on_finding_payload)
+        self.run_view.enrich_requested.connect(self._on_finding_enrich)
 
         self.settings_view.thresholds_applied.connect(
             self.run_view.set_config_overrides

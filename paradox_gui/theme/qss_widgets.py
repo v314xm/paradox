@@ -51,11 +51,11 @@ QFrame#summaryTile {{
     border: 1px solid {border};
     border-radius: 8px;
 }}
-QFrame#summaryTile[hasContra="true"] {{
-    border: 1px solid rgba(255, 85, 85, 0.5);
-}}
 QFrame#summaryTile:hover {{
     border-color: #4a4d5e;
+}}
+QFrame#summaryTile[hasContra="true"] {{
+    border-color: rgba(255, 85, 85, 0.5);
 }}
 QLabel#summaryValue {{
     font-size: 22px;
@@ -66,16 +66,7 @@ QLabel#summaryValue[empty="true"] {{
     color: {text_muted};
     font-weight: 500;
 }}
-QLabel#summaryValueContra {{
-    font-size: 22px;
-    font-weight: 700;
-    color: {text};
-}}
-QLabel#summaryValueContra[empty="true"] {{
-    color: {text_muted};
-    font-weight: 500;
-}}
-QLabel#summaryValueContra[hasContra="true"] {{
+QLabel#summaryValue[hasContra="true"] {{
     color: {danger};
 }}
 
@@ -117,6 +108,10 @@ QLabel#metricDot[kind="flow"]   {{ background-color: {high}; }}
 QLabel#metricDot[kind="hosts"]  {{ background-color: {success}; }}
 QLabel#metricDot[kind="tcp"]    {{ background-color: {medium}; }}
 QLabel#metricDot[kind="carved"] {{ background-color: {violet}; }}
+QLabel#metricDot[kind="traffic"] {{ background-color: {high}; }}
+QLabel#metricDot[kind="proto"]   {{ background-color: {accent}; }}
+QLabel#metricDot[kind="tls"]     {{ background-color: {violet}; }}
+QLabel#metricDot[kind="diag"]    {{ background-color: {text_muted}; }}
 QLabel#panelBody {{
     color: {text};
     font-size: 13px;
@@ -139,6 +134,11 @@ QFrame#highlightCard {{
 }}
 QFrame#highlightCard[kind="flow"] {{ border-left-color: {info}; }}
 QFrame#highlightCard[kind="ext"]  {{ border-left-color: {high}; }}
+QFrame#highlightCard[kind="contra"]   {{ border-left-color: {critical}; }}
+QFrame#highlightCard[kind="finding"]  {{ border-left-color: {high}; }}
+QFrame#highlightCard[kind="upload"]   {{ border-left-color: {violet}; }}
+QFrame#highlightCard[kind="download"] {{ border-left-color: {info}; }}
+QFrame#highlightCard[kind="dns"]      {{ border-left-color: {medium}; }}
 QFrame#highlightCard:hover {{
     background-color: {bg_lighter};
     border-top-color: #4a4d5e;
@@ -163,6 +163,26 @@ QLabel#highlightBadge[kind="flow"] {{
 QLabel#highlightBadge[kind="ext"] {{
     color: {high};
     background-color: rgba(255, 184, 108, 0.14);
+}}
+QLabel#highlightBadge[kind="contra"] {{
+    color: {critical};
+    background-color: rgba(255, 85, 85, 0.16);
+}}
+QLabel#highlightBadge[kind="finding"] {{
+    color: {high};
+    background-color: rgba(255, 184, 108, 0.14);
+}}
+QLabel#highlightBadge[kind="upload"] {{
+    color: {violet};
+    background-color: rgba(199, 146, 234, 0.14);
+}}
+QLabel#highlightBadge[kind="download"] {{
+    color: {info};
+    background-color: rgba(139, 233, 253, 0.12);
+}}
+QLabel#highlightBadge[kind="dns"] {{
+    color: {medium};
+    background-color: rgba(241, 250, 140, 0.12);
 }}
 QLabel#highlightPrimary {{
     font-family: {mono};

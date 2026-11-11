@@ -105,6 +105,51 @@ class ActionsMixin:
         self.tabs.setCurrentIndex(self.tabs.indexOf(self.settings_view))
 
 
+    # -------------------------------------------------------------------------
+    # Переходы из панели действий у находок: кнопка-ссылка открывает
+    # инструмент уже на выбранной находке, а не просто на вкладке.
+    # -------------------------------------------------------------------------
+
+    def _on_finding_payload(self, finding: object) -> None:
+        if not isinstance(finding, dict):
+            return
+        report = self.run_view.last_report()
+        if not report:
+            return
+        if not hasattr(self, "payload_view"):
+            return
+
+        if self.payload_view.select_finding(finding) < 0:
+            # Выдержки ещё не собраны (например, отчёт открыт из JSON
+            # раньше, чем вкладка получила данные) — собираем и ищем снова.
+            self.payload_view.update_data(report)
+            if self.payload_view.select_finding(finding) < 0:
+                return
+
+        index = self.tabs.indexOf(self.payload_view)
+        if index >= 0:
+            self.tabs.setCurrentIndex(index)
+        self.statusBar().showMessage(
+            tr("run.act.payload_status", value=finding.get("value", "")),
+            4000,
+        )
+
+    def _on_finding_enrich(self, finding: object) -> None:
+        if not isinstance(finding, dict) or not hasattr(self, "enrich_view"):
+            return
+
+        index = self.tabs.indexOf(self.enrich_view)
+        if index >= 0:
+            self.tabs.setCurrentIndex(index)
+
+        count = self.enrich_view.focus_finding(finding)
+        self.statusBar().showMessage(
+            tr("run.act.enrich_status", count=count) if count
+            else tr("run.act.enrich_none"),
+            4000,
+        )
+
+
     def _on_help_reference(self) -> None:
         QMessageBox.information(
             self,

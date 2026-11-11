@@ -535,6 +535,25 @@ class PayloadView(QWidget):
         self._splitter.setVisible(not empty)
         self._empty.setVisible(empty)
 
+    def select_finding(self, finding: dict) -> int:
+        """Выделить выдержку конкретной находки. -1 — выдержки нет.
+
+        Переход из таблицы находок: строки списка собраны в порядке
+        findings, поэтому ищем по паре type+value — она уникальна для
+        записи отчёта и не зависит от позиции в таблице.
+        """
+        if not isinstance(finding, dict):
+            return -1
+        f_type = str(finding.get("type", ""))
+        f_value = str(finding.get("value", ""))
+        for row, payload in enumerate(self._payloads):
+            if (payload.finding_type == f_type
+                    and payload.finding_value == f_value):
+                self._list.setCurrentRow(row)
+                self._list.scrollToItem(self._list.item(row))
+                return row
+        return -1
+
     def analysis(self) -> PayloadAnalysis | None:
         return self._analysis
 

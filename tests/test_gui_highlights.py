@@ -82,9 +82,9 @@ def test_cards_built_and_capped(qapp):
     ]
     assert cards[0].primary_text() == "POST /upload"
     assert cards[0].secondary_text() == "evil.example"
-    assert cards[0].metric_text() == "2.0 KB"
+    assert cards[0].metric_text() == "2 КБ"
     assert cards[3].primary_text() == "10.0.0.5 → 203.0.113.9:443"
-    assert cards[3].metric_text() == "12.0 MB"
+    assert cards[3].metric_text() == "12.0 МБ"
     assert cards[5].primary_text() == "203.0.113.9"
 
 
@@ -237,3 +237,124 @@ def test_theme_defines_highlight_card_styles():
     assert "QFrame#highlightCard" in QSS
     assert 'QFrame#highlightCard[kind="flow"]' in QSS
     assert "QLabel#highlightBadge" in QSS
+
+
+def _rich_report():
+    report = _report()
+    report["findings"] = [
+        {
+            "type": "webshell_upload",
+            "value": "reabilit.samregion.ru/uploads/file.php",
+            "confidence": 0.95,
+            "mitre_techniques": ["T1505.003"],
+            "src_ip": "10.0.0.5",
+            "dst_ip": "203.0.113.9",
+        },
+        {
+            "type": "dga_domain",
+            "value": "kq3v9x.example",
+            "confidence": 0.72,
+            "mitre_techniques": ["T1568.002"],
+        },
+    ]
+    report["contradictions"] = [
+        {
+            "severity": "medium",
+            "rule": "WeakRule",
+            "subject": "low.example",
+            "confidence": 0.5,
+        },
+        {
+            "severity": "high",
+            "rule": "SniWithoutDnsRule",
+            "subject": "cdn.example.org",
+            "confidence": 0.82,
+            "resolution_hint": "TLS SNI без DNS-запроса",
+            "facts": [{"source": "tls", "key": "sni",
+                       "value": "cdn.example.org"}],
+        },
+    ]
+    report["entities"]["internal"] = [
+        {
+            "ip": "10.0.0.5",
+            "roles": ["victim_candidate"],
+            "bytes_out": 42 * 1024 * 1024,
+            "bytes_in": 1024,
+            "flows_out": 120,
+            "flows_in": 30,
+        },
+    ]
+    report["dns"] = {"nxdomain": [{"name": "old.example", "count": 7}]}
+    return report
+
+
+def test_priority_cards_come_first(qapp):
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_rich_report())
+
+    cards = panel.cards()
+    assert [c.kind() for c in cards] == [
+        "contra", "finding", "finding", "upload", "http", "http",
+    ]
+    assert cards[0].primary_text() == "cdn.example.org"
+    assert cards[0].metric_text() == "0.82"
+    assert cards[1].primary_text() == "reabilit.samregion.ru/uploads/file.php"
+    assert cards[1].secondary_text() == "webshell_upload · T1505.003"
+    assert cards[3].kind() == "upload"
+    assert cards[3].metric_text() == "↑ 42.0 МБ"
+
+    # Чипы показывают только то, что реально попало на панель.
+    assert panel._chips["dns"].isHidden()
+    assert panel._chips["flow"].isHidden()
+    assert not panel._chips["volume"].isHidden()
+
+
+def test_volume_and_finding_filters(qapp):
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_rich_report())
+
+    panel._chips["volume"].click()
+    assert [c.kind() for c in panel.cards()] == ["upload"]
+
+    panel._chips["finding"].click()
+    assert [c.kind() for c in panel.cards()] == ["finding", "finding"]
+
+
+def test_double_click_opens_finding_and_contradiction(qapp):
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QSignalSpy, QTest
+
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    panel = HighlightsPanel()
+    panel.update_report(_rich_report())
+
+    finding_spy = QSignalSpy(panel.finding_requested)
+    QTest.mouseDClick(panel.cards()[1], Qt.MouseButton.LeftButton)
+    assert finding_spy.count() == 1
+    assert finding_spy.at(0)[0]["type"] == "webshell_upload"
+
+    contra_spy = QSignalSpy(panel.contradiction_requested)
+    QTest.mouseDClick(panel.cards()[0], Qt.MouseButton.LeftButton)
+    assert contra_spy.count() == 1
+    assert contra_spy.at(0)[0]["rule"] == "SniWithoutDnsRule"
+
+
+def test_dns_card_appears_on_quiet_report(qapp):
+    from paradox_gui.widgets.highlights_panel import HighlightsPanel
+
+    report = _report()
+    report["dns"] = {"nxdomain": [{"name": "old.example", "count": 7}]}
+    panel = HighlightsPanel()
+    panel.update_report(report)
+
+    cards = panel.cards()
+    assert "dns" in [c.kind() for c in cards]
+    dns_card = next(c for c in cards if c.kind() == "dns")
+    assert dns_card.primary_text() == "old.example"
+    assert dns_card.metric_text() == "7"
+    assert not panel._chips["dns"].isHidden()
