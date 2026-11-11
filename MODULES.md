@@ -6,8 +6,8 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 19 269, GUI — 17 388, всего 36 657
-  (замер 2026-11-10)
+**Строк кода:** ядро — 19 294, GUI — 17 388, всего 36 682
+  (замер 2026-11-11)
 **Тестов:** 1363 в 159 файлах (замер 2026-11-10)
 
 ---
@@ -223,10 +223,14 @@ Post-extract вызывается из `_extract` после чтения все
 
 **`ContradictionRule`** Protocol: `name`, `severity_base`, `extract_facts(state, findings, config)`, `find_contradictions(facts)`.
 
-### `facts.py` (950 строк) — самый большой файл ядра
+### `facts*.py` — факты по источникам
 
-8 экстракторов фактов (правила вызывают нужный) + неиспользуемый
-dispatcher `extract_facts`:
+`facts.py` (59) — совместимый фасад; реализация в трёх модулях.
+Правила вызывают нужный экстрактор, а не общий dispatcher:
+
+- `facts_attack.py` (113) — `extract_attack_facts`
+- `facts_net.py` (368) — `extract_arp_facts`, `extract_asymmetry_facts`, `extract_protocol_on_port_facts`, `extract_direct_ip_facts`
+- `facts_tls.py` (399) — `extract_tls_host_facts`, `extract_ja3_ua_facts`, `extract_tls_cert_facts`
 
 - `extract_attack_facts(findings)` — `victim_of` / `attacker_of` (синхронизировано с `entities.py`)
 - `extract_arp_facts(state)` — `has_mac` из `arp_macs`
@@ -384,7 +388,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 **Duck-typing для contradictions** — через `getattr(c, "rule")`, без импорта (циклы).
 
-**Семантика ролей** синхронизирована с `contradictions/facts.py`.
+**Семантика ролей** синхронизирована с `contradictions/facts_attack.py`.
 
 ---
 
@@ -570,7 +574,6 @@ Threat Intel, Производительность.
 | HTTP/2 не разбирается | h2-трафик виден только как flow | h2-фреймы + HPACK |
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
-| `contradictions/facts.py` — 907 строк | Один файл на 8 экстракторов | Разбить по source |
 
 ### Технический долг (не блокеры)
 

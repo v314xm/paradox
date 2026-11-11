@@ -357,9 +357,19 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       фасад на 11 строк. Вывод сверен со старым рендером на четырёх
       реальных отчётах — побайтово совпал (14 241 / 11 634 / 16 675 /
       2 090 символов).
-- [ ] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,
+- [x] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,
       `facts_tls`; убрать `extract_facts`, который не вызывается и уже
       потерял cert-факты.
+      Сделано 2026-11-11: `facts_attack.py` (113) — полярность
+      findings; `facts_net.py` (368) — ARP, asymmetry,
+      protocol-on-port, direct IP/DNS; `facts_tls.py` (399) —
+      SNI/Host + CNAME-цепочка, JA3/UA, X.509. `facts.py` — фасад на
+      59 строк, реэкспортирует публичные и приватные имена, которые
+      тянут правила и тесты (`_collect_ips_for`, `_classify_ja3`,
+      `_base_domain`), поэтому monkeypatch на
+      `facts.extract_tls_cert_facts` продолжает работать. AST всех
+      17 определений сверен с прежним файлом — побайтовых изменений
+      в логике нет; удалён только `extract_facts`.
 - [ ] **P1** `config.py` (1017): вынести валидацию в таблицу
       `(name, predicate, message)`; убрать `mkdir` из `__post_init__`
       (создание `reports/` при каждом `Config()`).

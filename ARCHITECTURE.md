@@ -374,8 +374,9 @@ dst_port (не только в evidence).
 Новое правило: файл contradictions/rules/<буква>_<name>.py +
 класс с name, severity_base, extract_facts, find_contradictions
 
-extract_*_facts в facts.py (если новый источник) + регистрация
-в RULES + тесты.
+extract_*_facts в facts_attack/facts_net/facts_tls (если новый
+источник) + реэкспорт в фасаде facts.py + регистрация в RULES +
+тесты.
 
 Новый reporter: файл reporters/<name>_reporter.py + функция
 (report_dict) -> ... + вызов из cli.py / GUI (внутри pipeline
