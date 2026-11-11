@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1252 без Qt + 129 GUI = **1381** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1277 без Qt + 129 GUI = **1406** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -444,7 +444,22 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
 
 # Волна 4 — Платформа v2.0
 
-- [ ] **P1** SMB2-парсер и LDAP-экстрактор.
+- [x] **P1** SMB2-парсер и LDAP-экстрактор.
+      Сделано 2026-11-11: `paradox/smb2_parse.py` — NetBIOS-рамка,
+      compound, команды/статусы, диалект, share, путь CREATE,
+      объёмы READ/WRITE, NTLMSSP Type 3 (домен/пользователь/
+      рабочая станция); `paradox/ldap_parse.py` — bind/search,
+      текстовый рендер фильтра, атрибуты, коды результата.
+      Экстракторы `SMB2Extractor`/`LDAPExtractor` работают
+      post-extract по потокам 445 / 389, 3268, кладут агрегаты в
+      `CaptureState` и обогащают `host_identities`. На реальном
+      захвате 2025-06-13: 63 SMB2-сообщения, share
+      `\\win-dql4wfwjxq4\Shared`, учётка `rgaines` /
+      `MASSFRICTION.COM` / `DESKTOP-5AVE44C`; 75 LDAP-сообщений,
+      21 bind, 11 rootDSE-поисков; findings/contradictions — 10/2,
+      как и до волны 4. SMB1 и SMB3-шифрование не разбираются и
+      видны в `smb2_parse_errors`. Тесты: `test_smb2_parse.py`,
+      `test_ldap_parse.py`, `test_extractors_ad.py` (25).
 - [ ] **P1** AD-детекторы: Kerberoasting, DCSync, ADRecon.
 - [ ] **P1** HTTP/2 framing + HPACK для внутреннего C2.
 - [ ] **P2** MISP export (`iocs.misp.json`) для threat-sharing.

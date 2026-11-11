@@ -122,6 +122,9 @@ flow по `FlowKey` и падают явно, если его нет.
 - `TlsCertificateExtractor.run_post_extract()` — X.509 из TLS
 - `TLSExtractor.run_post_extract()` — SNI/JA3 из склеенных потоков:
   ClientHello больше одного сегмента потоковый экстрактор не видит
+- `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды,
+  share, пути, статусы, NTLMSSP-учётка; `LDAPExtractor` — bind/search
+  из потоков 389/3268 (base DN, фильтры, атрибуты)
 - `carve_files()` — метаданные payload'ов (sha256, MIME, magic)
 
 После post-extract `state.tcp_streams` освобождаются: сырые байты
@@ -147,6 +150,10 @@ flow по `FlowKey` и падают явно, если его нет.
 
 **SSH/SMTP/NDP:** `ssh_server_versions`, `ssh_client_versions`,
 `ssh_client_attempts`, `smtp_*`, `ndp_*`.
+
+**SMB2/LDAP:** `smb2_messages`, `smb2_commands/dialects/shares/paths`,
+`smb2_status_errors`, `smb2_read/write_bytes`, `ldap_messages`,
+`ldap_bind_dns/search_bases/filters/attributes/result_codes`.
 
 **Meta:** `packet_count`, `first_ts`, `last_ts`, `extractor_errors`.
 

@@ -204,6 +204,21 @@ def _extract(
     except Exception:
         state.extractor_errors["tls"] += 1
 
+    # SMB2 и LDAP: заголовки и тела часто разбиты на сегменты, поэтому
+    # разбираем склеенные потоки портов 445 / 389, 3268.
+    from paradox.extractors.ldap import LDAPExtractor
+    from paradox.extractors.smb2 import SMB2Extractor
+
+    try:
+        SMB2Extractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["smb2"] += 1
+
+    try:
+        LDAPExtractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["ldap"] += 1
+
     # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
     if config.file_carve_enabled:
         try:

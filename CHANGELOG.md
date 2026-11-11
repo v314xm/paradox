@@ -33,6 +33,26 @@
   ≤ 0.85 и `http_status_known=false`.
 - `docs/OPERATIONS.md`: таблица порогов beaconing fast/slow, что
   учитывается дополнительно и как проверять на реальном C2.
+- **SMB2-парсер** (`paradox/smb2_parse.py`): NetBIOS-рамка, compound
+  через `NextCommand`, команды и статусы, диалект из NEGOTIATE, share
+  из TREE_CONNECT, путь из CREATE/QUERY_DIRECTORY, объёмы READ/WRITE
+  и учётка из NTLMSSP Type 3 (домен, пользователь, рабочая станция).
+  Не разбирает SMB1 и SMB3-шифрование — такие потоки видны в
+  `smb2_parse_errors`.
+- **LDAP-парсер** (`paradox/ldap_parse.py`): bind (DN, код), search
+  (base DN, область, фильтр в текстовом виде, атрибуты), result
+  entry/done. Фильтры рендерятся как `(&(objectClass=user)(...))` —
+  по ним видно перечисление каталога и запросы SPN.
+- **Экстракторы** `SMB2Extractor` и `LDAPExtractor` (post-extract):
+  агрегаты в `CaptureState` и обогащение `host_identities`
+  (username/realm/hostname). Счётчики в summary: `smb2_messages`,
+  `smb2_shares`, `ldap_messages`, `ldap_binds`, `ldap_searches` и
+  ошибки разбора.
+- Проверено на реальном захвате `2025-06-13-traffic-analysis-exercise`:
+  63 SMB2-сообщения, share `\\win-dql4wfwjxq4\Shared`, учётка
+  `rgaines` / `MASSFRICTION.COM` / `DESKTOP-5AVE44C`; 75 LDAP-сообщений,
+  21 bind, 11 поисков rootDSE. Findings и contradictions не изменились
+  (10 и 2).
 
 ### Изменено
 - Разбор 335 МБ / 627k пакетов ускорен с 24.2 до **14.4 с** (цель
@@ -42,7 +62,7 @@
   со `slots`, reassembler не строит ключ для чистых ACK, sha256
   считается пачками. Findings и contradictions на трёх эталонах не
   изменились, sha256 в provenance сверен с файлом.
-- 27 детекторов, 1381 тест (было 24 и 1312).
+- 27 детекторов, 1406 тестов (было 24 и 1312).
 - `paradox/contradictions/facts.py` (908 строк) разложен по источникам:
   `facts_attack` (полярность findings), `facts_net` (ARP, asymmetry,
   protocol-on-port, direct IP) и `facts_tls` (SNI/Host, JA3/UA,

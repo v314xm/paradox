@@ -343,6 +343,30 @@ class CaptureState:
     smtp_rcpt_by_src: dict[str, set[str]] = field(default_factory=dict)
     smtp_mailer_by_src: dict[str, set[str]] = field(default_factory=dict)
 
+    # v1.6: SMB2 (порт 445, NetBIOS-рамка). Собирается post-extract
+    # из state.tcp_streams; нужен для AD-детекторов (перебор share,
+    # доступ к SYSVOL, копирование по SMB).
+    smb2_messages: int = 0
+    smb2_parse_errors: int = 0
+    smb2_commands: Counter = field(default_factory=Counter)
+    smb2_dialects: Counter = field(default_factory=Counter)
+    # Ключи — (client_ip, server_ip, share) и (client, server, path).
+    smb2_shares: Counter = field(default_factory=Counter)
+    smb2_paths: Counter = field(default_factory=Counter)
+    smb2_status_errors: Counter = field(default_factory=Counter)
+    smb2_read_bytes: int = 0
+    smb2_write_bytes: int = 0
+
+    # v1.6: LDAP (389 и Global Catalog 3268). Bind/search нужны
+    # Kerberoasting/ADRecon/DCSync-эвристикам.
+    ldap_messages: int = 0
+    ldap_parse_errors: int = 0
+    ldap_bind_dns: Counter = field(default_factory=Counter)
+    ldap_search_bases: Counter = field(default_factory=Counter)
+    ldap_filters: Counter = field(default_factory=Counter)
+    ldap_attributes: Counter = field(default_factory=Counter)
+    ldap_result_codes: Counter = field(default_factory=Counter)
+
 
 def dns_sources_by_name(state: CaptureState) -> dict[str, list[str]]:
     """Обратный индекс: qname → список src_ip, которые его спрашивали."""

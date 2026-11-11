@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 19 419, GUI — 17 388, всего 36 807
+**Строк кода:** ядро — 20 193, GUI — 17 388, всего 37 581
   (замер 2026-11-11)
-**Тестов:** 1381 в 161 файле (замер 2026-11-11)
+**Тестов:** 1406 в 164 файлах (замер 2026-11-11)
 
 ---
 
@@ -55,6 +55,8 @@
 | `tls_cert.py` | 122 | `parse_certificate_from_stream` — X.509 из TLS |
 | `ja3.py` | 218 | `parse_client_hello`, `parse_server_hello` (JA3/JA3S) |
 | `kerberos_parse.py` | 291 | Kerberos AS/TGS/AP поверх общего `der.read_tlv` |
+| `smb2_parse.py` | 261 | SMB2 из NetBIOS-рамки: команды, share/путь, диалекты, NTLMSSP Type 3 |
+| `ldap_parse.py` | 238 | LDAP bind/search, текстовый рендер фильтра, атрибуты |
 | `nbns_parse.py` | 179 | NBNS-имена |
 | `x509_der.py` | 61 | Совместимый фасад; реализация — в `der.py` |
 | `der.py` | 266 | Общий ASN.1 DER/TLV: `read_tlv` (strict / lenient), дерево `DerNode`, `as_int`/`as_oid`/`as_str`/`as_time` |
@@ -136,6 +138,8 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 |---|---|
 | `extractors/http_object.py` (127) | `HTTPObjectExtractor.run_post_extract()` — обёртка над `paradox/http_object.py`, работает на `tcp_streams`. Разбирает ВСЕ сообщения потока (keep-alive), ответы матчатся с запросами по порядку; лимит `http_object_max_messages_per_stream` |
 | `extractors/tls_cert.py` (71) | `TlsCertificateExtractor.run_post_extract()` → `state.tls_certs` |
+| `extractors/smb2.py` (111) | `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды, диалекты, share, пути, статусы, объёмы READ/WRITE; NTLMSSP Type 3 → `host_identities` (user/domain/workstation) |
+| `extractors/ldap.py` (118) | `LDAPExtractor.run_post_extract()` — bind/search из потоков 389/3268: bind DN, base DN, фильтры, атрибуты, коды результата; bind DN → `host_identities` |
 | `reassembler.py` | `TCPReassembler` — склейка TCP; лимиты 1 МБ/flow и 200 МБ total, потоки сверх лимита помечаются truncated |
 | `tls.py` | `TLSExtractor.run_post_extract()` — SNI/JA3 из склеенных потоков (ClientHello бывает больше одного сегмента) |
 | `file_carve.py` | `carve_files()` → `state.carved_files` |
@@ -519,7 +523,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1381 тест в 161 файле** (замер 2026-11-11, после волны 3 и сведения парсеров).
+**1406 тестов в 164 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
