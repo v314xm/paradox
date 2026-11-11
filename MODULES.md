@@ -1,11 +1,11 @@
-# Справочник модулей Paradox v1.5.1
+# Справочник модулей Paradox v1.6.0
 
 Описание каждого файла: что делает, ключевые классы и функции,
 связи с другими модулями. Для аналитика, разработчика и того, кто
 хочет понять, куда смотреть при отладке.
 
-**Версия ядра:** 1.5.1 (тег git: v1.5.1)
-**Версия GUI:** 1.5.1 (тег git: v1.5.1)
+**Версия ядра:** 1.6.0 (тег git: v1.6.0)
+**Версия GUI:** 1.6.0 (тег git: v1.6.0)
 **Строк кода:** ядро — 22 297, GUI — 17 458, всего 39 755
   (замер 2026-11-11)
 **Тестов:** 1464 в 174 файлах (замер 2026-11-11)
@@ -17,7 +17,7 @@
 1. [Корень пакета `paradox/`](#корень-пакета-paradox)
 2. [Парсеры](#парсеры)
 3. [Экстракторы (12 + post-extract)](#экстракторы)
-4. [Детекторы (24)](#детекторы)
+4. [Детекторы (30)](#детекторы)
 5. [Contradictions (12 правил)](#contradictions)
 6. [Анализаторы](#анализаторы)
 7. [Multi-pcap](#multi-pcap)
@@ -35,15 +35,15 @@
 
 | Файл | Строк | Что делает |
 |---|---|---|
-| `__init__.py` | 1 | `__version__ = "1.5.1"` |
+| `__init__.py` | 1 | `__version__ = "1.6.0"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
-| `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
-| `config.py` | 1025 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
-| `models.py` | 370 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
-| `pipeline/` | 773 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
+| `cli.py` | 221 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog` |
+| `config.py` | 1032 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `models.py` | 431 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
+| `pipeline/` | 829 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
 | `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
-| `multi_pcap.py` | 187 | `merge_capture_states(states)` — слияние N датасетов |
+| `multi_pcap.py` | 228 | `merge_capture_states(states)` — слияние N датасетов |
 | `timeline.py` | 320 | `build_timeline`, `summarize_by_phase`, kill-chain |
 | `domain_utils.py` | 151 | `split_domain`, `base_domain`, `registered_label`, `matches_suffix` |
 | `net_utils.py` | 58 | `is_internal_ip`, `classify_direction` |
@@ -322,11 +322,11 @@ Directed graph атаки из findings + contradictions. Узлы = IP, рёб�
 
 ## Multi-pcap
 
-### `multi_pcap.py` (187) — **v1.2.0**
+### `multi_pcap.py` (228) — **v1.2.0**
 
 **`merge_capture_states(states: list[CaptureState]) -> CaptureState`**
 
-Слияние: Counter.update, dict update с dedup, sum FlowStats по FlowKey, extend списков, min(first_ts)/max(last_ts).
+Слияние: Counter.update, dict update с dedup, sum FlowStats по FlowKey, extend списков, min(first_ts)/max(last_ts). С v1.6.0 сливаются и агрегаты волны 4: SMB2/LDAP, Kerberos TGS, DCE/RPC (bind, opnum, naming context), HTTP/2 и счётчики расшифровки TLS, а также объединение `ldap_sensitive_attrs_by_src`.
 
 Байты TCP одного 5-tuple из разных файлов не склеиваются: коллизия
 считается в `extractor_errors["multi_pcap_stream_conflict"]` —
@@ -461,7 +461,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Файл | Строк | Что делает |
 |---|---|---|
 | `i18n/__init__.py` | 122 | `tr()`, `set_language`, `get_language`, `validate_translations`; fallback текущий → en → ru → сам ключ |
-| `i18n/_ru.py` | 840 | Русские строки (дефолт) |
+| `i18n/_ru.py` | 850 | Русские строки (дефолт) |
 | `i18n/_en.py` | 840 | Английские строки |
 
 Ключи плоские dot-нотации (`tab.run`, `menu.file.open`), подстановка
@@ -476,7 +476,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | `history_view.py` | 588 | **История** — список прогонов + HTML-превью |
 | `payload_view.py` | 580 | **Код инжекта** — выдержки тел, декодирование, подсветка, предпросмотр |
 | `enrich_view.py` | 578 | **Обогащение** — IOC-выбор + результаты |
-| `settings/` | 2582 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
+| `settings/` | 2611 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
 | `ipv6_view.py` | 126 | **IPv6** — NDP + потоки |
 | `timeline_view.py` | 259 | **Таймлайн** — kill-chain tree |
 | `export_view.py` | 163 | **Экспорт** — CSV/STIX/HTML preview |
@@ -572,7 +572,7 @@ Threat Intel, Производительность.
 - ~~Нет entry point~~ → `paradox` в `[project.scripts]`
 - ~~Version drift~~ → `1.5.0` в коде, `pyproject.toml` и теге
 
-### Открыто в 1.5.1
+### Открыто в 1.6.0
 
 Полный план с приоритетами — в `TODO.md`. Здесь только то, что
 видно из кода и подтверждается тестами.
