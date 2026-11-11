@@ -412,8 +412,15 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       пакетного цикла было бессмысленно.
 - [ ] **P1** Stream mode для pcap > 2 ГБ: не держать все потоки и отчёты в
       памяти, отдавать секции по мере готовности.
-- [ ] **P2** Один HTTP-парсер: `http_parse.py` и `http_object.py` по-разному
+- [x] **P2** Один HTTP-парсер: `http_parse.py` и `http_object.py` по-разному
       режут request-line (пробел в URI теряет объект).
+      Сделано 2026-11-11: разбор первой строки вынесен в
+      `http_parse.parse_request_line` — версия отделяется последним
+      пробелом, поэтому URI с пробелами (`GET /index.php?x=1 OR 1=1
+      HTTP/1.1`) больше не теряет объект. Оба парсера вызывают его;
+      LF-only и пустой URI сохранили прежнее поведение, JSON-отчёт на
+      CyberCampTask совпал побайтово. Тесты: по одному кейсу в
+      `test_http_parse.py` и `test_http_object.py`.
 - [ ] **P2** `attack_graph` и `entities` независимо выводят роли и фазы —
       свести к `taxonomy.py` + одному role engine.
 - [ ] **P2** Слить два ASN.1 TLV-ридера (`x509_der`, `kerberos_parse`) в

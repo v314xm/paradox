@@ -48,6 +48,39 @@ class HTTPRequest:
     user_agent: str | None = None
 
 
+@dataclass(frozen=True)
+class RequestLine:
+    method: str
+    uri: str
+    version: str
+
+
+def parse_request_line(line: str) -> RequestLine | None:
+    """Разобрать request-line ``METHOD SP URI SP HTTP/VERSION``.
+
+    URI может содержать пробелы (так шлют сканеры), поэтому версия —
+    это последний токен строки. Если он не похож на ``HTTP/...``,
+    откатываемся к разбивке по первым двум пробелам: так LF-only
+    запросы (без CRLF) разбираются как раньше, с «грязной» версией.
+    """
+    method, sep, rest = line.partition(" ")
+    if not sep or method not in HTTP_METHODS:
+        return None
+
+    uri, sep, version = rest.rpartition(" ")
+    if not sep or not version.startswith("HTTP/"):
+        parts = line.split(" ", 2)
+        if len(parts) < 3:
+            return None
+        method, uri, version = parts
+        if method not in HTTP_METHODS:
+            return None
+        if not version.startswith("HTTP/"):
+            return None
+
+    return RequestLine(method=method, uri=uri, version=version)
+
+
 def parse_request(payload: bytes) -> HTTPRequest | None:
     """
     Разобрать HTTP-запрос из payload TCP-пакета.
@@ -75,18 +108,13 @@ def parse_request(payload: bytes) -> HTTPRequest | None:
         return None
 
     # --- первая строка ---
-    request_line = lines[0]
-    parts = request_line.split(" ", 2)
-    if len(parts) < 3:
+    parsed = parse_request_line(lines[0])
+    if parsed is None:
         return None
 
-    method, uri, version = parts
-    if method not in HTTP_METHODS:
-        return None
-    if not version.startswith("HTTP/"):
-        return None
-
-    req = HTTPRequest(method=method, uri=uri, version=version)
+    req = HTTPRequest(
+        method=parsed.method, uri=parsed.uri, version=parsed.version,
+    )
 
     # --- заголовки ---
     for line in lines[1:MAX_HEADERS + 1]:

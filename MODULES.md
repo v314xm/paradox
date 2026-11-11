@@ -50,8 +50,8 @@
 | `reassembler.py` | 211 | `TCPReassembler` — склейка TCP по seq |
 | `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
 | `payload_excerpt.py` | 78 | Выдержки тел в base64 для «Кода инжекта» |
-| `http_object.py` | 324 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining) |
-| `http_parse.py` | 106 | Быстрый `parse_request` первого сегмента |
+| `http_object.py` | 321 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining); request-line режется общим `parse_request_line` |
+| `http_parse.py` | 135 | `parse_request_line` (URI с пробелами), быстрый `parse_request` первого сегмента |
 | `tls_cert.py` | 122 | `parse_certificate_from_stream` — X.509 из TLS |
 | `ja3.py` | 218 | `parse_client_hello`, `parse_server_hello` (JA3/JA3S) |
 | `kerberos_parse.py` | 338 | ASN.1 DER для Kerberos AS/TGS/AP |

@@ -29,7 +29,7 @@
 """
 from dataclasses import dataclass, field
 
-from paradox.http_parse import HTTP_METHODS
+from paradox.http_parse import parse_request_line
 
 # Максимум, сколько body читать (защита от гигабайтных ответов)
 DEFAULT_BODY_LIMIT = 1 * 1024 * 1024
@@ -73,14 +73,10 @@ def parse_http_request(
         return None
 
     request_line = lines[0]
-    parts = request_line.split(" ")
-    if len(parts) != 3:
+    parsed = parse_request_line(request_line)
+    if parsed is None:
         return None
-    method, uri, version = parts
-    if method not in HTTP_METHODS:
-        return None
-    if not version.startswith("HTTP/"):
-        return None
+    method, uri, version = parsed.method, parsed.uri, parsed.version
 
     headers = _parse_headers(lines[1:])
     body = _read_body(stream, head_end + 4, headers, body_limit)

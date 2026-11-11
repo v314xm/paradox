@@ -19,6 +19,14 @@ def test_simple_get():
     assert req.user_agent is None
 
 
+def test_uri_with_spaces():
+    """Сканеры шлют URI с пробелами: версия — последний токен строки."""
+    req = parse_request(b"GET /search?q=1 OR 1=1 HTTP/1.1\r\n\r\n")
+    assert req is not None
+    assert req.uri == "/search?q=1 OR 1=1"
+    assert req.version == "HTTP/1.1"
+
+
 def test_get_with_host_and_ua():
     payload = (
         b"GET /page HTTP/1.1\r\n"

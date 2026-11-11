@@ -47,6 +47,20 @@ def test_post_with_body():
     assert not obj.truncated
 
 
+def test_request_uri_with_spaces():
+    """URI с пробелами не теряет объект: request-line режется общим парсером."""
+    raw = (
+        b"GET /index.php?x=1 OR 1=1 HTTP/1.1\r\n"
+        b"Host: example.com\r\n"
+        b"\r\n"
+    )
+    obj = parse_http_request(raw)
+    assert obj is not None
+    assert obj.method == "GET"
+    assert obj.uri == "/index.php?x=1 OR 1=1"
+    assert obj.version == "1.1"
+
+
 def test_response_with_body():
     body = b"<html>Hello</html>"
     raw = (
