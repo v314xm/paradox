@@ -38,6 +38,8 @@ class KerberosInfo:
     crealm: str | None = None
     sname: str | None = None
     realm: str | None = None
+    etypes: tuple[int, ...] = ()
+    spn: str | None = None
 
 
 def parse_kerberos(payload: bytes) -> KerberosInfo | None:
@@ -228,10 +230,31 @@ def _handle_body_field(
         except ValueError:
             pass
     elif context_num == 3:
-        # sname (PrincipalName)
-        name = _parse_principal_name(value)
-        if name and info.sname is None:
-            info.sname = name
+        # sname (PrincipalName). sname — первый компонент (как раньше),
+        # spn — полное имя через "/": Kerberoasting целится в сервис,
+        # класс "HTTP" без хоста ничего не говорит.
+        info.sname = info.sname or _parse_principal_name(value)
+        info.spn = info.spn or _parse_principal_full(value)
+    elif context_num == 8:
+        # etype [8] SEQUENCE OF Int32 — какие шифры просит клиент.
+        # Для Kerberoasting важен RC4 (23): запрос сервисного тикета
+        # в legacy-шифре, который потом офлайн ломают.
+        try:
+            tag, _, inner, _ = _read_tlv(value, 0, strict=False)
+            if tag != TAG_SEQUENCE:
+                inner = value
+            etypes: list[int] = []
+            pos = 0
+            while pos < len(inner):
+                t, _, v, next_pos = _read_tlv(
+                    inner, pos, strict=False,
+                )
+                if t == TAG_INTEGER and v:
+                    etypes.append(int.from_bytes(v, "big"))
+                pos = next_pos
+            info.etypes = tuple(etypes)
+        except ValueError:
+            pass
 
 
 def _parse_principal_name(data: bytes) -> str | None:
@@ -268,6 +291,46 @@ def _parse_principal_name(data: bytes) -> str | None:
     except (ValueError, IndexError):
         pass
 
+    return None
+
+
+def _extract_all_strings(data: bytes) -> list[str]:
+    """Достать все строки из SEQUENCE OF GeneralString."""
+    out: list[str] = []
+    try:
+        if not data or data[0] != TAG_SEQUENCE:
+            return out
+        _, _, content, _ = _read_tlv(data, 0)
+        pos = 0
+        while pos < len(content):
+            tag, _, value, next_pos = _read_tlv(content, pos)
+            if tag == TAG_GENERAL_STRING:
+                text = value.decode("ascii", errors="ignore")
+                if text:
+                    out.append(text)
+            pos = next_pos
+    except (ValueError, IndexError):
+        return out
+    return out
+
+
+def _parse_principal_full(data: bytes) -> str | None:
+    """Полное PrincipalName через "/" — для SPN и Kerberoasting."""
+    try:
+        if data and (data[0] & 0xE0) == TAG_CONTEXT:
+            _, _, data, _ = _read_tlv(data, 0)
+        if not data or data[0] != TAG_SEQUENCE:
+            return None
+        _, _, seq_content, _ = _read_tlv(data, 0)
+        pos = 0
+        while pos < len(seq_content):
+            tag, _, value, next_pos = _read_tlv(seq_content, pos)
+            if tag & 0xE0 == TAG_CONTEXT and (tag & 0x1F) == 1:
+                parts = _extract_all_strings(value)
+                return "/".join(parts) or None
+            pos = next_pos
+    except (ValueError, IndexError):
+        pass
     return None
 
 

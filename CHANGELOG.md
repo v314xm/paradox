@@ -53,6 +53,18 @@
   `rgaines` / `MASSFRICTION.COM` / `DESKTOP-5AVE44C`; 75 LDAP-сообщений,
   21 bind, 11 поисков rootDSE. Findings и contradictions не изменились
   (10 и 2).
+- **Детектор `kerberoasting`**: TGS-REQ к сервисным SPN. Срабатывает
+  на RC4 (etype 23) — осознанный downgrade, тикет ломают офлайн, —
+  или на 3+ разных SPN с одного хоста. Один SPN без RC4 — штатный
+  доступ к сервису, детектор молчит. Kerberos-парсер теперь отдаёт
+  `etypes` и полный `spn` (`HTTP/web.corp.local`), а не только первый
+  компонент.
+- **Детектор `ad_recon`**: перечисление каталога по пересечению
+  запрошенных LDAP-атрибутов с `taxonomy.AD_RECON_ATTRIBUTES`
+  (SPN, memberOf, userAccountControl, ACL, делегирование). rootDSE
+  сам по себе не сигнал — доменный клиент читает его штатно.
+- Таксономия: типы `kerberoasting` (T1558.003, high) и `ad_recon`
+  (T1087.002, medium), новая фаза `credential_access` (порядок 45).
 
 ### Изменено
 - Разбор 335 МБ / 627k пакетов ускорен с 24.2 до **14.4 с** (цель
@@ -62,7 +74,7 @@
   со `slots`, reassembler не строит ключ для чистых ACK, sha256
   считается пачками. Findings и contradictions на трёх эталонах не
   изменились, sha256 в provenance сверен с файлом.
-- 27 детекторов, 1406 тестов (было 24 и 1312).
+- 29 детекторов, 1418 тестов (было 24 и 1312).
 - `paradox/contradictions/facts.py` (908 строк) разложен по источникам:
   `facts_attack` (полярность findings), `facts_net` (ARP, asymmetry,
   protocol-on-port, direct IP) и `facts_tls` (SNI/Host, JA3/UA,

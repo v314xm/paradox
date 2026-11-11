@@ -12,6 +12,7 @@ from __future__ import annotations
 from paradox.config import Config
 from paradox.ldap_parse import parse_ldap_messages
 from paradox.models import CaptureState, HostIdentity
+from paradox.taxonomy import AD_RECON_ATTRIBUTES
 
 LDAP_PORTS = frozenset({389, 3268})
 MAX_DISTINCT_KEYS = 500
@@ -84,6 +85,20 @@ class LDAPExtractor:
                     self._touch_identity(state, client, bind_dn)
                 if message.base_dn is not None:
                     _bump(state.ldap_search_bases, message.base_dn)
+                    _bump(state.ldap_searches_by_src, client)
+                    filter_text = (message.filter or "").lower()
+                    if (
+                        message.base_dn == ""
+                        and "objectclass=*" in filter_text
+                    ):
+                        _bump(state.ldap_root_dse_by_src, client)
+                    wanted = {
+                        attr.lower() for attr in message.attributes
+                    } & AD_RECON_ATTRIBUTES
+                    if wanted:
+                        state.ldap_sensitive_attrs_by_src.setdefault(
+                            client, set(),
+                        ).update(wanted)
                 if message.filter:
                     _bump(state.ldap_filters, message.filter)
                 for attribute in message.attributes:

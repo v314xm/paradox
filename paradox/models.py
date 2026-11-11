@@ -366,6 +366,18 @@ class CaptureState:
     ldap_filters: Counter = field(default_factory=Counter)
     ldap_attributes: Counter = field(default_factory=Counter)
     ldap_result_codes: Counter = field(default_factory=Counter)
+    # По клиенту: сколько поисков и какие «чувствительные» атрибуты
+    # просили. Нужно ad_recon (перечисление каталога).
+    ldap_searches_by_src: Counter = field(default_factory=Counter)
+    ldap_root_dse_by_src: Counter = field(default_factory=Counter)
+    ldap_sensitive_attrs_by_src: dict[str, set[str]] = field(
+        default_factory=dict,
+    )
+
+    # v1.6: Kerberos TGS-запросы к сервисам — Kerberoasting.
+    # Ключи: (client_ip, kdc_ip, spn) и (client_ip, kdc_ip, etype).
+    kerberos_tgs_requests: Counter = field(default_factory=Counter)
+    kerberos_etypes: Counter = field(default_factory=Counter)
 
 
 def dns_sources_by_name(state: CaptureState) -> dict[str, list[str]]:

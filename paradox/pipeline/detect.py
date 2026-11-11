@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from paradox.config import Config
+from paradox.detectors.ad_recon import ADReconDetector
 from paradox.detectors.beaconing import BeaconingDetector
 from paradox.detectors.brute_force import BruteForceDetector
 from paradox.detectors.cloud_tunnel import CloudTunnelDetector
@@ -16,6 +17,7 @@ from paradox.detectors.http_binary_upload import HttpBinaryUploadDetector
 from paradox.detectors.ip_check_service import IPCheckServiceDetector
 from paradox.detectors.ja3_malware import JA3MalwareDetector
 from paradox.detectors.ja3s_malware import JA3SMalwareDetector
+from paradox.detectors.kerberoasting import KerberoastingDetector
 from paradox.detectors.large_transfer import LargeTransferDetector
 from paradox.detectors.lateral_movement import LateralMovementDetector
 from paradox.detectors.long_connections import LongConnectionDetector
@@ -63,6 +65,8 @@ DETECTORS = [
     PhpPayloadDetector(),
     WebShellMarkersDetector(),
     YARADetector(),
+    KerberoastingDetector(),       # v1.6
+    ADReconDetector(),             # v1.6
 ]
 
 

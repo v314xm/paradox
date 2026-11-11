@@ -59,6 +59,9 @@ SEVERITY_BY_TYPE: dict[str, str] = {
     "nxdomain_burst": "low",
     "typosquatting": "low",
     "ip_check_service": "low",
+
+    "kerberoasting": "high",
+    "ad_recon": "medium",
 }
 
 SEVERITY_RANK: dict[str, int] = {
@@ -120,10 +123,30 @@ SRC_ROLE_BY_TYPE: dict[str, str] = {
     "smtp_spam": "victim",
     # Исходящая загрузка бинарного тела на внешний хост: src — жертва.
     "http_binary_upload": "victim",
+    # AD: внутренний клиент перечисляет каталог или просит тикеты
+    # сервисов — жертва, даже если действует руками администратора.
+    "kerberoasting": "victim",
+    "ad_recon": "victim",
 }
 
 # Роли, которые дополнительно помечаются как разведка.
 SCANNER_TYPES: frozenset[str] = frozenset({"port_scan", "web_scanner"})
+
+# Атрибуты LDAP, по которым видно перечисление каталога (ADRecon и
+# ручная разведка): SPN, членство, флаги учёток, делегирование, ACL.
+AD_RECON_ATTRIBUTES: frozenset[str] = frozenset({
+    "serviceprincipalname",
+    "memberof",
+    "useraccountcontrol",
+    "ntsecuritydescriptor",
+    "msds-allowedtodelegateto",
+    "samaccounttype",
+    "objectsid",
+    "pwdlastset",
+    "lastlogontimestamp",
+    "operatingsystem",
+    "dnshostname",
+})
 
 
 # ---------------------------------------------------------------------
@@ -210,6 +233,8 @@ MITRE_BY_TYPE: dict[str, tuple[str, ...]] = {
     # Discovery
     "nxdomain_burst": ("T1568.002",),
     "suspicious_port": ("T1571",),
+    "kerberoasting": ("T1558.003",),
+    "ad_recon": ("T1087.002",),
 }
 
 MITRE_NAMES: dict[str, str] = {
@@ -224,6 +249,8 @@ MITRE_NAMES: dict[str, str] = {
     "T1583.002": "Acquire Infrastructure: Servers",
     "T1059": "Command & Scripting Interpreter",
     "T1204": "User Execution",
+    "T1558.003": "Steal or Forge Kerberos Tickets: Kerberoasting",
+    "T1087.002": "Account Discovery: Domain Account",
     "T1568.002": "Domain Generation Algorithms",
     "T1572": "Protocol Tunneling",
     "T1041": "Exfiltration Over C2 Channel",
@@ -299,6 +326,8 @@ PHASE_BY_TYPE: dict[str, str] = {
     "long_connection": "c2",
     "suspicious_port": "c2",
     "nxdomain_burst": "c2",
+    "kerberoasting": "credential_access",
+    "ad_recon": "recon",
 
     # Lateral Movement
     "lateral_movement": "lateral_movement",
@@ -315,6 +344,7 @@ PHASE_ORDER: dict[str, int] = {
     "initial_access": 20,
     "execution": 30,
     "persistence": 40,
+    "credential_access": 45,
     "lateral_movement": 50,
     "c2": 60,
     "exfiltration": 70,
@@ -333,10 +363,12 @@ CHAIN_ORDER: dict[str, int] = {
     "pivot": 5,
     "web_scanner": 10,
     "port_scan": 20,
+    "ad_recon": 25,
     "vulnerable_path": 30,
     "command_injection": 40,
     "brute_force": 50,
     "successful_bruteforce": 51,
+    "kerberoasting": 52,
     "ftp_brute_force": 55,
     "ssh_brute_force": 57,
     "script_download": 60,

@@ -17,6 +17,13 @@ from paradox.kerberos_parse import parse_kerberos
 from paradox.models import CaptureState, HostIdentity
 from paradox.parsers import PacketRecord
 
+MAX_DISTINCT_KEYS = 500
+
+
+def _bump(counter, key) -> None:
+    if key in counter or len(counter) < MAX_DISTINCT_KEYS:
+        counter[key] += 1
+
 
 class KerberosExtractor:
     name = "kerberos"
@@ -35,8 +42,10 @@ class KerberosExtractor:
         #   src_port == 88 → ответ KDC, client_ip = dst_ip
         if record.dst_port == 88:
             client_ip = record.src_ip
+            kdc_ip = record.dst_ip
         elif record.src_port == 88:
             client_ip = record.dst_ip
+            kdc_ip = record.src_ip
         else:
             return
 
@@ -46,6 +55,24 @@ class KerberosExtractor:
         info = parse_kerberos(record.payload)
         if info is None:
             return
+
+        # TGS-REQ к сервису (не krbtgt) — основа Kerberoasting.
+        spn = info.spn or info.sname
+        if (
+            info.msg_type == 12
+            and spn
+            and not spn.lower().startswith("krbtgt")
+        ):
+            _bump(
+                state.kerberos_tgs_requests,
+                (client_ip, kdc_ip or "", spn),
+            )
+        if info.etypes and info.msg_type in (10, 12):
+            for etype in info.etypes:
+                _bump(
+                    state.kerberos_etypes,
+                    (client_ip, kdc_ip or "", etype),
+                )
 
         ident = state.host_identities.get(client_ip)
         if ident is None:

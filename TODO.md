@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1277 без Qt + 129 GUI = **1406** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1289 без Qt + 129 GUI = **1418** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -460,7 +460,20 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       как и до волны 4. SMB1 и SMB3-шифрование не разбираются и
       видны в `smb2_parse_errors`. Тесты: `test_smb2_parse.py`,
       `test_ldap_parse.py`, `test_extractors_ad.py` (25).
-- [ ] **P1** AD-детекторы: Kerberoasting, DCSync, ADRecon.
+- [x] **P1** AD-детекторы: Kerberoasting, ADRecon.
+      Сделано 2026-11-11: Kerberos-парсер отдаёт `etypes` и полный
+      `spn`; `kerberoasting.py` срабатывает на RC4 (etype 23) или
+      3+ сервисных SPN с одного хоста, один SPN без RC4 — штатный
+      доступ и молчит. `ad_recon.py` считает пересечение запрошенных
+      LDAP-атрибутов с `taxonomy.AD_RECON_ATTRIBUTES` по клиенту
+      (rootDSE + SPN усиливает сигнал). Оба добавлены в `DETECTORS`
+      (29), таксономия дополнена (severity, роль, MITRE T1558.003 /
+      T1087.002, фаза `credential_access`). На 2025-06-13 не
+      срабатывают: TGS-REQ в захвате нет, из «чувствительных»
+      атрибутов только `dNSHostName` — ложных findings нет.
+- [ ] **P1** DCSync: DCE/RPC DRSUAPI `DsGetNCChanges` (opnum 3).
+      Нужен минимальный RPC-парсер: bind + context UUID → request
+      opnum; DRSUAPI UUID `e3514235-4b06-11d1-ab04-00c04fc2dcd2`.
 - [ ] **P1** HTTP/2 framing + HPACK для внутреннего C2.
 - [ ] **P2** MISP export (`iocs.misp.json`) для threat-sharing.
 - [ ] **P2** REST API (FastAPI) + Web UI без PySide6.
