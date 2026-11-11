@@ -128,6 +128,11 @@ flow по `FlowKey` и падают явно, если его нет.
 - `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из
   всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context
   из `DsGetNCChanges`, учётка из AUTH3
+- `HTTP2Extractor.run_post_extract()` — h2c и h2 из расшифрованного
+  по SSLKEYLOGFILE TLS: `tls_decrypt.py` даёт открытый текст,
+  `http2_parse.py` — кадры и HPACK, объекты идут в те же
+  `http_objects`, что и HTTP/1. Расшифрованный HTTPS/1.1 тоже
+  разбирается (счётчик `tls_http1_objects`)
 - `carve_files()` — метаданные payload'ов (sha256, MIME, magic)
 
 После post-extract `state.tcp_streams` освобождаются: сырые байты
@@ -161,6 +166,10 @@ flow по `FlowKey` и падают явно, если его нет.
 **DCE/RPC:** `dcerpc_binds` (UUID+версия интерфейса),
 `dcerpc_drsuapi_calls` (client, server, port, opnum),
 `dcerpc_naming_contexts`.
+
+**HTTP/2 и TLS:** `h2_connections`, `h2_streams`, `h2_frames`,
+`h2_parse_errors`, `tls_decrypted_streams`, `tls_decrypted_records`,
+`tls_decrypt_errors`, `tls_streams_without_keylog`, `tls_http1_objects`.
 
 **Meta:** `packet_count`, `first_ts`, `last_ts`, `extractor_errors`.
 
@@ -498,8 +507,10 @@ Slow-режим beaconing требует минимум 3 соединений �
 Внутренний C2 (internal→internal зашифрованный) вне зоны
 видимости.
 
-HTTP/2 не разбирается: http_object.py и _http_body.py работают с
-HTTP/1.x; h2-фреймы и HPACK не поддержаны.
+HTTP/2 разбирается отдельно от HTTP/1 (`http2_parse.py`, HPACK через
+`hpack`). h2c виден всегда, h2 поверх TLS — только при keylog-файле
+(`tls_keys.py` + `tls_decrypt.py`); CBC-сьюты, renegotiation и 0-RTT
+не поддержаны.
 
 brotli и zstd не распаковываются (нужны внешние зависимости):
 тела с таким сжатием не сканируются, поддержаны gzip/deflate.

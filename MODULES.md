@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 20 952, GUI — 17 384, всего 38 336
+**Строк кода:** ядро — 22 297, GUI — 17 458, всего 39 755
   (замер 2026-11-11)
-**Тестов:** 1439 в 170 файлах (замер 2026-11-11)
+**Тестов:** 1464 в 174 файлах (замер 2026-11-11)
 
 ---
 
@@ -58,6 +58,9 @@
 | `smb2_parse.py` | 261 | SMB2 из NetBIOS-рамки: команды, share/путь, диалекты, NTLMSSP Type 3 |
 | `ldap_parse.py` | 238 | LDAP bind/search, текстовый рендер фильтра, атрибуты |
 | `dcerpc_parse.py` | 262 | DCE/RPC: BIND (UUID/версия интерфейса), REQUEST (context id, opnum), AUTH3; DRSUAPI и naming context |
+| `tls_keys.py` | 394 | SSLKEYLOGFILE, PRF/HKDF, AEAD-расшифровка записей TLS 1.2/1.3 |
+| `tls_decrypt.py` | 368 | Handshake info (random, cipher suite), расшифровка пары потоков |
+| `http2_parse.py` | 250 | HTTP/2-кадры, HEADERS/CONTINUATION/DATA, HPACK через `hpack` |
 | `nbns_parse.py` | 179 | NBNS-имена |
 | `x509_der.py` | 61 | Совместимый фасад; реализация — в `der.py` |
 | `der.py` | 266 | Общий ASN.1 DER/TLV: `read_tlv` (strict / lenient), дерево `DerNode`, `as_int`/`as_oid`/`as_str`/`as_time` |
@@ -142,6 +145,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 | `extractors/smb2.py` (111) | `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды, диалекты, share, пути, статусы, объёмы READ/WRITE; NTLMSSP Type 3 → `host_identities` (user/domain/workstation) |
 | `extractors/ldap.py` (118) | `LDAPExtractor.run_post_extract()` — bind/search из потоков 389/3268: bind DN, base DN, фильтры, атрибуты, коды результата; bind DN → `host_identities` |
 | `extractors/dcerpc.py` (95) | `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context, учётка из AUTH3 |
+| `extractors/http2.py` (231) | `HTTP2Extractor.run_post_extract()` — h2c и h2 из расшифрованного TLS: объекты в `http_objects`, pairing по stream id, счётчики расшифровки; расшифрованный HTTPS/1.1 тоже разбирается |
 | `reassembler.py` | `TCPReassembler` — склейка TCP; лимиты 1 МБ/flow и 200 МБ total, потоки сверх лимита помечаются truncated |
 | `tls.py` | `TLSExtractor.run_post_extract()` — SNI/JA3 из склеенных потоков (ClientHello бывает больше одного сегмента) |
 | `file_carve.py` | `carve_files()` → `state.carved_files` |
@@ -528,7 +532,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1439 тестов в 170 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP, AD-детекторы и DCSync).
+**1464 теста в 174 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP, AD-детекторы, DCSync и HTTP/2 + TLS).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
@@ -581,7 +585,8 @@ Threat Intel, Производительность.
 | TLS 1.3 certificate зашифрован | Правила на сертификатах только для TLS 1.2 | Технический лимит |
 | `internal→internal` зашифрованный C2 | Вне зоны видимости | Нужен разбор протоколов |
 | brotli/zstd не распаковываются | Часть тел не сканируется | Внешние зависимости |
-| HTTP/2 не разбирается | h2-трафик виден только как flow | h2-фреймы + HPACK |
+| HTTP/2 без keylog | h2 поверх TLS виден только как flow | Передать `SSLKEYLOGFILE` через `--tls-keylog` |
+| TLS CBC-сьюты и 0-RTT | Записи не расшифровываются | Только AEAD (AES-GCM, ChaCha20) |
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
 
@@ -593,7 +598,10 @@ Threat Intel, Производительность.
 - `pipeline/` разложен по этапам (`extract`, `detect`, `summarize`,
   `report`), фасад — 137 строк; сшивать этапы по-прежнему в одном
   месте, но читать их можно по отдельности.
-- `http_object.py` — поддерживает HTTP/1.x, не HTTP/2. Для HTTP/2 нужен бинарный парсер (h2-фреймы).
+- `http_object.py` — HTTP/1.x; HTTP/2 разбирается отдельно (`http2_parse.py`
+  + `extractors/http2.py`), HPACK — через пакет `hpack`.
+- TLS-расшифровка работает только по keylog и только для AEAD-сьютов;
+  CBC, renegotiation и 0-RTT не поддержаны.
 - `file_carve.py` — `_MIME_TO_EXT` (18 записей) и `_MAGIC` (9 сигнатур). Не покрывает APK, MSI, DMG.
 - `_MIME_TO_EXT`/`_MAGIC` и `payload_excerpt.py` не знают про brotli/zstd — тела с таким сжатием просто не сканируются.
 - Нет end-to-end теста «запусти GUI → загрузи pcap → получи отчёт» (только offscreen на отдельных виджетах).

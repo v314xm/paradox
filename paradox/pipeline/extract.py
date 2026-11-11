@@ -187,6 +187,15 @@ def _extract(
     except Exception:
         state.extractor_errors["http_object"] += 1
 
+    # HTTP/2: h2c и h2 из-под TLS (если задан keylog). Добавляет
+    # объекты к уже собранным HTTP/1.
+    from paradox.extractors.http2 import HTTP2Extractor
+
+    try:
+        HTTP2Extractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["http2"] += 1
+
     # X.509 сертификаты из TLS-хендшейков. Требуют reassembly,
     # потому что сертификат часто больше одного TCP-сегмента.
     try:

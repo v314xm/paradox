@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -118,6 +119,16 @@ def main(argv: list[str] | None = None) -> None:
         help="Загрузить детекторы из ~/.paradox/plugins/*.py",
     )
     parser.add_argument(
+        "--tls-keylog",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "SSLKEYLOGFILE для расшифровки TLS: h2/HTTPS попадут в "
+            "HTTP-объекты. По умолчанию берётся из $SSLKEYLOGFILE"
+        ),
+    )
+    parser.add_argument(
         "pcap", nargs="?", type=Path, default=None,
         help="path to pcap file (если не указан — спросит интерактивно)",
     )
@@ -139,7 +150,15 @@ def main(argv: list[str] | None = None) -> None:
             print(f"file not found: {pcap_path}", file=sys.stderr)
             sys.exit(2)
 
-    config = Config(plugins_enabled=args.plugins)
+    keylog = args.tls_keylog
+    if keylog is None:
+        env_keylog = os.environ.get("SSLKEYLOGFILE")
+        keylog = Path(env_keylog) if env_keylog else None
+
+    config = Config(
+        plugins_enabled=args.plugins,
+        tls_keylog_path=str(keylog) if keylog else None,
+    )
     pipeline = _pipeline()
 
     try:

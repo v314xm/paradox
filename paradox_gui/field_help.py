@@ -103,6 +103,12 @@ FIELD_HELP: dict[str, str] = {
     "tcp_reassembly_enabled":
         "Склеивать TCP-сегменты в потоки. Даёт полные ClientHello и "
         "HTTP body, но расходует память.",
+    "http2_enabled":
+        "Разбирать HTTP/2-кадры и HPACK: h2c и h2 из расшифрованного "
+        "по keylog TLS.",
+    "tls_keylog_path":
+        "Файл SSLKEYLOGFILE с секретами TLS-сессий. Содержимое "
+        "чувствительное: с ним можно расшифровать весь HTTPS-трафик.",
     "tcp_reassembly_max_bytes_per_flow":
         "Лимит памяти на один flow при reassembly.",
     "tcp_reassembly_max_total_bytes":

@@ -354,6 +354,13 @@ class Config:
     # и максимум сообщений в одном keep-alive-соединении.
     http_object_body_limit: int = 1 * 1024 * 1024
     http_object_max_messages_per_stream: int = 200
+
+    # --- HTTP/2 и TLS ---
+    # h2c разбирается всегда; h2 поверх TLS — только если задан
+    # keylog-файл от клиента/сервера (SSLKEYLOGFILE). Файл содержит
+    # секреты сессий: обращаться с ним как с чувствительными данными.
+    http2_enabled: bool = True
+    tls_keylog_path: str | None = None
     # Хосты, которым бинарные POST'ы — норма (обновления, телеметрия).
     http_binary_upload_allowlist_suffixes: frozenset[str] = field(
         default_factory=frozenset,

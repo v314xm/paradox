@@ -4,8 +4,12 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
+    QFileDialog,
     QFormLayout,
+    QHBoxLayout,
     QLabel,
+    QLineEdit,
+    QPushButton,
     QScrollArea,
     QSpinBox,
     QVBoxLayout,
@@ -78,11 +82,49 @@ class PerformancePageMixin:
             self._field_hints = {}
         self._field_hints["file_carve_write_body"] = lbl_write
 
+        # --- HTTP/2 и TLS ---
+        cb_http2 = QCheckBox(tr("settings.perf.http2"))
+        lbl_http2 = QLabel(tr("settings.perf.http2_hint"))
+        lbl_http2.setObjectName("hint")
+        lbl_http2.setWordWrap(True)
+        form.addRow(cb_http2, lbl_http2)
+        self._perf_inputs["http2_enabled"] = cb_http2
+        self._field_hints["http2_enabled"] = lbl_http2
+
+        keylog = QLineEdit()
+        keylog.setPlaceholderText(tr("settings.perf.keylog_placeholder"))
+        btn_keylog = QPushButton(tr("settings.perf.browse"))
+        btn_keylog.clicked.connect(
+            lambda: self._browse_keylog_file(keylog),
+        )
+        keylog_row = QHBoxLayout()
+        keylog_row.addWidget(keylog, stretch=1)
+        keylog_row.addWidget(btn_keylog)
+
+        lbl_keylog = QLabel(tr("settings.perf.keylog_hint"))
+        lbl_keylog.setObjectName("hint")
+        lbl_keylog.setWordWrap(True)
+        form.addRow(tr("settings.perf.keylog"), keylog_row)
+        form.addRow("", lbl_keylog)
+        self._perf_inputs["tls_keylog_path"] = keylog
+        self._field_hints["tls_keylog_path"] = lbl_keylog
+
         outer.addWidget(scroll, stretch=1)
         outer.addLayout(self._make_buttons(self._load_performance, self._apply_performance))
 
         self._load_performance()
         return w
+
+
+    def _browse_keylog_file(self, field: QLineEdit) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            tr("settings.perf.keylog_dialog"),
+            "",
+            tr("settings.perf.keylog_filter"),
+        )
+        if path:
+            field.setText(path)
 
 
     def _load_performance(self) -> None:
@@ -94,11 +136,15 @@ class PerformancePageMixin:
         for key, widget in self._perf_inputs.items():
             value = getattr(cfg, key, None)
             if value is None:
+                if isinstance(widget, QLineEdit):
+                    widget.setText("")
                 continue
             if isinstance(widget, QCheckBox):
                 widget.setChecked(bool(value))
             elif isinstance(widget, QSpinBox):
                 widget.setValue(int(value))
+            elif isinstance(widget, QLineEdit):
+                widget.setText(str(value))
 
 
     def _apply_performance(self) -> None:
@@ -108,4 +154,6 @@ class PerformancePageMixin:
                 values[key] = widget.isChecked()
             elif isinstance(widget, QSpinBox):
                 values[key] = widget.value()
+            elif isinstance(widget, QLineEdit):
+                values[key] = widget.text().strip() or None
         self.config_applied.emit(values)

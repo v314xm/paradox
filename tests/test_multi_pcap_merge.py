@@ -328,3 +328,49 @@ def test_ndp_fields_exist_without_ndp_packets():
     assert merged.ndp_total == 0
     assert merged.ndp_neighbors == {}
     assert merged.ndp_routers == set()
+
+
+def test_ad_dcerpc_and_http2_counters_merge():
+    """SMB2/LDAP/Kerberos/DCE-RPC/HTTP2-агрегаты не теряются в multi-pcap."""
+    s1 = CaptureState()
+    s1.smb2_messages = 3
+    s1.smb2_commands["CREATE"] = 2
+    s1.smb2_read_bytes = 100
+    s1.ldap_messages = 4
+    s1.ldap_sensitive_attrs_by_src["10.0.0.5"] = {"memberof"}
+    s1.kerberos_tgs_requests[("10.0.0.5", "10.0.0.10", "HTTP/srv")] = 1
+    s1.dcerpc_drsuapi_calls[("10.0.0.5", "10.0.0.10", 445, 3)] = 1
+    s1.h2_connections = 1
+    s1.tls_decrypted_records = 5
+    s1.tls_http1_objects = 2
+
+    s2 = CaptureState()
+    s2.smb2_messages = 2
+    s2.smb2_commands["CREATE"] = 1
+    s2.smb2_read_bytes = 50
+    s2.ldap_messages = 1
+    s2.ldap_sensitive_attrs_by_src["10.0.0.5"] = {"objectsid"}
+    s2.kerberos_tgs_requests[("10.0.0.5", "10.0.0.10", "HTTP/srv")] = 2
+    s2.dcerpc_drsuapi_calls[("10.0.0.5", "10.0.0.10", 445, 3)] = 4
+    s2.h2_connections = 2
+    s2.tls_decrypted_records = 7
+    s2.tls_http1_objects = 3
+
+    merged = merge_capture_states([s1, s2])
+
+    assert merged.smb2_messages == 5
+    assert merged.smb2_commands["CREATE"] == 3
+    assert merged.smb2_read_bytes == 150
+    assert merged.ldap_messages == 5
+    assert merged.ldap_sensitive_attrs_by_src["10.0.0.5"] == {
+        "memberof", "objectsid",
+    }
+    assert merged.kerberos_tgs_requests[
+        ("10.0.0.5", "10.0.0.10", "HTTP/srv")
+    ] == 3
+    assert merged.dcerpc_drsuapi_calls[
+        ("10.0.0.5", "10.0.0.10", 445, 3)
+    ] == 5
+    assert merged.h2_connections == 3
+    assert merged.tls_decrypted_records == 12
+    assert merged.tls_http1_objects == 5

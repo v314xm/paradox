@@ -388,6 +388,22 @@ class CaptureState:
     dcerpc_drsuapi_calls: Counter = field(default_factory=Counter)
     dcerpc_naming_contexts: Counter = field(default_factory=Counter)
 
+    # v1.6: HTTP/2 (h2c и h2 поверх TLS с SSLKEYLOGFILE). Объекты
+    # добавляются в http_objects, здесь — только счётчики, чтобы
+    # отчёт показывал, сколько соединений реально разобрано, а
+    # сколько TLS-потоков осталось закрытыми.
+    h2_connections: int = 0
+    h2_streams: int = 0
+    h2_frames: int = 0
+    h2_parse_errors: int = 0
+    tls_decrypted_streams: int = 0
+    tls_decrypted_records: int = 0
+    tls_decrypt_errors: int = 0
+    tls_streams_without_keylog: int = 0
+    # HTTP/1.1-объекты из расшифрованного TLS: HTTPObjectExtractor их
+    # не видел, потому что поток был зашифрован.
+    tls_http1_objects: int = 0
+
 
 def dns_sources_by_name(state: CaptureState) -> dict[str, list[str]]:
     """Обратный индекс: qname → список src_ip, которые его спрашивали."""

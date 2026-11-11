@@ -161,6 +161,48 @@ def merge_capture_states(
         merged.tls_cert_parse_errors += st.tls_cert_parse_errors
         merged.carved_files.extend(st.carved_files)
 
+        # --- AD и DCE/RPC ---
+        merged.smb2_messages += st.smb2_messages
+        merged.smb2_parse_errors += st.smb2_parse_errors
+        merged.smb2_commands.update(st.smb2_commands)
+        merged.smb2_dialects.update(st.smb2_dialects)
+        merged.smb2_shares.update(st.smb2_shares)
+        merged.smb2_paths.update(st.smb2_paths)
+        merged.smb2_status_errors.update(st.smb2_status_errors)
+        merged.smb2_read_bytes += st.smb2_read_bytes
+        merged.smb2_write_bytes += st.smb2_write_bytes
+
+        merged.ldap_messages += st.ldap_messages
+        merged.ldap_parse_errors += st.ldap_parse_errors
+        merged.ldap_bind_dns.update(st.ldap_bind_dns)
+        merged.ldap_search_bases.update(st.ldap_search_bases)
+        merged.ldap_filters.update(st.ldap_filters)
+        merged.ldap_attributes.update(st.ldap_attributes)
+        merged.ldap_result_codes.update(st.ldap_result_codes)
+        merged.ldap_searches_by_src.update(st.ldap_searches_by_src)
+        merged.ldap_root_dse_by_src.update(st.ldap_root_dse_by_src)
+        for client, attrs in st.ldap_sensitive_attrs_by_src.items():
+            merged.ldap_sensitive_attrs_by_src.setdefault(
+                client, set(),
+            ).update(attrs)
+
+        merged.kerberos_tgs_requests.update(st.kerberos_tgs_requests)
+        merged.kerberos_etypes.update(st.kerberos_etypes)
+        merged.dcerpc_binds.update(st.dcerpc_binds)
+        merged.dcerpc_drsuapi_calls.update(st.dcerpc_drsuapi_calls)
+        merged.dcerpc_naming_contexts.update(st.dcerpc_naming_contexts)
+
+        # --- HTTP/2 и расшифровка TLS ---
+        merged.h2_connections += st.h2_connections
+        merged.h2_streams += st.h2_streams
+        merged.h2_frames += st.h2_frames
+        merged.h2_parse_errors += st.h2_parse_errors
+        merged.tls_decrypted_streams += st.tls_decrypted_streams
+        merged.tls_decrypted_records += st.tls_decrypted_records
+        merged.tls_decrypt_errors += st.tls_decrypt_errors
+        merged.tls_streams_without_keylog += st.tls_streams_without_keylog
+        merged.tls_http1_objects += st.tls_http1_objects
+
         # --- SSH / SMTP ---
         for k, v in st.ssh_server_versions.items():
             if k not in merged.ssh_server_versions:

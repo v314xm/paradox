@@ -86,6 +86,32 @@
   (10 и 2); на CyberCampTask — 8 findings. Локального захвата с
   настоящим DCSync нет, поэтому детектор покрыт тестами на
   синтетических PDU.
+- **HTTP/2** (`paradox/http2_parse.py`): кадры HEADERS (+CONTINUATION,
+  padding, priority), DATA, псевдозаголовки `:method`/`:path`/
+  `:authority`/`:status`; мультиплексирование по stream id. HPACK
+  (включая таблицу Хаффмана RFC 7541) — через пакет `hpack`.
+- **Расшифровка TLS по SSLKEYLOGFILE** (`tls_keys.py`,
+  `tls_decrypt.py`): TLS 1.2 PRF и TLS 1.3 HKDF-Expand-Label,
+  AEAD AES-GCM/ChaCha20-Poly1305, проверка тега; handshake даёт
+  client/server random и cipher suite. CBC-сьюты, renegotiation и
+  0-RTT не поддержаны.
+- **Интеграция**: `HTTP2Extractor` кладёт h2-объекты в те же
+  `http_objects`, что и HTTP/1, поэтому существующие детекторы видят
+  h2 без изменений; ответы сопоставляются с запросами по stream id.
+  Расшифрованный HTTPS/1.1 тоже разбирается (в `http_objects`, счётчик
+  `tls_http1_objects`) — раньше такие потоки были невидимы.
+  CLI `--tls-keylog` (и `$SSLKEYLOGFILE`), настройки GUI
+  «Производительность», i18n RU/EN, счётчики в summary:
+  `h2_connections/streams/frames/parse_errors`,
+  `tls_decrypted_streams/records`, `tls_decrypt_errors`,
+  `tls_streams_without_keylog`, `tls_http1_objects`.
+- Проверка на настоящих сессиях OpenSSL: TLS 1.3 AES-256-GCM-SHA384,
+  TLS 1.2 AES-128-GCM-SHA256 и ChaCha20-Poly1305 расшифрованы
+  побайтово. Эталоны: `2025-06-13` — 10 findings, 2 contradictions,
+  76 HTTP-объектов и 90 TLS-пар без keylog (h2-разбора нет, как и
+  ожидалось); CyberCampTask — 8 findings; FIRST-2015 — 0.
+- Зависимости: `cryptography>=42` (AEAD) и `hpack>=4.0` (HPACK)
+  добавлены в основные.
 
 ### Изменено
 - Разбор 335 МБ / 627k пакетов ускорен с 24.2 до **14.4 с** (цель

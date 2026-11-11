@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1310 без Qt + 129 GUI = **1439** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1335 без Qt + 129 GUI = **1464** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -488,7 +488,20 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       локально нет — покрыто 21 тестом на синтетических PDU.
       Ограничение: репликация DC→DC даёт тот же вызов, источник
       нужно сверять с реальными DC.
-- [ ] **P1** HTTP/2 framing + HPACK для внутреннего C2.
+- [x] **P1** HTTP/2 framing + HPACK для внутреннего C2.
+      Сделано 2026-11-11: `paradox/http2_parse.py` — кадры, HEADERS
+      (+CONTINUATION, padding, priority), DATA, псевдозаголовки;
+      HPACK через пакет `hpack` (таблица Хаффмана RFC 7541).
+      `paradox/tls_keys.py` — SSLKEYLOGFILE, PRF TLS 1.2, HKDF для
+      TLS 1.3, AEAD AES-GCM/ChaCha20; `tls_decrypt.py` — handshake,
+      ключи, расшифровка пары потоков. `extractors/http2.py` —
+      h2c и h2 из-под TLS в те же `http_objects`, pairing по stream
+      id; расшифрованный HTTPS/1.1 тоже разбирается
+      (`tls_http1_objects`). CLI `--tls-keylog`, env `SSLKEYLOGFILE`,
+      настройки GUI и i18n. Проверено на реальных сессиях OpenSSL (TLS 1.3
+      AES-256-GCM, TLS 1.2 AES-128-GCM и ChaCha20). Эталоны:
+      2025-06-13 — 10 findings, 2 contradictions, 90 TLS-пар без
+      keylog; CyberCampTask — 8; FIRST-2015 — 0.
 - [ ] **P2** MISP export (`iocs.misp.json`) для threat-sharing.
 - [ ] **P2** REST API (FastAPI) + Web UI без PySide6.
 - [ ] **P2** Нативный PDF (QPdfWriter) вместо печати HTML из браузера.

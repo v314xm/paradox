@@ -112,6 +112,7 @@ paradox capture.pcap --enrich                 # + Threat Intel
 paradox capture.pcap --stix                   # + STIX 2.1 bundle
 paradox capture.pcap --html                   # + HTML-отчёт (печать в PDF)
 paradox capture.pcap --plugins                # + детекторы из ~/.paradox/plugins
+paradox capture.pcap --tls-keylog keys.log    # расшифровать TLS по SSLKEYLOGFILE
 ```
 
 Без аргумента `paradox` спросит путь к pcap интерактивно.
@@ -143,6 +144,46 @@ paradox capture.pcap --plugins                # + детекторы из ~/.par
 переменные окружения).
 Если обогащение упало, отчёт всё равно пишется, а причина — в
 `enrichment_stats.error`. Версию CLI печатает `--version`.
+
+## Расшифровка TLS и HTTP/2
+
+HTTP/2 без TLS (`h2c`) разбирается всегда. HTTP/2 и HTTPS поверх TLS
+расшифровываются только при наличии keylog-файла от клиента или сервера
+(`SSLKEYLOGFILE`).
+
+Как получить файл:
+
+- Chrome/Edge/Firefox: задать переменную окружения `SSLKEYLOGFILE` до запуска
+  браузера, файл пополняется при каждом HTTPS-соединении;
+- Python/OpenSSL-клиент: `SSLContext.keylog_filename = "keys.log"`;
+- Wireshark умеет писать такой же формат (Preferences → Protocols → TLS →
+  (Pre)-Master-Secret log filename).
+
+Запуск:
+
+```bash
+paradox capture.pcap --tls-keylog keys.log
+# или заранее: set SSLKEYLOGFILE=C:\temp\keys.log  (Windows)
+```
+
+Что нужно, чтобы расшифровка сработала:
+
+- в захвате есть TLS-handshake (ClientHello/ServerHello) — поток, начатый
+  посреди сессии, ключ не подберёт;
+- включён TCP reassembly (`tcp_reassembly_enabled`, по умолчанию да);
+- сьют AEAD: AES-GCM или ChaCha20-Poly1305. CBC-сьюты, renegotiation и 0-RTT
+  не поддержаны;
+- для TLS 1.2 в keylog есть `CLIENT_RANDOM`, для TLS 1.3 — пара
+  `CLIENT_TRAFFIC_SECRET_0`/`SERVER_TRAFFIC_SECRET_0`.
+
+Счётчики в `summary`: `tls_decrypted_streams`, `tls_decrypted_records`,
+`tls_decrypt_errors`, `tls_streams_without_keylog`, `tls_http1_objects`,
+`h2_connections`, `h2_streams`, `h2_frames`, `h2_parse_errors`. С keylog
+разбирается и расшифрованный HTTPS/1.1 (`tls_http1_objects`), и h2.
+Если `tls_streams_without_keylog` большой, а `tls_decrypted_streams` = 0 —
+файл не передан или в нём нет нужной сессии. Сам keylog-файл — секрет: с
+ним расшифровывается весь HTTPS этой сессии, поэтому не прикладывайте его
+к отчёту и не храните рядом с pcap.
 
 ## Коды выхода
 
