@@ -1,11 +1,198 @@
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
+from typing import NamedTuple
 
 
 def _frozen(*items: str) -> frozenset[str]:
     return frozenset(items)
+
+
+class _ValidationRule(NamedTuple):
+    field: str
+    valid: Callable[[object], bool]
+    message: str
+
+
+def _positive(value: float) -> bool:
+    return value > 0
+
+
+def _non_negative(value: float) -> bool:
+    return value >= 0
+
+
+def _ratio(value: float) -> bool:
+    return 0.0 < value <= 1.0
+
+
+def _at_least_two(value: int) -> bool:
+    return value >= 2
+
+
+def _non_empty(value: object) -> bool:
+    return bool(value)
+
+
+def _non_blank(value: object) -> bool:
+    return bool(str(value).strip())
+
+
+def _ports_in_range(value: object) -> bool:
+    return all(1 <= p <= 65535 for p in value)
+
+
+_VALIDATION_RULES: tuple[_ValidationRule, ...] = (
+    _ValidationRule("file_carve_min_size", _positive,
+                    "file_carve_min_size must be > 0"),
+    _ValidationRule("file_carve_max_size", _positive,
+                    "file_carve_max_size must be > 0"),
+    _ValidationRule("command_injection_min_patterns", _positive,
+                    "command_injection_min_patterns must be > 0"),
+    _ValidationRule("command_injection_aggregate_min", _positive,
+                    "command_injection_aggregate_min must be > 0"),
+    _ValidationRule("tcp_reassembly_max_bytes_per_flow", _positive,
+                    "tcp_reassembly_max_bytes_per_flow must be > 0"),
+    _ValidationRule("tcp_reassembly_max_total_bytes", _positive,
+                    "tcp_reassembly_max_total_bytes must be > 0"),
+    _ValidationRule("enrichment_cache_ttl_days", _positive,
+                    "enrichment_cache_ttl_days must be > 0"),
+    _ValidationRule("enrichment_max_iocs", _positive,
+                    "enrichment_max_iocs must be > 0"),
+    _ValidationRule("dns_tunneling_min_qname_length", _positive,
+                    "dns_tunneling_min_qname_length must be > 0"),
+    _ValidationRule("dns_tunneling_min_long_qnames", _positive,
+                    "dns_tunneling_min_long_qnames must be > 0"),
+    _ValidationRule("dns_tunneling_min_queries", _positive,
+                    "dns_tunneling_min_queries must be > 0"),
+    _ValidationRule("beaconing_min_connections", _positive,
+                    "beaconing_min_connections must be > 0"),
+    _ValidationRule("beaconing_min_duration_sec", _positive,
+                    "beaconing_min_duration_sec must be > 0"),
+    _ValidationRule("beaconing_max_jitter_ratio", _ratio,
+                    "beaconing_max_jitter_ratio must be in (0, 1]"),
+    _ValidationRule("beaconing_max_avg_bytes", _positive,
+                    "beaconing_max_avg_bytes must be > 0"),
+    _ValidationRule("beaconing_max_flows_per_minute", _positive,
+                    "beaconing_max_flows_per_minute must be > 0"),
+    _ValidationRule("beaconing_payload_stddev_ratio_max", _non_negative,
+                    "beaconing_payload_stddev_ratio_max must be >= 0"),
+    _ValidationRule("beaconing_mail_polling_ports", _non_empty,
+                    "beaconing_mail_polling_ports must not be empty"),
+    _ValidationRule("beaconing_mail_polling_ports", _ports_in_range,
+                    "beaconing_mail_polling_ports must be in range 1..65535"),
+    _ValidationRule("beaconing_slow_min_connections", _at_least_two,
+                    "beaconing_slow_min_connections must be >= 2"),
+    _ValidationRule("beaconing_slow_min_duration_sec", _positive,
+                    "beaconing_slow_min_duration_sec must be > 0"),
+    _ValidationRule("beaconing_slow_max_jitter_ratio", _ratio,
+                    "beaconing_slow_max_jitter_ratio must be in (0, 1]"),
+    _ValidationRule("beaconing_slow_max_flows_per_minute", _positive,
+                    "beaconing_slow_max_flows_per_minute must be > 0"),
+    _ValidationRule("http_binary_upload_min_posts", _positive,
+                    "http_binary_upload_min_posts must be > 0"),
+    _ValidationRule("http_binary_upload_min_body_bytes", _positive,
+                    "http_binary_upload_min_body_bytes must be > 0"),
+    _ValidationRule("command_injection_min_printable_ratio", _ratio,
+                    "command_injection_min_printable_ratio must be in (0, 1]"),
+    _ValidationRule("http_body_max_decoded_bytes", _positive,
+                    "http_body_max_decoded_bytes must be > 0"),
+    _ValidationRule("payload_excerpt_bytes", _positive,
+                    "payload_excerpt_bytes must be > 0"),
+    _ValidationRule("http_object_body_limit", _positive,
+                    "http_object_body_limit must be > 0"),
+    _ValidationRule("http_object_max_messages_per_stream", _positive,
+                    "http_object_max_messages_per_stream must be > 0"),
+    _ValidationRule("ftp_brute_force_min_flows", _positive,
+                    "ftp_brute_force_min_flows must be > 0"),
+    _ValidationRule("ssh_brute_force_min_flows", _positive,
+                    "ssh_brute_force_min_flows must be > 0"),
+    _ValidationRule("smtp_spam_min_recipients", _positive,
+                    "smtp_spam_min_recipients must be > 0"),
+    _ValidationRule("ftp_brute_force_min_unique_src_ports", _positive,
+                    "ftp_brute_force_min_unique_src_ports must be > 0"),
+    _ValidationRule("large_transfer_min_bytes", _positive,
+                    "large_transfer_min_bytes must be > 0"),
+    _ValidationRule("rare_external_ip_max_connections", _positive,
+                    "rare_external_ip_max_connections must be > 0"),
+    _ValidationRule("rare_external_ip_excluded_ports", _ports_in_range,
+                    "rare_external_ip_excluded_ports must be in range 1..65535"),
+    _ValidationRule("encoded_payload_min_value_len", _positive,
+                    "encoded_payload_min_value_len must be > 0"),
+    _ValidationRule("encoded_payload_max_decoded_len", _positive,
+                    "encoded_payload_max_decoded_len must be > 0"),
+    _ValidationRule("long_connection_min_duration_sec", _positive,
+                    "long_connection_min_duration_sec must be > 0"),
+    _ValidationRule("long_connection_min_packets", _positive,
+                    "long_connection_min_packets must be > 0"),
+    _ValidationRule("long_connection_excluded_ports", _ports_in_range,
+                    "long_connection_excluded_ports must be in range 1..65535"),
+    _ValidationRule("lateral_movement_min_flows_port_only", _positive,
+                    "lateral_movement_min_flows_port_only must be > 0"),
+    _ValidationRule("lateral_movement_ports", _non_empty,
+                    "lateral_movement_ports must not be empty"),
+    _ValidationRule("dga_entropy_threshold", _positive,
+                    "dga_entropy_threshold must be > 0"),
+    _ValidationRule("dga_min_label_length", _positive,
+                    "dga_min_label_length must be > 0"),
+    _ValidationRule("nxdomain_burst_threshold", _positive,
+                    "nxdomain_burst_threshold must be > 0"),
+    _ValidationRule("nxdomain_burst_window_sec", _positive,
+                    "nxdomain_burst_window_sec must be > 0"),
+    _ValidationRule("nxdomain_burst_min_ratio", _ratio,
+                    "nxdomain_burst_min_ratio must be in (0, 1]"),
+    _ValidationRule("typosquatting_levenshtein_threshold", _non_negative,
+                    "typosquatting_levenshtein_threshold must be >= 0"),
+    _ValidationRule("sni_mismatch_min_flows", _positive,
+                    "sni_mismatch_min_flows must be > 0"),
+    _ValidationRule("brute_force_min_flows", _positive,
+                    "brute_force_min_flows must be > 0"),
+    _ValidationRule("brute_force_max_avg_packets", _positive,
+                    "brute_force_max_avg_packets must be > 0"),
+    _ValidationRule("brute_force_min_unique_src_ports", _positive,
+                    "brute_force_min_unique_src_ports must be > 0"),
+    _ValidationRule("brute_force_uri_ratio_threshold", _ratio,
+                    "brute_force_uri_ratio_threshold must be in (0, 1]"),
+    _ValidationRule("brute_force_min_rate_flows_per_sec", _positive,
+                    "brute_force_min_rate_flows_per_sec must be > 0"),
+    _ValidationRule("bruteforce_success_uri_hints", _non_empty,
+                    "bruteforce_success_uri_hints must not be empty"),
+    _ValidationRule("dc_min_service_flows", _positive,
+                    "dc_min_service_flows must be > 0"),
+    _ValidationRule("dc_min_unique_srcs", _positive,
+                    "dc_min_unique_srcs must be > 0"),
+    _ValidationRule("entities_top_n", _positive,
+                    "entities_top_n must be > 0"),
+    _ValidationRule("gateway_min_flows", _positive,
+                    "gateway_min_flows must be > 0"),
+    _ValidationRule("gateway_min_unique_dsts", _positive,
+                    "gateway_min_unique_dsts must be > 0"),
+    _ValidationRule("flow_report_top_n", _positive,
+                    "flow_report_top_n must be > 0"),
+    _ValidationRule("absence_top_n", _positive,
+                    "absence_top_n must be > 0"),
+    _ValidationRule("plugins_dir", _non_blank,
+                    "plugins_dir must not be empty"),
+    _ValidationRule("web_scanner_min_distinct_paths", _positive,
+                    "web_scanner_min_distinct_paths must be > 0"),
+    _ValidationRule("port_scan_min_distinct_dsts", _positive,
+                    "port_scan_min_distinct_dsts must be > 0"),
+    _ValidationRule("port_scan_max_flows_per_dst", _positive,
+                    "port_scan_max_flows_per_dst must be > 0"),
+    _ValidationRule("port_scan_excluded_ports", _non_empty,
+                    "port_scan_excluded_ports must not be empty"),
+    _ValidationRule("port_scan_excluded_ports", _ports_in_range,
+                    "port_scan_excluded_ports must be in range 1..65535"),
+    _ValidationRule("suspicious_ports", _non_empty,
+                    "suspicious_ports must not be empty"),
+    _ValidationRule("dc_service_ports", _non_empty,
+                    "dc_service_ports must not be empty"),
+    _ValidationRule("suspicious_ports", _ports_in_range,
+                    "suspicious_ports must be in range 1..65535"),
+    _ValidationRule("dc_service_ports", _ports_in_range,
+                    "dc_service_ports must be in range 1..65535"),
+)
 
 
 @dataclass(frozen=True)
@@ -827,207 +1014,11 @@ class Config:
         self._validate()
 
     def _validate(self) -> None:
-        errors: list[str] = []
-
-        if self.file_carve_min_size <= 0:
-            errors.append("file_carve_min_size must be > 0")
-        if self.file_carve_max_size <= 0:
-            errors.append("file_carve_max_size must be > 0")
-        if self.command_injection_min_patterns <= 0:
-            errors.append("command_injection_min_patterns must be > 0")
-        if self.command_injection_aggregate_min <= 0:
-            errors.append("command_injection_aggregate_min must be > 0")
-        if self.tcp_reassembly_max_bytes_per_flow <= 0:
-            errors.append("tcp_reassembly_max_bytes_per_flow must be > 0")
-        if self.tcp_reassembly_max_total_bytes <= 0:
-            errors.append("tcp_reassembly_max_total_bytes must be > 0")
-        if self.enrichment_cache_ttl_days <= 0:
-            errors.append("enrichment_cache_ttl_days must be > 0")
-        if self.enrichment_max_iocs <= 0:
-            errors.append("enrichment_max_iocs must be > 0")
-        if self.dns_tunneling_min_qname_length <= 0:
-            errors.append("dns_tunneling_min_qname_length must be > 0")
-        if self.dns_tunneling_min_long_qnames <= 0:
-            errors.append("dns_tunneling_min_long_qnames must be > 0")
-        if self.dns_tunneling_min_queries <= 0:
-            errors.append("dns_tunneling_min_queries must be > 0")
-        if self.beaconing_min_connections <= 0:
-            errors.append("beaconing_min_connections must be > 0")
-        if self.beaconing_min_duration_sec <= 0:
-            errors.append("beaconing_min_duration_sec must be > 0")
-        if not (0.0 < self.beaconing_max_jitter_ratio <= 1.0):
-            errors.append(
-                "beaconing_max_jitter_ratio must be in (0, 1]"
-            )
-        if self.beaconing_max_avg_bytes <= 0:
-            errors.append("beaconing_max_avg_bytes must be > 0")
-        if self.beaconing_max_flows_per_minute <= 0:
-            errors.append("beaconing_max_flows_per_minute must be > 0")
-        if self.beaconing_payload_stddev_ratio_max < 0:
-            errors.append(
-                "beaconing_payload_stddev_ratio_max must be >= 0"
-            )
-        if not self.beaconing_mail_polling_ports:
-            errors.append("beaconing_mail_polling_ports must not be empty")
-        if any(
-            p <= 0 or p > 65535
-            for p in self.beaconing_mail_polling_ports
-        ):
-            errors.append(
-                "beaconing_mail_polling_ports must be in range 1..65535"
-            )
-        if self.beaconing_slow_min_connections < 2:
-            errors.append("beaconing_slow_min_connections must be >= 2")
-        if self.beaconing_slow_min_duration_sec <= 0:
-            errors.append("beaconing_slow_min_duration_sec must be > 0")
-        if not (0.0 < self.beaconing_slow_max_jitter_ratio <= 1.0):
-            errors.append(
-                "beaconing_slow_max_jitter_ratio must be in (0, 1]"
-            )
-        if self.beaconing_slow_max_flows_per_minute <= 0:
-            errors.append(
-                "beaconing_slow_max_flows_per_minute must be > 0"
-            )
-        if self.http_binary_upload_min_posts <= 0:
-            errors.append("http_binary_upload_min_posts must be > 0")
-        if self.http_binary_upload_min_body_bytes <= 0:
-            errors.append("http_binary_upload_min_body_bytes must be > 0")
-        if not (0.0 < self.command_injection_min_printable_ratio <= 1.0):
-            errors.append(
-                "command_injection_min_printable_ratio must be in (0, 1]"
-            )
-        if self.http_body_max_decoded_bytes <= 0:
-            errors.append("http_body_max_decoded_bytes must be > 0")
-        if self.payload_excerpt_bytes <= 0:
-            errors.append("payload_excerpt_bytes must be > 0")
-        if self.http_object_body_limit <= 0:
-            errors.append("http_object_body_limit must be > 0")
-        if self.http_object_max_messages_per_stream <= 0:
-            errors.append(
-                "http_object_max_messages_per_stream must be > 0"
-            )
-        if self.ftp_brute_force_min_flows <= 0:
-            errors.append("ftp_brute_force_min_flows must be > 0")
-        if self.ssh_brute_force_min_flows <= 0:
-            errors.append("ssh_brute_force_min_flows must be > 0")
-        if self.smtp_spam_min_recipients <= 0:
-            errors.append("smtp_spam_min_recipients must be > 0")
-        if self.ftp_brute_force_min_unique_src_ports <= 0:
-            errors.append(
-                "ftp_brute_force_min_unique_src_ports must be > 0"
-            )
-
-        if self.large_transfer_min_bytes <= 0:
-            errors.append("large_transfer_min_bytes must be > 0")
-        if self.rare_external_ip_max_connections <= 0:
-            errors.append(
-                "rare_external_ip_max_connections must be > 0"
-            )
-        if any(
-            p <= 0 or p > 65535
-            for p in self.rare_external_ip_excluded_ports
-        ):
-            errors.append(
-                "rare_external_ip_excluded_ports must be in range 1..65535"
-            )
-        if self.encoded_payload_min_value_len <= 0:
-            errors.append(
-                "encoded_payload_min_value_len must be > 0"
-            )
-        if self.encoded_payload_max_decoded_len <= 0:
-            errors.append(
-                "encoded_payload_max_decoded_len must be > 0"
-            )
-        if self.long_connection_min_duration_sec <= 0:
-            errors.append(
-                "long_connection_min_duration_sec must be > 0"
-            )
-        if self.long_connection_min_packets <= 0:
-            errors.append("long_connection_min_packets must be > 0")
-        if any(
-            p <= 0 or p > 65535
-            for p in self.long_connection_excluded_ports
-        ):
-            errors.append(
-                "long_connection_excluded_ports must be in range 1..65535"
-            )
-        if self.lateral_movement_min_flows_port_only <= 0:
-            errors.append("lateral_movement_min_flows_port_only must be > 0")
-        if not self.lateral_movement_ports:
-            errors.append("lateral_movement_ports must not be empty")
-        if self.dga_entropy_threshold <= 0:
-            errors.append("dga_entropy_threshold must be > 0")
-        if self.dga_min_label_length <= 0:
-            errors.append("dga_min_label_length must be > 0")
-        if self.nxdomain_burst_threshold <= 0:
-            errors.append("nxdomain_burst_threshold must be > 0")
-        if self.nxdomain_burst_window_sec <= 0:
-            errors.append("nxdomain_burst_window_sec must be > 0")
-        if not (0.0 < self.nxdomain_burst_min_ratio <= 1.0):
-            errors.append(
-                "nxdomain_burst_min_ratio must be in (0, 1]"
-            )
-        if self.typosquatting_levenshtein_threshold < 0:
-            errors.append("typosquatting_levenshtein_threshold must be >= 0")
-        if self.sni_mismatch_min_flows <= 0:
-            errors.append("sni_mismatch_min_flows must be > 0")
-        if self.brute_force_min_flows <= 0:
-            errors.append("brute_force_min_flows must be > 0")
-        if self.brute_force_max_avg_packets <= 0:
-            errors.append("brute_force_max_avg_packets must be > 0")
-        if self.brute_force_min_unique_src_ports <= 0:
-            errors.append("brute_force_min_unique_src_ports must be > 0")
-        if not (0.0 < self.brute_force_uri_ratio_threshold <= 1.0):
-            errors.append(
-                "brute_force_uri_ratio_threshold must be in (0, 1]"
-            )
-        if self.brute_force_min_rate_flows_per_sec <= 0:
-            errors.append(
-                "brute_force_min_rate_flows_per_sec must be > 0"
-            )
-        if not self.bruteforce_success_uri_hints:
-            errors.append(
-                "bruteforce_success_uri_hints must not be empty"
-            )
-        if self.dc_min_service_flows <= 0:
-            errors.append("dc_min_service_flows must be > 0")
-        if self.dc_min_unique_srcs <= 0:
-            errors.append("dc_min_unique_srcs must be > 0")
-        if self.entities_top_n <= 0:
-            errors.append("entities_top_n must be > 0")
-        if self.gateway_min_flows <= 0:
-            errors.append("gateway_min_flows must be > 0")
-        if self.gateway_min_unique_dsts <= 0:
-            errors.append("gateway_min_unique_dsts must be > 0")
-        if self.flow_report_top_n <= 0:
-            errors.append("flow_report_top_n must be > 0")
-        if self.absence_top_n <= 0:
-            errors.append("absence_top_n must be > 0")
-        if not str(self.plugins_dir).strip():
-            errors.append("plugins_dir must not be empty")
-        if self.web_scanner_min_distinct_paths <= 0:
-            errors.append("web_scanner_min_distinct_paths must be > 0")
-        if self.port_scan_min_distinct_dsts <= 0:
-            errors.append("port_scan_min_distinct_dsts must be > 0")
-        if self.port_scan_max_flows_per_dst <= 0:
-            errors.append("port_scan_max_flows_per_dst must be > 0")
-        if not self.port_scan_excluded_ports:
-            errors.append("port_scan_excluded_ports must not be empty")
-        if any(p <= 0 or p > 65535 for p in self.port_scan_excluded_ports):
-            errors.append(
-                "port_scan_excluded_ports must be in range 1..65535"
-            )
-        if not self.suspicious_ports:
-            errors.append("suspicious_ports must not be empty")
-        if not self.dc_service_ports:
-            errors.append("dc_service_ports must not be empty")
-        if any(p <= 0 or p > 65535 for p in self.suspicious_ports):
-            errors.append("suspicious_ports must be in range 1..65535")
-        if any(p <= 0 or p > 65535 for p in self.dc_service_ports):
-            errors.append("dc_service_ports must be in range 1..65535")
-
-
-
+        errors = [
+            rule.message
+            for rule in _VALIDATION_RULES
+            if not rule.valid(getattr(self, rule.field))
+        ]
         if errors:
             raise ValueError(
                 "Invalid Config:\n" + "\n".join(f"  - {e}" for e in errors)

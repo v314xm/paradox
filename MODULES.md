@@ -8,7 +8,7 @@
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
 **Строк кода:** ядро — 19 294, GUI — 17 388, всего 36 682
   (замер 2026-11-11)
-**Тестов:** 1363 в 159 файлах (замер 2026-11-10)
+**Тестов:** 1369 в 160 файлах (замер 2026-11-11)
 
 ---
 
@@ -38,7 +38,7 @@
 | `__init__.py` | 1 | `__version__ = "1.5.1"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
-| `config.py` | 1017 | Все настройки (frozen dataclass), валидация |
+| `config.py` | 1025 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
 | `models.py` | 370 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
 | `pipeline.py` | 689 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect`, `_build_report` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
@@ -518,7 +518,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1363 теста в 159 файлах** (замер 2026-11-10, после детектора encoded_payload).
+**1369 тестов в 160 файлах** (замер 2026-11-11, после разбиения facts и таблицы валидации Config).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
@@ -577,7 +577,9 @@ Threat Intel, Производительность.
 
 ### Технический долг (не блокеры)
 
-- `config.py` — 904 строки плоского dataclass. Работает, но параллельные секции (beaconing, dns_tunneling, http_body) дают много строк валидации — можно разнести в per-section `_validate_*`.
+- `config.py` — плоский dataclass на 1025 строк. Валидация уже табличная
+  (`_VALIDATION_RULES`: поле, предикат, сообщение), но сами секции
+  (beaconing, dns_tunneling, http_body) по-прежнему живут в одном классе.
 - `pipeline.py` — 654 строки: extract, summarize, detect, сборка отчёта и два публичных входа в одном файле (общая часть уже вынесена в `_build_report`).
 - `http_object.py` — поддерживает HTTP/1.x, не HTTP/2. Для HTTP/2 нужен бинарный парсер (h2-фреймы).
 - `file_carve.py` — `_MIME_TO_EXT` (18 записей) и `_MAGIC` (9 сигнатур). Не покрывает APK, MSI, DMG.

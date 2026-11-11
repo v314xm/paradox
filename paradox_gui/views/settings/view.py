@@ -327,10 +327,8 @@ class SettingsView(
 
 
     def _check_modified(self, *args) -> None:
-        # Кэшируем Config(): _validate() + output_dir.mkdir() в
-        # __post_init__ — дорого дёргать на каждое нажатие клавиши.
-        # OSError тоже ловим: недоступный output_dir не должен
-        # обрушивать слот по textChanged.
+        # Кэшируем Config(): _validate() прогоняет таблицу правил —
+        # дорого дёргать на каждое нажатие клавиши.
         if getattr(self, "_defaults", None) is None:
             try:
                 from paradox.config import Config

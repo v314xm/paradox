@@ -42,7 +42,7 @@
   со `slots`, reassembler не строит ключ для чистых ACK, sha256
   считается пачками. Findings и contradictions на трёх эталонах не
   изменились, sha256 в provenance сверен с файлом.
-- 27 детекторов, 1363 теста (было 24 и 1312).
+- 27 детекторов, 1369 тестов (было 24 и 1312).
 - `paradox/contradictions/facts.py` (908 строк) разложен по источникам:
   `facts_attack` (полярность findings), `facts_net` (ARP, asymmetry,
   protocol-on-port, direct IP) и `facts_tls` (SNI/Host, JA3/UA,
@@ -51,6 +51,11 @@
   `_base_domain`. Неиспользуемый dispatcher `extract_facts`, который
   к тому же потерял cert-факты, удалён; AST всех 17 оставшихся
   определений сверен с прежним модулем.
+- Валидация `Config` переведена на таблицу `_VALIDATION_RULES`
+  (`поле, предикат, сообщение`): 74 правила вместо ручных `if`.
+  Сообщения и порядок прежние — сверено с реализацией из `HEAD`
+  на 79 наборах значений, включая конфиг с несколькими ошибками.
+  `dataclasses.replace` по-прежнему перевалидирует.
 - `paradox/reporters/markdown_reporter.py` (984 строки) разбит на
   пакет `reporters/markdown/`: форматтеры, MITRE, IOC, TL;DR,
   таймлайн, секции и сборка документа. Фасад на 11 строк сохранён,

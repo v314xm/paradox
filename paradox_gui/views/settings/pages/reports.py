@@ -59,10 +59,8 @@ class ReportsPageMixin:
     def _apply_reports(self) -> None:
         text = self._output_dir.text().strip() or "reports"
         path = Path(text)
-        # Создаём сразу: Config.__post_init__ делает mkdir только для
-        # дефолтного пути. При override через object.__setattr__ пост-
-        # инициализация не запускается, поэтому папка останется не
-        # созданной, и ядро упадёт при попытке писать.
+        # Создаём сразу: Config файловую систему не трогает —
+        # каталог отчётов появляется только здесь.
         try:
             path.mkdir(parents=True, exist_ok=True)
         except OSError:
