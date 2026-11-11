@@ -294,7 +294,7 @@ Directed graph атаки: узлы = IP, рёбра = findings с (src, dst),
 `timeline`, `flows`, `http`, `http_objects`, `carved_files`, `dns`,
 `ndp`, `absence`, `ioc_files`.
 
-**Markdown** (`markdown_reporter.py`): TL;DR в порядке kill-chain
+**Markdown** (`markdown/`): TL;DR в порядке kill-chain
 (не confidence), PIVOT первым; секции TL;DR, таймлайн, carved,
 сводка (в т.ч. `summary.protocols.by_l4`/`by_l7`), противоречия,
 findings, сущности, HTTP, IOC, топ-10 flows.

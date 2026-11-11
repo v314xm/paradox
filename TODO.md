@@ -347,8 +347,16 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       `TAB_TITLES` с вкладками (попутно восстановлен `TAB_TITLES`,
       который импортировал `tools/docs_inventory.py`, но в файле его
       не было).
-- [ ] **P1** Разбить `markdown_reporter.py` (992) на `markdown/format`,
+- [x] **P1** Разбить `markdown_reporter.py` (992) на `markdown/format`,
       `sections_entities`, `sections_traffic`, `sections_analysis`.
+      Сделано 2026-11-10 иначе, по назначению: пакет
+      `paradox/reporters/markdown/` — `format` (форматтеры),
+      `mitre`, `iocs`, `tldr`, `timeline`, `sections` (carved,
+      противоречия, findings, сущности, HTTP, absence, NDP,
+      сертификаты), `document` (сборка). `markdown_reporter.py` —
+      фасад на 11 строк. Вывод сверен со старым рендером на четырёх
+      реальных отчётах — побайтово совпал (14 241 / 11 634 / 16 675 /
+      2 090 символов).
 - [ ] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,
       `facts_tls`; убрать `extract_facts`, который не вызывается и уже
       потерял cert-факты.

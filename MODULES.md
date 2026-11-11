@@ -6,7 +6,7 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 19 015, GUI — 17 383, всего 36 398
+**Строк кода:** ядро — 19 269, GUI — 17 388, всего 36 657
   (замер 2026-11-10)
 **Тестов:** 1363 в 159 файлах (замер 2026-11-10)
 
@@ -393,7 +393,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 | Файл | Строк | Что делает |
 |---|---|---|
 | `json_reporter.py` | 20 | `write_json` (sort_keys для детерминизма), `write_markdown` |
-| `markdown_reporter.py` | 992 | `render_markdown` — TL;DR, таймлайн, carved, сводка, противоречия, findings, сущности, HTTP, IOC, топ-10 flows |
+| `markdown/` | 996 | `render_markdown` — TL;DR, таймлайн, carved, сводка, противоречия, findings, сущности, HTTP, IOC, топ-10 flows. Модули: `document`, `tldr`, `timeline`, `sections`, `format`, `mitre`, `iocs` |
 | `flow_report.py` | 234 | `build_flow_report`, `build_dns_report`, `build_http_report`, `build_http_object_report` |
 | `ioc_reporter.py` | 371 | **v1.0.0** — `build_ioc_report`, `write_ioc_files` (txt/csv/json/suricata/queries) |
 | `html_reporter.py` | 338 | **v1.5.0** — `render_html`, `write_html` — самодостаточный HTML (печать в PDF), экранирование значений |
@@ -402,7 +402,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 `run_pipeline` сам файлы не пишет (кроме IOC и carved): flow-отчёты
 собираются внутри pipeline, JSON/Markdown/HTML/STIX пишут CLI или GUI.
 
-**`_CHAIN_ORDER`** в markdown_reporter — порядок findings в TL;DR (pivot=5, web_scanner=10 … large_transfer=110).
+**`CHAIN_ORDER`** в `paradox/taxonomy.py` — порядок findings в TL;DR (pivot=5, web_scanner=10 … large_transfer=110).
 
 **IOC reporter** — `_looks_like_ip` через `ipaddress` (IPv4+IPv6), SID база 9000000, KQL+Splunk queries. IPv6-путь тестами не покрыт.
 
@@ -570,7 +570,6 @@ Threat Intel, Производительность.
 | HTTP/2 не разбирается | h2-трафик виден только как flow | h2-фреймы + HPACK |
 | Потоки сверх бюджета reassembly (200 МБ) truncated | Потеря тел; число видно в summary и в Markdown-предупреждении | Инкрементальный разбор и вытеснение |
 | IPv6 в `ioc_reporter` не тестируется | Может ломаться на специфичных форматах | Тест + `ipaddress` |
-| `markdown_reporter.py` — 983 строки | Сложно поддерживать | Разбить на подмодули |
 | `contradictions/facts.py` — 907 строк | Один файл на 8 экстракторов | Разбить по source |
 
 ### Технический долг (не блокеры)
