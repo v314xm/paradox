@@ -347,7 +347,12 @@ class ObservationsPanel(QFrame):
 
     def _update_protocols(self, summary: dict) -> None:
         by_l7 = (summary.get("protocols") or {}).get("by_l7") or {}
-        items = sorted(by_l7.items(), key=lambda kv: (-kv[1], kv[0]))
+        # «other» — не протокол, а остаток: показываем его последним,
+        # иначе он вытесняет из топ-4 HTTP/TLS/DNS.
+        items = sorted(
+            by_l7.items(),
+            key=lambda kv: (kv[0] == "other", -kv[1], kv[0]),
+        )
         if not items:
             self._row_protocols.set_value("—")
             return

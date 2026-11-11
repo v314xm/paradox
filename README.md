@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1490%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1511%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 30 детекторов, 12 правил противоречий, GUI, 1490 тестов.**
+**PCAP triage: 30 детекторов, 12 правил противоречий, GUI, 1511 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -211,11 +211,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1490 passed
+pytest -m "not slow"           # ~25 сек, 1511 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1490 тестов в 178 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1511 тестов в 178 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -277,8 +277,8 @@ pre-commit install
 
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
-- **1.6.0 (текущий релиз)** — 12 экстракторов, 30 детекторов, 12 правил противоречий, GUI (9 вкладок), 1464 теста. Волна 2 (детекция), волна 3 (пакеты) и волна 4 (AD: SMB2/LDAP, Kerberoasting, ADRecon, DCSync; HTTP/2 и TLS по SSLKEYLOGFILE).
-- **main (после 1.6.0) — Payload Workbench.** «Код инжекта» получил поиск, hex-страницы, части multipart с файлом за 64 КБ, безопасную деобфускацию, инспектор с IOC и вложенными файлами, экспорт с редакцией секретов; IOC из тела теперь видны в «Обогащении». 1490 тестов.
+- **1.7.0 (текущий релиз)** — 12 экстракторов, 30 детекторов, 12 правил противоречий, GUI (9 вкладок), 1511 тестов. **Payload Workbench** в «Коде инжекта» (поиск, hex-страницы, части multipart с файлом за 64 КБ, безопасная деобфускация, инспектор с IOC, экспорт с редакцией секретов), **колонка действий** с переходами из находок и переработанный **«Прогон»**: наблюдения с плитками итога, объём по хостам, приоритетные карточки внимания.
+- **1.6.0** — волны 2–4: `rare_external_ip`, `long_connections`, `encoded_payload`, SMB2/LDAP и AD-атаки, HTTP/2 и TLS по SSLKEYLOGFILE; 1464 теста.
 - **Волна 3 — сделано, кроме stream mode.** `theme.py`, `settings_view.py`, `main_window.py`, `markdown_reporter.py`, `facts.py` и `pipeline.py` разбиты на пакеты/модули (`theme/`, `views/settings/`, `window/`, `reporters/markdown/`, `contradictions/facts_*`, `pipeline/`); внешние импорты сохранены фасадами, Markdown-вывод сверен побайтово. Валидация `Config` — табличная, HTTP request-line и ASN.1-ридеры сведены к общим функциям. Разбор 335 МБ ускорен с 24.2 до 14.4 с — цель «меньше 15 с» достигнута. Осталось — stream mode для pcap > 2 ГБ.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
 - **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
@@ -287,7 +287,7 @@ pre-commit install
 - **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, MISP export, REST API, нативный PDF.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1490 passed» — локальный замер на Windows.
+цифра «1511 passed» — локальный замер на Windows.
 
 ## Вклад
 

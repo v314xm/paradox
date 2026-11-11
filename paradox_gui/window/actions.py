@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from paradox_gui import __version__ as APP_VERSION
+from paradox_gui.formatting import fmt_bytes, fmt_count
 from paradox_gui.i18n import tr
 
 
@@ -255,10 +256,13 @@ class ActionsMixin:
 
     def _on_analysis_finished(self, report: object) -> None:
         s = report.get("summary", {}) if isinstance(report, dict) else {}
+        size = s.get("size_bytes")
         self._status_text.setText(tr(
             "status.done",
-            findings=s.get("findings", 0),
-            contradictions=s.get("contradictions", 0),
+            packets=fmt_count(s.get("packets", 0)),
+            size=fmt_bytes(int(size)) if size else "—",
+            findings=fmt_count(s.get("findings", 0)),
+            contradictions=fmt_count(s.get("contradictions", 0)),
         ))
         # Есть что сохранять — включаем экспорт.
         for a in (self._act_export_json, self._act_export_md, self._act_export_conn):

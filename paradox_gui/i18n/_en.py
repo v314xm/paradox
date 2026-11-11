@@ -42,7 +42,7 @@ STRINGS: dict[str, str] = {
     "status.ready": "Ready",
     "status.file": "File:",
     "status.analyzing": "Analyzing…",
-    "status.done": "Done · {findings} findings · {contradictions} contradictions",
+    "status.done": "Done · packets: {packets} · {size} · findings: {findings} · contradictions: {contradictions}",
     "status.cancelled": "Cancelled by user",
     "status.saved": "Saved: {path}",
     "status.report_loaded": "Report loaded: {path}",
