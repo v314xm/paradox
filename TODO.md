@@ -381,8 +381,21 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       раньше (`test_config_side_effects`), каталог создаёт
       `config_builder` и страница «Отчёты»; устаревшие комментарии в
       GUI поправлены. Тесты: `tests/test_config_validation.py`.
-- [ ] **P1** `pipeline.py` (689): `pipeline/extract.py`,
+- [x] **P1** `pipeline.py` (689): `pipeline/extract.py`,
       `pipeline/summarize.py`, `pipeline/report.py`, тонкий фасад.
+      Сделано 2026-11-11: пакет `paradox/pipeline/` — `extract` (237:
+      пакетный цикл, `EXTRACTORS`, `sha256_file`, post-extract),
+      `report` (173: `_build_report`), `__init__` (137: фасад,
+      `run_pipeline`/`run_multi_pipeline`, реэкспорт прежних имён),
+      `detect` (124: `DETECTORS`, `_detect`), `summarize` (96:
+      направления, L4/L7, MITRE), `errors` (6: `PipelineCancelled`).
+      AST всех 11 определений и списки `EXTRACTORS`/`DETECTORS` сверены
+      с прежним модулем; JSON-отчёт на CyberCampTask совпал побайтово.
+      Единственная правка теста — patch-цель
+      `paradox.pipeline.PcapRecordReader` →
+      `paradox.pipeline.extract.PcapRecordReader`; патчи
+      `paradox.pipeline.sha256_file` и `run_pipeline` работают, потому
+      что обе точки входа остались в фасаде.
 - [x] **P1** Профилирование и цель < 15 с на 335 МБ: один проход по flows в
       `build_entities`, `findings_indices` как `set`, `heapq.nlargest` в
       `flow_report`, один `findings_dicts` вместо трёх сериализаций.

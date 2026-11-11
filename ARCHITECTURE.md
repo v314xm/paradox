@@ -282,7 +282,7 @@ Directed graph атаки: узлы = IP, рёбра = findings с (src, dst),
 
 **Multi-pcap** (`multi_pcap.py`): `merge_capture_states([s1, s2, …])`
 — слияние N `CaptureState`. Вызывается из `run_multi_pipeline`
-(append-only в `pipeline.py`, `run_pipeline` не тронут). Байты TCP
+(append-only в `pipeline/`, `run_pipeline` не тронут). Байты TCP
 одного 5-tuple из разных файлов не склеиваются: коллизия считается
 в `extractor_errors["multi_pcap_stream_conflict"]`.
 

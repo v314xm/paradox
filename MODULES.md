@@ -6,7 +6,7 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 19 294, GUI — 17 388, всего 36 682
+**Строк кода:** ядро — 19 358, GUI — 17 388, всего 36 746
   (замер 2026-11-11)
 **Тестов:** 1369 в 160 файлах (замер 2026-11-11)
 
@@ -40,7 +40,7 @@
 | `cli.py` | 177 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins` |
 | `config.py` | 1025 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
 | `models.py` | 370 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
-| `pipeline.py` | 689 | `run_pipeline` + `run_multi_pipeline`, `_extract`, `_detect`, `_build_report` |
+| `pipeline/` | 773 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
 | `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
 | `multi_pcap.py` | 187 | `merge_capture_states(states)` — слияние N датасетов |
@@ -320,7 +320,7 @@ Directed graph атаки из findings + contradictions. Узлы = IP, рёб�
 внутри каждого файла, поэтому `http_objects`, `tls_certs` и
 `carved_files` просто складываются списками.
 
-Не трогает `run_pipeline`, вызывается из `run_multi_pipeline` (append-only в `pipeline.py`).
+Не трогает `run_pipeline`, вызывается из `run_multi_pipeline` (append-only в `pipeline/`).
 
 ---
 
@@ -580,7 +580,9 @@ Threat Intel, Производительность.
 - `config.py` — плоский dataclass на 1025 строк. Валидация уже табличная
   (`_VALIDATION_RULES`: поле, предикат, сообщение), но сами секции
   (beaconing, dns_tunneling, http_body) по-прежнему живут в одном классе.
-- `pipeline.py` — 654 строки: extract, summarize, detect, сборка отчёта и два публичных входа в одном файле (общая часть уже вынесена в `_build_report`).
+- `pipeline/` разложен по этапам (`extract`, `detect`, `summarize`,
+  `report`), фасад — 137 строк; сшивать этапы по-прежнему в одном
+  месте, но читать их можно по отдельности.
 - `http_object.py` — поддерживает HTTP/1.x, не HTTP/2. Для HTTP/2 нужен бинарный парсер (h2-фреймы).
 - `file_carve.py` — `_MIME_TO_EXT` (18 записей) и `_MAGIC` (9 сигнатур). Не покрывает APK, MSI, DMG.
 - `_MIME_TO_EXT`/`_MAGIC` и `payload_excerpt.py` не знают про brotli/zstd — тела с таким сжатием просто не сканируются.

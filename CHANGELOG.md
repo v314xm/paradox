@@ -51,6 +51,15 @@
   `_base_domain`. Неиспользуемый dispatcher `extract_facts`, который
   к тому же потерял cert-факты, удалён; AST всех 17 оставшихся
   определений сверен с прежним модулем.
+- `paradox/pipeline.py` (689 строк) разложен на пакет по этапам:
+  `extract` (пакетный цикл и `EXTRACTORS`), `detect` (`DETECTORS`),
+  `summarize` (направления, L4/L7, MITRE) и `report` (`_build_report`);
+  `PipelineCancelled` — в `errors`. `__init__.py` — фасад на 137 строк
+  с `run_pipeline`/`run_multi_pipeline`, поэтому патчи
+  `paradox.pipeline.run_pipeline` и `paradox.pipeline.sha256_file`
+  в GUI и тестах работают как раньше. JSON-отчёт на CyberCampTask
+  совпал с прежним побайтово; прогон — 15.4 с, 8 findings,
+  2 contradictions.
 - Валидация `Config` переведена на таблицу `_VALIDATION_RULES`
   (`поле, предикат, сообщение`): 74 правила вместо ручных `if`.
   Сообщения и порядок прежние — сверено с реализацией из `HEAD`

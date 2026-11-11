@@ -76,7 +76,7 @@ def test_sha256_falls_back_to_second_pass_on_partial_read(tmp_path):
     config = Config(tcp_reassembly_enabled=False, file_carve_enabled=False)
     with (
         patch(
-            "paradox.pipeline.PcapRecordReader", _ReaderStopsEarly,
+            "paradox.pipeline.extract.PcapRecordReader", _ReaderStopsEarly,
         ),
         patch(
             "paradox.pipeline.sha256_file", return_value="fallback-digest",
