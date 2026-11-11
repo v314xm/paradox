@@ -219,6 +219,16 @@ def _extract(
     except Exception:
         state.extractor_errors["ldap"] += 1
 
+    # DCE/RPC: DCSync идёт BIND'ом DRSUAPI и DsGetNCChanges либо
+    # прямо в TCP-потоке, либо внутри SMB2 named pipe, поэтому
+    # сканируются все склеенные потоки (см. dcerpc_parse).
+    from paradox.extractors.dcerpc import DCERPCExtractor
+
+    try:
+        DCERPCExtractor().run_post_extract(state, config)
+    except Exception:
+        state.extractor_errors["dcerpc"] += 1
+
     # FileCarve — метаданные payload'ов (без записи на диск по умолчанию)
     if config.file_carve_enabled:
         try:

@@ -6,9 +6,9 @@
 
 **Версия ядра:** 1.5.1 (тег git: v1.5.1)
 **Версия GUI:** 1.5.1 (тег git: v1.5.1)
-**Строк кода:** ядро — 20 489, GUI — 17 388, всего 37 877
+**Строк кода:** ядро — 20 952, GUI — 17 384, всего 38 336
   (замер 2026-11-11)
-**Тестов:** 1418 в 167 файлах (замер 2026-11-11)
+**Тестов:** 1439 в 170 файлах (замер 2026-11-11)
 
 ---
 
@@ -57,6 +57,7 @@
 | `kerberos_parse.py` | 291 | Kerberos AS/TGS/AP поверх общего `der.read_tlv` |
 | `smb2_parse.py` | 261 | SMB2 из NetBIOS-рамки: команды, share/путь, диалекты, NTLMSSP Type 3 |
 | `ldap_parse.py` | 238 | LDAP bind/search, текстовый рендер фильтра, атрибуты |
+| `dcerpc_parse.py` | 262 | DCE/RPC: BIND (UUID/версия интерфейса), REQUEST (context id, opnum), AUTH3; DRSUAPI и naming context |
 | `nbns_parse.py` | 179 | NBNS-имена |
 | `x509_der.py` | 61 | Совместимый фасад; реализация — в `der.py` |
 | `der.py` | 266 | Общий ASN.1 DER/TLV: `read_tlv` (strict / lenient), дерево `DerNode`, `as_int`/`as_oid`/`as_str`/`as_time` |
@@ -140,6 +141,7 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 | `extractors/tls_cert.py` (71) | `TlsCertificateExtractor.run_post_extract()` → `state.tls_certs` |
 | `extractors/smb2.py` (111) | `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды, диалекты, share, пути, статусы, объёмы READ/WRITE; NTLMSSP Type 3 → `host_identities` (user/domain/workstation) |
 | `extractors/ldap.py` (118) | `LDAPExtractor.run_post_extract()` — bind/search из потоков 389/3268: bind DN, base DN, фильтры, атрибуты, коды результата; bind DN → `host_identities` |
+| `extractors/dcerpc.py` (95) | `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context, учётка из AUTH3 |
 | `reassembler.py` | `TCPReassembler` — склейка TCP; лимиты 1 МБ/flow и 200 МБ total, потоки сверх лимита помечаются truncated |
 | `tls.py` | `TLSExtractor.run_post_extract()` — SNI/JA3 из склеенных потоков (ClientHello бывает больше одного сегмента) |
 | `file_carve.py` | `carve_files()` → `state.carved_files` |
@@ -154,7 +156,7 @@ Post-extract вызывается из `_extract` после чтения все
 
 Слой `paradox/detectors/`. Contract: `LocalDetector` — `name`, `run(state, config) -> list[Finding]`.
 
-**29 детекторов.**
+**30 детекторов.**
 
 | Детектор | Строк | Что ищет |
 |---|---|---|
@@ -187,6 +189,7 @@ Post-extract вызывается из `_extract` после чтения все
 | `yara_detector.py` | 91 | YARA на carved_files (опционально) |
 | `kerberoasting.py` | 78 | TGS-REQ к сервисным SPN: RC4 (etype 23) или 3+ SPN с одного хоста |
 | `ad_recon.py` | 65 | Перечисление каталога: чувствительные LDAP-атрибуты по клиенту |
+| `dcsync.py` | 73 | DRSUAPI `DsGetNCChanges` (opnum 3) в привязанном контексте |
 
 **`_http_body.py` (193)** — общее для трёх детекторов: распаковка
 `gzip`/`deflate` (в т.ч. по magic `1f 8b` без `content-encoding`),
@@ -525,7 +528,7 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1418 тестов в 167 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP и AD-детекторы).
+**1439 тестов в 170 файлах** (замер 2026-11-11, волна 4: SMB2/LDAP, AD-детекторы и DCSync).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 

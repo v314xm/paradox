@@ -9,6 +9,7 @@ from paradox.detectors.beaconing import BeaconingDetector
 from paradox.detectors.brute_force import BruteForceDetector
 from paradox.detectors.cloud_tunnel import CloudTunnelDetector
 from paradox.detectors.command_injection import CommandInjectionDetector
+from paradox.detectors.dcsync import DCSyncDetector
 from paradox.detectors.dga import DGADetector
 from paradox.detectors.dns_tunneling import DNSTunnelingDetector
 from paradox.detectors.encoded_payload import EncodedPayloadDetector
@@ -67,6 +68,7 @@ DETECTORS = [
     YARADetector(),
     KerberoastingDetector(),       # v1.6
     ADReconDetector(),             # v1.6
+    DCSyncDetector(),              # v1.6
 ]
 
 

@@ -13,7 +13,7 @@
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1289 без Qt + 129 GUI = **1418** | `pytest --junitxml`, маркер `gui` |
+| Тесты | 1310 без Qt + 129 GUI = **1439** | `pytest --junitxml`, маркер `gui` |
 | Покрытие ядра | **85.7%** | `tools/coverage_gate.py` |
 | Покрытие GUI | **63.0%** | там же, GUI-тесты входят в прогон |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
@@ -471,9 +471,23 @@ CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила �
       T1087.002, фаза `credential_access`). На 2025-06-13 не
       срабатывают: TGS-REQ в захвате нет, из «чувствительных»
       атрибутов только `dNSHostName` — ложных findings нет.
-- [ ] **P1** DCSync: DCE/RPC DRSUAPI `DsGetNCChanges` (opnum 3).
+- [x] **P1** DCSync: DCE/RPC DRSUAPI `DsGetNCChanges` (opnum 3).
       Нужен минимальный RPC-парсер: bind + context UUID → request
       opnum; DRSUAPI UUID `e3514235-4b06-11d1-ab04-00c04fc2dcd2`.
+      Сделано 2026-11-11: `paradox/dcerpc_parse.py` — общий
+      PDU-заголовок, BIND с `p_cont_list` (UUID и версия),
+      REQUEST (context id, opnum), AUTH3 с NTLMSSP Type 3; кадры
+      ищутся сканированием потока (в SMB2 named pipe DCERPC лежит
+      внутри WRITE, в `ncacn_ip_tcp` — без рамки). `DCERPCExtractor`
+      (post-extract) кладёт в state bind-ы, вызовы в контексте
+      DRSUAPI и naming context из тела `DsGetNCChanges`;
+      `dcsync.py` — детектор на opnum 3 (critical, confidence 0.7,
+      T1003.006). На 2025-06-13 видны вызовы opnum 0/1/12
+      (легитимный DC-DC RPC), opnum 3 нет: findings 10 и
+      contradictions 2 не изменились. Захвата с настоящим DCSync
+      локально нет — покрыто 21 тестом на синтетических PDU.
+      Ограничение: репликация DC→DC даёт тот же вызов, источник
+      нужно сверять с реальными DC.
 - [ ] **P1** HTTP/2 framing + HPACK для внутреннего C2.
 - [ ] **P2** MISP export (`iocs.misp.json`) для threat-sharing.
 - [ ] **P2** REST API (FastAPI) + Web UI без PySide6.

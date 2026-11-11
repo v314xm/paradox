@@ -125,6 +125,9 @@ flow по `FlowKey` и падают явно, если его нет.
 - `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды,
   share, пути, статусы, NTLMSSP-учётка; `LDAPExtractor` — bind/search
   из потоков 389/3268 (base DN, фильтры, атрибуты)
+- `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из
+  всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context
+  из `DsGetNCChanges`, учётка из AUTH3
 - `carve_files()` — метаданные payload'ов (sha256, MIME, magic)
 
 После post-extract `state.tcp_streams` освобождаются: сырые байты
@@ -155,6 +158,10 @@ flow по `FlowKey` и падают явно, если его нет.
 `smb2_status_errors`, `smb2_read/write_bytes`, `ldap_messages`,
 `ldap_bind_dns/search_bases/filters/attributes/result_codes`.
 
+**DCE/RPC:** `dcerpc_binds` (UUID+версия интерфейса),
+`dcerpc_drsuapi_calls` (client, server, port, opnum),
+`dcerpc_naming_contexts`.
+
 **Meta:** `packet_count`, `first_ts`, `last_ts`, `extractor_errors`.
 
 ### FlowKey vs SessionKey
@@ -164,7 +171,7 @@ flow по `FlowKey` и падают явно, если его нет.
 `SessionKey` + `make_session_key()` — нормализованный двунаправленный
 ключ. Используется в `session_sni` и `reverse_asymmetry`.
 
-## Слой 4. Детекторы (`detectors/`) — 27
+## Слой 4. Детекторы (`detectors/`) — 30
 
 Чистые функции над `CaptureState`. `run(state, config) -> list[Finding]`.
 
@@ -197,6 +204,9 @@ flow по `FlowKey` и падают явно, если его нет.
 | php_payload | `<?php` в ответе (`php_download`) или в загрузке (`webshell_upload`) |
 | webshell_markers | маркеры шеллов PHP/ASP/JSP + семейства (WSO/b374k/c99/r57) |
 | yara | YARA на carved_files (опционально) |
+| kerberoasting | TGS-REQ: RC4 (etype 23) или 3+ SPN с одного хоста |
+| ad_recon | чувствительные атрибуты LDAP по клиенту |
+| dcsync | DRSUAPI `DsGetNCChanges` (opnum 3) в привязанном контексте |
 
 **`_http_body.py`** — общее для `command_injection`, `php_payload` и
 `http_binary_upload`: распаковка gzip/deflate (в т.ч. по magic

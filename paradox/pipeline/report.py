@@ -156,6 +156,11 @@ def _build_report(
             "ldap_binds": sum(state.ldap_bind_dns.values()),
             "ldap_searches": sum(state.ldap_search_bases.values()),
             "ldap_parse_errors": state.ldap_parse_errors,
+            "dcerpc_binds": sum(state.dcerpc_binds.values()),
+            "dcerpc_drsuapi_calls": sum(
+                state.dcerpc_drsuapi_calls.values()
+            ),
+            "dcerpc_naming_contexts": len(state.dcerpc_naming_contexts),
             **direction_summary,
             "protocols": protocol_summary,
         },

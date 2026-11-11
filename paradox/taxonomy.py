@@ -62,6 +62,7 @@ SEVERITY_BY_TYPE: dict[str, str] = {
 
     "kerberoasting": "high",
     "ad_recon": "medium",
+    "dcsync": "critical",
 }
 
 SEVERITY_RANK: dict[str, int] = {
@@ -127,6 +128,8 @@ SRC_ROLE_BY_TYPE: dict[str, str] = {
     # сервисов — жертва, даже если действует руками администратора.
     "kerberoasting": "victim",
     "ad_recon": "victim",
+    # DCSync — клиент запрашивает репликацию с DC: src атакует.
+    "dcsync": "attacker",
 }
 
 # Роли, которые дополнительно помечаются как разведка.
@@ -235,6 +238,7 @@ MITRE_BY_TYPE: dict[str, tuple[str, ...]] = {
     "suspicious_port": ("T1571",),
     "kerberoasting": ("T1558.003",),
     "ad_recon": ("T1087.002",),
+    "dcsync": ("T1003.006",),
 }
 
 MITRE_NAMES: dict[str, str] = {
@@ -251,6 +255,7 @@ MITRE_NAMES: dict[str, str] = {
     "T1204": "User Execution",
     "T1558.003": "Steal or Forge Kerberos Tickets: Kerberoasting",
     "T1087.002": "Account Discovery: Domain Account",
+    "T1003.006": "OS Credential Dumping: DCSync",
     "T1568.002": "Domain Generation Algorithms",
     "T1572": "Protocol Tunneling",
     "T1041": "Exfiltration Over C2 Channel",
@@ -328,6 +333,7 @@ PHASE_BY_TYPE: dict[str, str] = {
     "nxdomain_burst": "c2",
     "kerberoasting": "credential_access",
     "ad_recon": "recon",
+    "dcsync": "credential_access",
 
     # Lateral Movement
     "lateral_movement": "lateral_movement",
@@ -369,6 +375,7 @@ CHAIN_ORDER: dict[str, int] = {
     "brute_force": 50,
     "successful_bruteforce": 51,
     "kerberoasting": 52,
+    "dcsync": 53,
     "ftp_brute_force": 55,
     "ssh_brute_force": 57,
     "script_download": 60,

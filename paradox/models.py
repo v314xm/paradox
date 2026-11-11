@@ -379,6 +379,15 @@ class CaptureState:
     kerberos_tgs_requests: Counter = field(default_factory=Counter)
     kerberos_etypes: Counter = field(default_factory=Counter)
 
+    # v1.6: DCE/RPC для DCSync. Собирается post-extract из
+    # tcp_streams: BIND-ы по интерфейсам (UUID+версия), вызовы в
+    # контексте DRSUAPI, naming context из тел DsGetNCChanges.
+    # Ключи: (client, server, uuid, version) и
+    # (client, server, dst_port, opnum), (client, server, nc).
+    dcerpc_binds: Counter = field(default_factory=Counter)
+    dcerpc_drsuapi_calls: Counter = field(default_factory=Counter)
+    dcerpc_naming_contexts: Counter = field(default_factory=Counter)
+
 
 def dns_sources_by_name(state: CaptureState) -> dict[str, list[str]]:
     """Обратный индекс: qname → список src_ip, которые его спрашивали."""

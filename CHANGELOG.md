@@ -65,6 +65,27 @@
   сам по себе не сигнал — доменный клиент читает его штатно.
 - Таксономия: типы `kerberoasting` (T1558.003, high) и `ad_recon`
   (T1087.002, medium), новая фаза `credential_access` (порядок 45).
+- **Парсер DCE/RPC** (`paradox/dcerpc_parse.py`): общий PDU-заголовок,
+  BIND с `p_cont_list` (UUID и версия интерфейса), REQUEST (context id,
+  opnum) и AUTH3 с NTLMSSP Type 3. Кадры ищутся сканированием потока:
+  в SMB2 named pipe DCERPC лежит внутри WRITE, в `ncacn_ip_tcp` — без
+  рамки. NDR-тела не разбираются, кроме эвристики по naming context
+  (`DC=corp,DC=local`) в `DsGetNCChanges`.
+- **Экстрактор `DCERPCExtractor`** (post-extract): bind-ы по
+  интерфейсам, вызовы в контексте DRSUAPI, naming context и учётка из
+  AUTH3 → `host_identities`. Счётчики в summary: `dcerpc_binds`,
+  `dcerpc_drsuapi_calls`, `dcerpc_naming_contexts`.
+- **Детектор `dcsync`**: REQUEST opnum 3 (`DsGetNCChanges`) в
+  привязанном к DRSUAPI контексте → critical, confidence 0.7,
+  T1003.006, фаза `credential_access`. Легитимная репликация DC→DC
+  делает тот же вызов и на проводе неотличима, поэтому уверенность
+  ниже 0.9: адрес источника нужно сверить с реальными DC.
+- Проверка DCE/RPC на реальном захвате `2025-06-13`: видны bind-ы
+  DRSUAPI/SAMR/netlogon и вызовы opnum 0, 1, 12 (легитимный DC-DC
+  RPC), opnum 3 нет — findings и contradictions не изменились
+  (10 и 2); на CyberCampTask — 8 findings. Локального захвата с
+  настоящим DCSync нет, поэтому детектор покрыт тестами на
+  синтетических PDU.
 
 ### Изменено
 - Разбор 335 МБ / 627k пакетов ускорен с 24.2 до **14.4 с** (цель
