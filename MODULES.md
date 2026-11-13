@@ -1,14 +1,14 @@
-# Справочник модулей Paradox v1.7.0
+# Справочник модулей Paradox v1.8.0
 
 Описание каждого файла: что делает, ключевые классы и функции,
 связи с другими модулями. Для аналитика, разработчика и того, кто
 хочет понять, куда смотреть при отладке.
 
-**Версия ядра:** 1.7.0 (тег git: v1.7.0)
-**Версия GUI:** 1.7.0 (тег git: v1.7.0)
+**Версия ядра:** 1.8.0 (тег git: v1.8.0)
+**Версия GUI:** 1.8.0 (тег git: v1.8.0)
 **Строк кода:** ядро — 23 273, GUI — 19 705, всего 42 978
   (замер 2026-11-11)
-**Тестов:** 1511 в 178 файлах (замер 2026-11-11)
+**Тестов:** 1622 в 184 файлах (замер 2026-11-13)
 
 ---
 
@@ -18,7 +18,7 @@
 2. [Парсеры](#парсеры)
 3. [Экстракторы (12 + post-extract)](#экстракторы)
 4. [Детекторы (30)](#детекторы)
-5. [Contradictions (12 правил)](#contradictions)
+5. [Contradictions (13 правил)](#contradictions)
 6. [Объяснения (`paradox/explain`)](#объяснения-paradoxexplain)
 7. [Анализаторы](#анализаторы)
 8. [Multi-pcap](#multi-pcap)
@@ -36,13 +36,15 @@
 
 | Файл | Строк | Что делает |
 |---|---|---|
-| `__init__.py` | 1 | `__version__ = "1.7.0"` |
+| `__init__.py` | 1 | `__version__ = "1.8.0"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
-| `cli.py` | 221 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog` |
-| `config.py` | 1055 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
-| `models.py` | 431 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
-| `pipeline/` | 829 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
-| `explain/` | 1 707 | Объяснения находок и противоречий человеческим языком: `model`, `catalog` (37 типов), `contradiction_catalog` (12 правил), `render` |
+| `cli.py` | 230 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog`, `--behavioral` |
+| `config.py` | 1100 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `models.py` | 460 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState`, `packet_size_cv` |
+| `ml/` | 200 | Чистый Python Isolation Forest (`isolation_forest.py`) — детерминированный поиск статистических выбросов, без scikit-learn |
+| `host_profiler.py` | 220 | `HostProfiler`: базовая роль хоста по OUI MAC + наблюдение поведения (веб/SMB-сервер, сканер) |
+| `pipeline/` | 860 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
+| `explain/` | 1 730 | Объяснения находок и противоречий человеческим языком: `model`, `catalog` (38 типов), `contradiction_catalog` (13 правил), `render` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
 | `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
 | `multi_pcap.py` | 228 | `merge_capture_states(states)` — слияние N датасетов |
@@ -253,6 +255,7 @@ Post-extract вызывается из `_extract` после чтения все
 - `facts_attack.py` (113) — `extract_attack_facts`
 - `facts_net.py` (368) — `extract_arp_facts`, `extract_asymmetry_facts`, `extract_protocol_on_port_facts`, `extract_direct_ip_facts`
 - `facts_tls.py` (399) — `extract_tls_host_facts`, `extract_ja3_ua_facts`, `extract_tls_cert_facts`
+- `facts_role.py` (80) — `extract_role_facts` (`assigned_role`, `observed_behavior`)
 
 - `extract_attack_facts(findings)` — `victim_of` / `attacker_of` (синхронизировано с `entities.py`)
 - `extract_arp_facts(state)` — `has_mac` из `arp_macs`
@@ -262,8 +265,9 @@ Post-extract вызывается из `_extract` после чтения все
 - `extract_protocol_on_port_facts(state, config)` — `protocol_on_port` (tls/http)
 - `extract_direct_ip_facts(state, config)` — `direct_ip_connect`, `makes_dns_queries`
 - `extract_tls_cert_facts(state)` — `tls_cert` из `state.tls_certs`
+- `extract_role_facts(state, config)` — `assigned_role` (по OUI MAC) + `observed_behavior` (веб/SMB-сервер, сканер)
 
-### `registry.py` (106) — 12 правил
+### `registry.py` (110) — 13 правил
 
 | Правило | severity_base | Источник | Что ищет |
 |---|---|---|---|
@@ -279,6 +283,7 @@ Post-extract вызывается из `_extract` после чтения все
 | `ReverseAsymmetryRule` (185) | medium | flows | session ratio ≥10 (bulk → low) |
 | `PortServiceMismatchRule` (166) | high | flows | TLS на 22 / HTTP на 445 → туннель |
 | `DirectIpNoDnsRule` (129) | medium | flows | IP без DNS, ≥3 dst или ≥10 flows к одному dst |
+| `RoleDeviationRule` (210) | high | role | поведение противоречит базовой роли по OUI (WS→webserver critical, server→scanner high) |
 
 **`run_all(state, findings, config, rules=None)`** — прогон,
 сортировка по (severity, -confidence, subject). Упавшее правило
@@ -323,6 +328,18 @@ Post-extract вызывается из `_extract` после чтения все
 ## Анализаторы
 
 Слой `paradox/analyzers/` — v1.0.0/v1.2.0.
+
+### `behavioral_analyzer.py` (410) — **v1.8.0**
+
+Поведенческий ML-слой: Isolation Forest над признаками сессий и профилями хостов.
+
+**Классы:** `BehavioralAnalyzer`.
+
+- **`score_sessions(state, config)`** — статистические выбросы по двунаправленным сессиям (объём, темп, асимметрия, `payload_cv`, `gap_cv`).
+- **`score_hosts(state, config)`** — хосты с аномальным профилем → находки `host_behavior_anomaly`.
+- **`corroborate(findings, state, config)`** — аннотирует rule-находки `behavioral_score`/`behavioral_corroborated`.
+
+По умолчанию выключен (`behavioral_enabled=False`), включается `--behavioral`. Сессионный слой находок не создаёт — только усиливает существующие и помечает хосты; `contamination` откалиброван (0.02) на трёх эталонах.
 
 ### `attack_graph.py` (391) — **v1.2.0**
 

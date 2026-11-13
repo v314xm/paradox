@@ -1,4 +1,4 @@
-# Архитектура Paradox v1.7.0
+# Архитектура Paradox v1.8.0
 
 ## Модель
 
@@ -37,7 +37,11 @@ Post-extract (после чтения всех пакетов)
 Detectors (30) → Findings
 │
 ▼
-ContradictionDetector (12 правил)
+BehavioralAnalyzer (ML, по умолчанию выключен: corroboration
+сессий + host_behavior_anomaly)
+│
+▼
+ContradictionDetector (13 правил)
 │
 ▼
 Timeline (kill-chain reconstruction)
@@ -234,7 +238,26 @@ rate < 0.2/min) для C2 со sleep больше часа; в evidence пише
 **MITRE:** instance-level `Finding.mitre_techniques` приоритетнее
 type-map в `detectors/mitre_map.py`.
 
-## Слой 4.5. ContradictionDetector (`contradictions/`) — 12 правил
+## Слой 4.4. Поведенческий анализ (`ml/`, `analyzers/behavioral_analyzer.py`) — v1.8.0
+
+Статистические выбросы, не описанные жёсткими правилами: Isolation
+Forest на чистом Python (`ml/isolation_forest.py`, без scikit-learn —
+не раздувает сборку), над нормализованными признаками сессий
+(объём, темп, асимметрия, `payload_cv`, `gap_cv`) и профилями хостов.
+`contamination` откалиброван (0.02) на трёх эталонах.
+
+**Две роли, не третья:**
+- `corroborate(findings, state, config)` — сессионный слой находок НЕ
+  создаёт: аннотирует rule-находки `behavioral_score` /
+  `behavioral_corroborated`, когда та же пара (src, dst) — выброс.
+- `score_hosts(state, config)` — хосты с аномальным профилем →
+  `host_behavior_anomaly` (единственные standalone-находки слоя).
+
+По умолчанию выключен (`behavioral_enabled=False`), включается
+`--behavioral`. O(1)-агрегаты признаков (`bytes_sumsq`, межпакетные
+интервалы) собираются в `FlowExtractor` без массивов таймстампов.
+
+## Слой 4.5. ContradictionDetector (`contradictions/`) — 13 правил
 
 Ищет не атаки, а **несогласованности между источниками**: одно
 утверждение о мире подтверждается одним источником и опровергается
@@ -247,7 +270,7 @@ type-map в `detectors/mitre_map.py`.
 `confidence`, `likely_causes`, `resolution_hint`,
 `priority = severity_weight × confidence`.
 
-**12 правил:**
+**13 правил:**
 - `victim_makes_attack` (critical) — pivot
 - `mac_ip_conflict` (critical) — ARP-spoof
 - `sni_host_mismatch` (high) — domain fronting
@@ -260,6 +283,9 @@ type-map в `detectors/mitre_map.py`.
 - `sni_cert_mismatch` (medium) — CN/SAN ≠ SNI
 - `self_signed_cert` (medium) — issuer == subject
 - `expired_cert` (low) — not_after < ts
+- `role_deviation` (high/critical) — поведение против базовой роли
+  по OUI MAC (workstation → веб-сервер = critical, server → сканер
+  = high)
 
 **Полярность findings** синхронизирована с `entities.py` — при
 правке менять в обоих местах (в TODO.md — вынос в `taxonomy.py`).
@@ -392,7 +418,7 @@ PE/ELF/ZIP/PDF) и экспорт в Markdown с редакцией секрет
 ```python
 EXTRACTORS = [FlowExtractor(), ..., NDPExtractor()]  # 12, flow первым
 DETECTORS  = [...26...]                              # порядок не важен
-RULES      = [...12...]                              # порядок не важен
+RULES      = [...13...]                              # порядок не важен
 ```
 
 Post-extract (не экстракторы): TCPReassembler,
@@ -523,7 +549,7 @@ PowerShell `-EncodedCommand`, `str_rot13`, HTML entities — не более
 payload'а), сохранение только по явной кнопке и Markdown-экспорт
 с редакцией паролей, токенов и `Authorization`.
 
-Известные ограничения v1.7.0
+Известные ограничения v1.8.0
 Только то, что верно сейчас; план — в TODO.md.
 
 TLS 1.3 Certificate зашифрован — правила на сертификатах
@@ -594,6 +620,10 @@ slow-beaconing, summary.protocols.by_l4/by_l7, детекторы и
 v1.5.0 — webshell_markers (24-й детектор), выдержки тел
 payload_samples, html_reporter, stix_reporter, плагины детекторов,
 RU/EN i18n, вкладка «Код инжекта».
+
+v1.8.0 — объяснения в ядре и окно объяснений, поведенческий ML-слой
+(Isolation Forest: corroboration + host_behavior_anomaly, off by
+default), 13-е правило role_deviation.
 
 Связанные документы
 README.md — обзор, quick start, метрики.

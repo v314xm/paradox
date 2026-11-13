@@ -1,11 +1,11 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1511%20passed-brightgreen.svg)](#тесты)
+[![tests](https://img.shields.io/badge/tests-1622%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 30 детекторов, 12 правил противоречий, GUI, 1511 тестов.**
+**PCAP triage: 30 детекторов, 13 правил противоречий, GUI, 1622 теста.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
@@ -85,7 +85,7 @@ Timeline: port_scan → ftp_brute_force → command_injection → beaconing → 
 - **Роли хостов.** `domain_controller`, `victim_candidate`, `attacker_candidate`, `c2_candidate`, `gateway_candidate`, `pivot`.
 - **Timeline / kill-chain.** Хронология findings и противоречий по фазам (recon → initial_access → execution → lateral_movement → c2 → exfiltration).
 
-## Противоречия (12 правил)
+## Противоречия (13 правил)
 
 | Правило | Severity | Что находит |
 |---|---|---|
@@ -101,6 +101,7 @@ Timeline: port_scan → ftp_brute_force → command_injection → beaconing → 
 | `sni_cert_mismatch` | medium | SNI ≠ CN/SAN сертификата |
 | `self_signed_cert` | medium | Самоподписанный сертификат на внешнем ресурсе |
 | `expired_cert` | low | Просроченный сертификат |
+| `role_deviation` | high/critical | Хост ведёт себя не по базовой роли (OUI): workstation → веб-сервер, server → сканер |
 
 ## GUI
 
@@ -211,11 +212,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1511 passed
+pytest -m "not slow"           # ~25 сек, 1622 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1511 тестов в 178 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1622 теста в 184 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -226,7 +227,7 @@ pytest/PySide6); результат считайте по `--junitxml`, а не 
 - Парсеры (TLS, X.509 DER, Kerberos, NBNS, HTTP, HTTP/2 + HPACK, DCE/RPC, IPv6)
 - Все 12 extractors
 - Все 30 детекторов + MITRE-map
-- Все 12 правил contradictions
+- Все 13 правил contradictions
 - Reassembler, HTTPObject (keep-alive, gzip/deflate), JA3/JA3S, YARA
 - Регрессионные тесты на реальные FP (`test_regressions.py`, 42 теста)
 - B1 diff (`test_run_diff.py`, 10 тестов)
@@ -235,7 +236,7 @@ pytest/PySide6); результат считайте по `--junitxml`, а не 
 ## Проверено на
 
 - **FIRST-2015 Hands-on Network Forensics** — 58 pcap, 9.5M пакетов, 4.7 ГБ, 10 минут. 386 findings, 11 contradictions, 0 ошибок.
-- **CTF CyberCampTask** — 334 МБ, 627k пакетов. 8 findings (включая `successful_bruteforce` после 218 POST в `/loginok.html`), 2 contradictions, 0 FP. Pivot-правило находит 192.168.1.12.
+- **CTF CyberCampTask** — 334 МБ, 627k пакетов. 8 findings (включая `successful_bruteforce` после 218 POST в `/loginok.html`), 4 contradictions, 0 FP. Pivot-правило и `role_deviation` находят атакующий хост 192.168.1.12.
 - **MTA 2025-06-13** — malware-traffic-analysis.net. 10 findings (4 typosquatting, 3 бинарные выгрузки, 2 lateral movement, 1 cloud tunnel), 2 contradictions. Профиль жертвы 5/5 (IP, MAC, hostname, username, realm).
 
 ## Установка
@@ -277,7 +278,8 @@ pre-commit install
 
 Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
 
-- **1.7.0 (текущий релиз)** — 12 экстракторов, 30 детекторов, 12 правил противоречий, GUI (9 вкладок), 1511 тестов. **Payload Workbench** в «Коде инжекта» (поиск, hex-страницы, части multipart с файлом за 64 КБ, безопасная деобфускация, инспектор с IOC, экспорт с редакцией секретов), **колонка действий** с переходами из находок и переработанный **«Прогон»**: наблюдения с плитками итога, объём по хостам, приоритетные карточки внимания.
+- **1.8.0 (текущий релиз)** — 12 экстракторов, 30 детекторов, 13 правил противоречий, GUI (9 вкладок), 1622 теста. **Объяснения** у каждой находки и противоречия в отчёте + отдельное окно «Объяснение» («что произошло / почему важно / что делать дальше / альтернативы»). **Поведенческий ML-слой** — Isolation Forest на чистом Python (по умолчанию выключен, `--behavioral`): усиливает rule-находки, совпавшие со статистическим выбросом, и помечает хосты с аномальным профилем. **13-е правило `role_deviation`** — отклонение поведения хоста от его базовой роли по OUI MAC, с подсветкой узла в графе связей.
+- **1.7.0** — 12 экстракторов, 30 детекторов, 12 правил противоречий, GUI (9 вкладок), 1511 тестов. **Payload Workbench** в «Коде инжекта» (поиск, hex-страницы, части multipart с файлом за 64 КБ, безопасная деобфускация, инспектор с IOC, экспорт с редакцией секретов), **колонка действий** с переходами из находок и переработанный **«Прогон»**: наблюдения с плитками итога, объём по хостам, приоритетные карточки внимания.
 - **1.6.0** — волны 2–4: `rare_external_ip`, `long_connections`, `encoded_payload`, SMB2/LDAP и AD-атаки, HTTP/2 и TLS по SSLKEYLOGFILE; 1464 теста.
 - **Волна 3 — сделано, кроме stream mode.** `theme.py`, `settings_view.py`, `main_window.py`, `markdown_reporter.py`, `facts.py` и `pipeline.py` разбиты на пакеты/модули (`theme/`, `views/settings/`, `window/`, `reporters/markdown/`, `contradictions/facts_*`, `pipeline/`); внешние импорты сохранены фасадами, Markdown-вывод сверен побайтово. Валидация `Config` — табличная, HTTP request-line и ASN.1-ридеры сведены к общим функциям. Разбор 335 МБ ускорен с 24.2 до 14.4 с — цель «меньше 15 с» достигнута. Осталось — stream mode для pcap > 2 ГБ.
 - **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
@@ -287,7 +289,7 @@ pre-commit install
 - **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, MISP export, REST API, нативный PDF.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1511 passed» — локальный замер на Windows.
+цифра «1622 passed» — локальный замер на Windows.
 
 ## Вклад
 
