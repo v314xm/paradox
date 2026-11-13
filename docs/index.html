@@ -731,9 +731,13 @@
                     <p><span class="text-amber-400">Payload:</span> /ftp_update.sh (sh, 77 B, sha256 e83fb5b6a8cd…)</p>
                     <p class="text-sky-400 mt-4">## Timeline</p>
                     <p class="text-slate-400">initial_access → execution → lateral_movement → exfiltration</p>
-                    <p class="text-sky-400 mt-4">## Contradictions (2)</p>
+                    <p class="text-sky-400 mt-4">## Contradictions (4)</p>
                     <p><span class="badge badge-critical">critical</span> victim_makes_attack</p>
                     <p class="text-slate-400 pl-2">192.168.1.12 — одновременно victim_of 10.0.1.50 и attacker_of 192.168.1.1</p>
+                    <p><span class="badge badge-high">high</span> role_deviation</p>
+                    <p class="text-slate-400 pl-2">192.168.1.12 — сервер по OUI 00:50:56, но сканирует сеть (698 целей)</p>
+                    <p><span class="badge badge-high">high</span> role_deviation</p>
+                    <p class="text-slate-400 pl-2">192.168.1.1 — сервер по OUI 00:50:56, но инициирует 101 соединение на 15 портах</p>
                     <p><span class="badge badge-high">high</span> reverse_asymmetry</p>
                     <p class="text-slate-400 pl-2">192.168.1.1: 9 acks vs 5000+ inbound bytes</p>
                 </div>
