@@ -66,12 +66,17 @@ def _check_squat(sld: str, brand: str, lev_threshold: int) -> str | None:
 
     # --- contains ---
     # brand в начале SLD — sub-brand (microsoftstore) — не typosquat.
-    # brand в конце с очень коротким префиксом (s-microsoft, i-paypal)
-    # — трекинговые домены корпораций — не typosquat.
+    # brand в конце с коротким префиксом — трекинговые домены корпораций:
+    #   s-microsoft, i-paypal (префикс <= 3) и cdn-apple (префикс-слово
+    #   через дефис) — не typosquat.
     # Всё остальное (event-datamicrosoft) — contains-typosquat.
     if brand in sld:
         pos = sld.find(brand)
-        if pos == 0 or pos + len(brand) == len(sld) and pos <= 3:
+        at_start = pos == 0
+        at_end = pos + len(brand) == len(sld)
+        short_prefix = pos <= 3
+        hyphenated_prefix = pos <= 6 and sld[pos - 1] == "-"
+        if at_start or (at_end and (short_prefix or hyphenated_prefix)):
             pass
         else:
             return "contains"

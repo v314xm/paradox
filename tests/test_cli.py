@@ -41,4 +41,11 @@ def test_cli_file_not_found(capsys):
     with pytest.raises(SystemExit) as exc:
         main(["non_existent_file.pcap"])
     assert exc.value.code == 2
+    assert "не найден" in capsys.readouterr().err
+
+
+def test_cli_file_not_found_english(capsys):
+    with pytest.raises(SystemExit) as exc:
+        main(["--lang", "en", "non_existent_file.pcap"])
+    assert exc.value.code == 2
     assert "file not found" in capsys.readouterr().err

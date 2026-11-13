@@ -123,6 +123,22 @@ def test_typosquatting_behance_not_flagged():
     assert findings == []
 
 
+def test_typosquatting_cdn_apple_not_flagged():
+    """cdn-apple.com — Apple CDN: бренд за дефисным префиксом, не подделка.
+
+    Регрессия с захвата 2026-10-16 (Coruna-like): updates.cdn-apple.com
+    и sequoia.cdn-apple.com давали два ложных typosquatting.
+    """
+    findings = TyposquattingDetector().run(
+        _state_with_dns(
+            "updates.cdn-apple.com",
+            "sequoia.cdn-apple.com",
+        ),
+        Config(),
+    )
+    assert findings == []
+
+
 # ---------- Typosquatting: реальные typosquats всё ещё ловятся ----------
 
 def test_typosquatting_still_detects_contains_typosquat():
@@ -166,6 +182,29 @@ def test_dga_pwned_se_still_flagged():
     )
     assert len(findings) == 1
     assert findings[0].value == "dackrpbfnmwjl.pwned.se"
+
+
+def test_dga_www_prefixed_sld_flagged():
+    """www.<random>.store — DGA во втором уровне, не в `www`.
+
+    Регрессия с захвата 2026-10-16 (Coruna-like): три домена кампании
+    (abn3l8…, c2uge9o8…, 0cure4ajg…) шли как www.<random>.store/site/org
+    и не находились, потому что детектор смотрел только первый label.
+    """
+    findings = DGADetector().run(
+        _state_with_dns("www.abn3l8febkskxmce0tat6ide.store"), Config(),
+    )
+    assert len(findings) == 1
+    assert findings[0].evidence["label"] == "abn3l8febkskxmce0tat6ide"
+
+
+def test_dga_www_prefixed_subdomain_still_flagged():
+    """www.dackrpbfnmwjl.pwned.se — поддомен за www тоже виден."""
+    findings = DGADetector().run(
+        _state_with_dns("www.dackrpbfnmwjl.pwned.se"), Config(),
+    )
+    assert len(findings) == 1
+    assert findings[0].evidence["label"] == "dackrpbfnmwjl"
 
 
 # ---------- PortScanDetector ----------

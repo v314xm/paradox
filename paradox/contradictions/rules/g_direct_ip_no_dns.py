@@ -36,6 +36,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 _MIN_UNIQUE_DSTS = 3
@@ -100,8 +101,9 @@ class DirectIpNoDnsRule:
                 key=lambda f: -f.evidence.get("bytes_sent", 0),
             )
             top = connects_sorted[:3]
+            unit = L(" Б", " B")
             top_str = ", ".join(
-                f"{f.value}({f.evidence.get('bytes_sent', 0)} Б)"
+                f"{f.value}({f.evidence.get('bytes_sent', 0)}{unit})"
                 for f in top
             )
 
@@ -109,12 +111,22 @@ class DirectIpNoDnsRule:
                 f.evidence.get("bytes_sent", 0) for f in connects
             )
 
-            hint = (
-                f"{src}: {unique_dsts} прямых IP-подключений наружу, "
-                f"DNS-запросов — ноль. Топ: {top_str}. "
-                f"Суммарно {total_bytes} Б. Проверить, что за процесс "
-                f"ходит по hardcoded IP: C2 без домена, легитимный "
-                f"сервис с постоянным адресом или кешированный резолв."
+            hint = L(
+                (
+                    f"{src}: {unique_dsts} прямых IP-подключений наружу, "
+                    f"DNS-запросов — ноль. Топ: {top_str}. "
+                    f"Суммарно {total_bytes}{unit}. Проверить, что за процесс "
+                    f"ходит по hardcoded IP: C2 без домена, легитимный "
+                    f"сервис с постоянным адресом или кешированный резолв."
+                ),
+                (
+                    f"{src}: {unique_dsts} direct IP connections outbound, "
+                    f"zero DNS queries. Top: {top_str}. "
+                    f"{total_bytes}{unit} in total. Check which process "
+                    f"connects by hardcoded IP: C2 without a domain, a "
+                    f"legitimate service with a fixed address or a cached "
+                    f"lookup."
+                ),
             )
 
             out.append(Contradiction(
@@ -124,12 +136,30 @@ class DirectIpNoDnsRule:
                 severity=self.severity_base,
                 confidence=0.7,
                 likely_causes=[
-                    "Hardcoded IP C2: малварь без домена, прямая связь",
-                    "Скрипт/сервис с зашитым IP в конфиге",
-                    "Долгоживущий процесс с закешированным DNS "
-                    "(резолв был до начала захвата)",
-                    "NAT/proxy: трафик клиентов идёт через один хост",
-                    "FP: DNS-запрос был, но через DoH/DoT (не видим)",
+                    L(
+                        "Hardcoded IP C2: малварь без домена, прямая связь",
+                        "Hardcoded IP C2: malware without a domain, a direct "
+                        "connection",
+                    ),
+                    L(
+                        "Скрипт/сервис с зашитым IP в конфиге",
+                        "A script or service with an IP baked into its config",
+                    ),
+                    L(
+                        "Долгоживущий процесс с закешированным DNS "
+                        "(резолв был до начала захвата)",
+                        "Long-running process with a cached DNS entry (the "
+                        "lookup happened before the capture started)",
+                    ),
+                    L(
+                        "NAT/proxy: трафик клиентов идёт через один хост",
+                        "NAT/proxy: client traffic goes through a single host",
+                    ),
+                    L(
+                        "FP: DNS-запрос был, но через DoH/DoT (не видим)",
+                        "FP: the DNS query existed but went over DoH/DoT "
+                        "(not visible)",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

@@ -18,14 +18,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "paradox"
-version = "1.8.0"
+version = "1.9.0"
 description = "PCAP triage pipeline for analysts"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
     { name = "Andrey Grigoryev", email = "v314xm@users.noreply.github.com" },
 ]
-keywords = ["pcap", "network", "forensics", "triage", "security", "dfir"]
+keywords = ["pcap", "pcap-analysis", "network-forensics", "dfir", "incident-response", "threat-hunting", "malware-analysis", "blue-team", "network-security", "network-triage", "wireshark", "forensics", "pyside6"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",

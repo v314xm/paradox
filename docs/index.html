@@ -25,7 +25,7 @@
       "name": "Paradox",
       "operatingSystem": "Windows, Linux, macOS",
       "applicationCategory": "SecurityApplication",
-      "softwareVersion": "1.8.0",
+      "softwareVersion": "1.9.0",
       "inLanguage": "ru",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "description": "PCAP triage tool for finding contradictions in network traffic.",
@@ -447,9 +447,9 @@
     <!-- HERO -->
     <header class="pt-36 pb-20 px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <a href="https://github.com/v314xm/paradox/releases/tag/v1.8.0" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700 hover:border-slate-500 rounded-full px-4 py-1.5 text-xs font-medium text-slate-300 mb-8 no-underline transition">
+            <a href="https://github.com/v314xm/paradox/releases/tag/v1.9.0" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700 hover:border-slate-500 rounded-full px-4 py-1.5 text-xs font-medium text-slate-300 mb-8 no-underline transition">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                v1.8.0 · 30 детекторов · 13 правил · 1622 теста
+                v1.9.0 · 30 детекторов · 13 правил · 1656 тестов
             </a>
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
                 Найди то, что <span class="gradient-text">скрыто</span><br>в твоём PCAP
@@ -483,9 +483,9 @@
                 <div class="stat-label">Правил противоречий</div>
                 <span class="tile-more">Все правила →</span>
             </a>
-            <a href="https://github.com/v314xm/paradox/tree/main/tests" target="_blank" rel="noopener" class="stat-card" aria-label="1622 теста — открыть каталог тестов на GitHub">
-                <div class="stat-value">1622</div>
-                <div class="stat-label">Теста</div>
+            <a href="https://github.com/v314xm/paradox/tree/main/tests" target="_blank" rel="noopener" class="stat-card" aria-label="1656 тестов — открыть каталог тестов на GitHub">
+                <div class="stat-value">1656</div>
+                <div class="stat-label">Тестов</div>
                 <span class="tile-more">Каталог тестов →</span>
             </a>
             <a href="#performance" class="stat-card" aria-label="14,4 секунды на 627 тысяч пакетов — перейти к замерам">
@@ -500,21 +500,21 @@
     <section class="max-w-5xl mx-auto px-6 mb-24 fade-in">
         <div class="gradient-border p-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <h2 class="text-2xl md:text-3xl font-bold">Что нового в 1.8.0</h2>
-                <a href="https://github.com/v314xm/paradox/releases/tag/v1.8.0" target="_blank" rel="noopener" class="text-sm text-sky-400 hover:text-sky-300 no-underline">Release notes →</a>
+                <h2 class="text-2xl md:text-3xl font-bold">Что нового в 1.9.0</h2>
+                <a href="https://github.com/v314xm/paradox/releases/tag/v1.9.0" target="_blank" rel="noopener" class="text-sm text-sky-400 hover:text-sky-300 no-underline">Release notes →</a>
             </div>
             <div class="grid md:grid-cols-3 gap-6 text-sm text-slate-400">
                 <div>
-                    <strong class="block mb-1 text-slate-200">Объяснения у каждой находки</strong>
-                    Кнопка «Объяснение →» у находки и противоречия: что произошло, почему это важно, что делать дальше и альтернативные трактовки — простым языком, с фазой kill-chain и техниками MITRE.
+                    <strong class="block mb-1 text-slate-200">Английский отчёт</strong>
+                    Флаг <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">--lang en</code> переводит Markdown, HTML, STIX, объяснения находок и противоречий, подсказки правил и справку CLI. Ключи JSON и машинные идентификаторы остаются прежними, поэтому автоматизация не ломается.
                 </div>
                 <div>
-                    <strong class="block mb-1 text-slate-200">Поведенческий ML-слой</strong>
-                    Isolation Forest на чистом Python (без scikit-learn) находит статистические выбросы: усиливает rule-находки и помечает хосты с аномальным профилем. Включается флагом <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">--behavioral</code>.
+                    <strong class="block mb-1 text-slate-200">Язык GUI = язык отчёта</strong>
+                    Интерфейс на английском пишет и отчёт на английском — отдельная настройка не нужна. Сквозная проверка: 4 находки и 4 противоречия в обоих языках, ноль кириллицы в английском выводе.
                 </div>
                 <div>
-                    <strong class="block mb-1 text-slate-200">13-е правило: role_deviation</strong>
-                    Хост классифицируется по OUI MAC, затем поведение сверяется с ролью: рабочая станция, отвечающая как веб-сервер, или сервер, сканирующий сеть, — противоречие. <a href="#theory-role" class="text-sky-400 hover:text-sky-300 no-underline">Разбор правила →</a>
+                    <strong class="block mb-1 text-slate-200">Русский по умолчанию</strong>
+                    Без флага всё как раньше: <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">--lang ru</code>. Перевод — только текст; пороги, числа и вердикты детекторов не менялись. <a href="https://github.com/v314xm/paradox/blob/main/README.en.md" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 no-underline">English README →</a>
                 </div>
             </div>
         </div>

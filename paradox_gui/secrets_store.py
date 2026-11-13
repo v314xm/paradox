@@ -102,17 +102,6 @@ class SecretsStore:
             self._apply_to_env(name, value)
             return False
 
-    def delete(self, name: str) -> None:
-        if self._kr is not None:
-            try:
-                self._kr.delete_password(SERVICE_NAME, name)
-            except Exception:
-                pass
-        self._session.pop(name, None)
-        env = _KEY_ENV.get(name)
-        if env:
-            os.environ.pop(env, None)
-
     def apply_all_to_env(self) -> None:
         for name in _KEY_ENV:
             v = self.get(name)

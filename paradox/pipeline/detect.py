@@ -126,4 +126,61 @@ def _detect(
     for f in findings:
         if not f.mitre_techniques:
             f.mitre_techniques = get_techniques(f.type)
+
+    _resolve_domain_destinations(state, findings)
     return findings
+
+
+# Находки, у которых value — домен, а не IP/URL. Без dst_ip они не
+# попадают в граф атаки и в сущности: связь «жертва → внешний хост»
+# не строится, и атака выглядит как набор отдельных строк.
+_DOMAIN_FINDING_TYPES = frozenset({
+    "dga_domain",
+    "typosquatting",
+    "ip_check_service",
+    "cloud_tunnel_domain",
+})
+
+
+def _resolve_domain_destinations(state: CaptureState, findings: list) -> None:
+    """Проставить dst_ip доменным находкам.
+
+    Сначала берём IP, с которым хост реально соединялся по этому
+    SNI/Host (это сильнее DNS-ответа), иначе — единственный A-ответ.
+    Неоднозначные имена (CDN с несколькими IP) не трогаем.
+    """
+    from ipaddress import ip_address
+
+    contacted: dict[tuple[str, str], set[str]] = {}
+    for key, flow in state.flows.items():
+        for name in (flow.sni, flow.http_host):
+            if not name:
+                continue
+            contacted.setdefault(
+                (key.src_ip, name.lower().rstrip(".")), set(),
+            ).add(key.dst_ip)
+
+    for f in findings:
+        if f.dst_ip or f.type not in _DOMAIN_FINDING_TYPES or not f.value:
+            continue
+
+        domain = f.value.strip().lower().rstrip(".")
+        if not domain or "://" in domain or "/" in domain or " " in domain:
+            continue
+
+        used = contacted.get((f.src_ip, domain), set()) if f.src_ip else set()
+        candidates = used or set(state.dns_answers_by_name.get(domain, ()))
+
+        ips: set[str] = set()
+        for candidate in candidates:
+            try:
+                ip_address(candidate)
+            except ValueError:
+                continue  # CNAME-цепочка, а не A-запись
+            ips.add(candidate)
+
+        if len(ips) != 1:
+            continue
+
+        f.dst_ip = next(iter(ips))
+        f.evidence["resolved_ips"] = sorted(ips)

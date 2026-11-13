@@ -174,3 +174,78 @@ def test_payload_sample_is_kept_for_viewer():
     sample = findings[0].evidence["payload_samples"][0]
     assert sample["direction"] == "response"
     assert decode_sample(sample) == _PHP
+
+
+# ---------- base64: шелл, спрятанный в кодировке ----------
+
+def _long_php() -> bytes:
+    """PHP-исходник длиннее порога base64-фрагмента (192 байта)."""
+    return _PHP + b"\n// " + b"a" * 400
+
+
+def _multipart_upload(field: bytes, name=b"id") -> dict:
+    return {
+        "kind": "request", "method": "POST", "uri": "/53d39df80e77.php",
+        "headers": {
+            "host": "reabilit.samregion.ru",
+            "content-type": (
+                "multipart/form-data; boundary=x"
+            ),
+        },
+        "body": (
+            b"--x\r\nContent-Disposition: form-data; name=\""
+            + name + b"\"\r\n\r\n" + field + b"\r\n--x--\r\n"
+        ),
+        "dst_ip": "10.100.14.12",
+    }
+
+
+def test_base64_multipart_upload_detected():
+    """Заливка шелла base64'ом: в теле нет открытого `<?php`.
+
+    Регрессия с захвата b3d719ec (2026-11-04): POST multipart на
+    скомпрометированный сайт, поле id — base64 от PHP-скрипта.
+    """
+    import base64
+
+    body = base64.b64encode(_long_php())
+    findings = PhpPayloadDetector().run(
+        _state([_multipart_upload(body)]), Config(),
+    )
+
+    assert len(findings) == 1
+    f = findings[0]
+    assert f.type == "webshell_upload"
+    assert f.evidence["host"] == "reabilit.samregion.ru"
+    assert f.evidence["max_body_size"] == len(_long_php())
+
+
+def test_double_base64_stager_upload_detected():
+    """Стагер `file_put_contents(…, base64_decode('…'))` — два уровня.
+
+    Так заливался файловый менеджер в захвате b3d719ec: первый слой
+    base64 раскрывается в PHP-стагер, второй — в сам шелл.
+    """
+    import base64
+
+    inner = base64.b64encode(_long_php()).decode()
+    stager = (
+        f"file_put_contents('d12617d9f8.txt',base64_decode('{inner}'));"
+    ).encode()
+    findings = PhpPayloadDetector().run(
+        _state([_multipart_upload(base64.b64encode(stager))]), Config(),
+    )
+
+    assert len(findings) == 1
+    assert findings[0].type == "webshell_upload"
+
+
+def test_base64_of_binary_not_flagged():
+    """base64 картинки/архива раскрывается, но маркера в нём нет."""
+    import base64
+
+    blob = bytes(range(256)) * 4
+    findings = PhpPayloadDetector().run(
+        _state([_multipart_upload(base64.b64encode(blob))]), Config(),
+    )
+    assert findings == []

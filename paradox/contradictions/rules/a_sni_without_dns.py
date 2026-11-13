@@ -20,6 +20,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -69,12 +70,21 @@ class SniWithoutDnsRule:
                 f.evidence.get("dst_ip", "") for f in uniq
             } - {""})
 
-            hint = (
-                f"{src}: SNI на {len(uniq)} домен(ов) без DNS-ответа "
-                f"в этом захвате: {sample}{extra}. "
-                f"dst_ip: {dsts[:5]}. Проверить, что за клиент "
-                f"ходит по hardcoded SNI или через MITM-прокси, "
-                f"и есть ли DNS-запрос в соседних pcap."
+            hint = L(
+                (
+                    f"{src}: SNI на {len(uniq)} домен(ов) без DNS-ответа "
+                    f"в этом захвате: {sample}{extra}. "
+                    f"dst_ip: {dsts[:5]}. Проверить, что за клиент "
+                    f"ходит по hardcoded SNI или через MITM-прокси, "
+                    f"и есть ли DNS-запрос в соседних pcap."
+                ),
+                (
+                    f"{src}: SNI for {len(uniq)} domain(s) with no DNS answer "
+                    f"in this capture: {sample}{extra}. "
+                    f"dst_ip: {dsts[:5]}. Check which client "
+                    f"connects by hardcoded SNI or through a MITM proxy, "
+                    f"and whether a DNS query exists in neighbouring pcaps."
+                ),
             )
 
             out.append(Contradiction(
@@ -84,10 +94,23 @@ class SniWithoutDnsRule:
                 severity=self.severity_base,
                 confidence=0.6,
                 likely_causes=[
-                    "Hardcoded домен в конфиге клиента без DNS",
-                    "Долгий DNS-кеш: резолв был до начала захвата",
-                    "MITM-прокси с подменой SNI",
-                    "FP: DNS через DoH/DoT, невидим в pcap",
+                    L(
+                        "Hardcoded домен в конфиге клиента без DNS",
+                        "Hardcoded domain in the client config, no DNS",
+                    ),
+                    L(
+                        "Долгий DNS-кеш: резолв был до начала захвата",
+                        "Long DNS cache: the lookup happened before "
+                        "the capture started",
+                    ),
+                    L(
+                        "MITM-прокси с подменой SNI",
+                        "MITM proxy rewriting the SNI",
+                    ),
+                    L(
+                        "FP: DNS через DoH/DoT, невидим в pcap",
+                        "FP: DNS over DoH/DoT, invisible in the pcap",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

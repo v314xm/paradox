@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from ipaddress import ip_address
 
+from paradox.i18n import L
+
 
 def _fmt_bytes(n: int) -> str:
     """Человекочитаемый размер."""
@@ -16,12 +18,12 @@ def _fmt_bytes(n: int) -> str:
 def _fmt_duration(seconds: float) -> str:
     """Человекочитаемая длительность."""
     if seconds < 60:
-        return f"{seconds:.1f} сек"
+        return f"{seconds:.1f} {L('сек', 's')}"
     if seconds < 3600:
-        return f"{seconds / 60:.1f} мин"
+        return f"{seconds / 60:.1f} {L('мин', 'min')}"
     if seconds < 86400:
-        return f"{seconds / 3600:.1f} ч"
-    return f"{seconds / 86400:.1f} дн"
+        return f"{seconds / 3600:.1f} {L('ч', 'h')}"
+    return f"{seconds / 86400:.1f} {L('дн', 'd')}"
 
 
 def _fmt_rel(seconds: float) -> str:

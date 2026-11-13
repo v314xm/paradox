@@ -15,8 +15,3 @@ def _mitre_for_finding(f: dict) -> str:
     if techniques:
         return ", ".join(techniques)
     return mitre_label(str(f.get("type", "")))
-
-
-# Совместимость: старое имя, использовалось в timeline/findings.
-def _mitre_for(finding_type: str) -> str:
-    return mitre_label(finding_type)

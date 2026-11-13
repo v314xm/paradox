@@ -30,6 +30,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -104,18 +105,36 @@ class MacIpConflictRule:
             conf = round(min(a.confidence, b.confidence) * conf_base, 3)
 
             if overlap:
-                hint = (
-                    f"{ip}: {a.value} и {b.value} активны одновременно "
-                    f"(пересечение {overlap_start:.1f}–{overlap_end:.1f}). "
-                    f"Классический ARP spoof / IP conflict — проверить "
-                    f"MAC-flapping на коммутаторе и DHCP-логи."
+                hint = L(
+                    (
+                        f"{ip}: {a.value} и {b.value} активны одновременно "
+                        f"(пересечение {overlap_start:.1f}–{overlap_end:.1f}). "
+                        f"Классический ARP spoof / IP conflict — проверить "
+                        f"MAC-flapping на коммутаторе и DHCP-логи."
+                    ),
+                    (
+                        f"{ip}: {a.value} and {b.value} are active at the "
+                        f"same time (overlap "
+                        f"{overlap_start:.1f}–{overlap_end:.1f}). "
+                        f"Classic ARP spoof / IP conflict — check "
+                        f"MAC flapping on the switch and the DHCP logs."
+                    ),
                 )
             else:
-                hint = (
-                    f"{ip}: {a.value} → {b.value} без пересечения окон "
-                    f"({a_last:.1f} < {b_first:.1f}). Похоже на легальную "
-                    f"смену MAC (DHCP lease change, новая машина получила "
-                    f"IP). Проверить, что было в этот момент."
+                hint = L(
+                    (
+                        f"{ip}: {a.value} → {b.value} без пересечения окон "
+                        f"({a_last:.1f} < {b_first:.1f}). Похоже на легальную "
+                        f"смену MAC (DHCP lease change, новая машина получила "
+                        f"IP). Проверить, что было в этот момент."
+                    ),
+                    (
+                        f"{ip}: {a.value} → {b.value} with no window overlap "
+                        f"({a_last:.1f} < {b_first:.1f}). Looks like a "
+                        f"legitimate MAC change (DHCP lease change, a new "
+                        f"machine took the IP). Check what happened at that "
+                        f"moment."
+                    ),
                 )
 
             out.append(Contradiction(
@@ -125,12 +144,27 @@ class MacIpConflictRule:
                 severity=severity,
                 confidence=conf,
                 likely_causes=[
-                    "ARP spoof / MITM: атакующий отвечает на ARP-запросы "
-                    "от имени жертвы",
-                    "IP conflict: два хоста настроены на один IP "
-                    "(ошибка админа или клонирование VM)",
-                    "DHCP lease change: новый хост получил освободившийся IP",
-                    "MAC-flapping на коммутаторе (петля, HA-кластер)",
+                    L(
+                        "ARP spoof / MITM: атакующий отвечает на ARP-запросы "
+                        "от имени жертвы",
+                        "ARP spoof / MITM: the attacker answers ARP queries "
+                        "on behalf of the victim",
+                    ),
+                    L(
+                        "IP conflict: два хоста настроены на один IP "
+                        "(ошибка админа или клонирование VM)",
+                        "IP conflict: two hosts are configured with the same "
+                        "IP (admin error or a cloned VM)",
+                    ),
+                    L(
+                        "DHCP lease change: новый хост получил освободившийся "
+                        "IP",
+                        "DHCP lease change: a new host took the released IP",
+                    ),
+                    L(
+                        "MAC-flapping на коммутаторе (петля, HA-кластер)",
+                        "MAC flapping on the switch (loop, HA cluster)",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

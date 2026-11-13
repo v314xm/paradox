@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 # (assigned_role, observed_behavior) → severity.
@@ -38,16 +39,24 @@ _DEVIATION_SEVERITY: dict[tuple[str, str], str] = {
 
 _SEVERITY_CONFIDENCE = {"critical": 0.85, "high": 0.7, "medium": 0.6}
 
-_ROLE_LABEL = {
-    "workstation": "рабочая станция",
-    "server": "сервер",
-    "network_device": "сетевое устройство",
+# Пары (ru, en): L() выбирает вариант в момент сборки подсказки, а не
+# при импорте модуля — язык могли переключить после импорта.
+_ROLE_LABELS: dict[str, tuple[str, str]] = {
+    "workstation": ("рабочая станция", "workstation"),
+    "server": ("сервер", "server"),
+    "network_device": ("сетевое устройство", "network device"),
 }
 
-_BEHAVIOR_LABEL = {
-    "acting_as_webserver": "отвечает как веб-сервер (80/443)",
-    "acting_as_smb_server": "отвечает как SMB-сервер (445)",
-    "acting_as_scanner": "сканирует сеть",
+_BEHAVIOR_LABELS: dict[str, tuple[str, str]] = {
+    "acting_as_webserver": (
+        "отвечает как веб-сервер (80/443)",
+        "responds as a web server (80/443)",
+    ),
+    "acting_as_smb_server": (
+        "отвечает как SMB-сервер (445)",
+        "responds as an SMB server (445)",
+    ),
+    "acting_as_scanner": ("сканирует сеть", "scans the network"),
 }
 
 
@@ -102,41 +111,87 @@ class RoleDeviationRule:
         """Причины, первая — самая вероятная для данной пары."""
         if behavior == "acting_as_scanner":
             return [
-                "Компрометация: хост разведывает сеть изнутри",
-                "Легитимный агент мониторинга или сканер уязвимостей",
-                "Неправильно настроенное приложение, рассылающее пробы",
+                L(
+                    "Компрометация: хост разведывает сеть изнутри",
+                    "Compromise: the host is enumerating the network from "
+                    "the inside",
+                ),
+                L(
+                    "Легитимный агент мониторинга или сканер уязвимостей",
+                    "Legitimate monitoring agent or vulnerability scanner",
+                ),
+                L(
+                    "Неправильно настроенное приложение, рассылающее пробы",
+                    "A misconfigured application sending probes",
+                ),
             ]
         if behavior == "acting_as_webserver":
             return [
-                "Веб-шелл или несанкционированный веб-сервис",
-                "Легитимный локальный сервис (админка, агент, dev-сервер)",
-                "Хост перепрофилирован, но «паспорт» (OUI) не обновлён",
+                L(
+                    "Веб-шелл или несанкционированный веб-сервис",
+                    "Web shell or an unauthorised web service",
+                ),
+                L(
+                    "Легитимный локальный сервис (админка, агент, dev-сервер)",
+                    "Legitimate local service (admin UI, agent, dev server)",
+                ),
+                L(
+                    "Хост перепрофилирован, но «паспорт» (OUI) не обновлён",
+                    'Host repurposed, but its OUI "passport" was not updated',
+                ),
             ]
         return [
-            "Несанкционированный файловый обмен на хосте",
-            "Легитимный служебный share (если хост — сервер/общий)",
-            "Хост перепрофилирован, но «паспорт» (OUI) не обновлён",
+            L(
+                "Несанкционированный файловый обмен на хосте",
+                "Unauthorised file sharing on the host",
+            ),
+            L(
+                "Легитимный служебный share (если хост — сервер/общий)",
+                "Legitimate service share (if the host is a server or "
+                "shared)",
+            ),
+            L(
+                "Хост перепрофилирован, но «паспорт» (OUI) не обновлён",
+                'Host repurposed, but its OUI "passport" was not updated',
+            ),
         ]
 
     @staticmethod
     def _hint(subject: str, role_fact: Fact, b_fact: Fact) -> str:
         role = role_fact.value
         behavior = b_fact.value
-        role_txt = _ROLE_LABEL.get(role, role)
-        beh_txt = _BEHAVIOR_LABEL.get(behavior, behavior)
+        role_ru, role_en = _ROLE_LABELS.get(role, (role, role))
+        beh_ru, beh_en = _BEHAVIOR_LABELS.get(behavior, (behavior, behavior))
+        role_txt = L(role_ru, role_en)
+        beh_txt = L(beh_ru, beh_en)
         mac = role_fact.evidence.get("mac") or "?"
 
         if behavior == "acting_as_scanner":
             targets = b_fact.evidence.get("targets", "?")
             ports = b_fact.evidence.get("distinct_ports", "?")
-            return (
-                f"{subject}: по OUI {mac} — {role_txt}, но инициировал "
-                f"соединения к {targets} целям на {ports} портах. "
-                f"Проверить, легитимен ли такой охват для этого хоста."
+            return L(
+                (
+                    f"{subject}: по OUI {mac} — {role_txt}, но инициировал "
+                    f"соединения к {targets} целям на {ports} портах. "
+                    f"Проверить, легитимен ли такой охват для этого хоста."
+                ),
+                (
+                    f"{subject}: by OUI {mac} — {role_txt}, but it initiated "
+                    f"connections to {targets} targets on {ports} ports. "
+                    f"Check whether such coverage is legitimate for this "
+                    f"host."
+                ),
             )
         served = b_fact.evidence.get("served_bytes", "?")
-        return (
-            f"{subject}: по OUI {mac} — {role_txt}, но {beh_txt} "
-            f"(отдано {served} Б). Проверить, легитимен ли такой "
-            f"сервис на этом хосте."
+        return L(
+            (
+                f"{subject}: по OUI {mac} — {role_txt}, но {beh_txt} "
+                f"(отдано {served} Б). Проверить, легитимен ли такой "
+                f"сервис на этом хосте."
+            ),
+            (
+                f"{subject}: by OUI {mac} — {role_txt}, but it {beh_txt}, "
+                f"with {served}{L(' Б', ' B')} sent. Check whether such a "
+                f"service is legitimate on this host."
+            ),
         )

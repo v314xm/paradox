@@ -20,6 +20,7 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+from paradox.i18n import L
 from paradox.net_utils import is_private_ip
 
 # Фиксированный namespace для indicator/bundle ID.
@@ -99,7 +100,10 @@ def extract_iocs(findings: list) -> list[dict]:
             "valid_from": first,
             "valid_until": last,
             "name": name,
-            "description": f"Найден в детекторе: {finding_type}",
+            "description": L(
+                f"Найден в детекторе: {finding_type}",
+                f"Found by detector: {finding_type}",
+            ),
         })
 
     now_iso = datetime.now(UTC).isoformat()

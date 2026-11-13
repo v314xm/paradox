@@ -1,4 +1,4 @@
-"""Инвентаризация проекта для документации (v1.2.0)."""
+"""Инвентаризация проекта для документации."""
 import ast
 import sys
 from pathlib import Path
@@ -36,13 +36,13 @@ def _count_tests(path: Path) -> int:
 
 
 def main():
-    print("=" * 70)
-    print(" PARADOX v1.2.0 — инвентаризация")
-    print("=" * 70)
-
-    # Версии
     from paradox import __version__ as core_ver
     from paradox_gui import __version__ as gui_ver
+
+    print("=" * 70)
+    print(f" PARADOX v{core_ver} — инвентаризация")
+    print("=" * 70)
+
     print(f"\nВерсии: core={core_ver}, gui={gui_ver}")
 
     # Пакет paradox/

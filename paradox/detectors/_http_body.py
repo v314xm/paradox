@@ -1,10 +1,12 @@
 """
-Работа с телом HTTP-объекта: распаковка и критерий текстовости.
+Работа с телом HTTP-объекта: распаковка, base64 и критерий текстовости.
 
-Три потребителя:
+Четыре потребителя:
   - command_injection  — распаковать тело и искать shell-паттерны
                          только в тексте (в бинаре они случайны);
   - php_payload        — распаковать и искать маркер `<?php`;
+  - webshell_markers   — то же плюс раскодировать base64-фрагменты
+                         (заливка шелла через `base64_decode('…')`);
   - http_binary_upload — наоборот, важно, что тело БИНАРНОЕ на
                          проводе; распаковка здесь не применяется.
 
@@ -19,6 +21,9 @@ brotli/zstd не поддерживаются — для них нужны вн�
     сколько успело прийти;
   - ошибка распаковки → b"", детекторы просто ничего не находят.
 """
+import base64
+import binascii
+import re
 import zlib
 
 from paradox.config import Config
@@ -191,3 +196,74 @@ def is_text_body(obj, config: Config) -> bool:
     if content_encodings(obj):
         return False
     return payload_is_text(obj.body, content_type_of(obj), config)
+
+
+#: Минимальная длина base64-фрагмента, который стоит раскрывать.
+#: Короче — это токены, cookie и подписи, а не залитый файл.
+BASE64_MIN_RUN = 256
+#: Сколько фрагментов раскрывать в одном теле: защита от тела,
+#: целиком состоящего из base64-мусора.
+BASE64_MAX_RUNS = 8
+#: Глубина вложенности. Два уровня — типовой стагер:
+#: `file_put_contents('x.txt', base64_decode('PD9waHAg…'))`.
+BASE64_MAX_DEPTH = 2
+
+_BASE64_RUN = re.compile(rb"[A-Za-z0-9+/]{%d,}={0,2}" % BASE64_MIN_RUN)
+
+
+def _decode_base64_run(run: bytes, limit: int) -> bytes | None:
+    run = run.rstrip(b"=")
+    if not run or len(run) % 4 == 1:
+        return None
+    if len(run) * 3 // 4 > limit:
+        return None
+    try:
+        return base64.b64decode(
+            run + b"=" * (-len(run) % 4), validate=True,
+        )
+    except (binascii.Error, ValueError):
+        return None
+
+
+def base64_payloads(
+    data: bytes,
+    config: Config,
+    depth: int = BASE64_MAX_DEPTH,
+) -> list[bytes]:
+    """
+    Раскодированные base64-фрагменты тела.
+
+    Заливка шелла в base64 не содержит маркеров в открытом виде:
+    в теле лежит `base64_decode('PD9waHAg…')`, а сам PHP появляется
+    только после декодирования — иногда после двух уровней, когда
+    первым слоем идёт стагер `file_put_contents(...)`.
+    """
+    if depth <= 0 or not data:
+        return []
+
+    limit = config.http_body_max_decoded_bytes
+    decoded_payloads: list[bytes] = []
+    for match in _BASE64_RUN.finditer(data):
+        decoded = _decode_base64_run(match.group(0), limit)
+        if not decoded:
+            continue
+        decoded_payloads.append(decoded)
+        decoded_payloads.extend(
+            base64_payloads(decoded, config, depth - 1),
+        )
+        if len(decoded_payloads) >= BASE64_MAX_RUNS:
+            break
+    return decoded_payloads[:BASE64_MAX_RUNS]
+
+
+def scan_variants(obj, config: Config) -> list[bytes]:
+    """
+    Тело после распаковки и его base64-содержимое, по порядку.
+
+    Сначала исходное тело (совпадение в нём — сильнее), затем
+    раскодированные фрагменты. Пустой список — искать нечего.
+    """
+    data = decoded_body(obj, config)
+    if not data:
+        return []
+    return [data, *base64_payloads(data, config)]

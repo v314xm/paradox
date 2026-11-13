@@ -31,6 +31,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 _CONF_MULTIPLIER = 0.9
@@ -106,11 +107,19 @@ class SniHostMismatchRule:
                 3,
             )
 
-            hint = (
-                f"SNI=`{sni}` ≠ HTTP Host=`{host}` на одном узле "
-                f"{src} → {dst}. Domain fronting / VPN / "
-                f"корпоративный MITM-прокси — проверить назначение "
-                f"соединения и ASN получателя."
+            hint = L(
+                (
+                    f"SNI=`{sni}` ≠ HTTP Host=`{host}` на одном узле "
+                    f"{src} → {dst}. Domain fronting / VPN / "
+                    f"корпоративный MITM-прокси — проверить назначение "
+                    f"соединения и ASN получателя."
+                ),
+                (
+                    f"SNI=`{sni}` ≠ HTTP Host=`{host}` on the same endpoint "
+                    f"{src} → {dst}. Domain fronting / VPN / "
+                    f"corporate MITM proxy — check the purpose of the "
+                    f"connection and the receiver's ASN."
+                ),
             )
 
             out.append(Contradiction(
@@ -120,13 +129,29 @@ class SniHostMismatchRule:
                 severity=self.severity_base,
                 confidence=conf,
                 likely_causes=[
-                    "Domain fronting: C2 или VPN-клиент прячется за "
-                    "легитимным CDN через несовпадающий Host",
-                    "Корпоративный MITM-прокси: переподпись сертификата, "
-                    "SNI сохраняется, Host меняется",
-                    "Легитимный multi-tenant CDN с нетривиальной "
-                    "конфигурацией (CloudFront, Fastly)",
-                    "FP парсера HTTP: Host захвачен не с этого flow",
+                    L(
+                        "Domain fronting: C2 или VPN-клиент прячется за "
+                        "легитимным CDN через несовпадающий Host",
+                        "Domain fronting: C2 or a VPN client hides behind a "
+                        "legitimate CDN with a mismatched Host",
+                    ),
+                    L(
+                        "Корпоративный MITM-прокси: переподпись сертификата, "
+                        "SNI сохраняется, Host меняется",
+                        "Corporate MITM proxy: certificate re-signed, "
+                        "the SNI is preserved, the Host changes",
+                    ),
+                    L(
+                        "Легитимный multi-tenant CDN с нетривиальной "
+                        "конфигурацией (CloudFront, Fastly)",
+                        "Legitimate multi-tenant CDN with a non-trivial "
+                        "configuration (CloudFront, Fastly)",
+                    ),
+                    L(
+                        "FP парсера HTTP: Host захвачен не с этого flow",
+                        "HTTP parser FP: the Host was captured from another "
+                        "flow",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

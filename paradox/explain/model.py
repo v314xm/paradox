@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from paradox.i18n import L
+
 
 @dataclass(frozen=True)
 class Explanation:
@@ -69,24 +71,26 @@ class Explanation:
         Раздел `## Interpretation` в Markdown-отчёте будет собираться
         этим же методом — иначе копия и отчёт разойдутся.
         """
-        lines = [f"**Что произошло.** {self.headline}", ""]
+        lines = [f"**{L('Что произошло.', 'What happened.')}** {self.headline}", ""]
         if self.why:
-            lines += [f"**Почему это важно.** {self.why}", ""]
+            lines += [f"**{L('Почему это важно.', 'Why it matters.')}** {self.why}", ""]
         if self.next_steps:
-            lines.append("**Что делать дальше.**")
+            lines.append(f"**{L('Что делать дальше.', 'What to check next.')}**")
             lines += [
                 f"{index}. {step}"
                 for index, step in enumerate(self.next_steps, 1)
             ]
             lines.append("")
         if self.alternatives:
-            lines.append("**Альтернативные интерпретации.**")
+            lines.append(
+                f"**{L('Альтернативные интерпретации.', 'Alternative readings.')}**"
+            )
             lines += [f"- {alt}" for alt in self.alternatives]
             lines.append("")
         if self.confidence_note:
-            lines += [f"**Уверенность.** {self.confidence_note}", ""]
+            lines += [f"**{L('Уверенность.', 'Confidence.')}** {self.confidence_note}", ""]
         if self.beginner:
-            lines += [f"**Простыми словами.** {self.beginner}", ""]
+            lines += [f"**{L('Простыми словами.', 'In plain words.')}** {self.beginner}", ""]
         return "\n".join(lines).strip()
 
 

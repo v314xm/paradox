@@ -1,15 +1,17 @@
 # Paradox
 
-[![tests](https://img.shields.io/badge/tests-1622%20passed-brightgreen.svg)](#тесты)
+[Русский](README.md) · [English](README.en.md)
+
+[![tests](https://img.shields.io/badge/tests-1656%20passed-brightgreen.svg)](#тесты)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-**PCAP triage: 30 детекторов, 13 правил противоречий, GUI, 1622 теста.**
+**PCAP triage: 30 детекторов, 13 правил противоречий, GUI, 1656 тестов.**
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
-![йцут](docs/assets/main.png)
+![Главное окно Paradox](docs/assets/main.png)
 
 Эксплуатация — [docs/OPERATIONS.md](docs/OPERATIONS.md) · безопасность и модель
 доверия — [SECURITY.md](SECURITY.md) · сайт — [paradoxtool.ru](https://paradoxtool.ru).
@@ -51,8 +53,8 @@ packets:              627 694
 unique DNS queries:   117
 NXDOMAIN count:       0
 flows:                2 328
-findings:             7
-contradictions:       2
+findings:             8
+contradictions:       4
 report JSON:          reports/CyberCampTask.report.json
 report Markdown:      reports/CyberCampTask.report.md
 ```
@@ -147,6 +149,7 @@ paradox capture.pcap --enrich                 # + Threat Intel
 paradox capture.pcap --stix                   # + STIX 2.1 bundle
 paradox capture.pcap --html                   # + HTML-отчёт (печать в PDF)
 paradox capture.pcap --plugins                # + детекторы из ~/.paradox/plugins
+paradox capture.pcap --lang en                # отчёт и сообщения по-английски
 paradox capture.pcap -o reports/              # директория
 ```
 
@@ -202,7 +205,7 @@ Timeline строится после contradictions (нужны оба исто�
 | Extractors | flow, dns, tls, http, host_identity, arp_history, dhcp, nbns, kerberos, ndp, ssh_banner, smtp | 12 |
 | Post-extract | reassembler, http_object, tls_cert, file_carve, smb2, ldap, dcerpc, http2 | 8 |
 | Detectors | DGA, port_scan, suspicious_port, nxdomain_burst, cloud_tunnel, ip_check_service, typosquatting, sni_mismatch, ja3_malware, ja3s_malware, brute_force, ftp_brute_force, ssh_brute_force, smtp_spam, beaconing, dns_tunneling, lateral_movement, large_transfer, vulnerable_path, command_injection, http_binary_upload, php_payload, webshell_markers, yara, rare_external_ip, long_connections, encoded_payload, kerberoasting, ad_recon, dcsync | 30 |
-| Contradictions | см. таблицу выше | 12 |
+| Contradictions | см. таблицу выше | 13 |
 | Analyzers | absence, counterfactual (What-If), story, ndp | 4 |
 | Reporters | JSON, Markdown, flow report, IOC (txt/csv/json/suricata/kql), HTML, STIX 2.1 | 6 |
 | Enrichment (опционально) | Shodan InternetDB, AbuseIPDB, VirusTotal, GreyNoise, AlienVault OTX, URLScan, URLhaus, MalwareBazaar, ThreatFox | 9 |
@@ -212,11 +215,11 @@ MITRE ATT&CK маппинг для всех findings.
 ## Тесты
 
 ```bash
-pytest -m "not slow"           # ~25 сек, 1622 passed
+pytest -m "not slow"           # ~27 сек, 1656 passed
 ruff check paradox tests paradox_gui tools
 ```
 
-1622 теста в 184 файлах. CI-workflow — `.github/workflows/ci.yml`:
+1656 тестов в 186 файлах. CI-workflow — `.github/workflows/ci.yml`:
 ruff + `pytest -m "not slow"` на Ubuntu. Локальный прогон на Windows
 может завершиться кодом `0xC0000005` уже после всех тестов (баг выхода
 pytest/PySide6); результат считайте по `--junitxml`, а не по коду
@@ -229,7 +232,7 @@ pytest/PySide6); результат считайте по `--junitxml`, а не 
 - Все 30 детекторов + MITRE-map
 - Все 13 правил contradictions
 - Reassembler, HTTPObject (keep-alive, gzip/deflate), JA3/JA3S, YARA
-- Регрессионные тесты на реальные FP (`test_regressions.py`, 42 теста)
+- Регрессионные тесты на реальные FP (`test_regressions.py`, 45 тестов)
 - B1 diff (`test_run_diff.py`, 10 тестов)
 - Config, GUI smoke-тесты
 
@@ -276,20 +279,17 @@ pre-commit install
 
 ## Roadmap
 
-Полный план с приоритетами, P0/P1 и замерами — [TODO.md](TODO.md).
+Полный план с приоритетами — [TODO.md](TODO.md), история версий с
+деталями — [CHANGELOG.md](CHANGELOG.md).
 
-- **1.8.0 (текущий релиз)** — 12 экстракторов, 30 детекторов, 13 правил противоречий, GUI (9 вкладок), 1622 теста. **Объяснения** у каждой находки и противоречия в отчёте + отдельное окно «Объяснение» («что произошло / почему важно / что делать дальше / альтернативы»). **Поведенческий ML-слой** — Isolation Forest на чистом Python (по умолчанию выключен, `--behavioral`): усиливает rule-находки, совпавшие со статистическим выбросом, и помечает хосты с аномальным профилем. **13-е правило `role_deviation`** — отклонение поведения хоста от его базовой роли по OUI MAC, с подсветкой узла в графе связей.
-- **1.7.0** — 12 экстракторов, 30 детекторов, 12 правил противоречий, GUI (9 вкладок), 1511 тестов. **Payload Workbench** в «Коде инжекта» (поиск, hex-страницы, части multipart с файлом за 64 КБ, безопасная деобфускация, инспектор с IOC, экспорт с редакцией секретов), **колонка действий** с переходами из находок и переработанный **«Прогон»**: наблюдения с плитками итога, объём по хостам, приоритетные карточки внимания.
-- **1.6.0** — волны 2–4: `rare_external_ip`, `long_connections`, `encoded_payload`, SMB2/LDAP и AD-атаки, HTTP/2 и TLS по SSLKEYLOGFILE; 1464 теста.
-- **Волна 3 — сделано, кроме stream mode.** `theme.py`, `settings_view.py`, `main_window.py`, `markdown_reporter.py`, `facts.py` и `pipeline.py` разбиты на пакеты/модули (`theme/`, `views/settings/`, `window/`, `reporters/markdown/`, `contradictions/facts_*`, `pipeline/`); внешние импорты сохранены фасадами, Markdown-вывод сверен побайтово. Валидация `Config` — табличная, HTTP request-line и ASN.1-ридеры сведены к общим функциям. Разбор 335 МБ ускорен с 24.2 до 14.4 с — цель «меньше 15 с» достигнута. Осталось — stream mode для pcap > 2 ГБ.
-- **Волна 1 (в 1.5.1) — сделано.** Единая таксономия findings (`taxonomy.py`): один источник правды о ролях, MITRE и фазах. `ParadoxInputError`, `--version` и код выхода 3 вместо трейсбека на битом pcap. Счётчик обрезанных TCP-потоков и лимиты absence/DNS. Одно определение internal/external IP. Воспроизводимая сборка из `Paradox.spec` + `SHA256SUMS`. Осталось: CI-workflow (решение владельца), 4-й код выхода, вынос крупных модулей — см. [TODO.md](TODO.md).
-- **1.5.0** — «Код инжекта», 24-й детектор `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
-- **Волна 4 (в 1.6.0) — сделано.** SMB2-парсер (NetBIOS-рамка, compound, share/путь, NTLMSSP-учётка) и LDAP-экстрактор (bind/search, текстовые фильтры, атрибуты) — на реальном захвате дают `rgaines` / `MASSFRICTION.COM` и 11 rootDSE-поисков. Детекторы `kerberoasting` (RC4/SPN-энумерация) и `ad_recon` (чувствительные атрибуты каталога) на этом захвате молчат — ложных срабатываний нет. DCE/RPC-парсер ловит DRSUAPI bind и `DsGetNCChanges` (детектор `dcsync`). HTTP/2 (h2c и h2 по SSLKEYLOGFILE) и HPACK разбираются в те же `http_objects`, что и HTTP/1; расшифрованный HTTPS/1.1 тоже попадает в отчёт.
-- **Волна 2 — детекция.** Сделано: `rare_external_ip` и `long_connections` с фильтром по DNS-ответам, cross-finding «успешный брутфорс»; `sni_mismatch` проверен на FIN-2015 (0 findings). Осталось: JA3 браузеров (нужны проверенные хеши) и прогон slow-beaconing на реальном C2 с интервалом > часа. Каждое изменение — с замером на трёх эталонных захватах.
-- **Дальше** — остаток волны 3 и волна 4 в [TODO.md](TODO.md): stream mode для pcap > 2 ГБ, MISP export, REST API, нативный PDF.
+- **1.9.0 (текущий релиз)** — английский отчёт и CLI: `--lang en` переводит Markdown, HTML, STIX, объяснения находок и противоречий, подсказки правил и справку. В GUI язык отчёта берётся из настроек интерфейса. Русский остаётся по умолчанию.
+- **1.8.0** — 12 экстракторов, 30 детекторов, 13 правил противоречий, GUI (9 вкладок). **Объяснения** у каждой находки и противоречия в отчёте + отдельное окно «Объяснение». **Поведенческий ML-слой** — Isolation Forest на чистом Python (по умолчанию выключен, `--behavioral`). **13-е правило `role_deviation`** — поведение хоста против его базовой роли по OUI MAC.
+- **1.7.0** — Payload Workbench в «Коде инжекта», колонка действий у находок, переработанный «Прогон».
+- **1.6.0** — `rare_external_ip`, `long_connections`, `encoded_payload`, SMB2/LDAP и AD-атаки, HTTP/2 и TLS по SSLKEYLOGFILE.
+- **1.5.0** — «Код инжекта», `webshell_markers`, RU/EN-локализация, HTML-отчёт, STIX 2.1, плагины детекторов.
 
 CI-workflow (`.github/workflows/ci.yml`) гоняет ruff и тесты на Ubuntu;
-цифра «1622 passed» — локальный замер на Windows.
+цифра «1656 passed» — локальный замер на Windows.
 
 ## Вклад
 

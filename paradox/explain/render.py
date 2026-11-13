@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 
+from paradox.i18n import L, is_english
 from paradox.taxonomy import phase_for
 
 PHASE_LABELS_RU: dict[str, str] = {
@@ -22,6 +23,19 @@ PHASE_LABELS_RU: dict[str, str] = {
     "exfiltration": "Эксфильтрация",
     "impact": "Воздействие",
     "other": "Прочее",
+}
+
+PHASE_LABELS_EN: dict[str, str] = {
+    "recon": "Reconnaissance",
+    "initial_access": "Initial access",
+    "execution": "Execution",
+    "persistence": "Persistence",
+    "credential_access": "Credential access",
+    "lateral_movement": "Lateral movement",
+    "c2": "Command and control (C2)",
+    "exfiltration": "Exfiltration",
+    "impact": "Impact",
+    "other": "Other",
 }
 
 _PLACEHOLDER = re.compile(r"\{([a-z_][a-z0-9_]*)\}")
@@ -42,16 +56,29 @@ _VALUE_LABELS: dict[str, dict[str, str]] = {
     },
 }
 
+_VALUE_LABELS_EN: dict[str, dict[str, str]] = {
+    "direction": {
+        "outbound": "outbound",
+        "inbound": "inbound",
+        "internal": "within the network",
+    },
+    "kind": {
+        "contains": "name contains the brand",
+        "levenshtein": "name differs by a typo",
+    },
+}
+
 
 def phase_label(finding_type: str) -> str:
-    return PHASE_LABELS_RU.get(phase_for(finding_type), "Прочее")
+    labels = PHASE_LABELS_EN if is_english() else PHASE_LABELS_RU
+    return labels.get(phase_for(finding_type), L("Прочее", "Other"))
 
 
 def _fmt(value) -> str:
     if value is None:
         return _MISSING
     if isinstance(value, bool):
-        return "да" if value else "нет"
+        return L("да", "yes") if value else L("нет", "no")
     if isinstance(value, float):
         if value.is_integer():
             return _fmt(int(value))
@@ -85,7 +112,7 @@ def _evidence_scalars(evidence) -> dict[str, str]:
             continue
         name = str(key)
         text = _fmt(value)
-        labels = _VALUE_LABELS.get(name)
+        labels = (_VALUE_LABELS_EN if is_english() else _VALUE_LABELS).get(name)
         if labels and isinstance(value, str):
             text = labels.get(value, text)
         out[name] = text
@@ -118,18 +145,24 @@ def confidence_note(confidence) -> str:
         return ""
     shown = f"{confidence:.2f}"
     if confidence >= 0.85:
-        return (
+        return L(
             f"Уверенность {shown} — высокая: сработали все признаки "
-            f"правила. Это по-прежнему эвристика, а не доказательство."
+            f"правила. Это по-прежнему эвристика, а не доказательство.",
+            f"Confidence {shown} — high: every signal of the rule fired. "
+            f"This is still a heuristic, not proof.",
         )
     if confidence >= 0.6:
-        return (
+        return L(
             f"Уверенность {shown} — средняя: признаки совпали, но "
-            f"легитимные объяснения не исключены (см. ниже)."
+            f"легитимные объяснения не исключены (см. ниже).",
+            f"Confidence {shown} — medium: the signals matched, but "
+            f"legitimate explanations are not excluded (see below).",
         )
-    return (
+    return L(
         f"Уверенность {shown} — низкая: это сигнал к ручной проверке, "
-        f"а не вывод. Один такой находки мало для вердикта."
+        f"а не вывод. Один такой находки мало для вердикта.",
+        f"Confidence {shown} — low: this is a prompt for manual review, "
+        f"not a conclusion. One such finding is not enough for a verdict.",
     )
 
 

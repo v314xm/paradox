@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -70,11 +71,19 @@ class SniCertMismatchRule:
             if _sni_matches_cert(sni, cert_names):
                 continue
 
-            hint = (
-                f"{f.subject}: SNI={sni}, но сертификат выдан на "
-                f"CN={ev.get('subject_cn')}, "
-                f"SAN={ev.get('san_dns', [])[:3]}. "
-                f"Признак MITM-прокси или подмены сертификата."
+            hint = L(
+                (
+                    f"{f.subject}: SNI={sni}, но сертификат выдан на "
+                    f"CN={ev.get('subject_cn')}, "
+                    f"SAN={ev.get('san_dns', [])[:3]}. "
+                    f"Признак MITM-прокси или подмены сертификата."
+                ),
+                (
+                    f"{f.subject}: SNI={sni}, but the certificate is issued "
+                    f"for CN={ev.get('subject_cn')}, "
+                    f"SAN={ev.get('san_dns', [])[:3]}. "
+                    f"Sign of an MITM proxy or certificate substitution."
+                ),
             )
             out.append(Contradiction(
                 rule=self.name,
@@ -83,10 +92,22 @@ class SniCertMismatchRule:
                 severity=self.severity_base,
                 confidence=0.7,
                 likely_causes=[
-                    "MITM-прокси: подмена сертификата на лету",
-                    "Domain fronting: SNI ≠ реальный хост",
-                    "Shared-сертификат CDN без нужного SAN",
-                    "FP: SNI и CN в разных регистрах, IDN и пр.",
+                    L(
+                        "MITM-прокси: подмена сертификата на лету",
+                        "MITM proxy: certificate substituted on the fly",
+                    ),
+                    L(
+                        "Domain fronting: SNI ≠ реальный хост",
+                        "Domain fronting: SNI ≠ the real host",
+                    ),
+                    L(
+                        "Shared-сертификат CDN без нужного SAN",
+                        "Shared CDN certificate without the required SAN",
+                    ),
+                    L(
+                        "FP: SNI и CN в разных регистрах, IDN и пр.",
+                        "FP: SNI and CN in different case, IDN and so on",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

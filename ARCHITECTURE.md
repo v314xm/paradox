@@ -1,4 +1,4 @@
-# Архитектура Paradox v1.8.0
+# Архитектура Paradox v1.9.0
 
 ## Модель
 
@@ -30,6 +30,8 @@ Post-extract (после чтения всех пакетов)
 ├── HTTPObjectExtractor.run_post_extract → http_objects
 ├── TlsCertificateExtractor.run_post_extract → tls_certs
 ├── TLSExtractor.run_post_extract → sni/ja3/ja3s из склеенных потоков
+├── SMB2 / LDAP / DCE-RPC extractors → протоколы AD
+├── HTTP2Extractor.run_post_extract → h2c/h2 в http_objects
 └── carve_files → carved_files
    (после этого tcp_streams освобождаются)
 │
@@ -338,6 +340,15 @@ Directed graph атаки: узлы = IP, рёбра = findings с (src, dst),
 одного 5-tuple из разных файлов не склеиваются: коллизия считается
 в `extractor_errors["multi_pcap_stream_conflict"]`.
 
+## Слой 5.7. Объяснения (`explain/`) — v1.8.0
+
+Один текст на находку/противоречие для JSON-отчёта, Markdown
+(раздел «Интерпретация»), модалки в GUI и окна «Объяснение». Тексты
+данными, а не кодом: `catalog.py` (типы findings),
+`contradiction_catalog.py` (правила), `render.py` (подстановки).
+Страж покрытия — `tests/test_explain.py`: новый тип находки или
+правило без шаблона валит прогон.
+
 ## Слой 6. Reporters (`reporters/`)
 
 **JSON** (`json_reporter.py`): `write_json` сортирует ключи —
@@ -349,7 +360,7 @@ Directed graph атаки: узлы = IP, рёбра = findings с (src, dst),
 **Markdown** (`markdown/`): TL;DR в порядке kill-chain
 (не confidence), PIVOT первым; секции TL;DR, таймлайн, carved,
 сводка (в т.ч. `summary.protocols.by_l4`/`by_l7`), противоречия,
-findings, сущности, HTTP, IOC, топ-10 flows.
+findings, сущности, «Интерпретация», HTTP, IOC, топ-10 flows.
 
 **Flow report** (`flow_report.py`): conn.log-стиль
 (`build_flow_report`, `build_dns_report`, `build_http_report`,
@@ -417,7 +428,7 @@ PE/ELF/ZIP/PDF) и экспорт в Markdown с редакцией секрет
 
 ```python
 EXTRACTORS = [FlowExtractor(), ..., NDPExtractor()]  # 12, flow первым
-DETECTORS  = [...26...]                              # порядок не важен
+DETECTORS  = [...30...]                              # порядок не важен
 RULES      = [...13...]                              # порядок не важен
 ```
 
@@ -467,7 +478,7 @@ class Finding:
     src_ip: str | None = None
     dst_ip: str | None = None
     dst_port: int | None = None
-    severity: str = "medium"
+    severity: str | None = None
 
     first_seen: float | None = None
     last_seen: float | None = None
@@ -484,7 +495,8 @@ dst_ip ← evidence.dst_ip → dst_ips → top_dst_ips
 
 dst_port ← evidence.dst_port → dst_ports
 
-severity ← _SEVERITY_BY_TYPE[type] если осталось "medium"
+severity ← _SEVERITY_BY_TYPE[type], если детектор оставил None
+(явно заданное значение, в том числе "medium", не переопределяется)
 
 Детектор должен заполнять top-level src_ip/dst_ip
 напрямую, чтобы не полагаться на fallback. Fallback существует для
@@ -549,7 +561,7 @@ PowerShell `-EncodedCommand`, `str_rot13`, HTML entities — не более
 payload'а), сохранение только по явной кнопке и Markdown-экспорт
 с редакцией паролей, токенов и `Authorization`.
 
-Известные ограничения v1.8.0
+Известные ограничения v1.9.0
 Только то, что верно сейчас; план — в TODO.md.
 
 TLS 1.3 Certificate зашифрован — правила на сертификатах
@@ -585,13 +597,14 @@ brotli и zstd не распаковываются (нужны внешние з
 IPv6 в ioc_reporter не покрыт тестами — тесты IOC только на
 IPv4-адресах.
 
-sni_mismatch шумит на CDN (73 FP на FIN-2015): нужен
-context-aware allowlist.
+sni_mismatch шумит на CDN только при отсутствии DNS-ответов в
+захвате: на FIN-2015 замер 2026-11-10 даёт 0 findings.
 
-Слияние multi-pcap покрыто tests/test_multi_pcap_merge.py (21 тест);
+Слияние multi-pcap покрыто tests/test_multi_pcap_merge.py (22 теста);
 ручной прогон на двух половинах pcap — tools/test_multi_pcap.py.
 
-CI-workflow в репозитории нет: прогон тестов локальный.
+CI-workflow — `.github/workflows/ci.yml` (ruff + `pytest -m "not slow"`
+на Ubuntu); цифры в README — локальный замер на Windows.
 
 История версий (архитектурно значимые)
 См. CHANGELOG.md. Ключевые точки:
@@ -621,9 +634,21 @@ v1.5.0 — webshell_markers (24-й детектор), выдержки тел
 payload_samples, html_reporter, stix_reporter, плагины детекторов,
 RU/EN i18n, вкладка «Код инжекта».
 
+v1.6.0 — волны 2–4: `rare_external_ip`, `long_connections`,
+`encoded_payload`, SMB2/LDAP, kerberoasting/ad_recon, DCE/RPC+dcsync,
+HTTP/2 и TLS по SSLKEYLOGFILE.
+
+v1.7.0 — Payload Workbench, колонка действий у находок,
+переработанный «Прогон».
+
 v1.8.0 — объяснения в ядре и окно объяснений, поведенческий ML-слой
 (Isolation Forest: corroboration + host_behavior_anomaly, off by
 default), 13-е правило role_deviation.
+
+v1.9.0 — английский отчёт и CLI (`--lang en`): слой языка ядра
+(`paradox/i18n.py`), двойники каталогов объяснений
+(`explain/catalog_en.py`, `explain/contradiction_catalog_en.py`),
+двуязычные подсказки правил и подписи `confidence_reasons`.
 
 Связанные документы
 README.md — обзор, quick start, метрики.

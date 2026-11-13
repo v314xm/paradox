@@ -22,7 +22,10 @@ PhpPayloadDetector — PHP-исходник в HTTP-трафике.
     gzip/deflate распаковываются (см. _http_body.decoded_body);
   - HTML-ответы не проверяются: код в статье/туториале — не дроппер;
   - тело запроса сканируется в первых 64 КБ после распаковки
-    (multipart сохраняется целиком, маркер обычно в начале).
+    (multipart сохраняется целиком, маркер обычно в начале);
+  - base64-фрагменты тела раскрываются (до двух уровней): заливка
+    вида `file_put_contents('x.txt', base64_decode('PD9waHAg…'))`
+    иначе не видна, маркер спрятан в кодировке.
 
 Confidence: php_download 0.85; webshell_upload 0.8,
 multipart/form-data 0.85. Severity: high / critical.
@@ -30,7 +33,7 @@ multipart/form-data 0.85. Severity: high / critical.
 from dataclasses import dataclass, field
 
 from paradox.config import Config
-from paradox.detectors._http_body import decoded_body
+from paradox.detectors._http_body import scan_variants
 from paradox.models import CaptureState, Finding
 from paradox.payload_excerpt import make_sample
 
@@ -96,11 +99,8 @@ class PhpPayloadDetector:
             return b
 
         for key, obj in (state.http_objects or []):
-            if not obj.body:
-                continue
-            # gzip/deflate: PHP-исходник может прийти сжатым.
-            data = decoded_body(obj, config)
-            if not data:
+            variants = scan_variants(obj, config)
+            if not variants:
                 continue
 
             content_type = _content_type(obj)
@@ -111,14 +111,20 @@ class PhpPayloadDetector:
                     continue
                 if content_type.startswith("text/html"):
                     continue
-                if not _starts_with_php(data):
+                payload = next(
+                    (v for v in variants if _starts_with_php(v)), None,
+                )
+                if payload is None:
                     continue
                 kind = "php_download"
                 host = (obj.headers or {}).get("host") or key.src_ip
             else:
                 if (obj.method or "").upper() not in _UPLOAD_METHODS:
                     continue
-                if not _contains_php(data):
+                payload = next(
+                    (v for v in variants if _contains_php(v)), None,
+                )
+                if payload is None:
                     continue
                 kind = "webshell_upload"
                 host = (obj.headers or {}).get("host") or key.dst_ip
@@ -131,13 +137,13 @@ class PhpPayloadDetector:
                 b.content_types.add(content_type)
             if obj.status_code is not None:
                 b.status_codes.add(obj.status_code)
-            b.max_body_size = max(b.max_body_size, len(data))
+            b.max_body_size = max(b.max_body_size, len(payload))
             if (
                 b.payload_sample is None
                 and getattr(config, "payload_excerpt_enabled", True)
             ):
                 b.payload_sample = make_sample(
-                    data,
+                    payload,
                     obj=obj,
                     direction=(
                         "response" if obj.kind == "response" else "request"

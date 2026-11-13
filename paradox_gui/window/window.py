@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from paradox.i18n import set_language as set_core_language
 from paradox_gui import __version__ as APP_VERSION
 from paradox_gui.i18n import DEFAULT_LANGUAGE, set_language, tr
 from paradox_gui.views.diff_view import DiffView
@@ -105,6 +106,9 @@ class MainWindow(
             "language", DEFAULT_LANGUAGE,
         )
         set_language(_saved_lang)
+        # Отчёт собирается в ядре: без этого английский интерфейс писал
+        # бы русский Markdown и русские объяснения.
+        set_core_language(_saved_lang)
         self.setWindowTitle(tr("app.title", version=APP_VERSION))
         self.resize(1440, 900)
         self._apply_dark_titlebar()

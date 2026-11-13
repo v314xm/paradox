@@ -1,6 +1,7 @@
 """Markdown-отчёт: timeline."""
 from __future__ import annotations
 
+from paradox.i18n import L
 from paradox.reporters.markdown.format import (
     _escape_cell,
     _fmt_rel,
@@ -26,8 +27,12 @@ def _render_timeline(report: dict, top_n: int = 50) -> list[str]:
 
     lines: list[str] = ["## Timeline", ""]
     lines.append(
-        "_Хронология findings и противоречий по фазам kill-chain. "
-        "Время — относительно первого события._"
+        L(
+            "_Хронология findings и противоречий по фазам kill-chain. "
+            "Время — относительно первого события._",
+            "_Timeline of findings and contradictions by kill-chain phase. "
+            "Time is relative to the first event._",
+        )
     )
     lines.append("")
 
@@ -53,7 +58,10 @@ def _render_timeline(report: dict, top_n: int = 50) -> list[str]:
         lines.append(f"### {phase} ({len(events)})")
         lines.append("")
         lines.append(
-            "| Время (rel) | Kind | Тип | Subject | Описание | Conf | MITRE |"
+            L(
+                "| Время (rel) | Kind | Тип | Subject | Описание | Conf | MITRE |",
+                "| Time (rel) | Kind | Type | Subject | Description | Conf | MITRE |",
+            )
         )
         lines.append("|---|---|---|---|---|---|---|")
         for e in events:
@@ -76,7 +84,10 @@ def _render_timeline(report: dict, top_n: int = 50) -> list[str]:
             remaining = len(timeline) - shown
             if remaining > 0:
                 lines.append(
-                    f"_…и ещё {remaining} событий — см. JSON-отчёт._"
+                    L(
+                        f"_…и ещё {remaining} событий — см. JSON-отчёт._",
+                        f"_…and {remaining} more events — see the JSON report._",
+                    )
                 )
                 lines.append("")
             break
@@ -95,14 +106,19 @@ def _render_timeline_fallback(report: dict, top_n: int = 15) -> list[str]:
 
     with_ts = [f for f in findings if f.get("first_seen") is not None]
     if not with_ts:
-        lines.append("_Нет timestamps у findings._")
+        lines.append(L("_Нет timestamps у findings._", "_No timestamps on findings._"))
         lines.append("")
         return lines
 
     t0 = min(f["first_seen"] for f in with_ts)
     sorted_f = sorted(with_ts, key=lambda f: f["first_seen"])
 
-    lines.append("| Время (rel) | Тип | Значение | Conf | MITRE |")
+    lines.append(
+        L(
+            "| Время (rel) | Тип | Значение | Conf | MITRE |",
+            "| Time (rel) | Type | Value | Conf | MITRE |",
+        )
+    )
     lines.append("|---|---|---|---|---|")
     for f in sorted_f[:top_n]:
         rel = _fmt_rel(f["first_seen"] - t0)
@@ -114,6 +130,8 @@ def _render_timeline_fallback(report: dict, top_n: int = 15) -> list[str]:
             f"| {rel} | `{ftype}` | {value} | {conf:.2f} | {mitre} |"
         )
     if len(sorted_f) > top_n:
-        lines.append(f"| ... | _(ещё {len(sorted_f) - top_n})_ | | | |")
+        lines.append(
+            f"| ... | _({L('ещё', 'and')} {len(sorted_f) - top_n})_ | | | |"
+        )
     lines.append("")
     return lines

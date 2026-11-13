@@ -1,10 +1,14 @@
 """Markdown-отчёт: document."""
 from __future__ import annotations
 
+from paradox.i18n import L
 from paradox.reporters.markdown.format import (
     _fmt_bytes,
     _fmt_duration,
     _short,
+)
+from paradox.reporters.markdown.interpretation import (
+    _render_interpretation,
 )
 from paradox.reporters.markdown.iocs import (
     _extract_iocs,
@@ -46,8 +50,11 @@ def render_markdown(report: dict) -> str:
     lines.append(f"# PCAP Triage Report: `{pcap_name}`")
     lines.append("")
 
-    lines.append(f"**Инструмент:** Paradox v{provenance.get('tool_version', '?')}  ")
-    lines.append(f"**Файл:** `{pcap_path}`  ")
+    lines.append(
+        f"**{L('Инструмент:', 'Tool:')}** "
+        f"Paradox v{provenance.get('tool_version', '?')}  "
+    )
+    lines.append(f"**{L('Файл:', 'File:')}** `{pcap_path}`  ")
     lines.append(f"**SHA256:** `{provenance.get('pcap_sha256', '?')}`  ")
     lines.append("")
 
@@ -67,21 +74,31 @@ def render_markdown(report: dict) -> str:
         lines.extend(carved_section)
 
     # --- summary ---
-    lines.append("## Сводка")
+    lines.append(L("## Сводка", "## Summary"))
     lines.append("")
-    lines.append(f"- **Пакеты:** {summary.get('packets', 0):,}")
+    lines.append(
+        f"- **{L('Пакеты:', 'Packets:')}** {summary.get('packets', 0):,}"
+    )
     lines.append(f"- **Flows:** {summary.get('flows', 0):,}")
-    lines.append(f"- **Уникальных DNS-запросов:** {summary.get('unique_dns_queries', 0)}")
+    lines.append(
+        f"- **{L('Уникальных DNS-запросов:', 'Unique DNS queries:')}** "
+        f"{summary.get('unique_dns_queries', 0)}"
+    )
     lines.append(f"- **NXDOMAIN:** {summary.get('nxdomain_count', 0)}")
     lines.append(f"- **Findings:** {summary.get('findings', 0)}")
     if contradictions:
-        lines.append(f"- **Противоречий:** {len(contradictions)}")
+        lines.append(
+            f"- **{L('Противоречий:', 'Contradictions:')}** "
+            f"{len(contradictions)}"
+        )
 
     first_ts = summary.get("first_ts")
     last_ts = summary.get("last_ts")
     if first_ts and last_ts:
         duration = last_ts - first_ts
-        lines.append(f"- **Период:** {_fmt_duration(duration)}")
+        lines.append(
+            f"- **{L('Период:', 'Period:')}** {_fmt_duration(duration)}"
+        )
 
     uploaded = summary.get("uploaded_bytes")
     downloaded = summary.get("downloaded_bytes")
@@ -105,12 +122,19 @@ def render_markdown(report: dict) -> str:
 
     extractor_errors = summary.get("extractor_errors") or {}
     if extractor_errors:
-        lines.append(f"- **Ошибки экстракторов:** `{extractor_errors}`")
+        lines.append(
+            f"- **{L('Ошибки экстракторов:', 'Extractor errors:')}** "
+            f"`{extractor_errors}`"
+        )
     truncated_streams = summary.get("tcp_streams_truncated", 0)
     if truncated_streams:
         lines.append(
-            f"- **⚠️ Обрезано TCP-потоков:** {truncated_streams}. "
-            "HTTP-объекты, веб-шеллы и YARA могли не увидеть часть трафика."
+            f"- **⚠️ {L('Обрезано TCP-потоков:', 'Truncated TCP streams:')}** "
+            f"{truncated_streams}. "
+            + L(
+                "HTTP-объекты, веб-шеллы и YARA могли не увидеть часть трафика.",
+                "HTTP objects, webshells and YARA may have missed part of the traffic.",
+            )
         )
     lines.append("")
 
@@ -134,6 +158,9 @@ def render_markdown(report: dict) -> str:
         lines.extend(contradictions_section)
         lines.append("")
 
+    # --- interpretation ---
+    lines.extend(_render_interpretation(report))
+
     # --- HTTP ---
     if http:
         lines.extend(_render_http(http))
@@ -146,7 +173,7 @@ def render_markdown(report: dict) -> str:
         lines.append("")
 
         if iocs["domains"]:
-            lines.append("**Домены:**")
+            lines.append(f"**{L('Домены:', 'Domains:')}**")
             lines.append("")
             for domain, reasons in sorted(iocs["domains"].items()):
                 lines.append(f"- `{domain}` — {', '.join(reasons)}")
@@ -160,7 +187,7 @@ def render_markdown(report: dict) -> str:
             lines.append("")
 
         if iocs["ports"]:
-            lines.append("**Порты:**")
+            lines.append(f"**{L('Порты:', 'Ports:')}**")
             lines.append("")
             for port, reasons in sorted(iocs["ports"].items()):
                 lines.append(f"- `{port}` — {', '.join(reasons)}")
@@ -168,7 +195,9 @@ def render_markdown(report: dict) -> str:
 
     # --- top flows ---
     if top_flows:
-        lines.append("## Топ-10 flows по байтам")
+        lines.append(
+            L("## Топ-10 flows по байтам", "## Top 10 flows by bytes")
+        )
         lines.append("")
         lines.append("| Src | Dst | Dir | Proto | Bytes | SNI |")
         lines.append("|---|---|---|---|---|---|")
@@ -187,8 +216,14 @@ def render_markdown(report: dict) -> str:
     # --- footer ---
     lines.append("---")
     lines.append("")
-    lines.append("_Отчёт сгенерирован автоматически. Проверяй findings глазами: "
-                 "эвристики дают кандидатов, не приговоры._")
+    lines.append(
+        L(
+            "_Отчёт сгенерирован автоматически. Проверяй findings глазами: "
+            "эвристики дают кандидатов, не приговоры._",
+            "_Report generated automatically. Review findings by hand: "
+            "heuristics produce candidates, not verdicts._",
+        )
+    )
     lines.append("")
     lines.append("***")
     lines.append("")

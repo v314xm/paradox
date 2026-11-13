@@ -22,6 +22,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+from paradox.i18n import L, get_language
 from paradox.reporters.stix_reporter import extract_iocs
 from paradox.taxonomy import SEVERITY_ORDER as _SEVERITY_ORDER
 
@@ -126,14 +127,14 @@ def _sev(value: str) -> str:
 
 def _summary_cards(summary: dict) -> str:
     cards = [
-        ("Пакетов", summary.get("packets", 0)),
+        (L("Пакетов", "Packets"), summary.get("packets", 0)),
         ("Flows", summary.get("flows", 0)),
-        ("HTTP-объектов", summary.get("http_objects", 0)),
+        (L("HTTP-объектов", "HTTP objects"), summary.get("http_objects", 0)),
         ("Findings", summary.get("findings", 0)),
-        ("Противоречий", summary.get("contradictions", 0)),
-        ("Уникальных DNS", summary.get("unique_dns_queries", 0)),
-        ("Carved файлов", summary.get("carved_files", 0)),
-        ("Отправлено", _fmt_bytes(summary.get("uploaded_bytes"))),
+        (L("Противоречий", "Contradictions"), summary.get("contradictions", 0)),
+        (L("Уникальных DNS", "Unique DNS"), summary.get("unique_dns_queries", 0)),
+        (L("Carved файлов", "Carved files"), summary.get("carved_files", 0)),
+        (L("Отправлено", "Uploaded"), _fmt_bytes(summary.get("uploaded_bytes"))),
     ]
     return '<div class="cards">' + "".join(
         f'<div class="card"><div class="v">{_esc(value)}</div>'
@@ -156,7 +157,8 @@ def _protocols(summary: dict) -> str:
     if not parts:
         return ""
     return (
-        '<p class="muted">Протоколы: ' + " · ".join(parts) + "</p>"
+        f'<p class="muted">{L("Протоколы: ", "Protocols: ")}'
+        + " · ".join(parts) + "</p>"
     )
 
 
@@ -169,7 +171,7 @@ def _evidence(finding: dict) -> str:
     except (TypeError, ValueError):
         text = str(evidence)
     if len(text) > _EVIDENCE_LIMIT:
-        text = text[:_EVIDENCE_LIMIT] + "\n… (обрезано)"
+        text = text[:_EVIDENCE_LIMIT] + L("\n… (обрезано)", "\n… (truncated)")
     return (
         "<details><summary>evidence</summary>"
         f"<pre>{_esc(text)}</pre></details>"
@@ -178,7 +180,7 @@ def _evidence(finding: dict) -> str:
 
 def _findings_section(findings: list) -> str:
     if not findings:
-        return '<p class="muted">Findings не найдены.</p>'
+        return f'<p class="muted">{L("Findings не найдены.", "No findings.")}</p>'
 
     ordered = sorted(
         findings,
@@ -207,15 +209,19 @@ def _findings_section(findings: list) -> str:
         )
     return (
         "<table><thead><tr>"
-        "<th>Severity</th><th>Тип</th><th>Что найдено</th>"
-        "<th>Conf</th><th>MITRE</th><th>Откуда → Куда</th><th>Первое</th>"
+        "<th>Severity</th>"
+        f"<th>{L('Тип', 'Type')}</th>"
+        f"<th>{L('Что найдено', 'What was found')}</th>"
+        "<th>Conf</th><th>MITRE</th>"
+        f"<th>{L('Откуда → Куда', 'From → To')}</th>"
+        f"<th>{L('Первое', 'First seen')}</th>"
         "</tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
     )
 
 
 def _contradictions_section(items: list) -> str:
     if not items:
-        return '<p class="muted">Противоречий не найдено.</p>'
+        return f'<p class="muted">{L("Противоречий не найдено.", "No contradictions.")}</p>'
     blocks = []
     ordered = sorted(
         items,
@@ -235,19 +241,22 @@ def _contradictions_section(items: list) -> str:
         causes = item.get("likely_causes") or []
         causes_html = ""
         if causes:
-            causes_html = "<p class='muted'>Вероятные причины: " + _esc(
-                "; ".join(str(c) for c in causes)
-            ) + "</p>"
+            causes_html = (
+                f"<p class='muted'>{L('Вероятные причины: ', 'Likely causes: ')}"
+                + _esc("; ".join(str(c) for c in causes)) + "</p>"
+            )
         hint = item.get("resolution_hint")
         hint_html = (
-            f"<p class='muted'>Как разбирать: {_esc(hint)}</p>"
+            f"<p class='muted'>{L('Как разбирать: ', 'How to triage: ')}"
+            f"{_esc(hint)}</p>"
             if hint else ""
         )
         blocks.append(
             '<div class="contradiction">'
             f"<div class='rule'>{_esc(item.get('rule'))} "
             f"{_sev(item.get('severity'))}</div>"
-            f"<div>Субъект: <span class='mono'>{_esc(item.get('subject'))}</span>"
+            f"<div>{L('Субъект: ', 'Subject: ')}"
+            f"<span class='mono'>{_esc(item.get('subject'))}</span>"
             f" · confidence {_esc(item.get('confidence'))}</div>"
             f"{causes_html}{hint_html}"
             f"<ul>{facts}</ul></div>"
@@ -257,7 +266,7 @@ def _contradictions_section(items: list) -> str:
 
 def _timeline_section(events: list) -> str:
     if not events:
-        return '<p class="muted">Таймлайн пуст.</p>'
+        return f'<p class="muted">{L("Таймлайн пуст.", "Timeline is empty.")}</p>'
     rows = "".join(
         "<li>"
         f"{_esc(_fmt_ts(event.get('ts')))} · "
@@ -274,7 +283,7 @@ def _timeline_section(events: list) -> str:
 def _ioc_section(findings: list) -> str:
     indicators = extract_iocs(findings)
     if not indicators:
-        return '<p class="muted">IOC не найдены.</p>'
+        return f'<p class="muted">{L("IOC не найдены.", "No IOCs.")}</p>'
     chips = "".join(
         f"<code>{_esc(ind['pattern'])}</code>" for ind in indicators
     )
@@ -290,12 +299,12 @@ def render_html(report: dict) -> str:
     timeline = report.get("timeline") or []
 
     pcap = provenance.get("pcap_path") or "pcap"
-    title = f"Paradox — отчёт: {pcap}"
+    title = L(f"Paradox — отчёт: {pcap}", f"Paradox — report: {pcap}")
 
     meta = []
     for label, key in (
-        ("Инструмент", "tool_version"),
-        ("Файл", "pcap_path"),
+        (L("Инструмент", "Tool"), "tool_version"),
+        (L("Файл", "File"), "pcap_path"),
         ("SHA256", "pcap_sha256"),
     ):
         value = provenance.get(key)
@@ -306,22 +315,23 @@ def render_html(report: dict) -> str:
 
     return (
         "<!doctype html>\n"
-        '<html lang="ru">\n<head>\n<meta charset="utf-8">\n'
+        f'<html lang="{get_language()}">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f"<title>{_esc(title)}</title>\n"
         f"<style>{_STYLE}</style>\n</head>\n<body>\n<main>\n"
         f"<h1>{_esc(title)}</h1>\n"
         f"<ul class='muted'>{''.join(meta)}</ul>\n"
-        f"<h2>Сводка</h2>\n{_summary_cards(summary)}\n"
+        f"<h2>{L('Сводка', 'Summary')}</h2>\n{_summary_cards(summary)}\n"
         f"{_protocols(summary)}\n"
         f"<h2>Findings ({len(findings)})</h2>\n"
         f"{_findings_section(findings)}\n"
-        f"<h2>Противоречия ({len(contradictions)})</h2>\n"
+        f"<h2>{L('Противоречия', 'Contradictions')} ({len(contradictions)})</h2>\n"
         f"{_contradictions_section(contradictions)}\n"
-        f"<h2>Таймлайн</h2>\n{_timeline_section(timeline)}\n"
+        f"<h2>{L('Таймлайн', 'Timeline')}</h2>\n{_timeline_section(timeline)}\n"
         f"<h2>IOC</h2>\n{_ioc_section(findings)}\n"
-        "<footer>Отчёт сгенерирован Paradox. "
-        "Для PDF: Печать → Сохранить как PDF.</footer>\n"
+        f"<footer>{L('Отчёт сгенерирован Paradox. ', 'Report generated by Paradox. ')}"
+        f"{L('Для PDF: Печать → Сохранить как PDF.', 'For PDF: Print → Save as PDF.')}"
+        "</footer>\n"
         "</main>\n</body>\n</html>\n"
     )
 

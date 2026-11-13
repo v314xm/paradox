@@ -32,6 +32,7 @@ from datetime import datetime
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 _PIVOT_CEILING = 0.90
@@ -117,26 +118,51 @@ class VictimMakesAttackRule:
             a_desc = _describe(a)
 
             if ts_ok is None:
-                hint = (
-                    f"{subject}: зафиксированы обе роли — victim "
-                    f"({v_desc}) и attacker ({a_desc}). "
-                    f"Timestamps недоступны, проверить хронологию по "
-                    f"flows вручную: сначала атака на {subject}, "
-                    f"потом атака с {subject} — классический pivot."
+                hint = L(
+                    (
+                        f"{subject}: зафиксированы обе роли — victim "
+                        f"({v_desc}) и attacker ({a_desc}). "
+                        f"Timestamps недоступны, проверить хронологию по "
+                        f"flows вручную: сначала атака на {subject}, "
+                        f"потом атака с {subject} — классический pivot."
+                    ),
+                    (
+                        f"{subject}: both roles are present — victim "
+                        f"({v_desc}) and attacker ({a_desc}). "
+                        f"Timestamps are unavailable; check the flow "
+                        f"chronology by hand: first an attack on {subject}, "
+                        f"then an attack from {subject} — classic pivot."
+                    ),
                 )
             elif ts_ok:
-                hint = (
-                    f"{subject} сначала атакован "
-                    f"({v_desc}, {_clock(v.ts)}), потом сам атакует "
-                    f"({a_desc}, {_clock(a.ts)}). "
-                    f"Классический pivot — проверить сессии {subject}."
+                hint = L(
+                    (
+                        f"{subject} сначала атакован "
+                        f"({v_desc}, {_clock(v.ts)}), потом сам атакует "
+                        f"({a_desc}, {_clock(a.ts)}). "
+                        f"Классический pivot — проверить сессии {subject}."
+                    ),
+                    (
+                        f"{subject} is attacked first "
+                        f"({v_desc}, {_clock(v.ts)}), then attacks on its own "
+                        f"({a_desc}, {_clock(a.ts)}). "
+                        f"Classic pivot — check the sessions of {subject}."
+                    ),
                 )
             else:
-                hint = (
-                    f"Порядок в захвате обратный: {subject} атакует "
-                    f"({a_desc}, {_clock(a.ts)}) РАНЬШЕ, чем атакован "
-                    f"({v_desc}, {_clock(v.ts)}). Возможен NAT/proxy "
-                    f"или FP одной из эвристик."
+                hint = L(
+                    (
+                        f"Порядок в захвате обратный: {subject} атакует "
+                        f"({a_desc}, {_clock(a.ts)}) РАНЬШЕ, чем атакован "
+                        f"({v_desc}, {_clock(v.ts)}). Возможен NAT/proxy "
+                        f"или FP одной из эвристик."
+                    ),
+                    (
+                        f"The order in the capture is reversed: {subject} "
+                        f"attacks ({a_desc}, {_clock(a.ts)}) BEFORE it is "
+                        f"attacked ({v_desc}, {_clock(v.ts)}). NAT/proxy or "
+                        f"an FP of one of the heuristics is possible."
+                    ),
                 )
 
             out.append(Contradiction(
@@ -146,12 +172,26 @@ class VictimMakesAttackRule:
                 severity=self.severity_base,
                 confidence=conf,
                 likely_causes=[
-                    "Хост скомпрометирован: сначала атакован, "
-                    "потом сам атакует",
-                    "Авторизованный сканер в сети: жертва одного скана — "
-                    "инициатор другого",
-                    "NAT или прокси: один адрес скрывает несколько хостов",
-                    "Ошибка одной из эвристик",
+                    L(
+                        "Хост скомпрометирован: сначала атакован, "
+                        "потом сам атакует",
+                        "Host compromised: attacked first, then it attacks "
+                        "on its own",
+                    ),
+                    L(
+                        "Авторизованный сканер в сети: жертва одного скана — "
+                        "инициатор другого",
+                        "Authorised scanner in the network: the target of one "
+                        "scan and the initiator of another",
+                    ),
+                    L(
+                        "NAT или прокси: один адрес скрывает несколько хостов",
+                        "NAT or a proxy: one address hides several hosts",
+                    ),
+                    L(
+                        "Ошибка одной из эвристик",
+                        "An error in one of the heuristics",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

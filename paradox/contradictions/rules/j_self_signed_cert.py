@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -48,11 +49,19 @@ class SelfSignedCertRule:
                 continue
 
             subject_cn = ev.get("subject_cn") or "?"
-            hint = (
-                f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
-                f"self-signed сертификат (CN={subject_cn}). "
-                f"Для публичного сервиса — аномалия; проверить, "
-                f"не MITM-прокси и не dev-стенд."
+            hint = L(
+                (
+                    f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
+                    f"self-signed сертификат (CN={subject_cn}). "
+                    f"Для публичного сервиса — аномалия; проверить, "
+                    f"не MITM-прокси и не dev-стенд."
+                ),
+                (
+                    f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
+                    f"self-signed certificate (CN={subject_cn}). "
+                    f"An anomaly for a public service; check that it is "
+                    f"neither an MITM proxy nor a dev stand."
+                ),
             )
             out.append(Contradiction(
                 rule=self.name,
@@ -61,10 +70,25 @@ class SelfSignedCertRule:
                 severity=self.severity_base,
                 confidence=0.7,
                 likely_causes=[
-                    "MITM-прокси с самоподписанным сертификатом",
-                    "Dev-стенд или IoT-устройство, случайно доступное наружу",
-                    "Certificate pinning: pin-сертификат часто self-signed",
-                    "Легитимный внутренний сервис с публичным DNS",
+                    L(
+                        "MITM-прокси с самоподписанным сертификатом",
+                        "MITM proxy with a self-signed certificate",
+                    ),
+                    L(
+                        "Dev-стенд или IoT-устройство, случайно доступное "
+                        "наружу",
+                        "Dev stand or IoT device accidentally exposed to "
+                        "the internet",
+                    ),
+                    L(
+                        "Certificate pinning: pin-сертификат часто self-signed",
+                        "Certificate pinning: the pinned certificate is often "
+                        "self-signed",
+                    ),
+                    L(
+                        "Легитимный внутренний сервис с публичным DNS",
+                        "Legitimate internal service with a public DNS name",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

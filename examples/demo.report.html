@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paradox — отчёт: examples\demo.pcap</title>
+<style>:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+    margin: 0; padding: 32px;
+    font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f6f7f9; color: #1c2430;
+}
+main { max-width: 1080px; margin: 0 auto; }
+h1 { font-size: 26px; margin: 0 0 4px; }
+h2 { font-size: 18px; margin: 32px 0 12px; }
+.muted { color: #5b6878; }
+.mono { font-family: "Cascadia Mono", Consolas, monospace; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.card {
+    background: #fff; border: 1px solid #dde2e8; border-radius: 8px;
+    padding: 12px 14px;
+}
+.card .v { font-size: 22px; font-weight: 600; }
+.card .l { font-size: 12px; color: #5b6878; }
+table { width: 100%; border-collapse: collapse; background: #fff;
+        border: 1px solid #dde2e8; border-radius: 8px; overflow: hidden; }
+th, td { padding: 8px 10px; text-align: left; vertical-align: top;
+         border-bottom: 1px solid #eef1f4; }
+th { background: #f0f3f6; font-size: 12px; text-transform: uppercase;
+     letter-spacing: .03em; color: #465364; }
+tr:last-child td { border-bottom: none; }
+.sev { display: inline-block; padding: 1px 8px; border-radius: 10px;
+       font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.sev-critical { background: #ffe1e1; color: #a11b1b; }
+.sev-high     { background: #ffe9d6; color: #9a4b00; }
+.sev-medium   { background: #fff4cc; color: #7a5d00; }
+.sev-low      { background: #e3f0ff; color: #1d4f8c; }
+.sev-info     { background: #e9edf2; color: #3d4b5c; }
+details { margin-top: 4px; }
+details pre {
+    background: #10161f; color: #d9e2ec; padding: 10px;
+    border-radius: 6px; overflow-x: auto; font-size: 12px;
+    white-space: pre-wrap; word-break: break-word;
+}
+.contradiction { background: #fff; border: 1px solid #dde2e8;
+                 border-left: 4px solid #a11b1b; border-radius: 8px;
+                 padding: 14px 16px; margin-bottom: 12px; }
+.contradiction .rule { font-weight: 700; }
+.contradiction ul { margin: 6px 0 0 18px; padding: 0; }
+.timeline { background: #fff; border: 1px solid #dde2e8;
+            border-radius: 8px; padding: 4px 16px; }
+.timeline li { margin: 10px 0; }
+.ioc { display: flex; flex-wrap: wrap; gap: 8px; }
+.ioc code { background: #fff; border: 1px solid #dde2e8;
+            border-radius: 6px; padding: 3px 8px; }
+footer { margin-top: 40px; color: #6b7787; font-size: 12px; }
+@media print {
+    body { background: #fff; padding: 0; }
+    .card, table, .contradiction, .timeline { break-inside: avoid; }
+    details { display: none; }
+}</style>
+</head>
+<body>
+<main>
+<h1>Paradox — отчёт: examples\demo.pcap</h1>
+<ul class='muted'><li>Инструмент: <span class='mono'>1.9.0</span></li><li>Файл: <span class='mono'>examples\demo.pcap</span></li><li>SHA256: <span class='mono'>54135ce5d4bad984fdc8820eb907bf80336240353f45de191dc76bea39aedf45</span></li></ul>
+<h2>Сводка</h2>
+<div class="cards"><div class="card"><div class="v">60</div><div class="l">Пакетов</div></div><div class="card"><div class="v">47</div><div class="l">Flows</div></div><div class="card"><div class="v">0</div><div class="l">HTTP-объектов</div></div><div class="card"><div class="v">4</div><div class="l">Findings</div></div><div class="card"><div class="v">4</div><div class="l">Противоречий</div></div><div class="card"><div class="v">1</div><div class="l">Уникальных DNS</div></div><div class="card"><div class="v">0</div><div class="l">Carved файлов</div></div><div class="card"><div class="v">538 B</div><div class="l">Отправлено</div></div></div>
+<p class="muted">Протоколы: <b>by_l4</b> — tcp: 45, udp: 2 · <b>by_l7</b> — other: 17, ssh: 12, smb: 8, smtp: 4, tls: 4, dns: 2</p>
+<h2>Findings (4)</h2>
+<table><thead><tr><th>Severity</th><th>Тип</th><th>Что найдено</th><th>Conf</th><th>MITRE</th><th>Откуда → Куда</th><th>Первое</th></tr></thead><tbody><tr><td><span class="sev sev-medium">medium</span></td><td class='mono'>port_scan</td><td>10.0.0.66 -&gt; *:22<details><summary>evidence</summary><pre>{
+  &quot;src_ip&quot;: &quot;10.0.0.66&quot;,
+  &quot;dst_port&quot;: 22,
+  &quot;distinct_dsts&quot;: 12,
+  &quot;total_flows&quot;: 12,
+  &quot;thin_targets&quot;: 12,
+  &quot;top_dsts&quot;: [
+    {
+      &quot;ip&quot;: &quot;10.0.0.100&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.101&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.102&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.103&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.104&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.105&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.106&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.107&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.108&quot;,
+      &quot;flows&quot;: 1
+    },
+    {
+      &quot;ip&quot;: &quot;10.0.0.109&quot;,
+      &quot;flows&quot;: 1
+    }
+  ],
+  &quot;threshold&quot;: 10
+}</pre></details></td><td>0.75</td><td class='mono'>T1046</td><td class='mono'>10.0.0.66 → 22</td><td class='mono'>2023-11-14 22:13:20 UTC</td></tr><tr><td><span class="sev sev-medium">medium</span></td><td class='mono'>sni_without_dns</td><td>sync-telemetry.example<details><summary>evidence</summary><pre>{
+  &quot;sni&quot;: &quot;sync-telemetry.example&quot;,
+  &quot;src_ip&quot;: &quot;10.0.0.50&quot;,
+  &quot;flow_count&quot;: 1,
+  &quot;dst_ips&quot;: [
+    &quot;198.51.100.40&quot;
+  ],
+  &quot;dst_ports&quot;: [
+    443
+  ],
+  &quot;total_bytes&quot;: 245
+}</pre></details></td><td>0.6</td><td class='mono'>T1071.001</td><td class='mono'>10.0.0.50 → 198.51.100.40:443</td><td class='mono'>2023-11-14 22:13:22 UTC</td></tr><tr><td><span class="sev sev-medium">medium</span></td><td class='mono'>rare_external_ip</td><td>203.0.113.66:4444<details><summary>evidence</summary><pre>{
+  &quot;dst_ip&quot;: &quot;203.0.113.66&quot;,
+  &quot;dst_port&quot;: 4444,
+  &quot;dst_ports&quot;: [
+    4444
+  ],
+  &quot;src_ips&quot;: [
+    &quot;10.0.0.50&quot;
+  ],
+  &quot;flow_count&quot;: 1,
+  &quot;packets_total&quot;: 1,
+  &quot;bytes_sent&quot;: 54,
+  &quot;resolved_by_dns&quot;: false,
+  &quot;named&quot;: false
+}</pre></details></td><td>0.55</td><td class='mono'>T1071.001</td><td class='mono'>10.0.0.50 → 203.0.113.66:4444</td><td class='mono'>2023-11-14 22:13:22 UTC</td></tr><tr><td><span class="sev sev-medium">medium</span></td><td class='mono'>suspicious_port</td><td>203.0.113.66:4444<details><summary>evidence</summary><pre>{
+  &quot;dst_ip&quot;: &quot;203.0.113.66&quot;,
+  &quot;dst_port&quot;: 4444,
+  &quot;flow_count&quot;: 1,
+  &quot;src_ips&quot;: [
+    &quot;10.0.0.50&quot;
+  ],
+  &quot;total_bytes&quot;: 54
+}</pre></details></td><td>0.5</td><td class='mono'>T1571</td><td class='mono'>10.0.0.50 → 203.0.113.66:4444</td><td class='mono'>2023-11-14 22:13:22 UTC</td></tr></tbody></table>
+<h2>Противоречия (4)</h2>
+<div class="contradiction"><div class='rule'>mac_ip_conflict <span class="sev sev-critical">critical</span></div><div>Субъект: <span class='mono'>10.0.0.1</span> · confidence 0.75</div><p class='muted'>Вероятные причины: ARP spoof / MITM: атакующий отвечает на ARP-запросы от имени жертвы; IP conflict: два хоста настроены на один IP (ошибка админа или клонирование VM); DHCP lease change: новый хост получил освободившийся IP; MAC-flapping на коммутаторе (петля, HA-кластер)</p><p class='muted'>Как разбирать: 10.0.0.1: 00:11:22:33:44:55 и 66:77:88:99:aa:bb активны одновременно (пересечение 1700000000.2–1700000000.3). Классический ARP spoof / IP conflict — проверить MAC-flapping на коммутаторе и DHCP-логи.</p><ul><li><span class='mono'>arp: 10.0.0.1 has_mac = 00:11:22:33:44:55</span></li><li><span class='mono'>arp: 10.0.0.1 has_mac = 66:77:88:99:aa:bb</span></li></ul></div><div class="contradiction"><div class='rule'>role_deviation <span class="sev sev-high">high</span></div><div>Субъект: <span class='mono'>10.0.0.50</span> · confidence 0.7</div><p class='muted'>Вероятные причины: Компрометация: хост разведывает сеть изнутри; Легитимный агент мониторинга или сканер уязвимостей; Неправильно настроенное приложение, рассылающее пробы</p><p class='muted'>Как разбирать: 10.0.0.50: по OUI 3c:07:54:12:34:56 — рабочая станция, но инициировал соединения к 31 целям на 9 портах. Проверить, легитимен ли такой охват для этого хоста.</p><ul><li><span class='mono'>role_profile: 10.0.0.50 assigned_role = workstation</span></li><li><span class='mono'>behavior: 10.0.0.50 observed_behavior = acting_as_scanner</span></li></ul></div><div class="contradiction"><div class='rule'>dns_answer_mismatch <span class="sev sev-medium">medium</span></div><div>Субъект: <span class='mono'>10.0.0.50</span> · confidence 0.65</div><p class='muted'>Вероятные причины: DNS rebinding: A-запись изменена между резолвом и подключением; MITM-прокси: dst_ip подменён на лету; Round-robin CDN: клиент резолвил один edge-IP, пришёл на другой; Hardcoded IP с валидным SNI для вида</p><p class='muted'>Как разбирать: 10.0.0.50: SNI=cdn-demo.example, но подключение на IP [&#x27;198.51.100.31&#x27;] не входит в резолвнутый набор [&#x27;198.51.100.30&#x27;]. Проверить DNS rebinding / MITM / hardcoded IP с валидным SNI.</p><ul><li><span class='mono'>sni: 10.0.0.50 sni = cdn-demo.example</span></li></ul></div><div class="contradiction"><div class='rule'>sni_without_dns <span class="sev sev-medium">medium</span></div><div>Субъект: <span class='mono'>10.0.0.50</span> · confidence 0.6</div><p class='muted'>Вероятные причины: Hardcoded домен в конфиге клиента без DNS; Долгий DNS-кеш: резолв был до начала захвата; MITM-прокси с подменой SNI; FP: DNS через DoH/DoT, невидим в pcap</p><p class='muted'>Как разбирать: 10.0.0.50: SNI на 1 домен(ов) без DNS-ответа в этом захвате: sync-telemetry.example. dst_ip: [&#x27;198.51.100.40&#x27;]. Проверить, что за клиент ходит по hardcoded SNI или через MITM-прокси, и есть ли DNS-запрос в соседних pcap.</p><ul><li><span class='mono'>sni: 10.0.0.50 sni = sync-telemetry.example</span></li></ul></div>
+<h2>Таймлайн</h2>
+<ul class="timeline"><li>2023-11-14 22:13:20 UTC · <b>initial_access</b> · <span class="sev sev-critical">critical</span> <span class='mono'>mac_ip_conflict</span> — 10.0.0.1: mac_ip_conflict — 10.0.0.1: 00:11:22:33:44:55 и 66:77:88:99:aa:bb активны одновременно (пересечение 1700000000.2–1700000000.3). Классическ</li><li>2023-11-14 22:13:20 UTC · <b>recon</b> · <span class="sev sev-medium">medium</span> <span class='mono'>port_scan</span> — 10.0.0.66 → ?: port_scan (10.0.0.66 -&gt; *:22)</li><li>2023-11-14 22:13:20 UTC · <b>other</b> · <span class="sev sev-high">high</span> <span class='mono'>role_deviation</span> — 10.0.0.50: role_deviation — 10.0.0.50: по OUI 3c:07:54:12:34:56 — рабочая станция, но инициировал соединения к 31 целям на 9 портах. Проверить, леги</li><li>2023-11-14 22:13:22 UTC · <b>c2</b> · <span class="sev sev-medium">medium</span> <span class='mono'>dns_answer_mismatch</span> — 10.0.0.50: dns_answer_mismatch — 10.0.0.50: SNI=cdn-demo.example, но подключение на IP [&#x27;198.51.100.31&#x27;] не входит в резолвнутый набор [&#x27;198.51.100.30&#x27;].</li><li>2023-11-14 22:13:22 UTC · <b>c2</b> · <span class="sev sev-medium">medium</span> <span class='mono'>sni_without_dns</span> — 10.0.0.50: sni_without_dns — 10.0.0.50: SNI на 1 домен(ов) без DNS-ответа в этом захвате: sync-telemetry.example. dst_ip: [&#x27;198.51.100.40&#x27;]. Проверит</li><li>2023-11-14 22:13:22 UTC · <b>c2</b> · <span class="sev sev-medium">medium</span> <span class='mono'>sni_without_dns</span> — 10.0.0.50 → 198.51.100.40: sni_without_dns (sync-telemetry.example)</li><li>2023-11-14 22:13:22 UTC · <b>c2</b> · <span class="sev sev-medium">medium</span> <span class='mono'>rare_external_ip</span> — 10.0.0.50 → 203.0.113.66: rare_external_ip (203.0.113.66:4444)</li><li>2023-11-14 22:13:22 UTC · <b>c2</b> · <span class="sev sev-medium">medium</span> <span class='mono'>suspicious_port</span> — 10.0.0.50 → 203.0.113.66: suspicious_port (203.0.113.66:4444)</li></ul>
+<h2>IOC</h2>
+<div class="ioc"><code>[ipv4-addr:value = &#x27;203.0.113.66&#x27;]</code><code>[ipv4-addr:value = &#x27;198.51.100.40&#x27;]</code><code>[domain-name:value = &#x27;sync-telemetry.example&#x27;]</code></div>
+<footer>Отчёт сгенерирован Paradox. Для PDF: Печать → Сохранить как PDF.</footer>
+</main>
+</body>
+</html>

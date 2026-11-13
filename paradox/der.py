@@ -75,14 +75,6 @@ class DerNode:
     value: bytes
     children: list[DerNode] = field(default_factory=list)
 
-    @property
-    def is_primitive(self) -> bool:
-        return not self.constructed
-
-    @property
-    def is_universal(self) -> bool:
-        return self.tag_class == 0
-
 
 def read_tlv(
     data: bytes, pos: int = 0, strict: bool = True,

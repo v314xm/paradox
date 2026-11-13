@@ -127,3 +127,84 @@ def test_render_markdown_with_http():
     assert "## HTTP" in md
     assert "example.com" in md
     assert "/index.html" in md
+
+
+# ---------- «Интерпретация» ----------
+
+def _finding_row(**extra) -> dict:
+    row = {
+        "type": "dga_domain",
+        "value": "xj3k9q2.example",
+        "confidence": 0.8,
+        "severity": "medium",
+        "src_ip": "10.0.0.5",
+        "dst_ip": "8.8.8.8",
+        "mitre_techniques": ["T1568.002"],
+        "evidence": {},
+    }
+    row.update(extra)
+    return row
+
+
+def _contradiction_row() -> dict:
+    return {
+        "rule": "victim_makes_attack",
+        "subject": "10.0.0.42",
+        "severity": "critical",
+        "confidence": 0.9,
+        "facts": [],
+        "likely_causes": ["pivot через 10.0.0.42"],
+        "resolution_hint": "Проверить, не прокси ли это",
+    }
+
+
+def test_interpretation_section_rendered():
+    """Раздел собирается тем же to_markdown(), что и окно объяснений."""
+    report = _minimal_report(findings=[_finding_row()])
+    report["summary"]["findings"] = 1
+
+    md = render_markdown(report)
+
+    assert "## Интерпретация" in md
+    assert "**Что произошло.**" in md
+    assert "**Что делать дальше.**" in md
+    assert "xj3k9q2.example" in md
+
+
+def test_interpretation_uses_stored_text():
+    """Готовый текст из отчёта не пересчитывается."""
+    report = _minimal_report(findings=[
+        _finding_row(explanation={"headline": "готовый текст", "why": ""}),
+    ])
+
+    md = render_markdown(report)
+
+    assert "готовый текст" in md
+
+
+def test_interpretation_includes_contradictions():
+    report = _minimal_report(contradictions=[_contradiction_row()])
+
+    md = render_markdown(report)
+
+    assert "## Интерпретация" in md
+    assert "Противоречие `victim_makes_attack`" in md
+    assert "pivot через 10.0.0.42" in md
+
+
+def test_interpretation_is_capped():
+    """Длинный список не превращает отчёт в простыню."""
+    rows = [
+        _finding_row(value=f"x{index}.example")
+        for index in range(25)
+    ]
+
+    md = render_markdown(_minimal_report(findings=rows))
+
+    assert "Ещё 5 записей без интерпретации" in md
+
+
+def test_no_interpretation_without_findings():
+    md = render_markdown(_minimal_report())
+
+    assert "## Интерпретация" not in md

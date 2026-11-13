@@ -14,7 +14,9 @@
 from __future__ import annotations
 
 from paradox.explain.catalog import FINDING_SPECS
+from paradox.explain.catalog_en import FINDING_SPECS_EN
 from paradox.explain.contradiction_catalog import RULE_SPECS
+from paradox.explain.contradiction_catalog_en import RULE_SPECS_EN
 from paradox.explain.model import Explanation, TypeSpec
 from paradox.explain.render import (
     build_context,
@@ -23,11 +25,14 @@ from paradox.explain.render import (
     phase_label,
     render,
 )
+from paradox.i18n import is_english
 from paradox.taxonomy import get_techniques
 
 __all__ = [
     "FINDING_SPECS",
+    "FINDING_SPECS_EN",
     "RULE_SPECS",
+    "RULE_SPECS_EN",
     "Explanation",
     "TypeSpec",
     "explain_contradiction",
@@ -88,11 +93,53 @@ def _fallback_rule_spec(contradiction: dict) -> TypeSpec:
     )
 
 
+def _fallback_finding_spec_en() -> TypeSpec:
+    return TypeSpec(
+        headline="Detector {type} fired: {value}.",
+        why=(
+            "There is no prepared explanation for this type - usually a "
+            "plugin detector. Look at the phase and techniques, and judge "
+            "the raw values in evidence yourself."
+        ),
+        next_steps=(
+            "Open the packets of this flow and confirm the event is real.",
+            "Check the address against inventory: is it your host and is the "
+            "port expected.",
+        ),
+        beginner=(
+            "A detector fired on a pattern we have no template for. That is "
+            "a reason to look at the traffic by hand, not a ready conclusion."
+        ),
+    )
+
+
+def _fallback_rule_spec_en() -> TypeSpec:
+    return TypeSpec(
+        headline="Sources disagree on {subject}: {facts}.",
+        why=(
+            "A contradiction means two independent sources describe the host "
+            "differently. One of them is wrong or sees a different part of "
+            "the picture."
+        ),
+        next_steps=(
+            "Compare both facts against the raw packets.",
+            "Check whether NAT or a proxy is changing the picture.",
+        ),
+        beginner=(
+            "Two different observations do not agree. That is not a verdict "
+            "but a place that needs digging."
+        ),
+    )
+
+
 def explain_finding(finding) -> Explanation:
     """Объяснить находку. Принимает dict отчёта или объект Finding."""
     data = _as_dict(finding)
     ftype = str(data.get("type") or "")
-    spec = FINDING_SPECS.get(ftype) or _fallback_finding_spec(data)
+    if is_english():
+        spec = FINDING_SPECS_EN.get(ftype) or _fallback_finding_spec_en()
+    else:
+        spec = FINDING_SPECS.get(ftype) or _fallback_finding_spec(data)
     ctx = build_context(data)
     return Explanation(
         headline=render(spec.headline, ctx),
@@ -119,7 +166,10 @@ def explain_contradiction(contradiction) -> Explanation:
     """
     data = _as_dict(contradiction)
     rule = str(data.get("rule") or "")
-    spec = RULE_SPECS.get(rule) or _fallback_rule_spec(data)
+    if is_english():
+        spec = RULE_SPECS_EN.get(rule) or _fallback_rule_spec_en()
+    else:
+        spec = RULE_SPECS.get(rule) or _fallback_rule_spec(data)
     ctx = {
         "rule": rule,
         "subject": str(data.get("subject") or "—"),

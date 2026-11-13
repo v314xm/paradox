@@ -1,0 +1,45 @@
+{
+    "type": "bundle",
+    "id": "bundle--66bb8c33-1e65-5978-b793-ef79588ad206",
+    "objects": [
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--06995d7b-ad75-5af8-8c80-65f7d616fcd1",
+            "created": "2023-11-14T22:13:22.999997+00:00",
+            "modified": "2023-11-14T22:13:22.999997+00:00",
+            "pattern": "[ipv4-addr:value = '203.0.113.66']",
+            "pattern_type": "stix",
+            "valid_from": "2023-11-14T22:13:22.999997+00:00",
+            "valid_until": "2023-11-14T22:13:22.999997+00:00",
+            "name": "External IP",
+            "description": "Найден в детекторе: suspicious_port"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--5a4d2340-552a-5dce-a8a6-23ebe2ac3590",
+            "created": "2023-11-14T22:13:22.749997+00:00",
+            "modified": "2023-11-14T22:13:22.749997+00:00",
+            "pattern": "[ipv4-addr:value = '198.51.100.40']",
+            "pattern_type": "stix",
+            "valid_from": "2023-11-14T22:13:22.749997+00:00",
+            "valid_until": "2023-11-14T22:13:22.899997+00:00",
+            "name": "External IP",
+            "description": "Найден в детекторе: sni_without_dns"
+        },
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--6818975c-24f1-5f2f-b3d5-cc5fe382c8c4",
+            "created": "2023-11-14T22:13:22.749997+00:00",
+            "modified": "2023-11-14T22:13:22.749997+00:00",
+            "pattern": "[domain-name:value = 'sync-telemetry.example']",
+            "pattern_type": "stix",
+            "valid_from": "2023-11-14T22:13:22.749997+00:00",
+            "valid_until": "2023-11-14T22:13:22.899997+00:00",
+            "name": "Domain",
+            "description": "Найден в детекторе: sni_without_dns"
+        }
+    ]
+}

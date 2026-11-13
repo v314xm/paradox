@@ -17,7 +17,9 @@ WebShellMarkersDetector — веб-шеллы по маркерам, не тол
 
 Сканируются запросы (заливка шелла) и ответы (скачивание
 исходника). HTML-ответы пропускаются: статья с примером кода —
-не дроппер. Тела из gzip/deflate распаковываются.
+не дроппер. Тела из gzip/deflate распаковываются, base64-фрагменты
+раскрываются (до двух уровней): шелл часто заливают как
+`base64_decode('…')`, и в открытом виде маркеров в теле нет.
 
 Confidence: 0.85 (0.9 для известных семейств). Severity: critical.
 """
@@ -26,8 +28,8 @@ from dataclasses import dataclass, field
 from paradox.config import Config
 from paradox.detectors._http_body import (
     content_type_of,
-    decoded_body,
     printable_ratio,
+    scan_variants,
 )
 from paradox.models import CaptureState, Finding
 from paradox.payload_excerpt import make_sample
@@ -149,21 +151,24 @@ class WebShellMarkersDetector:
         buckets: dict[tuple[str, str, str, str], _Bucket] = {}
 
         for key, obj in (state.http_objects or []):
-            if not obj.body:
-                continue
-
-            data = decoded_body(obj, config)
-            if not data:
+            variants = scan_variants(obj, config)
+            if not variants:
                 continue
 
             content_type = content_type_of(obj)
             # Статья с примером кода на HTML-странице — не шелл.
             if obj.kind == "response" and content_type.startswith("text/html"):
                 continue
-            if not _is_scannable(data, content_type):
-                continue
 
-            matched = _match_marker(data)
+            matched: tuple[str, str] | None = None
+            payload = b""
+            for data in variants:
+                if not _is_scannable(data, content_type):
+                    continue
+                matched = _match_marker(data)
+                if matched is not None:
+                    payload = data
+                    break
             if matched is None:
                 continue
             family, marker = matched
@@ -197,7 +202,7 @@ class WebShellMarkersDetector:
                 and getattr(config, "payload_excerpt_enabled", True)
             ):
                 bucket.payload_sample = make_sample(
-                    data,
+                    payload,
                     obj=obj,
                     direction=(
                         "response" if obj.kind == "response" else "request"

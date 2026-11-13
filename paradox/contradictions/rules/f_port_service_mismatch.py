@@ -39,6 +39,7 @@ from paradox.contradictions.base import (
     Contradiction,
     Fact,
 )
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 # Порты критичных сервисов: туннель поверх них — high.
@@ -129,13 +130,24 @@ class PortServiceMismatchRule:
                 context_parts.append(f"method=`{primary.evidence['method']}`")
             context = " · ".join(context_parts) if context_parts else "—"
 
-            hint = (
-                f"{src} → {dst}:{port} — на порту ожидался "
-                f"[{exp_str}], обнаружен [{unexp_str}]. {context}. "
-                f"Классика протокольного туннеля: клиент прячет "
-                f"{unexp_str} под порт {port}, чтобы пройти firewall "
-                f"или IDS. Проверить назначение соединения и "
-                f"содержимое сессии."
+            hint = L(
+                (
+                    f"{src} → {dst}:{port} — на порту ожидался "
+                    f"[{exp_str}], обнаружен [{unexp_str}]. {context}. "
+                    f"Классика протокольного туннеля: клиент прячет "
+                    f"{unexp_str} под порт {port}, чтобы пройти firewall "
+                    f"или IDS. Проверить назначение соединения и "
+                    f"содержимое сессии."
+                ),
+                (
+                    f"{src} → {dst}:{port} — expected "
+                    f"[{exp_str}] on this port, found [{unexp_str}]. "
+                    f"{context}. "
+                    f"Classic protocol tunnelling: the client hides "
+                    f"{unexp_str} on port {port} to get past the firewall "
+                    f"or the IDS. Check the purpose of the connection and "
+                    f"the session content."
+                ),
             )
 
             out.append(Contradiction(
@@ -145,15 +157,34 @@ class PortServiceMismatchRule:
                 severity=severity,
                 confidence=0.9,
                 likely_causes=[
-                    "Протокольный туннель: SSH-over-HTTP, TLS-over-DNS, "
-                    "HTTP-over-SMB и т.п.",
-                    "Сервис на нестандартном порту (админ ошибся "
-                    "с конфигом) — легитимно, но полезно знать",
-                    "Security scanner / pentest: инструмент проверяет "
-                    "доступность порта любым протоколом",
-                    "Корпоративный прокси / MPLS-инкапсуляция",
-                    "FP: ложное срабатывание парсера HTTP/TLS "
-                    "на не-HTTP/TLS payload",
+                    L(
+                        "Протокольный туннель: SSH-over-HTTP, TLS-over-DNS, "
+                        "HTTP-over-SMB и т.п.",
+                        "Protocol tunnel: SSH-over-HTTP, TLS-over-DNS, "
+                        "HTTP-over-SMB and the like",
+                    ),
+                    L(
+                        "Сервис на нестандартном порту (админ ошибся "
+                        "с конфигом) — легитимно, но полезно знать",
+                        "Service on a non-standard port (the admin got the "
+                        "config wrong) — legitimate, but worth knowing",
+                    ),
+                    L(
+                        "Security scanner / pentest: инструмент проверяет "
+                        "доступность порта любым протоколом",
+                        "Security scanner / pentest: the tool probes port "
+                        "availability with any protocol",
+                    ),
+                    L(
+                        "Корпоративный прокси / MPLS-инкапсуляция",
+                        "Corporate proxy / MPLS encapsulation",
+                    ),
+                    L(
+                        "FP: ложное срабатывание парсера HTTP/TLS "
+                        "на не-HTTP/TLS payload",
+                        "FP: the HTTP/TLS parser misfires on a "
+                        "non-HTTP/TLS payload",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

@@ -3,7 +3,7 @@ Token bucket для rate limit.
 
 У VT free tier: 4 запроса в минуту. У AbuseIPDB: 1000 в день.
 Используем простой token bucket — единственный класс на все
-лимиты. Проверка перед каждым запросом, sleep если надо.
+лимиты. Проверка перед каждым запросом, без блокировки.
 """
 import time
 
@@ -43,19 +43,3 @@ class TokenBucket:
             self._tokens -= 1
             return True
         return False
-
-    def acquire(self, timeout: float | None = None) -> bool:
-        """
-        Взять токен, блокируя до появления.
-        timeout — максимальное ожидание в секундах.
-        Вернуть False, если не дождались.
-        """
-        deadline = time.monotonic() + timeout if timeout else None
-        while True:
-            if self.try_acquire():
-                return True
-            if deadline is not None and time.monotonic() > deadline:
-                return False
-            # ждём немного и пробуем снова
-            wait = 1.0 / self.refill_per_sec
-            time.sleep(min(wait, 0.5))

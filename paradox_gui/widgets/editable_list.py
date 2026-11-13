@@ -177,11 +177,6 @@ class EditableListWidget(QWidget):
             unique.append(chunk)
         self.setItems(unique)
 
-    def setHelpText(self, text: str) -> None:
-        self._help_text = text or ""
-        self._hint.setText(self._help_text)
-        self._hint.setVisible(bool(self._help_text))
-
     # -- handlers ----------------------------------------------------------
 
     def _add_from_input(self) -> None:

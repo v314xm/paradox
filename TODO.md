@@ -1,555 +1,89 @@
-# TODO — Paradox: роадмап после 1.7.0
+# TODO — Paradox: роадмап после 1.9.0
 
-Состояние на 2026-11-11. Последний релиз — **1.7.0**, тег `v1.7.0`.
-Волны 1–5 сделаны и выпущены (волна 5 — Payload Workbench и
-переработанный «Прогон», см. `CHANGELOG.md`). Сделанное — в
-`CHANGELOG.md`, описание модулей — в `MODULES.md`.
+Состояние на 2026-11-13. Последний релиз — **1.9.0**, тег `v1.9.0`.
+Волны 1–5 и объяснения/ML-слой/`role_deviation` закрыты и описаны в
+`CHANGELOG.md`; здесь — только то, что ещё не сделано.
 
 Приоритеты: **P0** — неверный вердикт, потеря данных или сломанный релиз;
 **P1** — заметная ошибка или риск; **P2** — долг, который пока не жжёт.
-Порядок волн выбран владельцем: **1 → 2 → 3 → 4**.
 
-## Базовые метрики (тесты и скорость — 2026-11-11, остальное — 2026-11-09)
+## Базовые метрики
 
 | Метрика | Значение | Как измерено |
 |---|---|---|
-| Тесты | 1353 без Qt + 158 GUI = **1511** | `pytest --junitxml`, маркер `gui` |
-| Покрытие ядра | **87.1%** | `tools/coverage_gate.py` |
-| Покрытие GUI | **67.6%** | там же, GUI-тесты входят в прогон |
+| Тесты | **1656** | `pytest --junitxml`, счётчики из `<testsuite>` |
+| Покрытие ядра | **87.1%** | `tools/coverage_gate.py` (замер 2026-11-11) |
+| Покрытие GUI | **67.6%** | там же (замер 2026-11-11) |
 | Ruff | чисто | `ruff check paradox tests paradox_gui tools` |
-| Прогон 335 МБ / 627 694 пакетов | **14.4 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap`, без tracemalloc (было 24.2 с) |
-| Пик Python-heap | ~32 МБ | tracemalloc (с замедлением прогона) |
+| Прогон 335 МБ / 627 694 пакетов | **14.4 с**, 8 findings, 2 contradictions | `CyberCampTask.pcap` (замер 2026-11-11) |
+
+Числа тестов берутся из junit-отчёта: полный прогон на Windows
+завершается кодом `0xC0000005` уже после тестов и не печатает итог.
+`tools/docs_inventory.py` параметризованные кейсы не считает — его
+цифру в документацию не ставить.
 
 ---
 
-# Волна 1 — Правда и качество (v1.5.1 → v1.6.0)
+# Открытые пункты
 
-Цель: документация и интерфейс перестают врать, молчаливые потери данных
-становятся видимыми, у находок один источник правды о ролях.
+## P1 — скорость и память
 
-Пункты с `[x]` закрыты в волне 1 (2026-11-09). Текст под ними описывает
-исходную проблему; актуальное поведение — в коде и тестах.
+- [ ] **Stream mode для pcap > 2 ГБ.** Чтение уже потоковое, копятся
+      агрегаты (`state.flows`, `dns_queries_by_src`, `http_objects`,
+      отчёты). Нужно не держать их целиком в памяти и отдавать секции
+      по мере готовности, а не менять читатель pcap.
 
-**Результат волны 1:** 1288 теста (0 падений), покрытие ядра 85.4%,
-`ruff` чист, контрольный прогон 627 694 пакетов — 7 findings и
-2 contradictions без изменений. Добавлены `paradox/taxonomy.py`,
-`paradox/errors.py`, `tools/coverage_gate.py`, `SECURITY.md`,
-`docs/OPERATIONS.md`.
+## P2 — детекция
 
-## 1.1 Документация = код
+- [ ] **JA3 браузеров.** `ja3_ua_mismatch` работает только на
+      tool/malware: в `ja3_known_tools` три инструмента, браузерных
+      хешей нет. В эталонных захватах браузерные JA3 есть, но
+      подтвердить принадлежность Chrome/Firefox нечем — нужен список
+      проверенных хешей от владельца.
+- [ ] **Медленный beaconing на реальном C2.** Slow-путь (3 соединения,
+      ≥ 1 часа) покрыт синтетическими тестами; нужен pcap с интервалом
+      больше часа — такого в эталонах нет.
+- [ ] **Новые детекторы** (по итогам 1.8.0): DNS-канал через TXT/ICMP,
+      beaconing с высоким jitter, fast-flux, domain fronting отдельным
+      типом находки.
+- [ ] **Каветр «тихий захват».** Явно показывать в отчёте и GUI, что
+      часть слоёв (TLS 1.3 без keylog, SMB3, brotli/zstd) не видна,
+      чтобы отсутствие находок не читалось как «чисто».
 
-- [x] **P0** `ARCHITECTURE.md` — заголовок и «Известные ограничения»:
-      версия 1.5.0, 24 детектора (не 20), 12 экстракторов + 3 post-extract,
-      убрать исправленные NDP/merge/version пункты, добавить `payload_excerpt`,
-      `html_reporter`, `stix_reporter`, `detector_plugins`.
-- [x] **P0** `MODULES.md` — заголовок 1.5.0; таблица детекторов: 24 строки
-      (нет `ja3s_malware`); экстракторы 12 + post-extract отдельно; убрать
-      расхождения 11 931 / 13 479 и 892 / 790; починить per-group таблицу тестов.
-- [x] **P1** `README.md` — из «Дальше» убрать PDF-экспорт и вкладку плагинов
-      (вышли в 1.5.0), оставить реальный backlog; дать ссылку на сайт;
-      синхронизировать число тестов с прогоном.
-- [x] **P1** `docs/OPERATIONS.md` — установка `.exe` и `setup.exe`, обновление,
-      удаление, где лежат данные (`%APPDATA%\Paradox`, `~/.paradox/plugins`,
-      `reports/`), коды выхода, лимиты pcap/RAM, где смотреть
-      `Paradox-error.log`, предупреждение «плагин = произвольный Python».
-- [x] **P1** `SECURITY.md` — модель доверия: плагины исполняются с правами
-      пользователя, `--enrich` отправляет IOC во внешние сервисы, отчёт может
-      содержать чувствительные данные. Ссылка из README.
-- [x] **P2** `CHANGELOG.md` — восстановить запись `1.3.0` по коммитам
-      (тег `v1.3.0` есть, записи нет).
-      Сделано: раздел `[1.3.0] — 2026-10-22` по коммитам до `ba22bc4`,
-      с пометкой, что он восстановлен задним числом.
-- [x] **P2** Удалить `paradox_gui/views/roadmap_view.py`: файл нигде не
-      подключён, описывает v0.7.0 и противоречит текущему GUI. Единственный
-      роадмап — этот файл. Заодно убрать QSS-правило `#roadmapBrowser`.
-      Сделано 2026-11-10: файл удалён, QSS-блок и комментарий убраны,
-      упоминания вычищены из `ARCHITECTURE.md` и `MODULES.md`.
+## P2 — Payload Workbench
 
-## 1.2 Границы API и ввод
+- [ ] Вкладки/пины/заметки с сохранением в `history.db` — нужна схема
+      таблицы и решение по срокам хранения.
+- [ ] Сравнение двух выдержек side-by-side.
+- [ ] YARA по кнопке — нужен проброс пути к правилам в GUI.
+- [ ] Поиск одинаковых payload по всей истории прогонов.
 
-- [x] **P0** `run_pipeline` / `run_multi_pipeline` принимают `str | Path`:
-      сейчас `run_pipeline("file.pcap", ...)` падает на
-      `pcap_path.stat()`. Нормализовать `Path(p)` на входе.
-- [x] **P1** Ошибки формата pcap: не-`pcap`, обрезанный файл, `.pcapng`
-      сейчас вылетают трейсбеком из `RawPcapReader`. Ввести
-      `ParadoxInputError` с понятным сообщением, перехватывать в CLI и GUI;
-      `.pcapng` — либо поддержать `PcapNgReader`, либо явно отказать.
-      Сделано: pcapng, отсутствие файла и обрезанная запись →
-      `ParadoxInputError` (код 3); собственный `PcapRecordReader`
-      бросает `PcapFormatError`, pipeline переводит его в ошибку входа.
-- [x] **P1** `paradox capture.pcap --version`; зафиксировать коды выхода
-      (0 — успех, 2 — нет файла, 3 — формат, 4 — внутренняя ошибка) и
-      описать их в `OPERATIONS.md`.
-- [x] **P2** `sha256_file` читает pcap вторым полным проходом после разбора.
-      Считать хэш в том же цикле или до него по открытому файлу.
-      Сделано: `PcapRecordReader` считает sha256 в том же проходе,
-      что и разбор; второй проход остался только страховкой на случай
-      хвостового мусора.
+## P2 — платформа
 
-## 1.3 Единая таксономия findings — `paradox/taxonomy.py`
-
-Сейчас «кто атакующий, кто жертва» задаётся в двух таблицах, которые уже
-разошлись; MITRE, фазы kill-chain, порядок цепочки и ранги severity —
-в пяти местах. Из-за этого `http_binary_upload` (исходящая эксфильтрация)
-попадает в `attacker_candidate`, а TL;DR печатает «внутренний атакует
-внешний».
-
-- [x] **P0** `SRC_ROLE_BY_TYPE` — по одному типу из
-      `paradox/detectors/*`: `attacker` или `victim` на `src_ip`.
-      Подключить в `contradictions/facts.py`, `aggregators/entities.py`,
-      `timeline.py`, `analyzers/attack_graph.py`.
-- [x] **P0** Тест-страж: собрать все `Finding.type`, которые умеют
-      выдавать детекторы, и проверить, что каждый описан ровно один раз.
-- [x] **P1** Перенести в `taxonomy.py` `MITRE_BY_TYPE`, `PHASE_BY_TYPE`,
-      `PHASE_ORDER`, `SEVERITY_BY_TYPE`, `SEVERITY_RANK`; удалить копии из
-      `detectors/mitre_map.py`, `reporters/markdown_reporter.py`,
-      `timeline.py`, `attack_graph.py`, `contradictions/base.py`,
-      `reporters/{ioc,html}_reporter.py`.
-- [x] **P1** `Finding.severity: str | None = None`: сейчас детектор не может
-      явно поставить `medium` для типа, у которого в карте стоит `high`.
-      Сделано: `None` — «взять из карты», любое заданное значение (в том
-      числе `medium`) остаётся как есть.
-- [x] **P2** Убрать расхождения MITRE: `brute_force` T1110.001 vs T1110,
-      `script_download` T1189 vs T1105, `command_injection` (T1190,T1059)
-      vs T1059, `lateral_movement` T1021.00x vs T1021.
-      Сделано вместе с волной 1: после сведения в `taxonomy.py` копий
-      больше нет. Осознанные исключения — `large_transfer` (техника по
-      направлению) и `carved_file` в timeline.
-
-## 1.4 Тихие потери данных и неверные вердикты
-
-- [x] **P0** Multi-pcap: `merge_capture_states` склеивает байты TCP-потоков
-      одного 5-tuple из разных файлов (`multi_pcap.py`) — получается поток,
-      которого не было, и ложные webshell/YARA/сертификаты. Хранить потоки
-      по файлам или отбрасывать коллизию со счётчиком.
-- [x] **P0** Исчерпание бюджета reassembly (200 МБ) сейчас молча отключает
-      HTTP/webshell/YARA до конца захвата и не освобождает уже разобранные
-      потоки. Освобождать после post-extract, считать `streams_dropped_bytes`
-      и показывать предупреждение в summary/TL;DR.
-- [x] **P0** `g_direct_ip_no_dns`: правило не смотрит на собранные
-      `makes_dns_queries`, а «≥10 flows» считает как «≥10 портов».
-      Добавить guard по DNS-запросам, считать реальные flows, переписать
-      устаревший docstring.
-- [x] **P1** Одно определение internal/external IP: сейчас четыре
-      (`net_utils.is_internal_ip`, `is_private_ip`, `facts._looks_like_public_ip`,
-      `suspicious_port._is_private`), из-за чего STIX/IOC/entities
-      расходятся по одному адресу. Один `ip_scope()` на `ipaddress` +
-      `Config.private_networks`; тесты на `FE80::1`, `::ffff:10.0.0.1`,
-      `100.64.1.1`.
-- [x] **P1** `absence` и `dns`-секции не ограничены top-N: на сканирующем
-      захвате отчёт раздувается до сотен тысяч строк. Добавить лимит и
-      общий счётчик; не считать «DNS без ответа» запрос, на который пришёл
-      TXT/MX/SOA.
-- [x] **P1** DNS: NXDOMAIN считается по каждому пакету ответа (ratio > 1.0),
-      DNS-over-TCP не снимает 2-байтный length-prefix. Дедуп по
-      `(client, qname, txid)`, снять префикс.
-- [x] **P1** `CaptureState` — объявить `ndp_total`, `ndp_neighbors`,
-      `ndp_routers` полями dataclass вместо `hasattr`/`getattr` в трёх местах.
-- [x] **P2** YARA: нет `rules/default.yar` → детектор всегда пуст; правила
-      компилируются заново каждый прогон; матчится только первые 64 байта.
-      Добавить правила через `importlib.resources`, кэш по mtime, полное тело.
-      Сделано: `paradox/rules/default.yar` (`.spec` + package-data), кэш по
-      `(путь, mtime, размер)`, скан `CarvedFile.body` целиком.
-- [x] **P2** X.509: сертификат, начинающийся не с handshake record или
-      размазанный по нескольким TLS-записям, теряется; ошибки DER глотаются
-      без счётчика. Добавить `tls_cert_parse_errors` и секцию `certificates`
-      в отчёт.
-      Сделано: handshake склеивается через границы записей, поиск записи
-      начинается после мусорного префикса, ошибки DER считаются и попадают
-      в summary и markdown (`## X.509 сертификаты`).
-
-## 1.5 GUI-надёжность (мелкое, но видимое)
-
-- [x] **P1** `Ctrl+,` открывает вкладку «Обогащение» вместо «Настроек»:
-      `main_window.py` хардкодит `setCurrentIndex(3)`; заменить на
-      `indexOf(self.settings_view)`.
-- [x] **P1** В трёх слотах `finished` читается `self._worker`, а не
-      `self.sender()` (`run_view`, `enrich_view`, `quick_check_window`) —
-      можно потерять ссылку на живой `QThread` и уронить процесс.
-- [x] **P1** У `QuickCheckWindow` нет `closeEvent`: закрытие во время
-      запроса уничтожает работающий `QThread`. Добавить stop/wait.
-- [x] **P1** Между прогонами не чистятся `observations`, `absence`,
-      `highlights`; во время нового прогона на экране данные прошлого pcap.
-      Добавить `clear()` и вызывать из `_reset_results`, а также сбрасывать
-      `enrich_view`/`export_view` на `analysis_started`.
-- [x] **P1** Настройки плагинов сохраняются, но не восстанавливаются:
-      `_plugins_inputs` нет в кортеже `load_from_store`.
-- [x] **P2** Удалить мёртвый код: `_PLACEHOLDER_TEXT`, `_placeholder_page`,
-      `_add_bool_row`, `_add_int_row_pf`, `_reset_thresholds`, `_field_hints`,
-      `_act_analyze_cfg`, `_stop_requested`, `findings_table` маркер
-      `# ← ЭТА СТРОКА`, `tests/reports` и `tests/tests`.
-      Сделано 2026-11-10: удалены `_PLACEHOLDER_TEXT`, `_placeholder_page`
-      (в `main_window.py`; в `settings_view.py` он живой fallback),
-      `_add_bool_row`, `_add_int_row_pf`, `_reset_thresholds`, пустые
-      каталоги `tests/reports` и `tests/tests`. Список был устаревшим:
-      `_field_hints`, `_act_analyze_cfg`, `_stop_requested` используются,
-      маркер `# ← ЭТО СТРОКА` давно убран.
-- [x] **P2** Удалить 13 `*.bak`-снимков из `paradox_gui/` и
-      `tests/test_i18n.py.*.bak`; убрать `.pyc` без `.py`
-      (`widgets/__pycache__/empty_states...`).
-      Сделано: было не 13, а 18 `*.bak` — они сначала упакованы в
-      `.qwen/tmp/paradox-baks-2026-11-10.zip`, потом удалены; удалены
-      13 осиротевших `.pyc` (включая 11 от исчезнувших `tools/fixes/*.py`).
-- [x] **P2** Экранировать данные отчёта перед `setHtml` в `timeline_view` и
-      `host_story_dialog` (как уже сделано в `history_view`); убрать
-      русский литерал-сентинел `"Другие внешние"` из `graph_dialog`.
-      Сделано: `html.escape` на всех полях из отчёта; в графе остался
-      только структурный признак подсети (`"/" in ip`).
-
-## 1.6 Тесты, покрытие, гигиена
-
-- [x] **P1** Удалить `tests/test_multi_pcap.py` — это ручной скрипт под
-      `skip`, слияние уже покрыто `tests/test_multi_pcap_merge.py` (21 тест).
-      Сделано: удалён; ручной прогон остался в `tools/test_multi_pcap.py`.
-- [x] **P1** Расширить `tests/test_version_consistency.py`: сейчас сверяются
-      только `pyproject` ↔ ядро ↔ GUI. Добавить `installer/version_info.txt`,
-      `installer/paradox.iss`, `docs/index.html`, README; туда же — проверку
-      `len(DETECTORS)`, `len(RULES)`, `len(EXTRACTORS)` и числа вкладок
-      против чисел в README.
-- [x] **P1** Локальный coverage-гейт: `tools/coverage_gate.py` с порогами
-      (ядро ≥ 80%, GUI — не ниже базовой линии), обход `0xC0000005` через
-      `--junitxml` и `coverage run`. Запускать перед релизом.
-- [x] **P2** Тесты на жизненный цикл воркеров (`AnalysisWorker`,
-      `EnrichmentWorker`, `QuickCheckWorker`): отмена, повторный запуск,
-      закрытие окна. Сейчас на них нет ни одного теста.
-      Сделано: `tests/test_gui_workers.py` (9 тестов) — успех, отмена
-      через `PipelineCancelled`, ошибка, фильтр отключённых детекторов,
-      кэш и сбой провайдера в `QuickCheckWorker`, закрытие оркестратора
-      в `EnrichmentWorker`. Сигналы проверяются вызовом `run()` без
-      event loop.
-- [x] **P2** Регрессии разложены по трём пересекающимся файлам
-      (`test_regressions`, `test_p0_regressions`, `test_p1_regressions`) —
-      зафиксировать правило, куда писать новую.
-      Сделано: `tests/README.md` — FP → `test_regressions`, аудиторские
-      P0/P1 → `test_p0/1_regressions`, функциональность → тематический файл.
-- [x] **P2** Пометить маркерами GUI/сетевые/pcap-тесты; `slow` сейчас только
-      у двух тестов.
-      Сделано 2026-11-10: `gui` в 22 Qt-модулях (128 тестов), `pcap` в
-      `test_pipeline_e2e.py` (3), `network` зарегистрирован как задел —
-      сетевых тестов нет. `slow` реально у одного файла
-      (`test_performance.py`), а не у двух.
-
-## 1.7 Воспроизводимость релиза
-
-- [x] **P0** Сборка не воспроизводима: `Paradox.spec` и `paradox.ico`
-      в `.gitignore`, в spec абсолютные пути
-      `C:\Users\a.grigoryev\...`. Добавить в git, убрать пути.
-- [x] **P0** Два расходящихся пути сборки: `tools/build_installer.py`
-      не передаёт `--icon` и не использует spec; spec включает UPX.
-      Оставить один путь и описать его.
-- [x] **P1** `SHA256SUMS` в релизе + пометка «бинарник не подписан» рядом
-      с кнопкой скачивания в README и на сайте.
-- [x] **P1** Удалить легаси `installer/pcap-triage.iss` (v1.0.0, другой
-      AppId) — он создаёт вторую запись в «Установке и удалении».
-      Сделано: удалён; единственный установщик — `installer/paradox.iss`.
-- [x] **P1** Починить mojibake `В© 2026` в `installer/paradox.iss`
-      (шаблон в `tools/build_installer.py`).
-- [x] **P2** Сайт: 28.1 с против 19 с в README на одном и том же захвате;
-      «Windows, Linux, macOS» при наличии только Windows-артефактов;
-      Schema.org `url` не совпадает с `CNAME` (`paradoxtool.ru`).
-      Сделано: везде 23–28 с (замер 2026-11-10), на сайте явно «exe только
-      для Windows, из исходников — три ОС», Schema.org `url` =
-      `https://paradoxtool.ru/`. Числа тестов в README/MODULES/сайте
-      синхронизированы с прогоном: 1312.
-- [x] **P2** `tools/verify_all.py` ссылается на 4 отсутствующих скрипта и
-      печатает «ALL GREEN», когда проверять нечего. `tools/README.md`
-      документирует 7 несуществующих файлов.
-      Сделано: verify_all = ruff + полный pytest с итогом из junit-отчёта
-      (обход `0xC0000005`); фантомные «фиксы» и targeted-список удалены.
-      README переписан по фактическому содержимому `tools/`.
+- [ ] MISP export (`iocs.misp.json`) для threat-sharing.
+- [ ] REST API (FastAPI) + Web UI без PySide6.
+- [ ] Нативный PDF (QPdfWriter) вместо печати HTML из браузера.
+- [ ] `Paradox follow` — выгрузить TCP-поток в отдельный pcap.
+- [ ] `Paradox diff-pcap` — сравнить два pcap, а не два отчёта.
+- [ ] `Paradox filter` — фильтр по IP/порту/протоколу.
 
 ---
 
-# Волна 2 — Детекция (v1.6.x)
+# Решения владельца
 
-Цель: меньше ложных срабатываний при большем покрытии, каждое изменение —
-с замером на трёх эталонных захватах.
+Открытых нет. Зафиксировано ранее:
 
-Замеры 2026-11-10 (до/после): 2025-06-13 — 10 findings, FIRST-2015 — 0,
-CyberCampTask — 7 → 8 (`successful_bruteforce`). Новые правила на
-эталонах молчат — это проверено, а не предположено.
-
-- [x] **P1** `rare_external_ip` — 1–2 соединения к внешнему IP.
-      Наивный вариант на эталонах дал 52 «редких» адреса. Дизайн:
-      обязательный фильтр «IP не встречался в `dns_answers_by_ip`»
-      плюс «нет SNI/Host», «виден SYN», allowlist адресов и
-      инфрапортов. На обоих эталонах — 0 кандидатов после фильтра.
-      Без DNS-ответов в захвате детектор молчит.
-      Сделано: `paradox/detectors/rare_external_ip.py`,
-      `tests/test_rare_external_ip.py` (14 тестов).
-- [x] **P1** `long_connections` — сессии > 30 минут. 39 длинных
-      NTP/SMB/SSDP сессий на эталонах — это UDP-агрегаты по 5-tuple,
-      а не сессии. Дизайн: только TCP, только видимый SYN, только
-      внутренний→внешний, ≥ 30 мин, ≥ 5 пакетов, без имени из
-      allowlist, порты SSH/почты/VPN/БД/RDP/VNC исключены.
-      Замер: во всех трёх эталонах одна такая сессия — WNS
-      (`client.wns.windows.com`), она в allowlist → 0 findings.
-      Сделано: `paradox/detectors/long_connections.py`,
-      `tests/test_long_connections.py` (13 тестов).
-- [x] **P1** `sni_mismatch` — 73 FP на FIN-2015. Проверка 2026-11-10:
-      детектор даёт **0** findings на FIN-2015. Сравнение с
-      DNS-ответами и CDN-allowlist уже закрыли прежний шум (пункт
-      описывал состояние до 1.5.1). Отдельный код не потребовался.
-- [x] **P1** `SuccessfulBruteforceLogin` — cross-finding: `brute_force` +
-      URI с `loginok/success/dashboard`. Сделано внутри
-      `brute_force.py`: второй finding `successful_bruteforce` на тот
-      же bucket. На CyberCampTask срабатывает (218 POST в
-      `/loginok.html`), findings 7 → 8. HTTP-статуса в FlowStats нет,
-      поэтому confidence ≤ 0.85 и `http_status_known=false`.
-- [ ] **P2** JA3 браузеров — только проверенные хеши Chrome/Firefox,
-      иначе источник FP; сейчас `ja3_ua_mismatch` работает на
-      tool/malware. Проверено 2026-11-10: в эталонных захватах
-      браузерные JA3 есть, но подтвердить их принадлежность Chrome/
-      Firefox нечем (у клиента нет браузерного UA). Нужен список
-      проверенных хешей от владельца — без него добавлять нельзя.
-- [ ] **P2** Медленный beaconing: пороги описаны в
-      `docs/OPERATIONS.md` (fast/slow, таблица и ограничения).
-      Осталось прогнать на реальном C2 с интервалом > часа — такого
-      pcap в эталонах нет; slow-путь покрыт синтетическими тестами.
-- [x] **P2** `ja3s_malware`: `ja3s_known_tools` в Config не читался —
-      ключ удалён (он был пустым и нигде не использовался).
-- [x] **P1** `encoded_payload` (добавлено 2026-11-10 по кейсу
-      `POST /wpfilebase-pro/stats-sink.php`): base64/hex в query или
-      теле формы, декодирующийся в URL/домен. Реальный кейс:
-      10-пакетный захват, `site=aHR0cHM6Ly9taW5maW4uc2FtcmVnaW9uLnJ1`,
-      до детектора findings было 0. На трёх эталонах — 0 FP. Сделано:
-      `paradox/detectors/encoded_payload.py`,
-      `tests/test_encoded_payload.py` (10 тестов).
-
-# Волна 3 — Архитектура и скорость (v1.7.0)
-
-Цель: 335 МБ быстрее 15 с, предсказуемая память, файлы, которые можно
-читать.
-
-- [x] **P0** Разбить `paradox_gui/views/settings_view.py` (2218) на пакет
-      `settings/`: `constants`, `parsers`, `builders`, `view`, `pages/*`.
-      Сделано 2026-11-10: `view.py` (679) — сигналы, каркас, поиск,
-      загрузка/сохранение; `builders.py` — общие строители форм;
-      `constants.py` — секции/детекторы/правила; `parsers.py` — порты и
-      строки; `pages/` — 13 миксинов по странице. `settings_view.py`
-      остался совместимым фасадом на 30 строк, поэтому `main_window` и
-      тесты не менялись. Набор из 85 методов сверен с прежним классом —
-      потерь нет.
-- [x] **P0** Разбить `paradox_gui/theme.py` (1296) на `theme/`:
-      `palette`, `qss_global`, `qss_widgets`, `assets`, `apply`, `win32`.
-      Сделано 2026-11-10: пакет `paradox_gui/theme/` — `palette.py`,
-      `qss_global.py` (базовые правила), `qss_widgets.py` (служебные
-      классы и виджеты), `qss.py` (сборка), `assets.py` (шевроны),
-      `apply.py`; `__init__.py` реэкспортирует прежний API. Win32-кода
-      в файле не было — `win32` в списке оказался лишним. QSS сверен
-      с прежним шаблоном побайтово.
-- [x] **P1** Разбить `main_window.py` (900) на `shortcuts`, `menus`,
-      `export`, `actions`, `window`.
-      Сделано 2026-11-10: пакет `paradox_gui/window/` (`window` 267,
-      `actions` 306, `menus` 246, `export` 101, `shortcuts` 50);
-      `main_window.py` — фасад на 23 строки. Все 36 методов на месте,
-      окно проверено оффскрин; добавлен тест на совпадение
-      `TAB_TITLES` с вкладками (попутно восстановлен `TAB_TITLES`,
-      который импортировал `tools/docs_inventory.py`, но в файле его
-      не было).
-- [x] **P1** Разбить `markdown_reporter.py` (992) на `markdown/format`,
-      `sections_entities`, `sections_traffic`, `sections_analysis`.
-      Сделано 2026-11-10 иначе, по назначению: пакет
-      `paradox/reporters/markdown/` — `format` (форматтеры),
-      `mitre`, `iocs`, `tldr`, `timeline`, `sections` (carved,
-      противоречия, findings, сущности, HTTP, absence, NDP,
-      сертификаты), `document` (сборка). `markdown_reporter.py` —
-      фасад на 11 строк. Вывод сверен со старым рендером на четырёх
-      реальных отчётах — побайтово совпал (14 241 / 11 634 / 16 675 /
-      2 090 символов).
-- [x] **P1** Разбить `facts.py` (950) на `facts_attack`, `facts_net`,
-      `facts_tls`; убрать `extract_facts`, который не вызывается и уже
-      потерял cert-факты.
-      Сделано 2026-11-11: `facts_attack.py` (113) — полярность
-      findings; `facts_net.py` (368) — ARP, asymmetry,
-      protocol-on-port, direct IP/DNS; `facts_tls.py` (399) —
-      SNI/Host + CNAME-цепочка, JA3/UA, X.509. `facts.py` — фасад на
-      59 строк, реэкспортирует публичные и приватные имена, которые
-      тянут правила и тесты (`_collect_ips_for`, `_classify_ja3`,
-      `_base_domain`), поэтому monkeypatch на
-      `facts.extract_tls_cert_facts` продолжает работать. AST всех
-      17 определений сверен с прежним файлом — побайтовых изменений
-      в логике нет; удалён только `extract_facts`.
-- [x] **P1** `config.py` (1017): вынести валидацию в таблицу
-      `(name, predicate, message)`; убрать `mkdir` из `__post_init__`
-      (создание `reports/` при каждом `Config()`).
-      Сделано 2026-11-11: валидация — `_VALIDATION_RULES` (74 правила:
-      поле, предикат, сообщение), `_validate` стал списковым
-      включением. Сообщения и их порядок сверены с прежней
-      реализацией на 79 наборах значений; `dataclasses.replace`
-      перевалидирует. `mkdir` в `Config()` уже не было — его убрали
-      раньше (`test_config_side_effects`), каталог создаёт
-      `config_builder` и страница «Отчёты»; устаревшие комментарии в
-      GUI поправлены. Тесты: `tests/test_config_validation.py`.
-- [x] **P1** `pipeline.py` (689): `pipeline/extract.py`,
-      `pipeline/summarize.py`, `pipeline/report.py`, тонкий фасад.
-      Сделано 2026-11-11: пакет `paradox/pipeline/` — `extract` (237:
-      пакетный цикл, `EXTRACTORS`, `sha256_file`, post-extract),
-      `report` (173: `_build_report`), `__init__` (137: фасад,
-      `run_pipeline`/`run_multi_pipeline`, реэкспорт прежних имён),
-      `detect` (124: `DETECTORS`, `_detect`), `summarize` (96:
-      направления, L4/L7, MITRE), `errors` (6: `PipelineCancelled`).
-      AST всех 11 определений и списки `EXTRACTORS`/`DETECTORS` сверены
-      с прежним модулем; JSON-отчёт на CyberCampTask совпал побайтово.
-      Единственная правка теста — patch-цель
-      `paradox.pipeline.PcapRecordReader` →
-      `paradox.pipeline.extract.PcapRecordReader`; патчи
-      `paradox.pipeline.sha256_file` и `run_pipeline` работают, потому
-      что обе точки входа остались в фасаде.
-- [x] **P1** Профилирование и цель < 15 с на 335 МБ: один проход по flows в
-      `build_entities`, `findings_indices` как `set`, `heapq.nlargest` в
-      `flow_report`, один `findings_dicts` вместо трёх сериализаций.
-      Сделано 2026-11-10: **24.2 → 14.4 с** на `CyberCampTask.pcap`
-      (8 findings, 2 contradictions, sha256 сходится с файлом). Выигрыш
-      дали не отчёты, а пакетный цикл: собственный читатель pcap
-      `paradox/pcap_reader.py` вместо `RawPcapReader` (без обвязки
-      scapy), заголовки Ethernet/IPv4/TCP одним `struct.unpack_from`,
-      `FlowKey` как `NamedTuple`, `PacketRecord` со `slots`, быстрый
-      выход reassembler'а на чистых ACK и sha256 пачками по 64 КБ.
-      Профиль: 49.1 → 42.2 с под cProfile, то есть ускорение не за счёт
-      отключения работы. Отчёты (`findings_dicts` и т.п.) остались в
-      плане: на 8 findings их вклад < 0.5 с, оптимизировать раньше
-      пакетного цикла было бессмысленно.
-- [ ] **P1** Stream mode для pcap > 2 ГБ: не держать все потоки и отчёты в
-      памяти, отдавать секции по мере готовности.
-- [x] **P2** Один HTTP-парсер: `http_parse.py` и `http_object.py` по-разному
-      режут request-line (пробел в URI теряет объект).
-      Сделано 2026-11-11: разбор первой строки вынесен в
-      `http_parse.parse_request_line` — версия отделяется последним
-      пробелом, поэтому URI с пробелами (`GET /index.php?x=1 OR 1=1
-      HTTP/1.1`) больше не теряет объект. Оба парсера вызывают его;
-      LF-only и пустой URI сохранили прежнее поведение, JSON-отчёт на
-      CyberCampTask совпал побайтово. Тесты: по одному кейсу в
-      `test_http_parse.py` и `test_http_object.py`.
-- [x] **P2** `attack_graph` и `entities` независимо выводят роли и фазы —
-      свести к `taxonomy.py` + одному role engine.
-      Сделано 2026-11-11: в `taxonomy.py` переехали `ENTRY_ROLES`,
-      `IMPACT_ROLES`, `ENTRY_PHASES`, `IMPACT_PHASES`, `PIVOT_RULE` и
-      `pivot_subjects()`; `entities` и `attack_graph` вызывают их
-      вместо своих копий (`_pivot_subjects` и `_collect_pivots`
-      удалены, строковые роли заменены константами). Отчёт на
-      CyberCampTask совпал побайтово; тест на помощник — в
-      `test_taxonomy.py`.
-- [x] **P2** Слить два ASN.1 TLV-ридера (`x509_der`, `kerberos_parse`) в
-      `paradox/der.py`.
-      Сделано 2026-11-11: в `der.py` (266) переехали константы тэгов,
-      `DerError`, `DerNode`, `parse_der` и хелперы, плюс общий
-      `read_tlv(data, pos=0, strict=True)` — строгий для X.509 и
-      мягкий (усечение на обрыве) для Kerberos.
-      `kerberos_parse._read_tlv` удалён (−47 строк), вызовы идут в
-      `der.read_tlv`; `x509_der.py` — фасад на 61 строку, внешние
-      импорты не менялись. X.509 на CyberCampTask: 24 сертификата,
-      0 ошибок разбора, отчёт совпал побайтово. Тесты:
-      `tests/test_der.py` (9) на оба режима.
-
-# Волна 4 — Платформа v2.0
-
-- [x] **P1** SMB2-парсер и LDAP-экстрактор.
-      Сделано 2026-11-11: `paradox/smb2_parse.py` — NetBIOS-рамка,
-      compound, команды/статусы, диалект, share, путь CREATE,
-      объёмы READ/WRITE, NTLMSSP Type 3 (домен/пользователь/
-      рабочая станция); `paradox/ldap_parse.py` — bind/search,
-      текстовый рендер фильтра, атрибуты, коды результата.
-      Экстракторы `SMB2Extractor`/`LDAPExtractor` работают
-      post-extract по потокам 445 / 389, 3268, кладут агрегаты в
-      `CaptureState` и обогащают `host_identities`. На реальном
-      захвате 2025-06-13: 63 SMB2-сообщения, share
-      `\\win-dql4wfwjxq4\Shared`, учётка `rgaines` /
-      `MASSFRICTION.COM` / `DESKTOP-5AVE44C`; 75 LDAP-сообщений,
-      21 bind, 11 rootDSE-поисков; findings/contradictions — 10/2,
-      как и до волны 4. SMB1 и SMB3-шифрование не разбираются и
-      видны в `smb2_parse_errors`. Тесты: `test_smb2_parse.py`,
-      `test_ldap_parse.py`, `test_extractors_ad.py` (25).
-- [x] **P1** AD-детекторы: Kerberoasting, ADRecon.
-      Сделано 2026-11-11: Kerberos-парсер отдаёт `etypes` и полный
-      `spn`; `kerberoasting.py` срабатывает на RC4 (etype 23) или
-      3+ сервисных SPN с одного хоста, один SPN без RC4 — штатный
-      доступ и молчит. `ad_recon.py` считает пересечение запрошенных
-      LDAP-атрибутов с `taxonomy.AD_RECON_ATTRIBUTES` по клиенту
-      (rootDSE + SPN усиливает сигнал). Оба добавлены в `DETECTORS`
-      (29), таксономия дополнена (severity, роль, MITRE T1558.003 /
-      T1087.002, фаза `credential_access`). На 2025-06-13 не
-      срабатывают: TGS-REQ в захвате нет, из «чувствительных»
-      атрибутов только `dNSHostName` — ложных findings нет.
-- [x] **P1** DCSync: DCE/RPC DRSUAPI `DsGetNCChanges` (opnum 3).
-      Нужен минимальный RPC-парсер: bind + context UUID → request
-      opnum; DRSUAPI UUID `e3514235-4b06-11d1-ab04-00c04fc2dcd2`.
-      Сделано 2026-11-11: `paradox/dcerpc_parse.py` — общий
-      PDU-заголовок, BIND с `p_cont_list` (UUID и версия),
-      REQUEST (context id, opnum), AUTH3 с NTLMSSP Type 3; кадры
-      ищутся сканированием потока (в SMB2 named pipe DCERPC лежит
-      внутри WRITE, в `ncacn_ip_tcp` — без рамки). `DCERPCExtractor`
-      (post-extract) кладёт в state bind-ы, вызовы в контексте
-      DRSUAPI и naming context из тела `DsGetNCChanges`;
-      `dcsync.py` — детектор на opnum 3 (critical, confidence 0.7,
-      T1003.006). На 2025-06-13 видны вызовы opnum 0/1/12
-      (легитимный DC-DC RPC), opnum 3 нет: findings 10 и
-      contradictions 2 не изменились. Захвата с настоящим DCSync
-      локально нет — покрыто 21 тестом на синтетических PDU.
-      Ограничение: репликация DC→DC даёт тот же вызов, источник
-      нужно сверять с реальными DC.
-- [x] **P1** HTTP/2 framing + HPACK для внутреннего C2.
-      Сделано 2026-11-11: `paradox/http2_parse.py` — кадры, HEADERS
-      (+CONTINUATION, padding, priority), DATA, псевдозаголовки;
-      HPACK через пакет `hpack` (таблица Хаффмана RFC 7541).
-      `paradox/tls_keys.py` — SSLKEYLOGFILE, PRF TLS 1.2, HKDF для
-      TLS 1.3, AEAD AES-GCM/ChaCha20; `tls_decrypt.py` — handshake,
-      ключи, расшифровка пары потоков. `extractors/http2.py` —
-      h2c и h2 из-под TLS в те же `http_objects`, pairing по stream
-      id; расшифрованный HTTPS/1.1 тоже разбирается
-      (`tls_http1_objects`). CLI `--tls-keylog`, env `SSLKEYLOGFILE`,
-      настройки GUI и i18n. Проверено на реальных сессиях OpenSSL (TLS 1.3
-      AES-256-GCM, TLS 1.2 AES-128-GCM и ChaCha20). Эталоны:
-      2025-06-13 — 10 findings, 2 contradictions, 90 TLS-пар без
-      keylog; CyberCampTask — 8; FIRST-2015 — 0.
-- [ ] **P2** MISP export (`iocs.misp.json`) для threat-sharing.
-- [ ] **P2** REST API (FastAPI) + Web UI без PySide6.
-- [ ] **P2** Нативный PDF (QPdfWriter) вместо печати HTML из браузера.
-- [ ] **P2** `Paradox follow` — выгрузить TCP-поток в отдельный pcap.
-- [ ] **P2** `Paradox diff-pcap` — сравнить два pcap, а не два отчёта.
-- [ ] **P2** `Paradox filter` — фильтр по IP/порту/протоколу.
+- **CI** — `.github/workflows/ci.yml` (ruff + `pytest -m "not slow"`)
+  есть и работает; цифра в README — локальный замер, не CI.
+- **Подпись бинарника** — не подписываем (сертификат платный),
+  остаётся «unsigned + SHA256SUMS».
+- **RoadmapView** — удалён, десятая вкладка не нужна; роадмап — этот файл.
 
 ---
 
-# Требует решения владельца
+# Как вести этот файл
 
-- [x] **CI-workflow** `.github/workflows/ci.yml` (ruff + pytest). Пока его
-      нет, «1312 passed» — локальная цифра. Добавлять только по твоему
-      явному согласию.
-      Сделано 2026-11-10: ruff + `pytest -m "not slow"` на ubuntu-latest,
-      Python 3.13, Qt-библиотеки для offscreen, junit в артефактах.
-      Заработает после push.
-- [x] **Подпись бинарника** — решение 2026-11-10: не подписываем,
-      сертификат платный. Остаётся «unsigned + SHA256SUMS».
-- [x] **Судьба `RoadmapView`** — решено 2026-11-10: удалён вместе с
-      QSS-правилом `#roadmapBrowser`, десятая вкладка не нужна.
-- [x] **Версия 1.3.0 в CHANGELOG** — восстановлена по коммитам
-      (см. п. 1.1).
-
-# Волна 5 — Payload Workbench (в 1.7.0)
-
-- [x] **P1** Анализ payload'а: тип/MIME, SHA256/MD5, строки, IOC,
-      энтропия по блокам, вложенные PE/ELF/ZIP/PDF (секции PE,
-      список файлов ZIP).
-- [x] **P1** Multipart-части в `payload_samples.parts`: имя, файл,
-      offset, размер, хеш и префикс файла за границей 64 КБ.
-- [x] **P1** Безопасная деобфускация: Base64/Gzip/Deflate/hex,
-      PowerShell `-EncodedCommand`, JS `fromCharCode` и escapes,
-      PHP `str_rot13`, HTML entities.
-- [x] **P1** Workbench: поиск `Ctrl+F`, hex-страницы, выбор части,
-      копирование, сохранение, перенос/шрифт, инспектор, повторы
-      payload'а.
-- [x] **P1** Экспорт Markdown с редакцией паролей/токенов/
-      `Authorization`.
-- [ ] **P2** Вкладки/пины/заметки с сохранением в `history.db` —
-      нужна схема таблицы и решение по срокам хранения.
-- [ ] **P2** Сравнение двух выдержек side-by-side.
-- [ ] **P2** YARA по кнопке — нужен проброс пути к правилам в GUI.
-- [ ] **P2** Поиск одинаковых payload по всей истории прогонов.
-
-# Сделано в 1.5.0 (не повторять)
-
-Плагины детекторов + секция в настройках, STIX 2.1, HTML-отчёт,
-«Код инжекта» с выдержками и статическим предпросмотром,
-`webshell_markers`, RU/EN-локализация, `http_binary_upload`, `php_payload`,
-slow-beaconing, `by_l4`/`by_l7`, keep-alive HTTP-фикс (504 → 623 запросов).
+- Закрытый пункт удаляется отсюда; подробности уходят в `CHANGELOG.md`
+  (раздел версии) или в `MODULES.md` (если менялось устройство модуля).
+- Не возвращать сюда историю волн и блоки «Сделано: …» — они уже в
+  CHANGELOG и только удлиняют файл.

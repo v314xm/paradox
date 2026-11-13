@@ -21,6 +21,7 @@ import json
 from pathlib import Path
 
 from paradox.config import Config
+from paradox.i18n import L
 from paradox.net_utils import is_internal_ip
 from paradox.payload_analysis import extract_iocs, iter_sample_texts
 from paradox.taxonomy import SEVERITY_RANK as _SEVERITY_RANK
@@ -346,7 +347,9 @@ def render_queries(ioc: dict) -> str:
         parts.append("")
     if shas:
         shas_list = ", ".join(f'"{s}"' for s in shas)
-        parts.append("# SHA256 — поиск запуска файлов")
+        parts.append(
+            L("# SHA256 — поиск запуска файлов", "# SHA256 — find process launches")
+        )
         parts.append("DeviceProcessEvents")
         parts.append(f"| where SHA256 in ({shas_list})")
         parts.append("")

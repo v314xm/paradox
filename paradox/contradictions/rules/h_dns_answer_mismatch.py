@@ -26,6 +26,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -87,11 +88,19 @@ class DnsAnswerMismatchRule:
             resolved_list = sorted(resolved_ips)[:5]
             mismatched_list = sorted(seen_dst)[:5]
 
-            hint = (
-                f"{src}: SNI={sni}, но подключение на IP "
-                f"{mismatched_list} не входит в резолвнутый набор "
-                f"{resolved_list}. Проверить DNS rebinding / MITM "
-                f"/ hardcoded IP с валидным SNI."
+            hint = L(
+                (
+                    f"{src}: SNI={sni}, но подключение на IP "
+                    f"{mismatched_list} не входит в резолвнутый набор "
+                    f"{resolved_list}. Проверить DNS rebinding / MITM "
+                    f"/ hardcoded IP с валидным SNI."
+                ),
+                (
+                    f"{src}: SNI={sni}, but the connection to IP "
+                    f"{mismatched_list} is not in the resolved set "
+                    f"{resolved_list}. Check for DNS rebinding / MITM "
+                    f"/ a hardcoded IP with a valid SNI."
+                ),
             )
 
             out.append(Contradiction(
@@ -101,12 +110,26 @@ class DnsAnswerMismatchRule:
                 severity=self.severity_base,
                 confidence=0.65,
                 likely_causes=[
-                    "DNS rebinding: A-запись изменена между "
-                    "резолвом и подключением",
-                    "MITM-прокси: dst_ip подменён на лету",
-                    "Round-robin CDN: клиент резолвил один edge-IP, "
-                    "пришёл на другой",
-                    "Hardcoded IP с валидным SNI для вида",
+                    L(
+                        "DNS rebinding: A-запись изменена между "
+                        "резолвом и подключением",
+                        "DNS rebinding: the A record changed between the "
+                        "lookup and the connection",
+                    ),
+                    L(
+                        "MITM-прокси: dst_ip подменён на лету",
+                        "MITM proxy: dst_ip substituted on the fly",
+                    ),
+                    L(
+                        "Round-robin CDN: клиент резолвил один edge-IP, "
+                        "пришёл на другой",
+                        "Round-robin CDN: the client resolved one edge IP "
+                        "and connected to another",
+                    ),
+                    L(
+                        "Hardcoded IP с валидным SNI для вида",
+                        "Hardcoded IP with a valid SNI for appearances",
+                    ),
                 ],
                 resolution_hint=hint,
             ))

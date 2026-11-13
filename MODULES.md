@@ -1,14 +1,14 @@
-# Справочник модулей Paradox v1.8.0
+# Справочник модулей Paradox v1.9.0
 
 Описание каждого файла: что делает, ключевые классы и функции,
 связи с другими модулями. Для аналитика, разработчика и того, кто
 хочет понять, куда смотреть при отладке.
 
-**Версия ядра:** 1.8.0 (тег git: v1.8.0)
-**Версия GUI:** 1.8.0 (тег git: v1.8.0)
-**Строк кода:** ядро — 23 273, GUI — 19 705, всего 42 978
-  (замер 2026-11-11)
-**Тестов:** 1622 в 184 файлах (замер 2026-11-13)
+**Версия ядра:** 1.9.0 (тег git: v1.9.0)
+**Версия GUI:** 1.9.0 (тег git: v1.9.0)
+**Строк кода:** ядро — 28 853, GUI — 20 088, всего 48 941
+  (замер 2026-11-13)
+**Тестов:** 1656 в 186 файлах (замер 2026-11-13, `pytest --junitxml`)
 
 ---
 
@@ -34,44 +34,45 @@
 
 ## Корень пакета `paradox/`
 
-| Файл | Строк | Что делает |
-|---|---|---|
-| `__init__.py` | 1 | `__version__ = "1.8.0"` |
-| `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
-| `cli.py` | 230 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog`, `--behavioral` |
-| `config.py` | 1100 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
-| `models.py` | 460 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState`, `packet_size_cv` |
-| `ml/` | 200 | Чистый Python Isolation Forest (`isolation_forest.py`) — детерминированный поиск статистических выбросов, без scikit-learn |
-| `host_profiler.py` | 220 | `HostProfiler`: базовая роль хоста по OUI MAC + наблюдение поведения (веб/SMB-сервер, сканер) |
-| `pipeline/` | 860 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
-| `explain/` | 1 730 | Объяснения находок и противоречий человеческим языком: `model`, `catalog` (38 типов), `contradiction_catalog` (13 правил), `render` |
-| `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
-| `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
-| `multi_pcap.py` | 228 | `merge_capture_states(states)` — слияние N датасетов |
-| `timeline.py` | 320 | `build_timeline`, `summarize_by_phase`, kill-chain |
-| `domain_utils.py` | 151 | `split_domain`, `base_domain`, `registered_label`, `matches_suffix` |
-| `net_utils.py` | 58 | `is_internal_ip`, `classify_direction` |
-| `reassembler.py` | 211 | `TCPReassembler` — склейка TCP по seq |
-| `file_carve.py` | 199 | Метаданные payload'ов (sha256, MIME, magic) |
-| `payload_excerpt.py` | 134 | Выдержки тел в base64; части multipart с префиксом каждого файла |
-| `payload_analysis.py` | 490 | Тип файла, хеши, строки, IOC, энтропия, вложенные PE/ELF/ZIP/PDF |
-| `payload_deobfuscate.py` | 240 | Безопасные слои Base64/Gzip/Hex/PowerShell/JS/PHP |
-| `payload_export.py` | 120 | Markdown-заметка кейса с редакцией секретов |
-| `http_object.py` | 321 | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining); request-line режется общим `parse_request_line` |
-| `http_parse.py` | 135 | `parse_request_line` (URI с пробелами), быстрый `parse_request` первого сегмента |
-| `tls_cert.py` | 122 | `parse_certificate_from_stream` — X.509 из TLS |
-| `ja3.py` | 218 | `parse_client_hello`, `parse_server_hello` (JA3/JA3S) |
-| `kerberos_parse.py` | 291 | Kerberos AS/TGS/AP поверх общего `der.read_tlv` |
-| `smb2_parse.py` | 261 | SMB2 из NetBIOS-рамки: команды, share/путь, диалекты, NTLMSSP Type 3 |
-| `ldap_parse.py` | 238 | LDAP bind/search, текстовый рендер фильтра, атрибуты |
-| `dcerpc_parse.py` | 262 | DCE/RPC: BIND (UUID/версия интерфейса), REQUEST (context id, opnum), AUTH3; DRSUAPI и naming context |
-| `tls_keys.py` | 394 | SSLKEYLOGFILE, PRF/HKDF, AEAD-расшифровка записей TLS 1.2/1.3 |
-| `tls_decrypt.py` | 368 | Handshake info (random, cipher suite), расшифровка пары потоков |
-| `http2_parse.py` | 250 | HTTP/2-кадры, HEADERS/CONTINUATION/DATA, HPACK через `hpack` |
-| `nbns_parse.py` | 179 | NBNS-имена |
-| `x509_der.py` | 61 | Совместимый фасад; реализация — в `der.py` |
-| `der.py` | 266 | Общий ASN.1 DER/TLV: `read_tlv` (strict / lenient), дерево `DerNode`, `as_int`/`as_oid`/`as_str`/`as_time` |
-| `x509_cert.py` | 194 | `Certificate` из DER: CN, SAN, validity, self_signed |
+| Файл | Что делает |
+|---|---|
+| `__init__.py` | `__version__ = "1.9.0"` |
+| `__main__.py` | `python -m paradox` → `cli.main()` |
+| `cli.py` | CLI: `-o`, `--lang`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog`, `--behavioral` |
+| `i18n.py` | Язык выходных текстов ядра: `L("ru", "en")`, `set_language`, `is_english`. GUI выставляет его из настроек, CLI — из `--lang` |
+| `config.py` | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `models.py` | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState`, `packet_size_cv` |
+| `ml/` | Чистый Python Isolation Forest (`isolation_forest.py`) — детерминированный поиск статистических выбросов, без scikit-learn |
+| `host_profiler.py` | `HostProfiler`: базовая роль хоста по OUI MAC + наблюдение поведения (веб/SMB-сервер, сканер) |
+| `pipeline/` | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
+| `explain/` | Объяснения находок и противоречий человеческим языком: `model`, `catalog` (38 типов), `catalog_en`, `contradiction_catalog` (13 правил), `contradiction_catalog_en`, `render` |
+| `pcap_reader.py` | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
+| `detector_plugins.py` | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
+| `multi_pcap.py` | `merge_capture_states(states)` — слияние N датасетов |
+| `timeline.py` | `build_timeline`, `summarize_by_phase`, kill-chain |
+| `domain_utils.py` | `split_domain`, `base_domain`, `registered_label`, `matches_suffix` |
+| `net_utils.py` | `is_internal_ip`, `classify_direction` |
+| `reassembler.py` | `TCPReassembler` — склейка TCP по seq |
+| `file_carve.py` | Метаданные payload'ов (sha256, MIME, magic) |
+| `payload_excerpt.py` | Выдержки тел в base64; части multipart с префиксом каждого файла |
+| `payload_analysis.py` | Тип файла, хеши, строки, IOC, энтропия, вложенные PE/ELF/ZIP/PDF |
+| `payload_deobfuscate.py` | Безопасные слои Base64/Gzip/Hex/PowerShell/JS/PHP |
+| `payload_export.py` | Markdown-заметка кейса с редакцией секретов |
+| `http_object.py` | `parse_http_request`, `iter_http_requests/responses` (keep-alive, pipelining); request-line режется общим `parse_request_line` |
+| `http_parse.py` | `parse_request_line` (URI с пробелами), быстрый `parse_request` первого сегмента |
+| `tls_cert.py` | `parse_certificate_from_stream` — X.509 из TLS |
+| `ja3.py` | `parse_client_hello`, `parse_server_hello` (JA3/JA3S) |
+| `kerberos_parse.py` | Kerberos AS/TGS/AP поверх общего `der.read_tlv` |
+| `smb2_parse.py` | SMB2 из NetBIOS-рамки: команды, share/путь, диалекты, NTLMSSP Type 3 |
+| `ldap_parse.py` | LDAP bind/search, текстовый рендер фильтра, атрибуты |
+| `dcerpc_parse.py` | DCE/RPC: BIND (UUID/версия интерфейса), REQUEST (context id, opnum), AUTH3; DRSUAPI и naming context |
+| `tls_keys.py` | SSLKEYLOGFILE, PRF/HKDF, AEAD-расшифровка записей TLS 1.2/1.3 |
+| `tls_decrypt.py` | Handshake info (random, cipher suite), расшифровка пары потоков |
+| `http2_parse.py` | HTTP/2-кадры, HEADERS/CONTINUATION/DATA, HPACK через `hpack` |
+| `nbns_parse.py` | NBNS-имена |
+| `x509_der.py` | Совместимый фасад; реализация — в `der.py` |
+| `der.py` | Общий ASN.1 DER/TLV: `read_tlv` (strict / lenient), дерево `DerNode`, `as_int`/`as_oid`/`as_str`/`as_time` |
+| `x509_cert.py` | `Certificate` из DER: CN, SAN, validity, self_signed |
 
 ### Секции `config.py`
 
@@ -111,14 +112,14 @@
 
 ## Парсеры
 
-### `parsers.py` (301 строка)
+### `parsers.py`
 Быстрый разбор пакетов через `struct.unpack`. Без scapy. Поддержано: Ethernet, 802.1Q VLAN, IPv4 (фрагментация), TCP (seq/ack/flags), UDP, ICMP, ARP.
 
 **Класс `PacketRecord`:** L2-L4 поля + payload + `ipv6_meta` (dict).
 
 **`parse_packet(raw, ts)`** — один пакет за вызов, без dissect.
 
-### `parsers_ipv6.py` (229 строк)
+### `parsers_ipv6.py`
 IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Auth, DestOptions, Mobility), извлечение src/dst портов.
 
 **Мета в `ipv6_meta`:** `traffic_class`, `flow_label`, `hop_limit`, `extension_chain`, `is_fragment`, `fragment_id`, `final_next_header`.
@@ -133,29 +134,29 @@ IPv6: заголовок + extension chain (HopByHop, Routing, Fragment, ESP, Au
 
 | Файл | name | Что пишет |
 |---|---|---|
-| `flow.py` (51) | flow | `state.flows[key]` — packets, bytes, timestamps, `initiated_by_src` по первому SYN |
-| `dns.py` (138) | dns | `dns_queries`, `dns_nxdomain`, `dns_nxdomain_by_src`, `dns_queries_by_src`, `dns_answers_by_name`, `dns_answers_by_ip`, `dns_nxdomain_ts_by_src`, `dns_query_ts_by_name/by_src` |
-| `tls.py` (111) | tls | `flow.sni`, `flow.ja3`, `flow.ja3s`, `session_sni` (+ `run_post_extract` для склеенных потоков) |
-| `http.py` (77) | http | `flow.http_{host,uri,method,user_agent}` — только запросы |
-| `host_identity.py` (50) | host_identity | `host_identities[ip].mac` (только ARP, без eth_src) |
-| `arp_history.py` (61) | arp_mac_history | `arp_macs[ip][mac] = [first, last, count]` |
-| `dhcp.py` (180) | dhcp | MAC + hostname из BOOTP/DHCP |
-| `ssh_banner.py` (104) | ssh_banner | `ssh_server_versions`, `ssh_client_versions`, `ssh_client_attempts` |
-| `smtp.py` (130) | smtp | `smtp_helo_by_src`, `smtp_from_by_src`, `smtp_rcpt_by_src`, `smtp_mailer_by_src` |
-| `nbns.py` (54) | nbns | `hostnames` из NBNS (suffix 0x00/0x20) |
-| `kerberos.py` (77) | kerberos | `username` / `hostnames` / `realm` из cname |
-| `ndp.py` (133) | ndp | `ndp_neighbors`, `ndp_routers`, `ndp_total` (`layer = 0`) |
+| `flow.py` | flow | `state.flows[key]` — packets, bytes, timestamps, `initiated_by_src` по первому SYN |
+| `dns.py` | dns | `dns_queries`, `dns_nxdomain`, `dns_nxdomain_by_src`, `dns_queries_by_src`, `dns_answers_by_name`, `dns_answers_by_ip`, `dns_nxdomain_ts_by_src`, `dns_query_ts_by_name/by_src` |
+| `tls.py` | tls | `flow.sni`, `flow.ja3`, `flow.ja3s`, `session_sni` (+ `run_post_extract` для склеенных потоков) |
+| `http.py` | http | `flow.http_{host,uri,method,user_agent}` — только запросы |
+| `host_identity.py` | host_identity | `host_identities[ip].mac` (только ARP, без eth_src) |
+| `arp_history.py` | arp_mac_history | `arp_macs[ip][mac] = [first, last, count]` |
+| `dhcp.py` | dhcp | MAC + hostname из BOOTP/DHCP |
+| `ssh_banner.py` | ssh_banner | `ssh_server_versions`, `ssh_client_versions`, `ssh_client_attempts` |
+| `smtp.py` | smtp | `smtp_helo_by_src`, `smtp_from_by_src`, `smtp_rcpt_by_src`, `smtp_mailer_by_src` |
+| `nbns.py` | nbns | `hostnames` из NBNS (suffix 0x00/0x20) |
+| `kerberos.py` | kerberos | `username` / `hostnames` / `realm` из cname |
+| `ndp.py` | ndp | `ndp_neighbors`, `ndp_routers`, `ndp_total` (`layer = 0`) |
 
 ### Post-extract (не в `EXTRACTORS`)
 
 | Файл | Что делает |
 |---|---|
-| `extractors/http_object.py` (127) | `HTTPObjectExtractor.run_post_extract()` — обёртка над `paradox/http_object.py`, работает на `tcp_streams`. Разбирает ВСЕ сообщения потока (keep-alive), ответы матчатся с запросами по порядку; лимит `http_object_max_messages_per_stream` |
-| `extractors/tls_cert.py` (71) | `TlsCertificateExtractor.run_post_extract()` → `state.tls_certs` |
-| `extractors/smb2.py` (111) | `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды, диалекты, share, пути, статусы, объёмы READ/WRITE; NTLMSSP Type 3 → `host_identities` (user/domain/workstation) |
-| `extractors/ldap.py` (118) | `LDAPExtractor.run_post_extract()` — bind/search из потоков 389/3268: bind DN, base DN, фильтры, атрибуты, коды результата; bind DN → `host_identities` |
-| `extractors/dcerpc.py` (95) | `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context, учётка из AUTH3 |
-| `extractors/http2.py` (231) | `HTTP2Extractor.run_post_extract()` — h2c и h2 из расшифрованного TLS: объекты в `http_objects`, pairing по stream id, счётчики расшифровки; расшифрованный HTTPS/1.1 тоже разбирается |
+| `extractors/http_object.py` | `HTTPObjectExtractor.run_post_extract()` — обёртка над `paradox/http_object.py`, работает на `tcp_streams`. Разбирает ВСЕ сообщения потока (keep-alive), ответы матчатся с запросами по порядку; лимит `http_object_max_messages_per_stream` |
+| `extractors/tls_cert.py` | `TlsCertificateExtractor.run_post_extract()` → `state.tls_certs` |
+| `extractors/smb2.py` | `SMB2Extractor.run_post_extract()` — SMB2 из потоков 445: команды, диалекты, share, пути, статусы, объёмы READ/WRITE; NTLMSSP Type 3 → `host_identities` (user/domain/workstation) |
+| `extractors/ldap.py` | `LDAPExtractor.run_post_extract()` — bind/search из потоков 389/3268: bind DN, base DN, фильтры, атрибуты, коды результата; bind DN → `host_identities` |
+| `extractors/dcerpc.py` | `DCERPCExtractor.run_post_extract()` — DRSUAPI bind и opnum из всех потоков (SMB2 named pipe и `ncacn_ip_tcp`), naming context, учётка из AUTH3 |
+| `extractors/http2.py` | `HTTP2Extractor.run_post_extract()` — h2c и h2 из расшифрованного TLS: объекты в `http_objects`, pairing по stream id, счётчики расшифровки; расшифрованный HTTPS/1.1 тоже разбирается |
 | `reassembler.py` | `TCPReassembler` — склейка TCP; лимиты 1 МБ/flow и 200 МБ total, потоки сверх лимита помечаются truncated |
 | `tls.py` | `TLSExtractor.run_post_extract()` — SNI/JA3 из склеенных потоков (ClientHello бывает больше одного сегмента) |
 | `file_carve.py` | `carve_files()` → `state.carved_files` |
@@ -172,49 +173,49 @@ Post-extract вызывается из `_extract` после чтения все
 
 **30 детекторов.**
 
-| Детектор | Строк | Что ищет |
-|---|---|---|
-| `dga.py` | 78 | Высокая энтропия label |
-| `port_scan.py` | 99 | ≥10 уникальных dst, ≤3 flow на dst |
-| `suspicious_port.py` | 106 | External dst на портах 4444/31337/… |
-| `nxdomain_burst.py` | 142 | NXDOMAIN в скользящем окне (v0.9.0) |
-| `cloud_tunnel.py` | 53 | trycloudflare/ngrok/serveo |
-| `ip_check_service.py` | 113 | ip-api.com/ifconfig.me (DNS+SNI+Host+direct IP) |
-| `typosquatting.py` | 157 | SLD близок к бренду (contains/levenshtein) |
-| `sni_mismatch.py` | 122 | SNI без DNS-ответа |
-| `rare_external_ip.py` | 134 | 1–2 соединения на внешний IP без DNS-ответа и без SNI/Host |
-| `encoded_payload.py` | 180 | base64/hex в query/теле формы, декодируется в URL или домен |
-| `long_connections.py` | 98 | TCP наружу >30 мин без имени на неслужебном порту |
-| `ja3_malware.py` | 82 | JA3 из `ja3_known_malware` |
-| `ja3s_malware.py` | 84 | JA3S из `ja3s_known_malware` (v1.4; по умолчанию список пуст) |
-| `brute_force.py` | 227 | HTTP-перебор (src_ports, URI-ratio, rate) + `successful_bruteforce` |
-| `ftp_brute_force.py` | 99 | 20+ flows на порт 21 |
-| `beaconing.py` | 283 | Jitter + multi-tenant + payload stddev + slow-режим |
-| `dns_tunneling.py` | 121 | Длинные уникальные qname под одним base |
-| `ssh_brute_force.py` | 79 | 20+ SSH-баннеров на пару |
-| `smtp_spam.py` | 118 | 50+ уникальных RCPT TO |
-| `lateral_movement.py` | 144 | SMB/RDP/WinRM internal→internal |
-| `large_transfer.py` | 252 | 100MB в одном flow (или паре) |
-| `vulnerable_path.py` | 315 | wp-login/.env/.git + script_download + web_scanner |
-| `command_injection.py` | 201 | RCE в HTTP URI/текстовом body |
-| `http_binary_upload.py` | 155 | Серия бинарных POST'ов на внешний хост (C2/exfil) |
-| `php_payload.py` | 189 | `<?php` в теле: `php_download` / `webshell_upload` |
-| `webshell_markers.py` | 237 | Маркеры шеллов PHP/ASP/JSP + семейства WSO/b374k/c99/r57 → тип `webshell_signature` |
-| `yara_detector.py` | 91 | YARA на carved_files (опционально) |
-| `kerberoasting.py` | 78 | TGS-REQ к сервисным SPN: RC4 (etype 23) или 3+ SPN с одного хоста |
-| `ad_recon.py` | 65 | Перечисление каталога: чувствительные LDAP-атрибуты по клиенту |
-| `dcsync.py` | 73 | DRSUAPI `DsGetNCChanges` (opnum 3) в привязанном контексте |
+| Детектор | Что ищет |
+|---|---|
+| `dga.py` | Высокая энтропия label |
+| `port_scan.py` | ≥10 уникальных dst, ≤3 flow на dst |
+| `suspicious_port.py` | External dst на портах 4444/31337/… |
+| `nxdomain_burst.py` | NXDOMAIN в скользящем окне (v0.9.0) |
+| `cloud_tunnel.py` | trycloudflare/ngrok/serveo |
+| `ip_check_service.py` | ip-api.com/ifconfig.me (DNS+SNI+Host+direct IP) |
+| `typosquatting.py` | SLD близок к бренду (contains/levenshtein) |
+| `sni_mismatch.py` | SNI без DNS-ответа |
+| `rare_external_ip.py` | 1–2 соединения на внешний IP без DNS-ответа и без SNI/Host |
+| `encoded_payload.py` | base64/hex в query/теле формы, декодируется в URL или домен |
+| `long_connections.py` | TCP наружу >30 мин без имени на неслужебном порту |
+| `ja3_malware.py` | JA3 из `ja3_known_malware` |
+| `ja3s_malware.py` | JA3S из `ja3s_known_malware` (v1.4; по умолчанию список пуст) |
+| `brute_force.py` | HTTP-перебор (src_ports, URI-ratio, rate) + `successful_bruteforce` |
+| `ftp_brute_force.py` | 20+ flows на порт 21 |
+| `beaconing.py` | Jitter + multi-tenant + payload stddev + slow-режим |
+| `dns_tunneling.py` | Длинные уникальные qname под одним base |
+| `ssh_brute_force.py` | 20+ SSH-баннеров на пару |
+| `smtp_spam.py` | 50+ уникальных RCPT TO |
+| `lateral_movement.py` | SMB/RDP/WinRM internal→internal |
+| `large_transfer.py` | 100MB в одном flow (или паре) |
+| `vulnerable_path.py` | wp-login/.env/.git + script_download + web_scanner |
+| `command_injection.py` | RCE в HTTP URI/текстовом body |
+| `http_binary_upload.py` | Серия бинарных POST'ов на внешний хост (C2/exfil) |
+| `php_payload.py` | `<?php` в теле: `php_download` / `webshell_upload` |
+| `webshell_markers.py` | Маркеры шеллов PHP/ASP/JSP + семейства WSO/b374k/c99/r57 → тип `webshell_signature` |
+| `yara_detector.py` | YARA на carved_files (опционально) |
+| `kerberoasting.py` | TGS-REQ к сервисным SPN: RC4 (etype 23) или 3+ SPN с одного хоста |
+| `ad_recon.py` | Перечисление каталога: чувствительные LDAP-атрибуты по клиенту |
+| `dcsync.py` | DRSUAPI `DsGetNCChanges` (opnum 3) в привязанном контексте |
 
-**`_http_body.py` (193)** — общее для трёх детекторов: распаковка
+**`_http_body.py`** — общее для трёх детекторов: распаковка
 `gzip`/`deflate` (в т.ч. по magic `1f 8b` без `content-encoding`),
 критерий текстовости и `body_for_scan()`. Нужен `command_injection`
 (не искать shell в бинаре, но видеть сжатый текст),
 `php_payload` (сканировать скачанный/залитый файл) и
 `http_binary_upload` (искать именно бинарь «на проводе»).
 
-**`mitre_map.py` (65)** — `MITRE_MAP: dict[str, tuple[str, ...]]`. Instance-level `Finding.mitre_techniques` приоритетнее.
+**`mitre_map.py`** — `MITRE_MAP: dict[str, tuple[str, ...]]`. Instance-level `Finding.mitre_techniques` приоритетнее.
 
-**`explainer.py` (56)** — `build_reasons(evidence)` для `Finding.confidence_reasons`.
+**`explainer.py`** — `build_reasons(evidence)` для `Finding.confidence_reasons`.
 
 ### Пороги детекторов (важные)
 
@@ -249,13 +250,13 @@ Post-extract вызывается из `_extract` после чтения все
 
 ### `facts*.py` — факты по источникам
 
-`facts.py` (59) — совместимый фасад; реализация в трёх модулях.
+`facts.py` — совместимый фасад; реализация в трёх модулях.
 Правила вызывают нужный экстрактор, а не общий dispatcher:
 
-- `facts_attack.py` (113) — `extract_attack_facts`
-- `facts_net.py` (368) — `extract_arp_facts`, `extract_asymmetry_facts`, `extract_protocol_on_port_facts`, `extract_direct_ip_facts`
-- `facts_tls.py` (399) — `extract_tls_host_facts`, `extract_ja3_ua_facts`, `extract_tls_cert_facts`
-- `facts_role.py` (80) — `extract_role_facts` (`assigned_role`, `observed_behavior`)
+- `facts_attack.py` — `extract_attack_facts`
+- `facts_net.py` — `extract_arp_facts`, `extract_asymmetry_facts`, `extract_protocol_on_port_facts`, `extract_direct_ip_facts`
+- `facts_tls.py` — `extract_tls_host_facts`, `extract_ja3_ua_facts`, `extract_tls_cert_facts`
+- `facts_role.py` — `extract_role_facts` (`assigned_role`, `observed_behavior`)
 
 - `extract_attack_facts(findings)` — `victim_of` / `attacker_of` (синхронизировано с `entities.py`)
 - `extract_arp_facts(state)` — `has_mac` из `arp_macs`
@@ -267,23 +268,23 @@ Post-extract вызывается из `_extract` после чтения все
 - `extract_tls_cert_facts(state)` — `tls_cert` из `state.tls_certs`
 - `extract_role_facts(state, config)` — `assigned_role` (по OUI MAC) + `observed_behavior` (веб/SMB-сервер, сканер)
 
-### `registry.py` (110) — 13 правил
+### `registry.py` — 13 правил
 
 | Правило | severity_base | Источник | Что ищет |
 |---|---|---|---|
-| `SniWithoutDnsRule` (95) | medium | sni | SNI без DNS-ответа |
-| `DnsAnswerMismatchRule` (114) | medium | sni | SNI ≠ резолвнутый IP |
-| `SniCertMismatchRule` (93) | medium | tls_cert | SNI ≠ CN/SAN сертификата |
-| `SelfSignedCertRule` (71) | medium | tls_cert | issuer == subject |
-| `ExpiredCertRule` (76) | low | tls_cert | not_after < ts flow |
-| `VictimMakesAttackRule` (149) | **critical** | findings | X — victim_of(A) и attacker_of(B) → **pivot** |
-| `MacIpConflictRule` (138) | **critical** | arp | ≥2 MAC на одном IP (spoof/lease) |
-| `SniHostMismatchRule` (134) | high | flows | SNI ≠ Host (domain fronting) |
-| `Ja3UaMismatchRule` (144) | high | flows | tool-JA3 + browser-UA → мимикрия |
-| `ReverseAsymmetryRule` (185) | medium | flows | session ratio ≥10 (bulk → low) |
-| `PortServiceMismatchRule` (166) | high | flows | TLS на 22 / HTTP на 445 → туннель |
-| `DirectIpNoDnsRule` (129) | medium | flows | IP без DNS, ≥3 dst или ≥10 flows к одному dst |
-| `RoleDeviationRule` (210) | high | role | поведение противоречит базовой роли по OUI (WS→webserver critical, server→scanner high) |
+| `SniWithoutDnsRule` | medium | sni | SNI без DNS-ответа |
+| `DnsAnswerMismatchRule` | medium | sni | SNI ≠ резолвнутый IP |
+| `SniCertMismatchRule` | medium | tls_cert | SNI ≠ CN/SAN сертификата |
+| `SelfSignedCertRule` | medium | tls_cert | issuer == subject |
+| `ExpiredCertRule` | low | tls_cert | not_after < ts flow |
+| `VictimMakesAttackRule` | **critical** | findings | X — victim_of(A) и attacker_of(B) → **pivot** |
+| `MacIpConflictRule` | **critical** | arp | ≥2 MAC на одном IP (spoof/lease) |
+| `SniHostMismatchRule` | high | flows | SNI ≠ Host (domain fronting) |
+| `Ja3UaMismatchRule` | high | flows | tool-JA3 + browser-UA → мимикрия |
+| `ReverseAsymmetryRule` | medium | flows | session ratio ≥10 (bulk → low) |
+| `PortServiceMismatchRule` | high | flows | TLS на 22 / HTTP на 445 → туннель |
+| `DirectIpNoDnsRule` | medium | flows | IP без DNS, ≥3 dst или ≥10 flows к одному dst |
+| `RoleDeviationRule` | high | role | поведение противоречит базовой роли по OUI (WS→webserver critical, server→scanner high) |
 
 **`run_all(state, findings, config, rules=None)`** — прогон,
 сортировка по (severity, -confidence, subject). Упавшее правило
@@ -308,13 +309,15 @@ Post-extract вызывается из `_extract` после чтения все
 идёт в JSON-отчёт, модалку находки и Markdown. Иначе появятся три версии,
 которые разойдутся — как уже было с internal/external IP до `ip_scope()`.
 
-| Файл | Строк | Что делает |
-|---|---|---|
-| `model.py` | 107 | `Explanation` (`headline`, `why`, `next_steps`, `alternatives`, `confidence_note`, `beginner`, `phase`, `techniques`), `to_dict`/`from_dict`, `to_markdown` (копирование и будущий раздел отчёта) |
-| `catalog.py` | 991 | Шаблоны для 37 типов из `taxonomy.SEVERITY_BY_TYPE`; пороги, направление и ключи evidence сверены с кодом детекторов |
-| `contradiction_catalog.py` | 302 | Шаблоны для 12 правил: «почему важно», пивоты, «новичку». «Что произошло» берётся из `resolution_hint` правила, альтернативы — из `likely_causes`. Тексты верны при любом направлении перекоса |
-| `render.py` | 144 | Подстановки `{key}` (поля находки + скалярные ключи `evidence`), разряды больших чисел, русские метки `direction`/`kind`, метки фаз, шкала уверенности |
-| `__init__.py` | 163 | `explain_finding`, `explain_contradiction`, `explanation_for` (строка отчёта или расчёт на месте для старых отчётов); fallback для типов плагинов |
+| Файл | Что делает |
+|---|---|
+| `model.py` | `Explanation` (`headline`, `why`, `next_steps`, `alternatives`, `confidence_note`, `beginner`, `phase`, `techniques`), `to_dict`/`from_dict`, `to_markdown` (копирование и раздел «Интерпретация» в Markdown) |
+| `catalog.py` | Шаблоны для 38 типов из `taxonomy.SEVERITY_BY_TYPE`; пороги, направление и ключи evidence сверены с кодом детекторов |
+| `catalog_en.py` | Английский двойник `catalog.py`: те же 38 ключей и те же подстановки `{key}`. Паритет держит `tests/test_i18n_core.py` |
+| `contradiction_catalog.py` | Шаблоны для 13 правил: «почему важно», пивоты, «новичку». «Что произошло» берётся из `resolution_hint` правила, альтернативы — из `likely_causes`. Тексты верны при любом направлении перекоса |
+| `contradiction_catalog_en.py` | Английский двойник `contradiction_catalog.py`, 13 ключей; подстановки и длины кортежей сверяет тот же тест |
+| `render.py` | Подстановки `{key}` (поля находки + скалярные ключи `evidence`), разряды больших чисел, двуязычные метки `direction`/`kind` и фаз, шкала уверенности |
+| `__init__.py` | `explain_finding`, `explain_contradiction`, `explanation_for` (строка отчёта или расчёт на месте для старых отчётов); выбор каталога по языку и fallback для типов плагинов |
 
 Отчёт: `pipeline/report.py` (`_explained`) добавляет ключ `explanation` к
 каждой находке и каждому противоречию. Ошибка объяснения не валит отчёт —
@@ -329,7 +332,7 @@ Post-extract вызывается из `_extract` после чтения все
 
 Слой `paradox/analyzers/` — v1.0.0/v1.2.0.
 
-### `behavioral_analyzer.py` (410) — **v1.8.0**
+### `behavioral_analyzer.py` — **v1.8.0**
 
 Поведенческий ML-слой: Isolation Forest над признаками сессий и профилями хостов.
 
@@ -341,7 +344,7 @@ Post-extract вызывается из `_extract` после чтения все
 
 По умолчанию выключен (`behavioral_enabled=False`), включается `--behavioral`. Сессионный слой находок не создаёт — только усиливает существующие и помечает хосты; `contamination` откалиброван (0.02) на трёх эталонах.
 
-### `attack_graph.py` (391) — **v1.2.0**
+### `attack_graph.py` — **v1.2.0**
 
 Directed graph атаки из findings + contradictions. Узлы = IP, рёбра = findings с (src, dst), пути = BFS от entry к impact.
 
@@ -356,23 +359,23 @@ Directed graph атаки из findings + contradictions. Узлы = IP, рёб�
 
 Ошибка сборки не валит прогон: в отчёте остаётся пустой граф.
 
-### `absence.py` (53)
+### `absence.py`
 `analyze_absence(state)` — DNS без ответа, TCP без обратного flow.
 
-### `counterfactual.py` (77)
+### `counterfactual.py`
 `evaluate_what_if(report, exclude_ips, exclude_domains)` — What-If: что останется, если убрать.
 
-### `ndp.py` (46)
+### `ndp.py`
 `analyze_ndp(packets)` — NDP-статистика (neighbors, routers).
 
-### `story.py` (65)
+### `story.py`
 `build_host_story(report, target_ip)` — хронология событий для IP.
 
 ---
 
 ## Multi-pcap
 
-### `multi_pcap.py` (228) — **v1.2.0**
+### `multi_pcap.py` — **v1.2.0**
 
 **`merge_capture_states(states: list[CaptureState]) -> CaptureState`**
 
@@ -390,7 +393,7 @@ Directed graph атаки из findings + contradictions. Узлы = IP, рёб�
 
 ## Timeline
 
-### `timeline.py` (320) — **v1.2.0**
+### `timeline.py` — **v1.2.0**
 
 Kill-chain reconstruction из findings + contradictions + carved_files.
 
@@ -410,24 +413,24 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 Слой `paradox/integrations/` — Threat Intel, только `--enrich`, требует сети.
 
-| Файл | Строк | Ключ | IOC-типы |
-|---|---|---|---|
-| `base.py` | 53 | — | `Enricher` Protocol, `EnrichmentResult` |
-| `base_enricher.py` | 215 | — | Базовый класс, HTTP-клиент, error handling |
-| `cache.py` | 155 | — | SQLite-кэш с TTL |
-| `rate_limit.py` | 61 | — | `TokenBucket` |
-| `shodan_internetdb.py` | 116 | без | ip |
-| `abuseipdb.py` | 128 | `ABUSEIPDB_API_KEY` | ip |
-| `virustotal.py` | 47 | `VIRUSTOTAL_API_KEY` | ip/domain/hash |
-| `greynoise.py` | 20 | без | ip |
-| `alienvault_otx.py` | 24 | без | ip/domain/hash |
-| `urlscan.py` | 36 | без | domain/url |
-| `urlhaus.py` | 51 | `ABUSECH_AUTH_KEY` | domain/url |
-| `malwarebazaar.py` | 39 | `ABUSECH_AUTH_KEY` | hash |
-| `threatfox.py` | 40 | `ABUSECH_AUTH_KEY` | ip/domain/hash |
-| `enricher.py` | 198 | — | `EnricherOrchestrator`, `collect_iocs_from_findings` |
-| `pipeline.py` | 144 | — | `enrich_findings`, `attach_enrichment_to_findings` |
-| `registry.py` | 42 | — | `REGISTRY` (9 провайдеров) |
+| Файл | Ключ | IOC-типы |
+|---|---|---|
+| `base.py` | — | `Enricher` Protocol, `EnrichmentResult` |
+| `base_enricher.py` | — | Базовый класс, HTTP-клиент, error handling |
+| `cache.py` | — | SQLite-кэш с TTL |
+| `rate_limit.py` | — | `TokenBucket` |
+| `shodan_internetdb.py` | без | ip |
+| `abuseipdb.py` | `ABUSEIPDB_API_KEY` | ip |
+| `virustotal.py` | `VIRUSTOTAL_API_KEY` | ip/domain/hash |
+| `greynoise.py` | без | ip |
+| `alienvault_otx.py` | без | ip/domain/hash |
+| `urlscan.py` | без | domain/url |
+| `urlhaus.py` | `ABUSECH_AUTH_KEY` | domain/url |
+| `malwarebazaar.py` | `ABUSECH_AUTH_KEY` | hash |
+| `threatfox.py` | `ABUSECH_AUTH_KEY` | ip/domain/hash |
+| `enricher.py` | — | `EnricherOrchestrator`, `collect_iocs_from_findings` |
+| `pipeline.py` | — | `enrich_findings`, `attach_enrichment_to_findings` |
+| `registry.py` | — | `REGISTRY` (9 провайдеров) |
 
 Приватные IP не обогащаются (`_is_private_ip` + CGNAT 100.64/10).
 
@@ -435,7 +438,7 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ## Агрегаторы
 
-### `entities.py` (471) — **v0.3.0+**
+### `entities.py` — **v0.3.0+**
 
 Один IP = одна Entity (вместо N flow-строк).
 
@@ -458,14 +461,14 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ## Reporters
 
-| Файл | Строк | Что делает |
-|---|---|---|
-| `json_reporter.py` | 20 | `write_json` (sort_keys для детерминизма), `write_markdown` |
-| `markdown/` | 996 | `render_markdown` — TL;DR, таймлайн, carved, сводка, противоречия, findings, сущности, HTTP, IOC, топ-10 flows. Модули: `document`, `tldr`, `timeline`, `sections`, `format`, `mitre`, `iocs` |
-| `flow_report.py` | 234 | `build_flow_report`, `build_dns_report`, `build_http_report`, `build_http_object_report` |
-| `ioc_reporter.py` | 371 | **v1.0.0** — `build_ioc_report`, `write_ioc_files` (txt/csv/json/suricata/queries) |
-| `html_reporter.py` | 338 | **v1.5.0** — `render_html`, `write_html` — самодостаточный HTML (печать в PDF), экранирование значений |
-| `stix_reporter.py` | 153 | **v1.5.0** — `build_stix_bundle`, `render_stix_json`, `write_stix` — STIX 2.1, детерминированные UUIDv5; используется CLI (`--stix`) и GUI |
+| Файл | Что делает |
+|---|---|
+| `json_reporter.py` | `write_json` (sort_keys для детерминизма), `write_markdown` |
+| `markdown/` | `render_markdown` — TL;DR, таймлайн, carved, сводка, противоречия, findings, сущности, «Интерпретация», HTTP, IOC, топ-10 flows. Модули: `document`, `tldr`, `timeline`, `sections`, `format`, `mitre`, `iocs`, `interpretation` |
+| `flow_report.py` | `build_flow_report`, `build_dns_report`, `build_http_report`, `build_http_object_report` |
+| `ioc_reporter.py` | **v1.0.0** — `build_ioc_report`, `write_ioc_files` (txt/csv/json/suricata/queries) |
+| `html_reporter.py` | **v1.5.0** — `render_html`, `write_html` — самодостаточный HTML (печать в PDF), экранирование значений |
+| `stix_reporter.py` | **v1.5.0** — `build_stix_bundle`, `render_stix_json`, `write_stix` — STIX 2.1, детерминированные UUIDv5; используется CLI (`--stix`) и GUI |
 
 `run_pipeline` сам файлы не пишет (кроме IOC и carved): flow-отчёты
 собираются внутри pipeline, JSON/Markdown/HTML/STIX пишут CLI или GUI.
@@ -478,42 +481,42 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ## GUI
 
-Пакет `paradox_gui/` — **17 388 строк**. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
+Пакет `paradox_gui/`. Не трогает ядро, вызывает `run_pipeline`/`run_multi_pipeline` в QThread.
 
 ### Корень
 
-| Файл | Строк | Что делает |
-|---|---|---|
-| `__main__.py` | 26 | Патчит `sys.stdout/stderr` на devnull (PyInstaller --windowed) |
-| `app.py` | 92 | `QApplication` + splash + main window |
-| `main_window.py` | 23 | Совместимый фасад `paradox_gui/window/` |
-| `window/` | 995 | Главное окно: `window` (каркас, вкладки, статус-бар), `menus`, `actions`, `export`, `shortcuts` |
-| `theme/` | 7 файлов | QSS-тема: `palette`, `qss_global`, `qss_widgets`, `qss`, `assets`, `apply` |
-| `splash.py` | 161 | **v1.2.0** — Splash screen с прогресс-баром |
-| `logo.py` | 110 | **v1.2.0** — `render_logo`, `get_app_icon`, `logo_label` |
-| `_runtime_hook.py` | 90 | PyInstaller: faulthandler → `Paradox-error.log` |
-| `storage.py` | 154 | SQLite-история (`%APPDATA%/Paradox/history.db`) |
-| `settings_store.py` | 124 | JSON-settings с атомарной записью |
-| `settings_rehydrate.py` | 70 | Восстановление типов (Path, frozenset) из JSON |
-| `secrets_store.py` | 153 | Keyring → session → env (fallback) |
-| `config_builder.py` | 50 | `build_config_with_overrides(overrides)` |
-| `profiles.py` | 96 | Профили: default / ctf / corporate |
-| `detector_help.py` | 95 | Tooltips детекторов |
-| `field_help.py` | 230 | Tooltips полей Config |
-| `contradiction_help.py` | 49 | Tooltips правил |
-| `ioc_utils.py` | 81 | `detect_ioc_type`, `provider_link` |
-| `formatting.py` | 20 | `fmt_bytes` / `fmt_count` — единое форматирование чисел в GUI |
-| `payload_decode.py` | 152 | Цепочка URL → Base64 → Gzip/Deflate; `Variant.label` для деобфускации |
-| `payload_highlighter.py` | 158 | Язык по содержимому, sinks/источники |
-| `payload_preview.py` | 221 | Санитайзер разметки для статического предпросмотра |
+| Файл | Что делает |
+|---|---|
+| `__main__.py` | Патчит `sys.stdout/stderr` на devnull (PyInstaller --windowed) |
+| `app.py` | `QApplication` + splash + main window |
+| `main_window.py` | Совместимый фасад `paradox_gui/window/` |
+| `window/` | Главное окно: `window` (каркас, вкладки, статус-бар), `menus`, `actions`, `export`, `shortcuts` |
+| `theme/` | QSS-тема: `palette`, `qss_global`, `qss_widgets`, `qss`, `assets`, `apply` |
+| `splash.py` | **v1.2.0** — Splash screen с прогресс-баром |
+| `logo.py` | **v1.2.0** — `render_logo`, `get_app_icon` |
+| `_runtime_hook.py` | PyInstaller: faulthandler → `Paradox-error.log` |
+| `storage.py` | SQLite-история (`%APPDATA%/Paradox/history.db`) |
+| `settings_store.py` | JSON-settings с атомарной записью |
+| `settings_rehydrate.py` | Восстановление типов (Path, frozenset) из JSON |
+| `secrets_store.py` | Keyring → session → env (fallback) |
+| `config_builder.py` | `build_config_with_overrides(overrides)` |
+| `profiles.py` | Профили: default / ctf / corporate |
+| `detector_help.py` | Tooltips детекторов |
+| `field_help.py` | Tooltips полей Config |
+| `contradiction_help.py` | Tooltips правил |
+| `ioc_utils.py` | `detect_ioc_type`, `provider_link` |
+| `formatting.py` | `fmt_bytes` / `fmt_count` — единое форматирование чисел в GUI |
+| `payload_decode.py` | Цепочка URL → Base64 → Gzip/Deflate; `Variant.label` для деобфускации |
+| `payload_highlighter.py` | Язык по содержимому, sinks/источники |
+| `payload_preview.py` | Санитайзер разметки для статического предпросмотра |
 
 ### i18n — **v1.5.0**
 
-| Файл | Строк | Что делает |
-|---|---|---|
-| `i18n/__init__.py` | 122 | `tr()`, `set_language`, `get_language`, `validate_translations`; fallback текущий → en → ru → сам ключ |
-| `i18n/_ru.py` | 981 | Русские строки (дефолт) |
-| `i18n/_en.py` | 981 | Английские строки |
+| Файл | Что делает |
+|---|---|
+| `i18n/__init__.py` | `tr()`, `set_language`, `get_language`, `validate_translations`; fallback текущий → en → ru → сам ключ |
+| `i18n/_ru.py` | Русские строки (дефолт) |
+| `i18n/_en.py` | Английские строки |
 
 Ключи плоские dot-нотации (`tab.run`, `menu.file.open`), подстановка
 через `str.format()`. Склонений нет. Неизвестный язык —
@@ -521,19 +524,19 @@ Kill-chain reconstruction из findings + contradictions + carved_files.
 
 ### Views — 9 вкладок
 
-| Файл | Строк | Вкладка |
-|---|---|---|
-| `run_view.py` | 742 | **Прогон** — drop zone, summary, findings, правая колонка действий («Граф связей/атаки/Файлы/What-If», переходы в «Код инжекта» и «Обогащение») |
-| `history_view.py` | 588 | **История** — список прогонов + HTML-превью |
-| `payload_view.py` | 1372 | **Код инжекта** — поиск, hex-страницы, части multipart, деобфускация, инспектор, экспорт |
-| `enrich_view.py` | 620 | **Обогащение** — IOC-выбор + результаты |
-| `settings/` | 2611 | **Настройки** — 13 секций; `view.py` (679) + `pages/*` по странице, `builders`, `parsers`, `constants` |
-| `ipv6_view.py` | 126 | **IPv6** — NDP + потоки |
-| `timeline_view.py` | 259 | **Таймлайн** — kill-chain tree |
-| `export_view.py` | 163 | **Экспорт** — CSV/STIX/HTML preview |
-| `diff_view.py` | 297 | **Сравнение** — diff двух JSON-отчётов |
-| `quick_check_window.py` | 332 | Отдельное окно быстрой проверки IOC |
-| `payload_window.py` | 44 | Окно «Код инжекта» (`Ctrl+Shift+P`), без parent |
+| Файл | Вкладка |
+|---|---|
+| `run_view.py` | **Прогон** — drop zone, summary, findings, правая колонка действий («Граф связей/атаки/Файлы/What-If», переходы в «Код инжекта» и «Обогащение») |
+| `history_view.py` | **История** — список прогонов + HTML-превью |
+| `payload_view.py` | **Код инжекта** — поиск, hex-страницы, части multipart, деобфускация, инспектор, экспорт |
+| `enrich_view.py` | **Обогащение** — IOC-выбор + результаты |
+| `settings/` | **Настройки** — 13 секций; `view.py` + `pages/*` по странице, `builders`, `parsers`, `constants` |
+| `ipv6_view.py` | **IPv6** — NDP + потоки |
+| `timeline_view.py` | **Таймлайн** — kill-chain tree |
+| `export_view.py` | **Экспорт** — CSV/STIX/HTML preview |
+| `diff_view.py` | **Сравнение** — diff двух JSON-отчётов |
+| `quick_check_window.py` | Отдельное окно быстрой проверки IOC |
+| `payload_window.py` | Окно «Код инжекта» (`Ctrl+Shift+P`), без parent |
 
 Секции настроек: Общие, Пороги, Детекторы, Противоречия,
 Allowlist, DGA, Brute force, Сеть, Отчёты, Плагины, YARA,
@@ -541,52 +544,51 @@ Threat Intel, Производительность.
 
 ### Dialogs
 
-| Файл | Строк | Что |
-|---|---|---|
-| `attack_graph_dialog.py` | 703 | **v1.2.0** — Attack Graph (граф + Time Machine + PNG/DOT/GraphML) |
-| `graph_dialog.py` | 517 | «Граф связей» — карта сети |
-| `contradiction_dialog.py` | 195 | Детали Contradiction |
-| `explanation_dialog.py` | 310 | **Окно объяснений** находки/противоречия: что произошло, почему важно, что дальше, чипы «как новичку»/«альтернативы», копирование в Markdown |
-| `finding_dialog.py` | 200 | Детали Finding + кнопка «Объяснение» |
-| `carved_files_dialog.py` | 155 | Список payload'ов с предупреждением |
-| `certificates_dialog.py` | 127 | TLS-сертификаты: соединение, CN, срок, self-signed, SAN в tooltip |
-| `host_story_dialog.py` | 95 | История хоста |
-| `what_if_dialog.py` | 72 | Ввод исключений для What-If |
+| Файл | Что |
+|---|---|
+| `attack_graph_dialog.py` | **v1.2.0** — Attack Graph (граф + Time Machine + PNG/DOT/GraphML) |
+| `graph_dialog.py` | «Граф связей» — карта сети |
+| `contradiction_dialog.py` | Детали Contradiction |
+| `explanation_dialog.py` | **Окно объяснений** находки/противоречия: что произошло, почему важно, что дальше, чипы «как новичку»/«альтернативы», копирование в Markdown |
+| `finding_dialog.py` | Детали Finding + кнопка «Объяснение» |
+| `carved_files_dialog.py` | Список payload'ов с предупреждением |
+| `certificates_dialog.py` | TLS-сертификаты: соединение, CN, срок, self-signed, SAN в tooltip |
+| `host_story_dialog.py` | История хоста |
+| `what_if_dialog.py` | Ввод исключений для What-If |
 
 ### Widgets
 
-| Файл | Строк | Что |
-|---|---|---|
-| `highlights_panel.py` | 684 | «Что привлекло внимание» — приоритетные карточки (противоречия, находки, объём, DNS, HTTP, потоки), фильтры, история хоста |
-| `editable_list.py` | 369 | Список с inline-edit и импортом/экспортом |
-| `findings_table.py` | 374 | Таблица с фильтрами (поиск, тип, conf) |
-| `finding_actions.py` | 320 | Правая колонка действий у находок: детали, объяснение, переходы в «Код инжекта»/«Обогащение», инструменты отчёта |
-| `observations_panel.py` | 472 | «Что видел инструмент»: строки разбора (HTTP/DNS/потоки/хосты/TCP/файлы, трафик, протоколы, TLS, ошибки) + кликабельные плитки итога с severity |
-| `absence_panel.py` | 254 | «Аномалии»: DNS без ответа, TCP без ответа, объём по хостам с выбросами |
-| `provider_card.py` | 222 | Карточка провайдера обогащения |
-| `contradiction_card.py` | 176 | Карточка одного правила; «Подробнее» и «Объяснение» |
-| `drop_zone.py` | 158 | Drag&drop + логотип |
-| `toast.py` | 120 | Всплывающие уведомления |
-| `contradictions_section.py` | 111 | Секция со скроллом |
+| Файл | Что |
+|---|---|
+| `highlights_panel.py` | «Что привлекло внимание» — приоритетные карточки (противоречия, находки, объём, DNS, HTTP, потоки), фильтры, история хоста |
+| `editable_list.py` | Список с inline-edit и импортом/экспортом |
+| `findings_table.py` | Таблица с фильтрами (поиск, тип, conf) |
+| `finding_actions.py` | Правая колонка действий у находок: детали, объяснение, переходы в «Код инжекта»/«Обогащение», инструменты отчёта |
+| `observations_panel.py` | «Что видел инструмент»: строки разбора (HTTP/DNS/потоки/хосты/TCP/файлы, трафик, протоколы, TLS, ошибки) + кликабельные плитки итога с severity |
+| `absence_panel.py` | «Аномалии»: DNS без ответа, TCP без ответа, объём по хостам с выбросами |
+| `provider_card.py` | Карточка провайдера обогащения |
+| `contradiction_card.py` | Карточка одного правила; «Подробнее» и «Объяснение» |
+| `drop_zone.py` | Drag&drop + логотип |
+| `toast.py` | Всплывающие уведомления |
+| `contradictions_section.py` | Секция со скроллом |
 
 ### Workers
 
-| Файл | Строк | Что |
-|---|---|---|
-| `analysis_worker.py` | 149 | QThread: `run_pipeline` / `run_multi_pipeline`, отмена через `requestInterruption`; отключение детекторов/правил — параметрами `detectors`/`rules`, без monkey-patch |
-| `enrichment_worker.py` | 78 | QThread: `enrich_findings` |
-| `quick_check_worker.py` | 77 | QThread: параллельный опрос провайдеров |
+| Файл | Что |
+|---|---|
+| `analysis_worker.py` | QThread: `run_pipeline` / `run_multi_pipeline`, отмена через `requestInterruption`; отключение детекторов/правил — параметрами `detectors`/`rules`, без monkey-patch |
+| `enrichment_worker.py` | QThread: `enrich_findings` |
+| `quick_check_worker.py` | QThread: параллельный опрос провайдеров |
 
 ### Analysers
 
-**`run_diff.py` (202)** — **v1.2.0** — diff двух report dict'ов. Возвращает added/removed/changed по findings, contradictions, flows.
+**`run_diff.py`** — **v1.2.0** — diff двух report dict'ов. Возвращает added/removed/changed по findings, contradictions, flows.
 
 ---
 
 ## Тесты
 
-**1580 тестов в 180 файлах** (замер 2026-11-12: ядро объяснений,
-окно объяснений, переписанные тексты, allowlist Safe Browsing).
+**1656 тестов в 186 файлах** (замер 2026-11-13, `pytest --junitxml`).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
@@ -622,7 +624,7 @@ Threat Intel, Производительность.
 - ~~Нет attack graph~~ → `attack_graph.py` + диалог + PNG/DOT/GraphML
 - ~~`config.py` не валидирует провайдеров~~ → warning в `build_default_orchestrator` (не raise — Config низкий слой)
 - ~~`NDPExtractor` без `layer = 0`~~ → `layer = 0` (`extractors/ndp.py`)
-- ~~`test_multi_pcap.py` пуст, слияние не покрыто~~ → `test_multi_pcap_merge.py`, 21 тест
+- ~~`test_multi_pcap.py` пуст, слияние не покрыто~~ → `test_multi_pcap_merge.py`, 22 теста
 - ~~`beaconing` не ловил медленный C2~~ → slow-режим (v1.4, `beaconing_slow_*`)
 - ~~Из keep-alive потока читался один запрос~~ → `iter_http_requests/responses` (v1.4)
 - ~~Нет HTML/STIX-отчёта~~ → `html_reporter.py`, `stix_reporter.py` (v1.5)
@@ -630,7 +632,7 @@ Threat Intel, Производительность.
 - ~~Нет entry point~~ → `paradox` в `[project.scripts]`
 - ~~Version drift~~ → `1.5.0` в коде, `pyproject.toml` и теге
 
-### Открыто в 1.7.0
+### Открыто в 1.9.0
 
 Полный план с приоритетами — в `TODO.md`. Здесь только то, что
 видно из кода и подтверждается тестами.
@@ -650,11 +652,11 @@ Threat Intel, Производительность.
 
 ### Технический долг (не блокеры)
 
-- `config.py` — плоский dataclass на 1025 строк. Валидация уже табличная
+- `config.py` — плоский dataclass. Валидация уже табличная
   (`_VALIDATION_RULES`: поле, предикат, сообщение), но сами секции
   (beaconing, dns_tunneling, http_body) по-прежнему живут в одном классе.
 - `pipeline/` разложен по этапам (`extract`, `detect`, `summarize`,
-  `report`), фасад — 137 строк; сшивать этапы по-прежнему в одном
+  `report`), фасад тонкий; сшивать этапы по-прежнему в одном
   месте, но читать их можно по отдельности.
 - `http_object.py` — HTTP/1.x; HTTP/2 разбирается отдельно (`http2_parse.py`
   + `extractors/http2.py`), HPACK — через пакет `hpack`.

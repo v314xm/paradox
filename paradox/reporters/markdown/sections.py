@@ -1,6 +1,7 @@
 """Markdown-отчёт: sections."""
 from __future__ import annotations
 
+from paradox.i18n import L
 from paradox.reporters.markdown.format import (
     _escape_cell,
     _fmt_bytes,
@@ -18,7 +19,12 @@ def _render_carved_files(report: dict) -> list[str]:
         return []
 
     lines: list[str] = [f"## Carved Files ({len(carved)})", ""]
-    lines.append("_Metadata-only. Тело на диск не пишется._")
+    lines.append(
+        L(
+            "_Metadata-only. Тело на диск не пишется._",
+            "_Metadata-only. Bodies are not written to disk._",
+        )
+    )
     lines.append("")
     lines.append("| URI | Ext | Size | SHA256 | First bytes (hex) |")
     lines.append("|---|---|---|---|---|")
@@ -49,10 +55,17 @@ def _render_contradictions(report: dict) -> list[str]:
     if not contradictions:
         return []
 
-    lines: list[str] = [f"## Противоречия ({len(contradictions)})", ""]
+    lines: list[str] = [
+        f"## {L('Противоречия', 'Contradictions')} ({len(contradictions)})",
+        "",
+    ]
     lines.append(
-        "_Несогласованности между источниками. Не атаки, а сигналы "
-        "«одно из двух неверно, разберись»._"
+        L(
+            "_Несогласованности между источниками. Не атаки, а сигналы "
+            "«одно из двух неверно, разберись»._",
+            "_Disagreements between sources. Not attacks, but signals "
+            "saying «one of the two is wrong, dig in»._",
+        )
     )
     lines.append("")
 
@@ -71,7 +84,7 @@ def _render_contradictions(report: dict) -> list[str]:
             lines.append(f"> {hint}")
             lines.append("")
 
-        lines.append("**Факты:**")
+        lines.append(f"**{L('Факты:', 'Facts:')}**")
         lines.append("")
         for f in c.get("facts", []):
             src = f.get("source", "?")
@@ -91,7 +104,7 @@ def _render_contradictions(report: dict) -> list[str]:
 
         causes = c.get("likely_causes") or []
         if causes:
-            lines.append("**Вероятные причины:**")
+            lines.append(f"**{L('Вероятные причины:', 'Likely causes:')}**")
             lines.append("")
             for cause in causes:
                 lines.append(f"- {cause}")
@@ -105,13 +118,13 @@ def _render_findings(findings: list[dict]) -> list[str]:
     if not findings:
         lines.append("## Findings")
         lines.append("")
-        lines.append("_Ничего не найдено._")
+        lines.append(L("_Ничего не найдено._", "_Nothing found._"))
         lines.append("")
         return lines
 
     lines.append(f"## Findings ({len(findings)})")
     lines.append("")
-    lines.append("| Тип | Значение | Conf | MITRE |")
+    lines.append(f"| {L('Тип', 'Type')} | {L('Значение', 'Value')} | Conf | MITRE |")
     lines.append("|---|---|---|---|")
     for f in findings[:50]:
         ftype = _escape_cell(str(f.get("type", "?")))
@@ -121,7 +134,9 @@ def _render_findings(findings: list[dict]) -> list[str]:
         mitre = _escape_cell(_mitre_for_finding(f))
         lines.append(f"| `{ftype}` | {value} | {conf_str} | {mitre} |")
     if len(findings) > 50:
-        lines.append(f"| ... | _(ещё {len(findings) - 50})_ | | |")
+        lines.append(
+            f"| ... | _({L('ещё', 'and')} {len(findings) - 50})_ | | |"
+        )
     lines.append("")
     return lines
 
@@ -148,11 +163,13 @@ def _render_entities(entities: dict, findings: list[dict]) -> list[str]:
     if not internal and not external:
         return []
 
-    lines.append("## Сущности")
+    lines.append(L("## Сущности", "## Entities"))
     lines.append("")
 
     if internal:
-        lines.append(f"### Внутренние хосты ({len(internal)})")
+        lines.append(
+            f"### {L('Внутренние хосты', 'Internal hosts')} ({len(internal)})"
+        )
         lines.append("")
         for e in internal:
             ip = e.get("ip", "?")
@@ -203,7 +220,10 @@ def _render_entities(entities: dict, findings: list[dict]) -> list[str]:
 
     external_with_findings = [e for e in external if e.get("findings_indices")]
     if external_with_findings:
-        lines.append(f"### Внешние IP с findings ({len(external_with_findings)})")
+        lines.append(
+            f"### {L('Внешние IP с findings', 'External IPs with findings')} "
+            f"({len(external_with_findings)})"
+        )
         lines.append("")
         for e in external_with_findings:
             ip = e.get("ip", "?")
@@ -241,7 +261,12 @@ def _render_entities(entities: dict, findings: list[dict]) -> list[str]:
 
     external_clean = [e for e in external if not e.get("findings_indices")]
     if external_clean:
-        lines.append("### Внешние IP без findings — топ-5")
+        lines.append(
+            L(
+                "### Внешние IP без findings — топ-5",
+                "### External IPs without findings — top 5",
+            )
+        )
         lines.append("")
         for e in external_clean[:5]:
             ip = e.get("ip", "?")
@@ -279,7 +304,7 @@ def _render_http(http: dict) -> list[str]:
 
     top_hosts = http.get("top_hosts", []) or []
     if top_hosts:
-        lines.append("### Топ Hosts")
+        lines.append(L("### Топ Hosts", "### Top hosts"))
         lines.append("")
         lines.append("| Count | Host |")
         lines.append("|---|---|")
@@ -290,7 +315,7 @@ def _render_http(http: dict) -> list[str]:
 
     top_uris = http.get("top_uris", []) or []
     if top_uris:
-        lines.append("### Топ URIs")
+        lines.append(L("### Топ URIs", "### Top URIs"))
         lines.append("")
         lines.append("| Method | Host | URI | Src → Dst | UA | Bytes |")
         lines.append("|---|---|---|---|---|---|")
@@ -309,7 +334,7 @@ def _render_http(http: dict) -> list[str]:
 
     top_ua = http.get("top_user_agents", []) or []
     if top_ua:
-        lines.append("### Топ User-Agents")
+        lines.append(L("### Топ User-Agents", "### Top user agents"))
         lines.append("")
         for ua in top_ua[:10]:
             count = ua.get("count", 0)
@@ -328,19 +353,34 @@ def _render_absence(report: dict) -> list[str]:
     if not dns and not tcp:
         return []
 
-    lines = ["## Аномалии / Оборванные сессии", ""]
+    lines = [
+        L(
+            "## Аномалии / Оборванные сессии",
+            "## Anomalies / aborted sessions",
+        ),
+        "",
+    ]
 
     if dns:
-        lines.append("### DNS без ответа")
-        lines.append("| Домен (QNAME) | Запросов |")
+        lines.append(L("### DNS без ответа", "### Unanswered DNS"))
+        lines.append(
+            L("| Домен (QNAME) | Запросов |", "| Domain (QNAME) | Queries |")
+        )
         lines.append("|---|---|")
         for d in dns:
             lines.append(f"| `{d.get('qname', '?')}` | {d.get('count', 0)} |")
         lines.append("")
 
     if tcp:
-        lines.append("### TCP без ответа (SYN)")
-        lines.append("| Src IP | Dst IP | Порт | Пакеты |")
+        lines.append(
+            L("### TCP без ответа (SYN)", "### Unanswered TCP (SYN)")
+        )
+        lines.append(
+            L(
+                "| Src IP | Dst IP | Порт | Пакеты |",
+                "| Src IP | Dst IP | Port | Packets |",
+            )
+        )
         lines.append("|---|---|---|---|")
         for t in tcp:
             lines.append(f"| `{t.get('src_ip', '?')}` | `{t.get('dst_ip', '?')}` | {t.get('dst_port', '?')} | {t.get('packets', 0)} |")
@@ -358,16 +398,19 @@ def _render_ndp(report: dict) -> list[str]:
     if total == 0:
         return []
 
-    lines = [f"## IPv6 / NDP ({total} пакетов)", ""]
+    lines = [
+        f"## IPv6 / NDP ({total} {L('пакетов', 'packets')})",
+        "",
+    ]
 
     if routers:
-        lines.append("### Роутеры (RA)")
+        lines.append(L("### Роутеры (RA)", "### Routers (RA)"))
         for r in routers:
             lines.append(f"- `{r}`")
         lines.append("")
 
     if neighbors:
-        lines.append("### Соседи (NDP)")
+        lines.append(L("### Соседи (NDP)", "### Neighbors (NDP)"))
         lines.append("| IPv6 | MAC |")
         lines.append("|---|---|")
         for n in neighbors:
@@ -386,10 +429,18 @@ def _render_certificates(report: dict) -> list[str]:
     if not total and not parse_errors:
         return []
 
-    lines = [f"## X.509 сертификаты ({total})", ""]
+    lines = [
+        f"## X.509 {L('сертификаты', 'certificates')} ({total})",
+        "",
+    ]
 
     if items:
-        lines.append("| Сервер | CN | Issuer | Действует до | Self-signed |")
+        lines.append(
+            L(
+                "| Сервер | CN | Issuer | Действует до | Self-signed |",
+                "| Server | CN | Issuer | Valid until | Self-signed |",
+            )
+        )
         lines.append("|---|---|---|---|---|")
         for c in items:
             port = c.get("dst_port")
@@ -399,16 +450,27 @@ def _render_certificates(report: dict) -> list[str]:
                 f"| {server} | {_escape_cell(c.get('subject_cn') or '—')} "
                 f"| {_escape_cell(c.get('issuer_cn') or '—')} "
                 f"| {c.get('not_after') or '?'} "
-                f"| {'да' if c.get('self_signed') else '—'} |"
+                f"| {L('да', 'yes') if c.get('self_signed') else '—'} |"
             )
         lines.append("")
 
     if certs.get("truncated"):
-        lines.append("Показаны не все сертификаты (лимит top-N).")
+        lines.append(
+            L(
+                "Показаны не все сертификаты (лимит top-N).",
+                "Not all certificates are shown (top-N limit).",
+            )
+        )
         lines.append("")
 
     if parse_errors:
-        lines.append(f"⚠️ Не удалось разобрать DER-сертификатов: {parse_errors}.")
+        lines.append(
+            "⚠️ "
+            + L(
+                f"Не удалось разобрать DER-сертификатов: {parse_errors}.",
+                f"Failed to parse DER certificates: {parse_errors}.",
+            )
+        )
         lines.append("")
 
     return lines

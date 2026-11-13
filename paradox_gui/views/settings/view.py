@@ -458,14 +458,6 @@ class SettingsView(
         return False
 
 
-    def goto(self, key: str) -> None:
-        for i in range(self._sidebar.count()):
-            item = self._sidebar.item(i)
-            if item.data(Qt.ItemDataRole.UserRole) == key:
-                self._sidebar.setCurrentRow(i)
-                return
-
-
     def _build_profile_row(self):
         from PySide6.QtWidgets import QHBoxLayout, QLabel
 

@@ -35,6 +35,7 @@ from collections import defaultdict
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 _BROWSER_FAMILIES = frozenset({"chrome", "firefox", "edge", "safari"})
@@ -98,13 +99,29 @@ class Ja3UaMismatchRule:
                         severity=severity,
                         confidence=conf,
                         likely_causes=[
-                            "Скрипт (C2, сканер) подделывает User-Agent "
-                            "под браузер, но TLS-стек остался скриптовый",
-                            "Автоматизация/тест через реальный браузерный "
-                            "стек — редко, но бывает",
-                            "Корпоративный прокси переписывает UA на лету",
-                            "FP: UA из http_objects с другого соединения "
-                            "того же хоста",
+                            L(
+                                "Скрипт (C2, сканер) подделывает User-Agent "
+                                "под браузер, но TLS-стек остался скриптовый",
+                                "A script (C2, scanner) spoofs the User-Agent "
+                                "as a browser, but the TLS stack stays that "
+                                "of a script",
+                            ),
+                            L(
+                                "Автоматизация/тест через реальный браузерный "
+                                "стек — редко, но бывает",
+                                "Automation or a test through a real browser "
+                                "stack — rare, but it happens",
+                            ),
+                            L(
+                                "Корпоративный прокси переписывает UA на лету",
+                                "A corporate proxy rewrites the UA on the fly",
+                            ),
+                            L(
+                                "FP: UA из http_objects с другого соединения "
+                                "того же хоста",
+                                "FP: the UA comes from http_objects of "
+                                "another connection of the same host",
+                            ),
                         ],
                         resolution_hint=reason,
                     ))
@@ -118,27 +135,56 @@ class Ja3UaMismatchRule:
         if j_fam == "malware":
             return (
                 "critical",
-                f"Клиент с JA3 семейства `{j_fam}` (malware) при этом "
-                f"с UA семейства `{u_fam}`. TLS-стек уже палево — "
-                f"проверить сессии клиента.",
+                L(
+                    (
+                        f"Клиент с JA3 семейства `{j_fam}` (malware) при этом "
+                        f"с UA семейства `{u_fam}`. TLS-стек уже палево — "
+                        f"проверить сессии клиента."
+                    ),
+                    (
+                        f"Client with a JA3 of family `{j_fam}` (malware) but "
+                        f"a UA of family `{u_fam}`. The TLS stack alone is a "
+                        f"red flag — check the client's sessions."
+                    ),
+                ),
                 0.85,
             )
         if j_fam in _TOOL_FAMILIES and u_fam in _BROWSER_FAMILIES:
             return (
                 "high",
-                f"JA3=`{j_fam}` (скрипт) + UA=`{u_fam}` (браузер). "
-                f"Классическая мимикрия: клиент выдаёт себя за "
-                f"браузер, но TLS-стек — от скрипта. Проверить, что "
-                f"за скрипт и куда ходит.",
+                L(
+                    (
+                        f"JA3=`{j_fam}` (скрипт) + UA=`{u_fam}` (браузер). "
+                        f"Классическая мимикрия: клиент выдаёт себя за "
+                        f"браузер, но TLS-стек — от скрипта. Проверить, что "
+                        f"за скрипт и куда ходит."
+                    ),
+                    (
+                        f"JA3=`{j_fam}` (script) + UA=`{u_fam}` (browser). "
+                        f"Classic mimicry: the client poses as a browser, but "
+                        f"the TLS stack belongs to a script. Check which "
+                        f"script it is and where it connects."
+                    ),
+                ),
                 0.75,
             )
         if j_fam in _BROWSER_FAMILIES and u_fam in _TOOL_FAMILIES:
             return (
                 "medium",
-                f"JA3=`{j_fam}` (браузер) + UA=`{u_fam}` (скрипт). "
-                f"Странная пара: браузерный TLS-стек, но скриптовый "
-                f"UA. Возможно, автоматизация через headless-browser "
-                f"или FP парсера.",
+                L(
+                    (
+                        f"JA3=`{j_fam}` (браузер) + UA=`{u_fam}` (скрипт). "
+                        f"Странная пара: браузерный TLS-стек, но скриптовый "
+                        f"UA. Возможно, автоматизация через headless-browser "
+                        f"или FP парсера."
+                    ),
+                    (
+                        f"JA3=`{j_fam}` (browser) + UA=`{u_fam}` (script). "
+                        f"Odd pair: a browser TLS stack with a script UA. "
+                        f"Possibly automation through a headless browser or a "
+                        f"parser FP."
+                    ),
+                ),
                 0.6,
             )
         return None, "", 0.0

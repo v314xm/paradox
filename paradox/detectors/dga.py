@@ -24,21 +24,11 @@ class DGADetector:
             if self._is_allowlisted(name, config):
                 continue
 
-            label = name.split(".")[0]
-
-            if len(label) < config.dga_min_label_length:
-                continue
-
-            # DGA-домены почти никогда не содержат дефисов.
-            # Дефис — признак человекочитаемого домена
-            # (safebrowsing-cache.google.com и т.п.).
-            if "-" in label:
+            label = self._dga_label(name, config)
+            if label is None:
                 continue
 
             entropy = shannon_entropy(label)
-            if entropy < config.dga_entropy_threshold:
-                continue
-
             confidence = min(
                 0.95,
                 0.5 + (entropy - config.dga_entropy_threshold) / 2.0,
@@ -72,6 +62,34 @@ class DGADetector:
                 ))
 
         return findings
+
+    def _dga_label(self, name: str, config: Config) -> str | None:
+        """Вернуть label, похожий на DGA, или None.
+
+        Смотрим все labels, кроме TLD: `www.<random>.store` — DGA во
+        втором уровне, а не в первом (`www` короче порога и раньше
+        скрывал домен целиком).
+        """
+        parts = name.split(".")
+        if len(parts) < 2:
+            return None
+
+        for label in parts[:-1]:
+            if len(label) < config.dga_min_label_length:
+                continue
+
+            # DGA-домены почти никогда не содержат дефисов.
+            # Дефис — признак человекочитаемого домена
+            # (safebrowsing-cache.google.com и т.п.).
+            if "-" in label:
+                continue
+
+            if shannon_entropy(label) < config.dga_entropy_threshold:
+                continue
+
+            return label
+
+        return None
 
     def _is_allowlisted(self, name: str, config: Config) -> bool:
         from paradox.domain_utils import matches_suffix

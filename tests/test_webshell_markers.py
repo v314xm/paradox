@@ -193,3 +193,24 @@ def test_payload_sample_is_kept_for_viewer():
     sample = findings[0].evidence["payload_samples"][0]
     assert sample["direction"] == "response"
     assert decode_sample(sample) == _PHP_SHELL
+
+
+def test_base64_encoded_upload_detected():
+    """Маркеры внутри base64-фрагмента тоже считаются сигналом.
+
+    Регрессия с захвата b3d719ec (2026-11-04): шелл заливали
+    base64'ом в multipart-поле, в открытом виде маркеров не было.
+    """
+    padded = _PHP_SHELL + b"/*" + b"x" * 400 + b"*/"
+    body = (
+        b"--x\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"
+        + base64.b64encode(padded) + b"\r\n--x--\r\n"
+    )
+
+    findings = WebShellMarkersDetector().run(
+        _state([_request(body)]), Config(),
+    )
+
+    assert len(findings) == 1
+    assert findings[0].evidence["family"] == "php_eval"
+    assert findings[0].evidence["direction"] == "upload"

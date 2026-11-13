@@ -41,14 +41,15 @@ import math
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
 def _bytes(value) -> str:
     """«280 271 306 Б» вместо «280271306 Б» — подсказку читают глазами."""
     if not isinstance(value, int):
-        return f"{value} Б"
-    return f"{value:,}".replace(",", " ") + " Б"
+        return f"{value}" + L(" Б", " B")
+    return f"{value:,}".replace(",", " ") + L(" Б", " B")
 
 
 class ReverseAsymmetryRule:
@@ -147,30 +148,56 @@ class ReverseAsymmetryRule:
             proto = best.evidence.get("proto", "?")
             outbound = bytes_out > bytes_in
             # Подсказку читают глазами: направление — по-русски.
-            direction = "наружу" if outbound else "внутрь"
+            direction = (
+                L("наружу", "outbound") if outbound else L("внутрь", "inbound")
+            )
 
             if math.isinf(ratio):
-                ratio_str = "∞ (односторонний)"
+                ratio_str = L("∞ (односторонний)", "∞ (one-way)")
             else:
                 ratio_str = f"{ratio:.1f}:1"
 
             if count >= self._BULK_THRESHOLD:
-                bulk = "выгрузка" if outbound else "загрузка"
-                hint = (
-                    f"{subject}: асимметричных сессий — {count}, "
-                    f"суммарно {_bytes(total_bytes_all)}. Топ-1: "
-                    f"{external_ip}:{external_port} ({proto}), "
-                    f"ratio {ratio_str}, направление {direction}. "
-                    f"Похоже на шлюз / NAT / CDN-прокси — не одиночная "
-                    f"сессия. Если хост НЕ шлюз, это массовая {bulk}."
+                bulk = (
+                    L("выгрузка", "outbound transfer") if outbound
+                    else L("загрузка", "inbound transfer")
+                )
+                hint = L(
+                    (
+                        f"{subject}: асимметричных сессий — {count}, "
+                        f"суммарно {_bytes(total_bytes_all)}. Топ-1: "
+                        f"{external_ip}:{external_port} ({proto}), "
+                        f"ratio {ratio_str}, направление {direction}. "
+                        f"Похоже на шлюз / NAT / CDN-прокси — не одиночная "
+                        f"сессия. Если хост НЕ шлюз, это массовая {bulk}."
+                    ),
+                    (
+                        f"{subject}: asymmetric sessions — {count}, "
+                        f"{_bytes(total_bytes_all)} in total. Top-1: "
+                        f"{external_ip}:{external_port} ({proto}), "
+                        f"ratio {ratio_str}, direction {direction}. "
+                        f"Looks like a gateway / NAT / CDN proxy — not a "
+                        f"single session. If the host is NOT a gateway, this "
+                        f"is bulk {bulk}."
+                    ),
                 )
             else:
-                hint = (
-                    f"{subject}: асимметричных сессий — {count}. "
-                    f"Топ-1: {external_ip}:{external_port} ({proto}), "
-                    f"out={_bytes(bytes_out)}, in={_bytes(bytes_in)}, "
-                    f"ratio {ratio_str}, направление {direction}. "
-                    f"Проверить протокол и назначение."
+                hint = L(
+                    (
+                        f"{subject}: асимметричных сессий — {count}. "
+                        f"Топ-1: {external_ip}:{external_port} ({proto}), "
+                        f"out={_bytes(bytes_out)}, in={_bytes(bytes_in)}, "
+                        f"ratio {ratio_str}, направление {direction}. "
+                        f"Проверить протокол и назначение."
+                    ),
+                    (
+                        f"{subject}: asymmetric sessions — {count}. "
+                        f"Top-1: {external_ip}:{external_port} ({proto}), "
+                        f"out={_bytes(bytes_out)}, in={_bytes(bytes_in)}, "
+                        f"ratio {ratio_str}, direction {direction}. "
+                        f"Check the protocol and the purpose of the "
+                        f"connection."
+                    ),
                 )
 
             out.append(Contradiction(
@@ -195,17 +222,49 @@ class ReverseAsymmetryRule:
         """
         if outbound:
             return [
-                "Выгрузка данных наружу: отдано в разы больше, чем получено",
-                "Легитимная отправка: бэкап, выгрузка в облако, "
-                "видеоконференция",
-                "Туннель с короткими ответами-подтверждениями",
-                "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
-                "Односторонний захват: вторая сторона не зеркалится",
+                L(
+                    "Выгрузка данных наружу: отдано в разы больше, "
+                    "чем получено",
+                    "Data sent outbound: many times more sent than received",
+                ),
+                L(
+                    "Легитимная отправка: бэкап, выгрузка в облако, "
+                    "видеоконференция",
+                    "Legitimate sending: backup, cloud upload, video "
+                    "conference",
+                ),
+                L(
+                    "Туннель с короткими ответами-подтверждениями",
+                    "A tunnel with short acknowledgement replies",
+                ),
+                L(
+                    "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
+                    "Gateway / NAT / CDN proxy: aggregate client traffic",
+                ),
+                L(
+                    "Односторонний захват: вторая сторона не зеркалится",
+                    "One-sided capture: the other side is not mirrored",
+                ),
             ]
         return [
-            "Загрузка большого файла: обновление, образ диска, медиа",
-            "Доставка инструмента: скачивание payload'а",
-            "Легитимный стриминг или видеоконференция",
-            "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
-            "Односторонний захват: вторая сторона не зеркалится",
+            L(
+                "Загрузка большого файла: обновление, образ диска, медиа",
+                "Large file download: an update, a disk image, media",
+            ),
+            L(
+                "Доставка инструмента: скачивание payload'а",
+                "Tool delivery: downloading a payload",
+            ),
+            L(
+                "Легитимный стриминг или видеоконференция",
+                "Legitimate streaming or a video conference",
+            ),
+            L(
+                "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
+                "Gateway / NAT / CDN proxy: aggregate client traffic",
+            ),
+            L(
+                "Односторонний захват: вторая сторона не зеркалится",
+                "One-sided capture: the other side is not mirrored",
+            ),
         ]

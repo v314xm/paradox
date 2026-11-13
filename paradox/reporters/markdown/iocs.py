@@ -41,15 +41,6 @@ def _pick_first_with_role(entities: list[dict], role: str) -> str | None:
     return None
 
 
-def _unique_finding_types(findings: list[dict]) -> list[str]:
-    seen: list[str] = []
-    for f in findings:
-        t = f.get("type")
-        if t and t not in seen:
-            seen.append(t)
-    return seen
-
-
 def _chain_for(findings: list[dict]) -> list[str]:
     """
     Уникальные типы findings в порядке kill-chain.

@@ -15,6 +15,7 @@ from datetime import UTC
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
+from paradox.i18n import L
 from paradox.models import CaptureState, Finding
 
 
@@ -54,11 +55,21 @@ class ExpiredCertRule:
             except (OSError, ValueError):
                 expires_iso, seen_iso = "?", "?"
 
-            hint = (
-                f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
-                f"сертификат истёк {expires_iso}, но соединение "
-                f"состоялось {seen_iso}. "
-                f"Клиент без проверки срока, MITM или ошибка конфигурации."
+            hint = L(
+                (
+                    f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
+                    f"сертификат истёк {expires_iso}, но соединение "
+                    f"состоялось {seen_iso}. "
+                    f"Клиент без проверки срока, MITM или ошибка "
+                    f"конфигурации."
+                ),
+                (
+                    f"{f.subject} → {ev.get('dst_ip')}:{ev.get('dst_port')}: "
+                    f"the certificate expired on {expires_iso}, yet the "
+                    f"connection was established on {seen_iso}. "
+                    f"A client without expiry validation, MITM, or a "
+                    f"configuration error."
+                ),
             )
             out.append(Contradiction(
                 rule=self.name,
@@ -67,9 +78,18 @@ class ExpiredCertRule:
                 severity=self.severity_base,
                 confidence=0.9,
                 likely_causes=[
-                    "Старый клиент без проверки срока действия",
-                    "MITM-прокси со старым сертификатом",
-                    "Ошибка конфигурации сервера",
+                    L(
+                        "Старый клиент без проверки срока действия",
+                        "Old client without expiry validation",
+                    ),
+                    L(
+                        "MITM-прокси со старым сертификатом",
+                        "MITM proxy with an old certificate",
+                    ),
+                    L(
+                        "Ошибка конфигурации сервера",
+                        "Server configuration error",
+                    ),
                 ],
                 resolution_hint=hint,
             ))
