@@ -11,7 +11,10 @@
     <meta property="og:title" content="Paradox — PCAP Triage Tool">
     <meta property="og:description" content="Найди то, что скрыто в твоём PCAP. 30 детекторов, 13 правил противоречий, поиск пивотов и C2.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="assets/main.png">
+    <meta property="og:url" content="https://paradoxtool.ru/">
+    <meta property="og:site_name" content="Paradox">
+    <meta property="og:image" content="https://paradoxtool.ru/assets/main.png">
+    <meta name="twitter:card" content="summary_large_image">
 
 
     <!-- SEO Schema.org -->
@@ -20,12 +23,15 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Paradox",
-      "operatingSystem": "Windows",
+      "operatingSystem": "Windows, Linux, macOS",
       "applicationCategory": "SecurityApplication",
+      "softwareVersion": "1.8.0",
+      "inLanguage": "ru",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "description": "PCAP triage tool for finding contradictions in network traffic.",
       "author": { "@type": "Person", "name": "Andrey Grigoryev" },
-      "url": "https://paradoxtool.ru/"
+      "url": "https://paradoxtool.ru/",
+      "downloadUrl": "https://github.com/v314xm/paradox/releases/latest"
     }
     </script>
 
@@ -61,6 +67,9 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
+
+        /* Якоря не уезжают под липкую навигацию */
+        [id] { scroll-margin-top: 96px; }
 
         .gradient-text {
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
@@ -114,16 +123,20 @@
         .terminal-body .comment { color: #64748b; }
 
         .stat-card {
+            display: block;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 24px;
             text-align: center;
-            transition: border-color 0.2s, transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s, transform 0.2s, background-color 0.2s;
         }
         .stat-card:hover {
             border-color: var(--accent);
             transform: translateY(-2px);
+            background: #22304a;
         }
         .stat-value {
             font-size: 36px;
@@ -142,6 +155,23 @@
             letter-spacing: 0.05em;
         }
 
+        /* Аффорданс кликабельности: подпись, которая загорается на hover */
+        .tile-more {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .stat-card:hover .tile-more,
+        .feature-card:hover .tile-more,
+        .screenshot-card:hover .tile-more {
+            color: var(--accent);
+            transform: translateX(2px);
+        }
+
         .feature-icon {
             width: 48px;
             height: 48px;
@@ -153,6 +183,20 @@
             border: 1px solid rgba(56,189,248,0.2);
             margin-bottom: 16px;
             font-size: 24px;
+        }
+
+        .feature-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s;
+        }
+        .feature-card:hover { transform: translateY(-3px); }
+        .feature-card:focus-visible,
+        .stat-card:focus-visible,
+        .screenshot-card:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
         }
 
         .contradiction-row {
@@ -181,10 +225,12 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.02em;
+            white-space: nowrap;
         }
         .badge-critical { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
         .badge-high { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
         .badge-medium { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+        .badge-low { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
 
         .nav-link {
             color: var(--text-muted);
@@ -240,13 +286,20 @@
         }
         .fade-in.visible { opacity: 1; transform: translateY(0); }
 
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in { opacity: 1; transform: none; transition: none; }
+        }
+
         /* Стили для галереи скриншотов */
         .screenshot-card {
+            display: block;
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-decoration: none;
+            color: inherit;
             transition: transform 0.3s, border-color 0.3s;
         }
         .screenshot-card:hover {
@@ -257,6 +310,7 @@
             width: 100%;
             height: auto;
             display: block;
+            cursor: zoom-in;
         }
 
         @media (max-width: 768px) {
@@ -267,11 +321,101 @@
         /* Стили для Live Demo */
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .demo-tab { color: #94a3b8; border-bottom: 2px solid transparent; transition: color 0.2s; }
+        .demo-tab:hover { color: #e2e8f0; }
         .demo-tab.active { color: #f8fafc; border-bottom-color: #38bdf8; background: rgba(15, 23, 42, 0.5); }
-        .demo-pane { display: none; }
-        .demo-pane.active { display: block; }
+        .demo-pane { display: none !important; }
+        .demo-pane.active { display: block !important; }
+        #demo-graph.demo-pane.active { display: flex !important; justify-content: center; align-items: center; }
 
+        /* Плитки демо ведут себя как кликабельные плитки итога в GUI */
+        .demo-tile {
+            background: #282a36;
+            border: 1px solid #3a3d4d;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            font: inherit;
+            color: inherit;
+        }
+        .demo-tile:hover { border-color: #5b8cff; }
+        .demo-tile:focus-visible { outline: 2px solid #5b8cff; outline-offset: 2px; }
+        .demo-tile[aria-pressed="true"] {
+            border-color: #5b8cff;
+            background: #313342;
+            box-shadow: inset 0 0 0 1px rgba(91,140,255,0.45);
+        }
+
+        /* Теория */
+        .method-step {
+            display: flex;
+            gap: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .method-num {
+            flex: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid rgba(56,189,248,0.35);
+            background: rgba(56,189,248,0.1);
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .theory-card { padding: 28px; }
+        .theory-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .theory-card:target {
+            outline: 2px solid rgba(56,189,248,0.55);
+            outline-offset: 2px;
+            background: #223049;
+        }
+        .theory-lead {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin: 0 0 18px;
+        }
+        .theory-grid { margin: 0; display: grid; gap: 12px; }
+        .theory-grid dt {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+        .theory-grid dd {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+        .theory-foot {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(51,65,85,0.7);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #94a3b8;
+        }
     </style>
+    <noscript><style>.fade-in { opacity: 1 !important; transform: none !important; }</style></noscript>
 </head>
 <body>
 
@@ -281,10 +425,11 @@
             <a href="#" class="text-xl font-bold tracking-wider text-white flex items-center gap-2 no-underline">
                 <span class="text-2xl">🛡️</span> PARADOX
             </a>
-            <div class="hidden md:flex items-center gap-8">
+            <div class="hidden lg:flex items-center gap-7">
                 <a href="#features" class="nav-link">Возможности</a>
+                <a href="#method" class="nav-link">Как это работает</a>
                 <a href="#interface" class="nav-link">Интерфейс</a>
-                <a href="#contradictions" class="nav-link">Противоречия</a>
+                <a href="#contradictions" class="nav-link">13 правил</a>
                 <a href="#install" class="nav-link">Установка</a>
             </div>
             <div class="flex items-center gap-3">
@@ -317,9 +462,9 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Скачать .exe
                 </a>
-                <a href="https://github.com/v314xm/paradox" target="_blank" rel="noopener" class="btn-secondary">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
-                    Смотреть код
+                <a href="#method" class="btn-secondary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                    Как это работает
                 </a>
             </div>
         </div>
@@ -328,22 +473,26 @@
     <!-- STATS -->
     <section class="max-w-5xl mx-auto px-6 -mt-4 mb-24 fade-in">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="stat-card">
+            <a href="#features" class="stat-card" aria-label="30 детекторов — перейти к возможностям">
                 <div class="stat-value">30</div>
-                <div class="stat-label">Детектора</div>
-            </div>
-            <div class="stat-card">
+                <div class="stat-label">Детекторов</div>
+                <span class="tile-more">Что они ищут →</span>
+            </a>
+            <a href="#contradictions" class="stat-card" aria-label="13 правил противоречий — перейти к списку правил">
                 <div class="stat-value">13</div>
                 <div class="stat-label">Правил противоречий</div>
-            </div>
-            <div class="stat-card">
+                <span class="tile-more">Все правила →</span>
+            </a>
+            <a href="https://github.com/v314xm/paradox/tree/main/tests" target="_blank" rel="noopener" class="stat-card" aria-label="1622 теста — открыть каталог тестов на GitHub">
                 <div class="stat-value">1622</div>
-                <div class="stat-label">Тестов</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">13–16с</div>
+                <div class="stat-label">Теста</div>
+                <span class="tile-more">Каталог тестов →</span>
+            </a>
+            <a href="#performance" class="stat-card" aria-label="14,4 секунды на 627 тысяч пакетов — перейти к замерам">
+                <div class="stat-value">14,4с</div>
                 <div class="stat-label">на 627k пакетов</div>
-            </div>
+                <span class="tile-more">Замеры →</span>
+            </a>
         </div>
     </section>
 
@@ -365,7 +514,7 @@
                 </div>
                 <div>
                     <strong class="block mb-1 text-slate-200">13-е правило: role_deviation</strong>
-                    Хост классифицируется по OUI MAC, затем поведение сверяется с ролью: рабочая станция, отвечающая как веб-сервер, или сервер, сканирующий сеть, — противоречие. 1622 теста.
+                    Хост классифицируется по OUI MAC, затем поведение сверяется с ролью: рабочая станция, отвечающая как веб-сервер, или сервер, сканирующий сеть, — противоречие. <a href="#theory-role" class="text-sky-400 hover:text-sky-300 no-underline">Разбор правила →</a>
                 </div>
             </div>
         </div>
@@ -386,7 +535,7 @@
                 <p class="comment"># CLI → JSON + Markdown + IOC</p>
                 <p><span class="prompt">$</span> python -m paradox_gui</p>
                 <p class="comment"># GUI: 9 вкладок, граф связей, таймлайн</p>
-                <p class="text-slate-500 mt-4"># Пример вывода:</p>
+                <p class="text-slate-500 mt-4"># Пример вывода (CyberCampTask, 334 МБ):</p>
                 <p class="text-slate-400">packets: 627 694 · unique DNS queries: 117</p>
                 <p class="text-slate-400">flows: 2 332 · findings: 8 · contradictions: 4</p>
                 <p class="text-sky-400">PIVOT: 192.168.1.12 (жертва brute_force, но атакует 192.168.1.1 через WinRM)</p>
@@ -398,73 +547,524 @@
     <section id="features" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">Почему Paradox?</h2>
-            <p class="text-slate-400 max-w-2xl mx-auto">Zeek, Arkime и tshark парсят pcap и находят DNS, TLS, HTTP. Paradox идёт дальше — проверяет согласованность между слоями и строит атомарные факты о мире.</p>
+            <p class="text-slate-400 max-w-2xl mx-auto">Zeek, Arkime и tshark парсят pcap и находят DNS, TLS, HTTP. Paradox идёт дальше — проверяет согласованность между слоями и строит атомарные факты о мире. Каждая плитка ведёт к разбору метода.</p>
         </div>
         <div class="grid md:grid-cols-3 gap-6">
-            <div class="gradient-border p-8">
+            <a href="#theory-layers" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🔍</div>
                 <h3 class="text-lg font-bold mb-2 text-sky-400">Противоречия между слоями</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">SNI без DNS, MAC на разных IP, JA3 инструмента с браузерным User-Agent. 13 правил, которые находят то, что не сходится.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: как сравниваются слои →</span>
+            </a>
+            <a href="#theory-pivot" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🕸️</div>
                 <h3 class="text-lg font-bold mb-2 text-indigo-400">Поиск пивотов</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Хост одновременно жертва и атакующий — <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">victim_makes_attack</code>. Сразу видно, как злоумышленник перемещается по сети.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: факты victim_of / attacker_of →</span>
+            </a>
+            <a href="#theory-killchain" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">⏱️</div>
                 <h3 class="text-lg font-bold mb-2 text-emerald-400">Kill-chain таймлайн</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Реконструкция атаки по фазам: recon → initial_access → execution → lateral_movement → c2 → exfiltration.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: как фазы собираются из findings →</span>
+            </a>
+            <a href="#theory-beacon" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">📡</div>
                 <h3 class="text-lg font-bold mb-2 text-amber-400">C2-beaconing</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Периодические heartbeat-соединения с jitter &lt; 0.1, ≥ 20 обращений, ≥ 10 минут. Multi-tenant filter против CDN. Отдельный slow-режим — для C2 со sleep больше часа.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: пороги и ложные срабатывания →</span>
+            </a>
+            <a href="#theory-webshell" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🐚</div>
                 <h3 class="text-lg font-bold mb-2 text-orange-400">Веб-шеллы и выгрузки</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">PHP-исходник опознаётся по телу, а не по расширению: скачанный шелл (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">php_download</code>) и заливка на сервер (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">webshell_upload</code>). Плюс серии бинарных POST'ов на внешний хост.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <p class="text-slate-400 text-sm leading-relaxed">PHP-исходник опознаётся по телу, а не по расширению: скачанный шелл (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">php_download</code>) и заливка на сервер (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">webshell_upload</code>).</p>
+                <span class="tile-more">Разбор: типизация по содержимому →</span>
+            </a>
+            <a href="#theory-http" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🔗</div>
                 <h3 class="text-lg font-bold mb-2 text-lime-400">HTTP без слепых зон</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Все сообщения keep-alive-соединения, а не только первое. gzip/deflate-тела распаковываются перед поиском паттернов — команда в сжатом JSON больше не прячется.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: reassembly и распаковка →</span>
+            </a>
+            <a href="#theory-ad" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🛡️</div>
                 <h3 class="text-lg font-bold mb-2 text-sky-400">AD-атаки</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">SMB2 и LDAP: share, пути, учётки, чувствительные атрибуты. Kerberoasting, ADRecon и DCSync по DRSUAPI <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">DsGetNCChanges</code> — с MITRE-маппингом.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <p class="text-slate-400 text-sm leading-relaxed">SMB2 и LDAP: share, пути, учётки, чувствительные атрибуты. Kerberoasting, ADRecon и DCSync по DRSUAPI <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded text-sky-300">DsGetNCChanges</code>.</p>
+                <span class="tile-more">Разбор: семантика вызовов, а не порт →</span>
+            </a>
+            <a href="#theory-h2" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🌐</div>
                 <h3 class="text-lg font-bold mb-2 text-indigo-400">HTTP/2 и TLS</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">h2c и h2 поверх TLS по SSLKEYLOGFILE: кадры, HPACK, мультиплексирование. Расшифрованный HTTPS/1.1 тоже становится HTTP-объектами для детекторов.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: граница без ключей →</span>
+            </a>
+            <a href="#theory-yara" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🧬</div>
                 <h3 class="text-lg font-bold mb-2 text-rose-400">YARA + Carve</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Сканирование вырезанных файлов пользовательскими YARA-правилами. Metadata-only — тело на диск не пишется.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <span class="tile-more">Разбор: что считается находкой →</span>
+            </a>
+            <a href="#theory-inject" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">🧪</div>
                 <h3 class="text-lg font-bold mb-2 text-violet-400">Код инжекта</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Выдержки тел с инъекциями и веб-шеллами, которые сработали в детекторах: декодирование URL → Base64 → Gzip, подсветка sinks и источников, hexdump и статический предпросмотр разметки без исполнения кода.</p>
-            </div>
-            <div class="gradient-border p-8">
+                <p class="text-slate-400 text-sm leading-relaxed">Выдержки тел с инъекциями и веб-шеллами: декодирование URL → Base64 → Gzip, подсветка sinks и источников, hexdump и статический предпросмотр разметки без исполнения кода.</p>
+                <span class="tile-more">Разбор: как payload читается безопасно →</span>
+            </a>
+            <a href="#theory-diff" class="gradient-border p-8 feature-card">
                 <div class="feature-icon">📊</div>
-                <h3 class="text-lg font-bold mb-2 text-cyan-400">Сравнение прогонов (B1)</h3>
+                <h3 class="text-lg font-bold mb-2 text-cyan-400">Сравнение прогонов</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">Два JSON-отчёта → что добавилось / исчезло / изменилось. Для повторного триажа одного и того же pcap.</p>
+                <span class="tile-more">Разбор: зачем сравнивать прогоны →</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- METHOD: ТЕОРИЯ МЕТОДА -->
+    <section id="method" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-14">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Как это работает</h2>
+            <p class="text-slate-400 max-w-3xl mx-auto">
+                Paradox не ищет сигнатуры байтов. Он разбирает трафик на <strong class="text-slate-200">атомарные факты</strong>, проверяет их детекторами поведения, а затем сравнивает показания разных слоёв между собой. Расхождение и есть противоречие.
+            </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+            <div class="method-step">
+                <div class="method-num">01</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">Пакеты → структура</h3>
+                    <p class="text-sm text-slate-400">Собственный парсер на <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">struct.unpack</code> и свой читатель pcap. TCP reassembly, gzip/deflate, HTTP/2-кадры. Scapy — только точечно, на сложных payload.</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="method-num">02</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">Экстракторы → факты</h3>
+                    <p class="text-sm text-slate-400">12 экстракторов и 8 пост-этапов: поток, DNS, TLS, HTTP, ARP, DHCP, NBNS, Kerberos, SMB2, LDAP, DCE/RPC, HTTP/2. Каждый слой оставляет свои утверждения.</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="method-num">03</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">Детекторы → находки</h3>
+                    <p class="text-sm text-slate-400">30 поведенческих детекторов: брутфорс, туннели, beaconing, AD-атаки. Находка сразу несёт severity, MITRE-технику и фазу kill-chain.</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="method-num">04</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">Правила → противоречия</h3>
+                    <p class="text-sm text-slate-400">13 правил сравнивают факты <em>разных</em> слоёв: DNS против SNI, SNI против Host, MAC против IP, роль против поведения. Пакетов они уже не видят.</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="method-num">05</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">Таймлайн и граф</h3>
+                    <p class="text-sm text-slate-400">Находки и противоречия раскладываются по фазам и связям. Хост, побывавший и жертвой, и атакующим, получает роль pivot.</p>
+                </div>
+            </div>
+            <div class="method-step">
+                <div class="method-num">06</div>
+                <div>
+                    <h3 class="font-bold text-slate-200 mb-1">ML-подтверждение</h3>
+                    <p class="text-sm text-slate-400">Isolation Forest (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">--behavioral</code>) усиливает находки, совпавшие со статистическим выбросом, и помечает хосты с аномальным профилем. Правила он не заменяет.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="gradient-border p-6 md:p-8 mb-10">
+            <div class="text-xs text-slate-500 font-mono uppercase tracking-wider mb-3">Конвейер</div>
+            <p class="font-mono text-xs md:text-sm text-slate-300 leading-relaxed overflow-x-auto">
+                PCAP → Extractors → Facts → Detectors → Rules → Timeline → Entities → Reporters
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6 mb-10">
+            <div class="gradient-border p-6 md:p-8">
+                <h3 class="text-xl font-bold mb-4">Что такое атомарный факт</h3>
+                <p class="text-sm text-slate-400 mb-4">
+                    Факт — это одно утверждение, подписанное одним слоем: «домен резолвился в этот IP», «хост назвался таким SNI», «у этого IP был такой MAC». У факта есть время и confidence. Спорят не пакеты, а факты.
+                </p>
+                <div class="bg-slate-900/80 rounded-lg p-4 border border-slate-800 font-mono text-xs text-slate-300 leading-relaxed overflow-x-auto">
+                    <p>(192.168.1.12, victim_of, 10.0.1.50, ts, 0.85)</p>
+                    <p>(192.168.1.12, attacker_of, 192.168.1.1, ts, 0.80) <span class="text-amber-400">← pivot</span></p>
+                    <p>(192.168.1.5, has_mac, 00:60:6e:00:9d:f9, ts, 0.90)</p>
+                    <p>(192.168.1.5, has_mac, aa:bb:cc:dd:ee:02, ts, 0.60) <span class="text-rose-400">← ARP-spoof</span></p>
+                </div>
+            </div>
+
+            <div class="gradient-border p-6 md:p-8">
+                <h3 class="text-xl font-bold mb-4">Три уровня улик</h3>
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <strong class="text-sky-400">Находка</strong> — детектор увидел паттерн: брутфорс, beaconing, заливка шелла. Отвечает на вопрос «что произошло», с MITRE-техникой и фазой.
+                    </div>
+                    <div>
+                        <strong class="text-amber-400">Противоречие</strong> — два слоя описали мир по-разному: SNI без DNS, MAC на разных IP, роль не совпала с поведением. Отвечает на вопрос «что не сходится».
+                    </div>
+                    <div>
+                        <strong class="text-rose-400">Подтверждение</strong> — находка совпала со статистическим выбросом или с независимым правилом. Отвечает на вопрос «насколько этому можно верить».
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div class="gradient-border p-6 md:p-8">
+                <h3 class="text-xl font-bold mb-4">Честные границы</h3>
+                <ul class="space-y-3 text-sm text-slate-400 list-disc pl-5">
+                    <li>Анализируется только то, что есть в захвате. «Не найдено» не значит «не было» — потерянные пакеты, DoH и шифрование вне keylog остаются слепой зоной.</li>
+                    <li>Без SSLKEYLOGFILE HTTPS виден только метаданными: SNI, JA3, сертификат. Счётчик <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">tls_streams_without_keylog</code> показывает, сколько потоков осталось закрытыми.</li>
+                    <li>У каждого противоречия есть confidence (0.6–0.9): эвристика прямо говорит, насколько она шаткая. Число ложных срабатываний — часть отчёта, а не повод его прятать.</li>
+                    <li>Пороги (jitter, окна, минимумы) вынесены в <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">Config</code> и настраиваются под окружение.</li>
+                </ul>
+            </div>
+
+            <div class="gradient-border p-6 md:p-8">
+                <h3 class="text-xl font-bold mb-4">Словарь</h3>
+                <dl class="space-y-3 text-sm">
+                    <div><dt class="font-semibold text-slate-200">Атомарный факт</dt><dd class="text-slate-400">Утверждение одного слоя с временем и confidence.</dd></div>
+                    <div><dt class="font-semibold text-slate-200">Детектор</dt><dd class="text-slate-400">Правило на паттерн поведения; их 30, все с MITRE-маппингом.</dd></div>
+                    <div><dt class="font-semibold text-slate-200">Правило противоречия</dt><dd class="text-slate-400">Сравнение фактов разных слоёв; их 13, пакеты ему не нужны.</dd></div>
+                    <div><dt class="font-semibold text-slate-200">Pivot</dt><dd class="text-slate-400">Хост, который был жертвой и сам начал атаковать.</dd></div>
+                    <div><dt class="font-semibold text-slate-200">Фаза kill-chain</dt><dd class="text-slate-400">Этап атаки, к которому тип находки отнесён в taxonomy.</dd></div>
+                </dl>
             </div>
         </div>
     </section>
 
+    <!-- THEORY: РАЗБОР ВОЗМОЖНОСТЕЙ -->
+    <section id="theory" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
+        <div class="text-center mb-14">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Разбор возможностей</h2>
+            <p class="text-slate-400 max-w-3xl mx-auto">
+                По каждой плитке — что именно видно в трафике, как это считается и почему считается сигналом. <a href="#features" class="text-sky-400 hover:text-sky-300 no-underline">Вернуться к плиткам ↑</a>
+            </p>
+        </div>
 
-        <!-- LIVE DEMO / ИНТЕРАКТИВНЫЙ ИНТЕРФЕЙС -->
+        <div class="grid lg:grid-cols-2 gap-6">
+
+            <article id="theory-layers" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">01</span>
+                    <h3 class="text-lg font-bold text-sky-400">Противоречия между слоями</h3>
+                </div>
+                <p class="theory-lead">Один и тот же факт подписан независимо несколькими слоями: домен — в DNS, TLS SNI и HTTP Host; адрес — в IP-заголовке и ARP; клиент — в JA3 и User-Agent.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Слой за слоем из уже разобранных данных строятся факты (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">domain_resolved</code>, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">sni_seen</code>, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">host_header</code>, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">has_mac</code>), и правило ищет пару, которая не может быть верной одновременно.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Легитимный клиент не противоречит себе: он резолвит домен, к которому идёт, и не подменяет отпечаток TLS. Расхождение — следствие прокси, маскировки, туннеля или подмены на канале.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Subject (хост или домен), severity, confidence и evidence с обеими сторонами противоречия — видно, какие именно утверждения столкнулись.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>sni_host_mismatch · ja3_ua_mismatch · mac_ip_conflict</span>
+                    <span>T1071 · T1090</span>
+                </div>
+            </article>
+
+            <article id="theory-pivot" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">02</span>
+                    <h3 class="text-lg font-bold text-indigo-400">Поиск пивотов</h3>
+                </div>
+                <p class="theory-lead">Внутренний хост фигурирует дважды: на него шёл брутфорс или exploitation, и он же сам инициирует WinRM/PsExec/SMB к соседу.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Из находок извлекаются факты <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">victim_of</code> и <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">attacker_of</code>. Правило <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">victim_makes_attack</code> ищет хост, у которого есть оба факта.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Это момент, когда компрометация уже состоялась. Приоритет триажа — этот хост и его исходящие связи, а не только внешний атакующий.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd><code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">PIVOT</code> в TL;DR, отдельная карточка critical, узел в графе связей с ролью pivot.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>victim_makes_attack · critical</span>
+                    <span>T1021.001 · T1021.002</span>
+                </div>
+            </article>
+
+            <article id="theory-killchain" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">03</span>
+                    <h3 class="text-lg font-bold text-emerald-400">Kill-chain таймлайн</h3>
+                </div>
+                <p class="theory-lead">Находки и противоречия раскладываются по фазам и по времени: что было разведкой, чем вошли, что делали внутри и куда ушли данные.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Каждому типу находки в taxonomy назначена фаза: recon → initial_access → execution → credential_access → lateral_movement → c2 → exfiltration. События сортируются по первому появлению.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Порядок важнее отдельных строк: execution без initial_access означает либо пропуск в захвате, либо другой вектор входа. Аномалия в последовательности — сама по себе улика.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Секция Timeline в Markdown и вкладка «Таймлайн» в GUI: время, фаза, тип, MITRE и направление.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>taxonomy: тип находки → фаза</span>
+                    <span>7 фаз</span>
+                </div>
+            </article>
+
+            <article id="theory-beacon" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">04</span>
+                    <h3 class="text-lg font-bold text-amber-400">C2-beaconing</h3>
+                </div>
+                <p class="theory-lead">Машина с ровными интервалами открывает соединения к одному домену, отправляет примерно одинаковый объём и получает короткий ответ.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Порог: ≥ 20 соединений, ≥ 600 с наблюдения, jitter (stddev/mean интервалов) &lt; 0.1, средний размер &lt; 5000 Б, ≤ 5 потоков в минуту. Slow-режим ловит редкий C2: ≥ 3 соединений, ≥ 3600 с, jitter &lt; 0.15.</dd>
+                    </div>
+                    <div>
+                        <dt>Как гасится шум CDN</dt>
+                        <dd>Multi-tenant filter: если на одной паре адрес/порт больше одного SNI или Host — это shared edge (Cloudflare, Akamai), а не C2 с единственным доменом. Плюс allowlist аналитики и исключение POP3/IMAP-поллинга, который тоже идёт по таймеру.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Человек не дёргает домен по расписанию — это делает имплант. Jitter добавляют, чтобы обойти детект, но статистика интервалов выдаёт и его.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>beaconing · role: victim</span>
+                    <span>T1071.001</span>
+                </div>
+            </article>
+
+            <article id="theory-webshell" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">05</span>
+                    <h3 class="text-lg font-bold text-orange-400">Веб-шеллы и выгрузки</h3>
+                </div>
+                <p class="theory-lead">Ответ сервера начинается с <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">&lt;?php</code>; в POST приходит PHP-исходник; либо с хоста идёт серия бинарных POST на внешний адрес.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Типизация по телу полного HTTP-объекта после TCP reassembly, а не по расширению в URL. <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">php_download</code> — скачивание PHP-исходника, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">webshell_upload</code> — заливка шелла, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">http_binary_upload</code> — серия выгрузок.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Расширение врёт, содержимое — нет: <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">shell.txt</code> с PHP-кодом остаётся шеллом. Заливка на сервер — это уже закрепление, а не попытка.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Файл в «Файлах» (metadata-only), выдержка тела в «Коде инжекта», IOC из содержимого в общем IOC-отчёте.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>php_download · webshell_upload · http_binary_upload</span>
+                    <span>T1105 · T1505.003</span>
+                </div>
+            </article>
+
+            <article id="theory-http" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">06</span>
+                    <h3 class="text-lg font-bold text-lime-400">HTTP без слепых зон</h3>
+                </div>
+                <p class="theory-lead">Инъекция во втором запросе того же keep-alive-соединения, команда внутри gzip-тела, обфусцированный payload в base64.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>TCP-поток собирается по sequence-номерам, затем разбираются <em>все</em> HTTP-сообщения соединения (keep-alive и pipelining), тела распаковываются из gzip/deflate до поиска паттернов.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Раньше анализ видел только первое сообщение — и пропускал эксплуатацию во втором. Сжатие и кодирование — дешёвый способ спрятать команду от грепа; распаковка возвращает её в поле зрения.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd><code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">command_injection</code> в URI и теле, <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">encoded_payload</code> после декодирования, выдержка в «Коде инжекта».</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>command_injection · encoded_payload</span>
+                    <span>T1190 · T1059 · T1132.001</span>
+                </div>
+            </article>
+
+            <article id="theory-ad" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">07</span>
+                    <h3 class="text-lg font-bold text-sky-400">AD-атаки</h3>
+                </div>
+                <p class="theory-lead">Внутри домена идёт перечисление каталога, запросы SPN-тикетов и вызов репликации — всё это штатные протоколы, которые не выглядят подозрительно на уровне портов.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>SMB2 (share, пути, учётки), LDAP (поиск и чувствительные атрибуты), Kerberos, DCE/RPC. <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">kerberoasting</code> — массовые запросы SPN; <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">ad_recon</code> — перечисление; <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">dcsync</code> — DRSUAPI <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">DsGetNCChanges</code>.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Атака на AD не ломает протокол — она им пользуется. Поэтому сигнал в семантике вызова: кто, сколько и к чему обращается, а не на какой порт.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Учётки и пути в находке, MITRE-техника, связь с профилем хоста и историей: один и тот же аккаунт в Kerberos и SMB.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>kerberoasting · ad_recon · dcsync</span>
+                    <span>T1558.003 · T1087.002 · T1003.006</span>
+                </div>
+            </article>
+
+            <article id="theory-h2" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">08</span>
+                    <h3 class="text-lg font-bold text-indigo-400">HTTP/2 и TLS</h3>
+                </div>
+                <p class="theory-lead">Трафик уходит в h2: один TLS-поток несёт десятки мультиплексированных запросов, а заголовки сжаты HPACK — по отдельности их не прочитать.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>h2c по prior knowledge и h2 поверх TLS при заданном <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">SSLKEYLOGFILE</code> (<code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">--tls-keylog</code>): кадры, HPACK, мультиплексирование, pairing запрос/ответ. Расшифрованный HTTPS/1.1 тоже становится HTTP-объектами.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>C2 всё чаще живёт в h2, потому что там всё сваливается в одно «легитимное» соединение к CDN. Без разбора h2 запросы внутри него невидимы детекторам.</dd>
+                    </div>
+                    <div>
+                        <dt>Граница</dt>
+                        <dd>Без ключей остаются SNI, JA3, сертификат и счётчик <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">tls_streams_without_keylog</code> — инструмент показывает, сколько потоков не удалось расшифровать.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>h2c · h2 · HPACK</span>
+                    <span>T1071.001</span>
+                </div>
+            </article>
+
+            <article id="theory-yara" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">09</span>
+                    <h3 class="text-lg font-bold text-rose-400">YARA + Carve</h3>
+                </div>
+                <p class="theory-lead">Из потоков вырезаются переданные файлы — скрипты, установщики, документы, PHP, — и по ним проходят пользовательские YARA-правила.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Carve в память с лимитом размера, определение типа по содержимому, sha256. Затем YARA-скан; совпадение превращается в находку с именем правила (семейство или поведение).</dd>
+                    </div>
+                    <div>
+                        <dt>Почему metadata-only</dt>
+                        <dd>Тело на диск не пишется: разбор не создаёт опасных файлов на машине аналитика, а отчёт остаётся воспроизводимым по хешу и выдержке.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Список файлов с типом, размером и хешем; выдержки — в «Коде инжекта»; правила YARA подключаются флагом установки <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">.[yara]</code>.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>yara · file_carve</span>
+                    <span>T1105</span>
+                </div>
+            </article>
+
+            <article id="theory-inject" class="gradient-border theory-card">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">10</span>
+                    <h3 class="text-lg font-bold text-violet-400">Код инжекта</h3>
+                </div>
+                <p class="theory-lead">Тело, из-за которого сработал детектор, показывается целиком: с цепочкой декодирования, подсветкой опасных вызовов и статическим предпросмотром разметки.</p>
+                <dl class="theory-grid">
+                    <div>
+                        <dt>Как устроено</dt>
+                        <dd>Выдержка тела (base64, до 64 КБ) открывается в отдельной вкладке. Цепочка деобфускации URL → Base64 → Gzip, hexdump, части multipart, поиск по тексту, безопасная распаковка архивов.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему безопасно</dt>
+                        <dd>Предпросмотр — статический отрендеренный снимок без исполнения скриптов; секреты в экспорте редактируются. Payload не запускается ни в браузере, ни на хосте.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему полезно</dt>
+                        <dd>Видно не только «сработало правило», но и что именно пришло: sinks и источники, IOC из тела, куски multipart с файлом за 64 КБ.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>payload workbench · IOC из тела</span>
+                    <span>T1059 · T1190</span>
+                </div>
+            </article>
+
+            <article id="theory-diff" class="gradient-border theory-card lg:col-span-2">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">11</span>
+                    <h3 class="text-lg font-bold text-cyan-400">Сравнение прогонов</h3>
+                </div>
+                <p class="theory-lead">Один и тот же pcap, разобранный до и после изменения детекторов или конфига: что добавилось, что исчезло, что изменилось.</p>
+                <dl class="theory-grid md:grid-cols-3">
+                    <div>
+                        <dt>Как считается</dt>
+                        <dd>Два JSON-отчёта сопоставляются по findings и противоречиям: <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">+2 −1 ~0</code>, плюс дельта по пакетам.</dd>
+                    </div>
+                    <div>
+                        <dt>Почему сигнал</dt>
+                        <dd>Это контроль качества: новая версия не должна молча терять находки. Регресс виден на реальном захвате, а не только в тестах.</dd>
+                    </div>
+                    <div>
+                        <dt>Что в отчёте</dt>
+                        <dd>Вкладка «Сравнение» в GUI: списки новых, исчезнувших и изменившихся записей по обеим сторонам.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>run_diff · JSON → JSON</span>
+                    <span>повторный триаж</span>
+                </div>
+            </article>
+
+            <article id="theory-role" class="gradient-border theory-card lg:col-span-2">
+                <div class="flex items-baseline gap-3 mb-3">
+                    <span class="theory-num">12</span>
+                    <h3 class="text-lg font-bold text-amber-400">role_deviation: роль против поведения</h3>
+                </div>
+                <p class="theory-lead">У хоста есть «паспорт» — базовая роль по OUI MAC, — и есть поведение в трафике. Правило стреляет, когда они расходятся.</p>
+                <dl class="theory-grid md:grid-cols-3">
+                    <div>
+                        <dt>Роль</dt>
+                        <dd>Клиентские OUI (Apple, Samsung, Xiaomi) → рабочая станция; VMware/QEMU/Xen → сервер; Cisco/Juniper/Huawei → сетевое устройство; незнакомый OUI → роль неизвестна, и правило молчит.</dd>
+                    </div>
+                    <div>
+                        <dt>Поведение</dt>
+                        <dd>Отвечает как веб-сервер (80/443) или SMB-сервер (445), либо сканирует сеть: число целей и портов выше порогов <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">role_scanner_*</code>.</dd>
+                    </div>
+                    <div>
+                        <dt>Severity</dt>
+                        <dd>Рабочая станция как веб-сервер — critical; как SMB-сервер или сканер — high; сетевое устройство-сканер — medium. Легитимные сочетания парой не заданы, и противоречия нет.</dd>
+                    </div>
+                </dl>
+                <div class="theory-foot">
+                    <span>role_deviation · host_profiler</span>
+                    <span>13-е правило · 1.8.0</span>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- LIVE DEMO / ИНТЕРАКТИВНЫЙ ИНТЕРФЕЙС -->
     <section id="live-demo" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">Живой интерфейс Paradox</h2>
-            <p class="text-slate-400 max-w-2xl mx-auto">Нажмите на вкладки ниже, чтобы посмотреть, как выглядит работа с инструментом.</p>
+            <p class="text-slate-400 max-w-2xl mx-auto">Вкладки переключают экраны, плитки итога фильтруют таблицу — так же, как в самом приложении. Данные — с прогона CyberCampTask.</p>
         </div>
 
         <!-- Окно приложения -->
@@ -484,10 +1084,10 @@
             </div>
 
             <!-- Вкладки -->
-            <div class="flex bg-[#282a36] border-b border-[#3a3d4d] px-2 text-sm">
-                <button class="demo-tab active px-6 py-2.5 text-slate-300 border-b-2 border-[#5b8cff] bg-[#1e1e2e] font-medium" data-target="demo-run">Прогон</button>
-                <button class="demo-tab px-6 py-2.5 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition-colors" data-target="demo-timeline">Таймлайн</button>
-                <button class="demo-tab px-6 py-2.5 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition-colors" data-target="demo-graph">Граф атаки</button>
+            <div class="flex bg-[#282a36] border-b border-[#3a3d4d] px-2 text-sm" role="tablist">
+                <button class="demo-tab active px-6 py-2.5 font-medium" data-target="demo-run" role="tab" aria-selected="true">Прогон</button>
+                <button class="demo-tab px-6 py-2.5" data-target="demo-timeline" role="tab" aria-selected="false">Таймлайн</button>
+                <button class="demo-tab px-6 py-2.5" data-target="demo-graph" role="tab" aria-selected="false">Граф атаки</button>
             </div>
 
             <!-- Контент вкладок -->
@@ -495,30 +1095,58 @@
 
                 <!-- ВКЛАДКА 1: ПРОГОН -->
                 <div id="demo-run" class="demo-pane active animate-fadeIn">
-                    <!-- Карточки -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-[#282a36] border border-[#3a3d4d] rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-[#5b8cff] font-mono">627 694</div>
-                            <div class="text-xs text-slate-400 mt-1">Пакеты</div>
-                        </div>
-                        <div class="bg-[#282a36] border border-[#3a3d4d] rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-[#5b8cff] font-mono">2 332</div>
-                            <div class="text-xs text-slate-400 mt-1">Flows</div>
-                        </div>
-                        <div class="bg-[#282a36] border border-[#3a3d4d] rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-[#5b8cff] font-mono">8</div>
-                            <div class="text-xs text-slate-400 mt-1">Findings</div>
-                        </div>
-                        <div class="bg-[#282a36] border border-rose-500/30 rounded-lg p-4 text-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-rose-500/5"></div>
-                            <div class="text-2xl font-bold text-rose-400 font-mono relative">2</div>
-                            <div class="text-xs text-rose-400 mt-1 relative">Противоречия</div>
+                    <!-- Плитки итога: кликабельные, как в GUI -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <button type="button" class="demo-tile" data-filter="packets" aria-pressed="false" aria-label="Показать сводку по пакетам">
+                            <span class="block text-2xl font-bold text-[#5b8cff] font-mono">627 694</span>
+                            <span class="block text-xs text-slate-400 mt-1">Пакеты</span>
+                        </button>
+                        <button type="button" class="demo-tile" data-filter="flows" aria-pressed="false" aria-label="Показать сводку по потокам">
+                            <span class="block text-2xl font-bold text-[#5b8cff] font-mono">2 332</span>
+                            <span class="block text-xs text-slate-400 mt-1">Flows</span>
+                        </button>
+                        <button type="button" class="demo-tile" data-filter="finding" aria-pressed="false" aria-label="Показать только находки">
+                            <span class="block text-2xl font-bold text-[#5b8cff] font-mono">8</span>
+                            <span class="block text-xs text-slate-400 mt-1">Findings</span>
+                        </button>
+                        <button type="button" class="demo-tile" data-filter="contradiction" aria-pressed="false" aria-label="Показать только противоречия">
+                            <span class="block text-2xl font-bold text-rose-400 font-mono">4</span>
+                            <span class="block text-xs text-rose-400 mt-1">Противоречия</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">Клик по плитке фильтрует таблицу; повторный клик снимает фильтр.</p>
+
+                    <!-- Сводка захвата (для плиток «Пакеты» и «Flows») -->
+                    <div id="demo-summary" style="display: none;" class="mb-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div data-summary="packets" class="bg-[#282a36] border border-[#3a3d4d] rounded-lg p-5">
+                                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Захват</div>
+                                <div class="font-mono text-sm text-slate-300 space-y-1">
+                                    <p>packets: 627 694</p>
+                                    <p>unique DNS queries: 117</p>
+                                    <p>NXDOMAIN: 0</p>
+                                    <p>parse time: 14,4 с</p>
+                                </div>
+                            </div>
+                            <div data-summary="flows" class="bg-[#282a36] border border-[#3a3d4d] rounded-lg p-5">
+                                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Потоки</div>
+                                <div class="font-mono text-sm text-slate-300 space-y-1">
+                                    <p>flows: 2 332</p>
+                                    <p>протоколы: TLS, HTTP/1.1, HTTP/2, DNS, SMB2, LDAP, Kerberos</p>
+                                    <p>keep-alive: все сообщения соединения</p>
+                                    <p>TCP reassembly: включён</p>
+                                    <p>carved files: metadata-only</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Таблица -->
-                    <div class="bg-[#282a36] border border-[#3a3d4d] rounded-lg overflow-hidden">
-                        <div class="px-4 py-2 border-b border-[#3a3d4d] text-xs font-semibold text-slate-400 uppercase tracking-wider">Найдено в трафике</div>
+                    <div id="demo-table" class="bg-[#282a36] border border-[#3a3d4d] rounded-lg overflow-hidden">
+                        <div class="px-4 py-2 border-b border-[#3a3d4d] flex items-center justify-between gap-4">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Найдено в трафике</span>
+                            <button type="button" id="demo-reset" class="text-xs text-sky-400 hover:text-sky-300 transition-colors" style="display: none;">Все записи</button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left">
                                 <thead class="text-xs text-slate-400 bg-[#1e1e2e] border-b border-[#3a3d4d]">
@@ -529,28 +1157,53 @@
                                         <th class="px-4 py-3 font-medium">Severity</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-[#3a3d4d]">
-                                    <tr class="hover:bg-[#313342] cursor-pointer transition-colors">
-                                        <td class="px-4 py-2.5 text-slate-200">FTP brute force</td>
-                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">10.0.1.50 → 192.168.1.12:21</td>
-                                        <td class="px-4 py-2.5 text-[#5b8cff] font-mono">T1110.001</td>
-                                        <td class="px-4 py-2.5"><span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-xs font-bold border border-rose-500/30">critical</span></td>
+                                <tbody id="demo-rows" class="divide-y divide-[#3a3d4d]">
+                                    <tr data-kind="finding" class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                        <td class="px-4 py-2.5 text-slate-200">Successful brute force</td>
+                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">10.0.1.50 → 192.168.1.12:80</td>
+                                        <td class="px-4 py-2.5 text-[#5b8cff] font-mono">T1110.001 · T1078</td>
+                                        <td class="px-4 py-2.5"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-500/30">high</span></td>
                                     </tr>
-                                    <tr class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                    <tr data-kind="finding" class="hover:bg-[#313342] cursor-pointer transition-colors">
                                         <td class="px-4 py-2.5 text-slate-200">Command injection</td>
                                         <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">10.0.1.50 → 192.168.1.12:80</td>
                                         <td class="px-4 py-2.5 text-[#5b8cff] font-mono">T1190</td>
                                         <td class="px-4 py-2.5"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-500/30">high</span></td>
                                     </tr>
-                                    <tr class="hover:bg-[#313342] cursor-pointer transition-colors bg-[#313342]/50">
+                                    <tr data-kind="finding" class="hover:bg-[#313342] cursor-pointer transition-colors bg-[#313342]/50">
                                         <td class="px-4 py-2.5 text-slate-200">Lateral movement</td>
                                         <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">192.168.1.12 → 192.168.1.1:5985</td>
                                         <td class="px-4 py-2.5 text-[#5b8cff] font-mono">T1021.001</td>
                                         <td class="px-4 py-2.5"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-500/30">high</span></td>
                                     </tr>
+                                    <tr data-kind="contradiction" class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                        <td class="px-4 py-2.5 text-rose-300">victim_makes_attack</td>
+                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">192.168.1.12 · pivot</td>
+                                        <td class="px-4 py-2.5 text-slate-500 font-mono">—</td>
+                                        <td class="px-4 py-2.5"><span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-xs font-bold border border-rose-500/30">critical</span></td>
+                                    </tr>
+                                    <tr data-kind="contradiction" class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                        <td class="px-4 py-2.5 text-rose-300">role_deviation</td>
+                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">192.168.1.12 · сервер сканирует 698 целей</td>
+                                        <td class="px-4 py-2.5 text-slate-500 font-mono">—</td>
+                                        <td class="px-4 py-2.5"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-500/30">high</span></td>
+                                    </tr>
+                                    <tr data-kind="contradiction" class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                        <td class="px-4 py-2.5 text-rose-300">role_deviation</td>
+                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">192.168.1.1 · 101 соединение на 15 портах</td>
+                                        <td class="px-4 py-2.5 text-slate-500 font-mono">—</td>
+                                        <td class="px-4 py-2.5"><span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded text-xs font-bold border border-amber-500/30">high</span></td>
+                                    </tr>
+                                    <tr data-kind="contradiction" class="hover:bg-[#313342] cursor-pointer transition-colors">
+                                        <td class="px-4 py-2.5 text-rose-300">reverse_asymmetry</td>
+                                        <td class="px-4 py-2.5 font-mono text-slate-400 text-xs">192.168.1.1 · 9 acks vs 5000+ inbound bytes</td>
+                                        <td class="px-4 py-2.5 text-slate-500 font-mono">—</td>
+                                        <td class="px-4 py-2.5"><span class="bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded text-xs font-bold border border-sky-500/30">medium</span></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
+                        <div class="px-4 py-2 border-t border-[#3a3d4d] text-xs text-slate-500">В отчёте 12 записей: 8 находок и 4 противоречия; в демо показаны 7. Ложных срабатываний: 0.</div>
                     </div>
                 </div>
 
@@ -564,7 +1217,7 @@
                                     <span class="text-sm font-bold text-amber-400">INITIAL_ACCESS</span>
                                     <span class="text-xs text-slate-500 font-mono bg-[#1e1e2e] px-2 py-0.5 rounded">T1110.001</span>
                                 </div>
-                                <p class="text-sm text-slate-300 font-mono">ftp_brute_force (10.0.1.50 → 192.168.1.12)</p>
+                                <p class="text-sm text-slate-300 font-mono">successful_bruteforce (10.0.1.50 → 192.168.1.12)</p>
                             </div>
                         </div>
                         <div class="flex gap-4">
@@ -587,12 +1240,22 @@
                                 <p class="text-sm text-slate-300 font-mono">victim_makes_attack: 192.168.1.12 → 192.168.1.1</p>
                             </div>
                         </div>
+                        <div class="flex gap-4">
+                            <div class="w-20 text-xs text-slate-500 font-mono pt-2 text-right">00:16:40</div>
+                            <div class="flex-1 bg-[#282a36] border-l-2 border-violet-500 rounded-r-lg p-3">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm font-bold text-violet-400">EXFILTRATION</span>
+                                    <span class="text-xs text-slate-500 font-mono bg-[#1e1e2e] px-2 py-0.5 rounded">T1041</span>
+                                </div>
+                                <p class="text-sm text-slate-300 font-mono">large_transfer (192.168.1.12 → 80.64.102.71)</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ВКЛАДКА 3: ГРАФ -->
-                <div id="demo-graph" class="demo-pane animate-fadeIn flex justify-center items-center h-full min-h-[400px]">
-                    <svg viewBox="0 0 800 400" class="w-full h-full max-h-[500px]">
+                <div id="demo-graph" class="demo-pane animate-fadeIn items-center h-full min-h-[400px]">
+                    <svg viewBox="0 0 800 400" class="w-full h-full max-h-[500px]" role="img" aria-label="Граф связей: внешний атакующий 10.0.1.50, pivot 192.168.1.12, жертва 192.168.1.1 и C2 80.64.102.71">
                         <!-- Маркеры (стрелки) -->
                         <defs>
                             <marker id="arrow-gray" viewBox="0 0 10 10" refX="35" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -607,73 +1270,75 @@
                         </defs>
 
                         <!-- Линии -->
-                        <line x1="160" y1="200" x2="340" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-gray)"/>
-                        <line x1="420" y1="200" x2="570" y2="120" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-blue)"/>
-                        <line x1="420" y1="200" x2="570" y2="280" stroke="#f87171" stroke-width="2" marker-end="url(#arrow-red)"/>
+                        <line x1="168" y1="200" x2="342" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-gray)"/>
+                        <line x1="416" y1="187" x2="564" y2="133" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-blue)"/>
+                        <line x1="416" y1="213" x2="564" y2="267" stroke="#f87171" stroke-width="2" marker-end="url(#arrow-red)"/>
 
                         <!-- Узлы -->
-                        <!-- 10.0.1.50 (Вход) -->
-                        <circle cx="130" cy="200" r="30" fill="#282a36" stroke="#f87171" stroke-width="2"/>
-                        <text x="130" y="200" text-anchor="middle" dominant-baseline="central" fill="#f87171" font-size="10" font-family="monospace">10.0.1.50</text>
-                        <text x="130" y="240" text-anchor="middle" fill="#64748b" font-size="10" font-family="sans-serif">Вход / Жертва</text>
+                        <!-- 10.0.1.50 (внешний атакующий) -->
+                        <circle cx="130" cy="200" r="36" fill="#282a36" stroke="#f87171" stroke-width="2"/>
+                        <text x="130" y="200" text-anchor="middle" dominant-baseline="central" fill="#f87171" font-size="9" font-family="monospace">10.0.1.50</text>
+                        <text x="130" y="248" text-anchor="middle" fill="#64748b" font-size="10" font-family="sans-serif">Внешний атакующий</text>
 
                         <!-- 192.168.1.12 (Pivot) -->
-                        <circle cx="380" cy="200" r="30" fill="#282a36" stroke="#fbbf24" stroke-width="2"/>
-                        <text x="380" y="200" text-anchor="middle" dominant-baseline="central" fill="#fbbf24" font-size="10" font-family="monospace">192.168.1.12</text>
-                        <text x="380" y="240" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Pivot</text>
+                        <circle cx="380" cy="200" r="36" fill="#282a36" stroke="#fbbf24" stroke-width="2"/>
+                        <text x="380" y="200" text-anchor="middle" dominant-baseline="central" fill="#fbbf24" font-size="9" font-family="monospace">192.168.1.12</text>
+                        <text x="380" y="248" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">Pivot</text>
 
-                        <!-- 192.168.1.1 (Impact) -->
-                        <circle cx="600" cy="120" r="30" fill="#282a36" stroke="#4ade80" stroke-width="2"/>
-                        <text x="600" y="120" text-anchor="middle" dominant-baseline="central" fill="#4ade80" font-size="10" font-family="monospace">192.168.1.1</text>
-                        <text x="600" y="160" text-anchor="middle" fill="#64748b" font-size="10" font-family="sans-serif">Жертва</text>
+                        <!-- 192.168.1.1 (жертва) -->
+                        <circle cx="600" cy="120" r="36" fill="#282a36" stroke="#4ade80" stroke-width="2"/>
+                        <text x="600" y="120" text-anchor="middle" dominant-baseline="central" fill="#4ade80" font-size="9" font-family="monospace">192.168.1.1</text>
+                        <text x="600" y="168" text-anchor="middle" fill="#64748b" font-size="10" font-family="sans-serif">Жертва</text>
 
                         <!-- 80.64.102.71 (C2) -->
-                        <circle cx="600" cy="280" r="30" fill="#282a36" stroke="#f87171" stroke-width="2"/>
-                        <text x="600" y="280" text-anchor="middle" dominant-baseline="central" fill="#f87171" font-size="10" font-family="monospace">80.64.102.71</text>
-                        <text x="600" y="320" text-anchor="middle" fill="#f87171" font-size="10" font-family="sans-serif">C2 / Цель</text>
+                        <circle cx="600" cy="280" r="36" fill="#282a36" stroke="#f87171" stroke-width="2"/>
+                        <text x="600" y="280" text-anchor="middle" dominant-baseline="central" fill="#f87171" font-size="9" font-family="monospace">80.64.102.71</text>
+                        <text x="600" y="328" text-anchor="middle" fill="#f87171" font-size="10" font-family="sans-serif">C2 / Цель</text>
                     </svg>
                 </div>
             </div>
         </div>
     </section>
 
-
     <!-- INTERFACE SHOWCASE -->
     <section id="interface" class="max-w-6xl mx-auto px-6 mb-24 fade-in">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">Интерфейс Paradox</h2>
-            <p class="text-slate-400 max-w-2xl mx-auto">От сырых пакетов до готового графа атаки и таймлайна. Весь инцидент на одном экране.</p>
+            <p class="text-slate-400 max-w-2xl mx-auto">От сырых пакетов до готового графа атаки и таймлайна. Весь инцидент на одном экране. Клик по скриншоту открывает его в полном размере.</p>
         </div>
 
         <div class="space-y-8">
             <!-- Главное окно -->
-            <div class="screenshot-card">
-                <img src="assets/main.png" alt="Paradox - Главное окно" loading="lazy">
+            <a href="assets/main.png" target="_blank" rel="noopener" class="screenshot-card" title="Открыть скриншот в полном размере">
+                <img src="assets/main.png" alt="Paradox — главное окно прогона" loading="lazy">
                 <div class="p-6 bg-slate-800/50 border-t border-slate-700">
-                    <h3 class="text-lg font-bold mb-2 text-sky-400">Сводка прогона и Аномалии</h3>
-                    <p class="text-slate-400 text-sm">Мгновенная статистика по пакетам, flows и findings. Вкладка «Что видел инструмент» показывает разбивку по протоколам, а блок «Аномалии» сразу подсвечивает DNS без ответа и оборванные TCP-сессии.</p>
+                    <h3 class="text-lg font-bold mb-2 text-sky-400">Прогон: сводка, наблюдения и внимание</h3>
+                    <p class="text-slate-400 text-sm">Внизу — строка «Готово» с пакетами, размером захвата, находками и противоречиями. «Что видел инструмент» показывает трафик, протоколы, TLS и ошибки разбора, а справа — плитки итога по severity, файлам и TLS. «Аномалии» подсвечивают DNS и TCP без ответа и объём по хостам; «Что привлекло внимание» ставит противоречия выше находок.</p>
+                    <span class="tile-more">Открыть скриншот →</span>
                 </div>
-            </div>
+            </a>
 
             <!-- Сетка из двух экранов -->
             <div class="grid md:grid-cols-2 gap-8">
                 <!-- Граф -->
-                <div class="screenshot-card">
-                    <img src="assets/graph.png" alt="Paradox - Граф атаки" loading="lazy">
+                <a href="assets/graph.png" target="_blank" rel="noopener" class="screenshot-card" title="Открыть скриншот в полном размере">
+                    <img src="assets/graph.png" alt="Paradox — граф связей" loading="lazy">
                     <div class="p-6 bg-slate-800/50 border-t border-slate-700">
-                        <h3 class="text-lg font-bold mb-2 text-indigo-400">Интерактивный Граф Атак</h3>
-                        <p class="text-slate-400 text-sm">Визуализация связей между хостами. Сразу видно цепочку компрометации (Victim → Pivot → C2). Панель справа показывает фазы, MITRE ATT&CK и детали каждого ребра.</p>
+                        <h3 class="text-lg font-bold mb-2 text-indigo-400">Граф связей</h3>
+                        <p class="text-slate-400 text-sm">Визуализация связей между хостами: цепочка компрометации (Victim → Pivot → C2) видна сразу. Узлы с противоречием, включая role_deviation, подсвечиваются красным; панель справа показывает фазы, MITRE и детали каждого ребра.</p>
+                        <span class="tile-more">Открыть скриншот →</span>
                     </div>
-                </div>
+                </a>
 
                 <!-- Таймлайн -->
-                <div class="screenshot-card">
-                    <img src="assets/timeline.png" alt="Paradox - Таймлайн" loading="lazy">
+                <a href="assets/timeline.png" target="_blank" rel="noopener" class="screenshot-card" title="Открыть скриншот в полном размере">
+                    <img src="assets/timeline.png" alt="Paradox — таймлайн и kill-chain" loading="lazy">
                     <div class="p-6 bg-slate-800/50 border-t border-slate-700">
                         <h3 class="text-lg font-bold mb-2 text-emerald-400">Таймлайн / Kill-chain</h3>
-                        <p class="text-slate-400 text-sm">Хронология инцидента, разбитая по фазам атаки: от Initial Access до Exfiltration. Удобная таблица с временем, источником, получателем и MITRE-техниками.</p>
+                        <p class="text-slate-400 text-sm">Хронология инцидента по фазам атаки: от Initial Access до Exfiltration. Таблица с временем, источником, получателем, MITRE-техниками и переходом к объяснению события.</p>
+                        <span class="tile-more">Открыть скриншот →</span>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
@@ -683,45 +1348,101 @@
         <div class="grid lg:grid-cols-2 gap-12 items-start">
             <div>
                 <h2 class="text-3xl font-bold mb-4">13 правил противоречий</h2>
-                <p class="text-slate-400 mb-8 leading-relaxed">Paradox строит атомарные факты о мире и ищет несогласованности. Это новый слой анализа — поверх findings и поверх entities.</p>
+                <p class="text-slate-400 mb-8 leading-relaxed">Paradox строит атомарные факты о мире и ищет несогласованности. Это новый слой анализа — поверх findings и поверх entities. Справа — базовая severity правила; у каждого противоречия есть ещё confidence, потому что часть правил эвристическая.</p>
                 <div class="space-y-0">
                     <div class="contradiction-row">
                         <div>
                             <div class="contradiction-name">victim_makes_attack</div>
-                            <div class="contradiction-desc">Хост одновременно жертва и атакующий → pivot</div>
+                            <div class="contradiction-desc">Хост, на который была атака, сам начинает атаковать → pivot</div>
                         </div>
                         <span class="badge badge-critical">critical</span>
                     </div>
                     <div class="contradiction-row">
                         <div>
                             <div class="contradiction-name">mac_ip_conflict</div>
-                            <div class="contradiction-desc">ARP-spoof: два MAC на одном IP</div>
+                            <div class="contradiction-desc">Один MAC отвечает с разных IP → ARP-spoofing</div>
                         </div>
                         <span class="badge badge-critical">critical</span>
                     </div>
                     <div class="contradiction-row">
                         <div>
                             <div class="contradiction-name">sni_host_mismatch</div>
-                            <div class="contradiction-desc">Domain fronting: SNI ≠ HTTP Host</div>
+                            <div class="contradiction-desc">SNI ≠ HTTP Host → domain fronting, маскировка C2</div>
                         </div>
                         <span class="badge badge-high">high</span>
                     </div>
                     <div class="contradiction-row">
                         <div>
                             <div class="contradiction-name">ja3_ua_mismatch</div>
-                            <div class="contradiction-desc">JA3 инструмента + браузерный UA → мимикрия</div>
+                            <div class="contradiction-desc">Отпечаток TLS-клиента не соответствует User-Agent</div>
                         </div>
                         <span class="badge badge-high">high</span>
                     </div>
                     <div class="contradiction-row">
                         <div>
                             <div class="contradiction-name">port_service_mismatch</div>
-                            <div class="contradiction-desc">TLS на 22, HTTP на 445 → туннель</div>
+                            <div class="contradiction-desc">На стандартном порту нестандартный протокол → туннель</div>
                         </div>
                         <span class="badge badge-high">high</span>
                     </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">role_deviation</div>
+                            <div class="contradiction-desc">Поведение не совпало с ролью по OUI MAC</div>
+                        </div>
+                        <span class="badge badge-high">high</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">reverse_asymmetry</div>
+                            <div class="contradiction-desc">Резкий перекос трафика в одну сторону → эксфильтрация</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">direct_ip_no_dns</div>
+                            <div class="contradiction-desc">Обращение к внешнему IP без DNS-запроса</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">sni_without_dns</div>
+                            <div class="contradiction-desc">TLS SNI есть, а DNS-запроса к домену нет</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">dns_answer_mismatch</div>
+                            <div class="contradiction-desc">DNS-ответ не совпадает с содержимым трафика → hijacking</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">sni_cert_mismatch</div>
+                            <div class="contradiction-desc">CN/SAN сертификата не совпадает с SNI</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">self_signed_cert</div>
+                            <div class="contradiction-desc">Самоподписанный сертификат на внешнем сервисе</div>
+                        </div>
+                        <span class="badge badge-medium">medium</span>
+                    </div>
+                    <div class="contradiction-row">
+                        <div>
+                            <div class="contradiction-name">expired_cert</div>
+                            <div class="contradiction-desc">Просроченный сертификат на внешнем сервисе</div>
+                        </div>
+                        <span class="badge badge-low">low</span>
+                    </div>
                 </div>
-                <p class="text-xs text-slate-500 mt-4">…и ещё 8 правил, включая reverse_asymmetry, sni_without_dns, dns_answer_mismatch и role_deviation.</p>
+                <p class="text-xs text-slate-500 mt-4">Легитимные сочетания правил не считаются противоречием: например, role_deviation молчит, если роль хоста не определена по OUI.</p>
             </div>
             <div class="gradient-border p-6">
                 <div class="text-xs text-slate-500 font-mono mb-3 uppercase tracking-wider">Пример вывода · Markdown</div>
@@ -738,7 +1459,7 @@
                     <p class="text-slate-400 pl-2">192.168.1.12 — сервер по OUI 00:50:56, но сканирует сеть (698 целей)</p>
                     <p><span class="badge badge-high">high</span> role_deviation</p>
                     <p class="text-slate-400 pl-2">192.168.1.1 — сервер по OUI 00:50:56, но инициирует 101 соединение на 15 портах</p>
-                    <p><span class="badge badge-high">high</span> reverse_asymmetry</p>
+                    <p><span class="badge badge-medium">medium</span> reverse_asymmetry</p>
                     <p class="text-slate-400 pl-2">192.168.1.1: 9 acks vs 5000+ inbound bytes</p>
                 </div>
             </div>
@@ -749,7 +1470,7 @@
     <section id="performance" class="max-w-5xl mx-auto px-6 mb-24 fade-in">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">Производительность</h2>
-            <p class="text-slate-400">Собственный парсер на <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">struct.unpack</code> — 39× ускорение против чистого scapy.</p>
+            <p class="text-slate-400">Собственный парсер на <code class="text-xs bg-slate-800 px-1.5 py-0.5 rounded">struct.unpack</code> — 39× ускорение против чистого scapy. Замеры на Windows.</p>
         </div>
         <div class="overflow-x-auto rounded-xl border border-slate-800">
             <table class="w-full text-sm">
@@ -769,20 +1490,21 @@
                         <td class="px-6 py-4 text-slate-400">с TCP reassembly</td>
                     </tr>
                     <tr class="hover:bg-slate-800/30 transition bg-sky-900/10">
-                        <td class="px-6 py-4 text-slate-200 font-mono">319 МБ</td>
+                        <td class="px-6 py-4 text-slate-200 font-mono">334 МБ</td>
                         <td class="px-6 py-4 text-slate-300">627k</td>
-                        <td class="px-6 py-4 text-emerald-400 font-semibold">28 сек</td>
+                        <td class="px-6 py-4 text-emerald-400 font-semibold">14,4 сек</td>
                         <td class="px-6 py-4 text-slate-400">CTF CyberCampTask</td>
                     </tr>
                     <tr class="hover:bg-slate-800/30 transition">
-                        <td class="px-6 py-4 text-slate-200 font-mono">4.7 ГБ</td>
-                        <td class="px-6 py-4 text-slate-300">9.5M</td>
+                        <td class="px-6 py-4 text-slate-200 font-mono">4,7 ГБ</td>
+                        <td class="px-6 py-4 text-slate-300">9,5M</td>
                         <td class="px-6 py-4 text-emerald-400 font-semibold">10 мин</td>
                         <td class="px-6 py-4 text-slate-400">FIRST-2015 · 58 pcap</td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <p class="text-xs text-slate-500 mt-4">Память — около 106 МБ на файл 334 МБ. Валидация, лимиты pcap и RAM — в <a href="https://github.com/v314xm/paradox/blob/main/docs/OPERATIONS.md" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 no-underline">docs/OPERATIONS.md</a>.</p>
     </section>
 
     <!-- INSTALL -->
@@ -820,6 +1542,7 @@
                 <p class="text-sm text-slate-500">PCAP triage для CTF, SOC и Malware Analysts.</p>
             </div>
             <div class="flex items-center gap-6 text-sm text-slate-500">
+                <a href="#method" class="hover:text-sky-400 transition no-underline">Как это работает</a>
                 <a href="https://github.com/v314xm/paradox" target="_blank" rel="noopener" class="hover:text-sky-400 transition no-underline">GitHub</a>
                 <a href="https://github.com/v314xm/paradox/releases" target="_blank" rel="noopener" class="hover:text-sky-400 transition no-underline">Releases</a>
                 <span>MIT License</span>
@@ -834,21 +1557,62 @@
         document.querySelectorAll('.demo-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.demo-tab').forEach(t => {
-                    t.classList.remove('active', 'border-sky-400', 'text-slate-300', 'bg-[#0f172a]/50');
-                    t.classList.add('text-slate-400', 'border-transparent');
+                    const isActive = t === tab;
+                    t.classList.toggle('active', isActive);
+                    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
                 });
-                tab.classList.add('active', 'border-sky-400', 'text-slate-300', 'bg-[#0f172a]/50');
-                tab.classList.remove('text-slate-400', 'border-transparent');
-
                 document.querySelectorAll('.demo-pane').forEach(pane => {
-                    pane.classList.remove('active');
+                    pane.classList.toggle('active', pane.id === tab.dataset.target);
                 });
-                const targetId = tab.dataset.target;
-                document.getElementById(targetId).classList.add('active');
             });
         });
 
-        // Fade-in on scroll
+        // Плитки итога фильтруют демо-таблицу
+        (function () {
+            const tiles = document.querySelectorAll('.demo-tile');
+            const rows = document.querySelectorAll('#demo-rows tr[data-kind]');
+            const summary = document.getElementById('demo-summary');
+            const table = document.getElementById('demo-table');
+            const reset = document.getElementById('demo-reset');
+
+            function resetTiles() {
+                tiles.forEach(t => t.setAttribute('aria-pressed', 'false'));
+            }
+
+            function show(kind) {
+                const isSummary = kind === 'packets' || kind === 'flows';
+                summary.style.display = isSummary ? '' : 'none';
+                table.style.display = isSummary ? 'none' : '';
+                rows.forEach(row => {
+                    row.style.display = (!kind || isSummary || row.dataset.kind === kind) ? '' : 'none';
+                });
+                reset.style.display = kind ? '' : 'none';
+                document.querySelectorAll('[data-summary]').forEach(card => {
+                    card.style.borderColor = isSummary && card.dataset.summary === kind ? '#5b8cff' : '';
+                });
+            }
+
+            tiles.forEach(tile => {
+                tile.addEventListener('click', () => {
+                    const wasActive = tile.getAttribute('aria-pressed') === 'true';
+                    resetTiles();
+                    if (wasActive) {
+                        show(null);
+                    } else {
+                        tile.setAttribute('aria-pressed', 'true');
+                        show(tile.dataset.filter);
+                    }
+                });
+            });
+
+            reset.addEventListener('click', () => {
+                resetTiles();
+                show(null);
+            });
+        })();
+
+        // Fade-in on scroll; по якорю раздел раскрывается сразу,
+        // иначе переход с плитки мог оставить цель невидимой
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -858,6 +1622,13 @@
         }, { threshold: 0.1 });
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        function revealAll() {
+            document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+        }
+
+        if (location.hash) revealAll();
+        window.addEventListener('hashchange', revealAll);
     </script>
 
 </body>
