@@ -19,15 +19,16 @@
 3. [Экстракторы (12 + post-extract)](#экстракторы)
 4. [Детекторы (30)](#детекторы)
 5. [Contradictions (12 правил)](#contradictions)
-6. [Анализаторы](#анализаторы)
-7. [Multi-pcap](#multi-pcap)
-8. [Timeline / Kill-chain](#timeline)
-9. [Интеграции (9 провайдеров)](#интеграции)
-10. [Агрегаторы](#агрегаторы)
-11. [Reporters](#reporters)
-12. [GUI](#gui)
-13. [Тесты](#тесты)
-14. [Известные проблемы](#известные-проблемы)
+6. [Объяснения (`paradox/explain`)](#объяснения-paradoxexplain)
+7. [Анализаторы](#анализаторы)
+8. [Multi-pcap](#multi-pcap)
+9. [Timeline / Kill-chain](#timeline)
+10. [Интеграции (9 провайдеров)](#интеграции)
+11. [Агрегаторы](#агрегаторы)
+12. [Reporters](#reporters)
+13. [GUI](#gui)
+14. [Тесты](#тесты)
+15. [Известные проблемы](#известные-проблемы)
 
 ---
 
@@ -38,9 +39,10 @@
 | `__init__.py` | 1 | `__version__ = "1.7.0"` |
 | `__main__.py` | 4 | `python -m paradox` → `cli.main()` |
 | `cli.py` | 221 | CLI: `-o`, `--enrich`, `--stix`, `--html`, `--plugins`, `--tls-keylog` |
-| `config.py` | 1049 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
+| `config.py` | 1055 | Все настройки (frozen dataclass), валидация таблицей `_VALIDATION_RULES` |
 | `models.py` | 431 | `Finding`, `FlowKey` (NamedTuple), `SessionKey`, `FlowStats`, `HostIdentity`, `CaptureState` |
 | `pipeline/` | 829 | `run_pipeline` + `run_multi_pipeline` в фасаде; `extract` (пакетный цикл, экстракторы), `detect` (детекторы), `summarize` (L4/L7, направления, MITRE), `report` (`_build_report`), `errors` |
+| `explain/` | 1 707 | Объяснения находок и противоречий человеческим языком: `model`, `catalog` (37 типов), `contradiction_catalog` (12 правил), `render` |
 | `pcap_reader.py` | 120 | Минимальный читатель pcap: записи + sha256 за один проход, без scapy |
 | `detector_plugins.py` | 126 | Загрузка пользовательских детекторов из `~/.paradox/plugins` |
 | `multi_pcap.py` | 228 | `merge_capture_states(states)` — слияние N датасетов |
@@ -83,7 +85,8 @@
   `http_text_content_types`, `http_binary_upload_ignored_content_types`
 - `suspicious_ports` (8), `private_networks`, `dc_service_ports` (5)
 - `beaconing_*` (min_conn=20, duration≥600 с, jitter<0.1, rate<5/min,
-  mail_polling_ports, allowlist_suffixes)
+  mail_polling_ports, allowlist_suffixes — включая обновления Safe
+  Browsing Chrome)
 - `beaconing_slow_*` (3 соединения, ≥3600 с, jitter<0.15, rate<0.2/min)
 - `dns_tunneling_*` (qname≥50, long≥20, queries≥50, allowlist DoH)
 - `large_transfer_*` (100 МБ, `include_reverse`, excluded_hosts/uas)
@@ -289,6 +292,31 @@ Post-extract вызывается из `_extract` после чтения все
 
 **Если правишь полярность — правь в обоих местах** (вынос в
 `taxonomy.py` — в TODO.md).
+
+---
+
+## Объяснения (`paradox/explain`)
+
+Человеческое объяснение находки и противоречия: что произошло, почему это
+важно, куда смотреть дальше, где детектор может ошибаться и как сказать
+то же самое новичку. Строится в ядре, а не в GUI: один и тот же текст
+идёт в JSON-отчёт, модалку находки и Markdown. Иначе появятся три версии,
+которые разойдутся — как уже было с internal/external IP до `ip_scope()`.
+
+| Файл | Строк | Что делает |
+|---|---|---|
+| `model.py` | 107 | `Explanation` (`headline`, `why`, `next_steps`, `alternatives`, `confidence_note`, `beginner`, `phase`, `techniques`), `to_dict`/`from_dict`, `to_markdown` (копирование и будущий раздел отчёта) |
+| `catalog.py` | 991 | Шаблоны для 37 типов из `taxonomy.SEVERITY_BY_TYPE`; пороги, направление и ключи evidence сверены с кодом детекторов |
+| `contradiction_catalog.py` | 302 | Шаблоны для 12 правил: «почему важно», пивоты, «новичку». «Что произошло» берётся из `resolution_hint` правила, альтернативы — из `likely_causes`. Тексты верны при любом направлении перекоса |
+| `render.py` | 144 | Подстановки `{key}` (поля находки + скалярные ключи `evidence`), разряды больших чисел, русские метки `direction`/`kind`, метки фаз, шкала уверенности |
+| `__init__.py` | 163 | `explain_finding`, `explain_contradiction`, `explanation_for` (строка отчёта или расчёт на месте для старых отчётов); fallback для типов плагинов |
+
+Отчёт: `pipeline/report.py` (`_explained`) добавляет ключ `explanation` к
+каждой находке и каждому противоречию. Ошибка объяснения не валит отчёт —
+считается в `extractor_errors["explain:<finding|contradiction>"]`.
+
+Страж покрытия — `tests/test_explain.py`: новый тип finding или правило
+без объяснения валит прогон так же, как отсутствие MITRE-маппинга.
 
 ---
 
@@ -501,7 +529,8 @@ Threat Intel, Производительность.
 | `attack_graph_dialog.py` | 703 | **v1.2.0** — Attack Graph (граф + Time Machine + PNG/DOT/GraphML) |
 | `graph_dialog.py` | 517 | «Граф связей» — карта сети |
 | `contradiction_dialog.py` | 195 | Детали Contradiction |
-| `finding_dialog.py` | 189 | Детали Finding |
+| `explanation_dialog.py` | 310 | **Окно объяснений** находки/противоречия: что произошло, почему важно, что дальше, чипы «как новичку»/«альтернативы», копирование в Markdown |
+| `finding_dialog.py` | 200 | Детали Finding + кнопка «Объяснение» |
 | `carved_files_dialog.py` | 155 | Список payload'ов с предупреждением |
 | `certificates_dialog.py` | 127 | TLS-сертификаты: соединение, CN, срок, self-signed, SAN в tooltip |
 | `host_story_dialog.py` | 95 | История хоста |
@@ -514,11 +543,11 @@ Threat Intel, Производительность.
 | `highlights_panel.py` | 684 | «Что привлекло внимание» — приоритетные карточки (противоречия, находки, объём, DNS, HTTP, потоки), фильтры, история хоста |
 | `editable_list.py` | 369 | Список с inline-edit и импортом/экспортом |
 | `findings_table.py` | 374 | Таблица с фильтрами (поиск, тип, conf) |
-| `finding_actions.py` | 302 | Правая колонка действий у находок: детали, переходы в «Код инжекта»/«Обогащение», инструменты отчёта |
+| `finding_actions.py` | 320 | Правая колонка действий у находок: детали, объяснение, переходы в «Код инжекта»/«Обогащение», инструменты отчёта |
 | `observations_panel.py` | 472 | «Что видел инструмент»: строки разбора (HTTP/DNS/потоки/хосты/TCP/файлы, трафик, протоколы, TLS, ошибки) + кликабельные плитки итога с severity |
 | `absence_panel.py` | 254 | «Аномалии»: DNS без ответа, TCP без ответа, объём по хостам с выбросами |
 | `provider_card.py` | 222 | Карточка провайдера обогащения |
-| `contradiction_card.py` | 169 | Карточка одного правила |
+| `contradiction_card.py` | 176 | Карточка одного правила; «Подробнее» и «Объяснение» |
 | `drop_zone.py` | 158 | Drag&drop + логотип |
 | `toast.py` | 120 | Всплывающие уведомления |
 | `contradictions_section.py` | 111 | Секция со скроллом |
@@ -539,13 +568,17 @@ Threat Intel, Производительность.
 
 ## Тесты
 
-**1511 тестов в 178 файлах** (замер 2026-11-11, 1.7.0: Payload Workbench,
-переработанный «Прогон» и колонка действий у находок).
+**1580 тестов в 180 файлах** (замер 2026-11-12: ядро объяснений,
+окно объяснений, переписанные тексты, allowlist Safe Browsing).
 Раскладка по группам меняется от волны к волне, поэтому здесь —
 только ключевые файлы, а не таблица с быстро устаревающими числами.
 
 - **Ядро:** `test_detectors.py`, `test_beaconing.py`, `test_attack_graph.py`,
   `test_regressions.py`, `test_timeline.py`, `test_taxonomy.py`.
+- **Объяснения:** `test_explain.py` — покрытие типов и правил, подстановки,
+  fallback, Markdown, отсутствие имён полей и MITRE в прозе;
+  `test_gui_explanation_dialog.py` — окно, чипы, копирование, кнопки в
+  колонке действий и на карточке противоречия.
 - **Границы ввода:** `test_cli_input.py`, `test_pipeline_callbacks.py`,
   `test_version_consistency.py`.
 - **GUI (offscreen):** `test_gui_payload_view.py`, `test_payload_preview.py`,

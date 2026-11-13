@@ -44,6 +44,13 @@ from paradox.contradictions.base import Contradiction, Fact
 from paradox.models import CaptureState, Finding
 
 
+def _bytes(value) -> str:
+    """«280 271 306 Б» вместо «280271306 Б» — подсказку читают глазами."""
+    if not isinstance(value, int):
+        return f"{value} Б"
+    return f"{value:,}".replace(",", " ") + " Б"
+
+
 class ReverseAsymmetryRule:
     name = "reverse_asymmetry"
     severity_base = "medium"
@@ -138,7 +145,9 @@ class ReverseAsymmetryRule:
             external_ip = best.evidence.get("external_ip", "?")
             external_port = best.evidence.get("external_port")
             proto = best.evidence.get("proto", "?")
-            direction = "outbound" if bytes_out > bytes_in else "inbound"
+            outbound = bytes_out > bytes_in
+            # Подсказку читают глазами: направление — по-русски.
+            direction = "наружу" if outbound else "внутрь"
 
             if math.isinf(ratio):
                 ratio_str = "∞ (односторонний)"
@@ -146,20 +155,20 @@ class ReverseAsymmetryRule:
                 ratio_str = f"{ratio:.1f}:1"
 
             if count >= self._BULK_THRESHOLD:
+                bulk = "выгрузка" if outbound else "загрузка"
                 hint = (
-                    f"{subject}: {count} асимметричных сессий, "
-                    f"суммарно {total_bytes_all} Б. Топ-1: "
+                    f"{subject}: асимметричных сессий — {count}, "
+                    f"суммарно {_bytes(total_bytes_all)}. Топ-1: "
                     f"{external_ip}:{external_port} ({proto}), "
                     f"ratio {ratio_str}, направление {direction}. "
-                    f"Похоже на шлюз / NAT / CDN-прокси — "
-                    f"не одиночная эксфильтрация. Проверить, если "
-                    f"хост НЕ шлюз — тогда это bulk exfil."
+                    f"Похоже на шлюз / NAT / CDN-прокси — не одиночная "
+                    f"сессия. Если хост НЕ шлюз, это массовая {bulk}."
                 )
             else:
                 hint = (
-                    f"{subject}: {count} асимметричных сессий. "
+                    f"{subject}: асимметричных сессий — {count}. "
                     f"Топ-1: {external_ip}:{external_port} ({proto}), "
-                    f"out={bytes_out} Б, in={bytes_in} Б, "
+                    f"out={_bytes(bytes_out)}, in={_bytes(bytes_in)}, "
                     f"ratio {ratio_str}, направление {direction}. "
                     f"Проверить протокол и назначение."
                 )
@@ -170,16 +179,33 @@ class ReverseAsymmetryRule:
                 facts=[best],
                 severity=severity,
                 confidence=conf,
-                likely_causes=[
-                    "Эксфильтрация данных наружу (upload >> download)",
-                    "Ingress tool transfer: скачивание payload'а",
-                    "Легитимный upload: бэкап, видеоконференция, CDN",
-                    "Легитимный download: обновление, streaming",
-                    "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
-                    "Односторонний capture (одна сторона не зеркалится)",
-                ],
+                likely_causes=self._causes(outbound),
                 resolution_hint=hint,
             ))
 
         out.sort(key=lambda c: (-c.priority, -c.confidence, c.subject))
         return out
+
+    @staticmethod
+    def _causes(outbound: bool) -> list[str]:
+        """Причины в порядке релевантности: перекос бывает в обе стороны.
+
+        Первым идёт то, что соответствует направлению перекоса, иначе
+        для сессии «скачали 33 МБ» первым объяснением стояла выгрузка.
+        """
+        if outbound:
+            return [
+                "Выгрузка данных наружу: отдано в разы больше, чем получено",
+                "Легитимная отправка: бэкап, выгрузка в облако, "
+                "видеоконференция",
+                "Туннель с короткими ответами-подтверждениями",
+                "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
+                "Односторонний захват: вторая сторона не зеркалится",
+            ]
+        return [
+            "Загрузка большого файла: обновление, образ диска, медиа",
+            "Доставка инструмента: скачивание payload'а",
+            "Легитимный стриминг или видеоконференция",
+            "Шлюз / NAT / CDN-прокси: агрегат трафика клиентов",
+            "Односторонний захват: вторая сторона не зеркалится",
+        ]

@@ -28,12 +28,21 @@ lateral на 192.168.1.1 → отдельный Contradiction severity=critical.
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime
 
 from paradox.config import Config
 from paradox.contradictions.base import Contradiction, Fact
 from paradox.models import CaptureState, Finding
 
 _PIVOT_CEILING = 0.90
+
+
+def _clock(ts: float) -> str:
+    """Время суток вместо epoch: hint читают глазами, а не парсер."""
+    try:
+        return datetime.fromtimestamp(ts).strftime("%H:%M:%S")
+    except (OSError, OverflowError, ValueError):
+        return f"{ts:.1f}"
 
 
 def _describe(f: Fact) -> str:
@@ -117,15 +126,16 @@ class VictimMakesAttackRule:
                 )
             elif ts_ok:
                 hint = (
-                    f"{subject} сначала атакован ({v_desc}, ts={v.ts:.1f}), "
-                    f"потом сам атакует ({a_desc}, ts={a.ts:.1f}). "
+                    f"{subject} сначала атакован "
+                    f"({v_desc}, {_clock(v.ts)}), потом сам атакует "
+                    f"({a_desc}, {_clock(a.ts)}). "
                     f"Классический pivot — проверить сессии {subject}."
                 )
             else:
                 hint = (
                     f"Порядок в захвате обратный: {subject} атакует "
-                    f"({a_desc}, ts={a.ts:.1f}) РАНЬШЕ, чем атакован "
-                    f"({v_desc}, ts={v.ts:.1f}). Возможен NAT/proxy "
+                    f"({a_desc}, {_clock(a.ts)}) РАНЬШЕ, чем атакован "
+                    f"({v_desc}, {_clock(v.ts)}). Возможен NAT/proxy "
                     f"или FP одной из эвристик."
                 )
 
@@ -137,11 +147,11 @@ class VictimMakesAttackRule:
                 confidence=conf,
                 likely_causes=[
                     "Хост скомпрометирован: сначала атакован, "
-                    "потом сам атакует (pivot)",
-                    "Authorized scanner в сети: "
-                    "жертва одного скана — инициатор другого",
-                    "NAT/proxy: одна IP скрывает несколько хостов",
-                    "FP одной из эвристик",
+                    "потом сам атакует",
+                    "Авторизованный сканер в сети: жертва одного скана — "
+                    "инициатор другого",
+                    "NAT или прокси: один адрес скрывает несколько хостов",
+                    "Ошибка одной из эвристик",
                 ],
                 resolution_hint=hint,
             ))

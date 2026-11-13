@@ -24,6 +24,7 @@ from paradox_gui.widgets.contradiction_card import ContradictionCard
 
 class ContradictionsSection(QFrame):
     details_requested = Signal(object)
+    explanation_requested = Signal(object)
 
     # Выше четырёх карточек список уходит во внутренний скролл.
     _MAX_LIST_HEIGHT = 380
@@ -77,6 +78,7 @@ class ContradictionsSection(QFrame):
         for contra in contradictions:
             card = ContradictionCard(contra)
             card.details_requested.connect(self.details_requested)
+            card.explanation_requested.connect(self.explanation_requested)
             self._list_layout.addWidget(card)
         self._fit_height()
         self.setVisible(True)

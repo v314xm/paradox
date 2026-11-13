@@ -393,6 +393,26 @@ STRINGS: dict[str, str] = {
     "finding.no_reasons": "No detailed breakdown (old detector or no reasons).",
     "finding.evidence_empty": "Evidence is empty.",
     "finding.close": "Close",
+    "finding.explain": "Explanation",
+
+    # --- Explanation Dialog ---
+    "explain.title": "Explanation: {type}",
+    "explain.phase": "Phase: {phase}",
+    "explain.what": "What happened",
+    "explain.why": "Why it matters",
+    "explain.next": "What to check next",
+    "explain.alternatives": "Alternative interpretations",
+    "explain.beginner": "In plain words",
+    "explain.toggle_beginner": "In plain words",
+    "explain.toggle_alternatives": "Alternatives",
+    "explain.confidence": "Confidence",
+    "explain.copy": "Copy",
+    "explain.copied": "Copied",
+    "explain.close": "Close",
+    "explain.empty": (
+        "No explanation available: the report uses an old format and the "
+        "type is not in the catalog."
+    ),
 
     # --- Contradiction Dialog ---
     "contra.title": "{rule} — {subject}",
@@ -436,6 +456,10 @@ STRINGS: dict[str, str] = {
     "run.act.tools": "Tools",
     "run.act.no_selection": "Select a row in the table",
     "run.act.details": "Finding details",
+    "run.act.explain": "Explanation →",
+    "run.act.explain_tooltip": (
+        "What happened, why it matters, and what to check next"
+    ),
     "run.act.payload": "Injected code →",
     "run.act.payload_tooltip": "Open the body excerpt of this finding",
     "run.act.enrich": "Enrichment →",
@@ -505,6 +529,7 @@ STRINGS: dict[str, str] = {
     "what_if.apply": "Apply",
     "what_if.cancel": "Cancel",
     "contra.section_title": "Contradictions",
+    "contra.card_explain": "Explanation",
     "contra.card_details": "Details",
     "contra.card_no_facts": "No facts.",
 
@@ -521,6 +546,7 @@ STRINGS: dict[str, str] = {
     "graph.legend_external": "External",
     "graph.legend_subnet": "Subnet / Other",
     "graph.legend_finding": "Finding",
+    "graph.legend_role_deviation": "Role deviation",
     "graph.reset": "Reset",
     "graph.close": "Close",
     "graph.tip_dblclick": "Double-click a node for the host story.",
@@ -528,6 +554,7 @@ STRINGS: dict[str, str] = {
     "graph.edge_tip": "<b>Protocol:</b> {proto}{port}<br><b>Bytes:</b> {nbytes}",
     "graph.time_value": "Time: {time}",
     "graph.events": "<b>Event timeline:</b>",
+    "graph.role_deviation": "Role deviation from baseline",
     "graph.no_findings": "No detector hits.",
     "graph.click_node": "Click a node to see details.",
     "graph.render_error": "Graph rendering error",

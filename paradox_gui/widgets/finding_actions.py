@@ -24,6 +24,7 @@ _PANEL_WIDTH = 200
 
 class FindingActionsPanel(QFrame):
     details_requested = Signal(object)
+    explanation_requested = Signal(object)
     payload_requested = Signal(object)
     enrich_requested = Signal(object)
     host_story_requested = Signal(str)
@@ -81,6 +82,11 @@ class FindingActionsPanel(QFrame):
         self.btn_details = self._button("run.act.details")
         self.btn_details.clicked.connect(self._on_details)
         layout.addWidget(self.btn_details)
+
+        self.btn_explain = self._button("run.act.explain")
+        self.btn_explain.setToolTip(tr("run.act.explain_tooltip"))
+        self.btn_explain.clicked.connect(self._on_explain)
+        layout.addWidget(self.btn_explain)
 
         self.btn_payload = self._button("run.act.payload")
         self.btn_payload.setToolTip(tr("run.act.payload_tooltip"))
@@ -157,6 +163,7 @@ class FindingActionsPanel(QFrame):
         self._sync_hint()
 
         self.btn_details.setEnabled(f is not None)
+        self.btn_explain.setEnabled(f is not None)
         self.btn_copy.setEnabled(bool(f and str(f.get("value", "")).strip()))
         self.btn_payload.setEnabled(self._has_payload(f))
         self.btn_enrich.setEnabled(bool(self._iocs_of(f)))
@@ -282,6 +289,10 @@ class FindingActionsPanel(QFrame):
     def _on_details(self) -> None:
         if self._finding is not None:
             self.details_requested.emit(self._finding)
+
+    def _on_explain(self) -> None:
+        if self._finding is not None:
+            self.explanation_requested.emit(self._finding)
 
     def _on_payload(self) -> None:
         if self._finding is not None:

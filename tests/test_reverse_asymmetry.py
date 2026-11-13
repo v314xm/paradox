@@ -42,7 +42,8 @@ def test_outbound_exfil_high():
     assert len(res) == 1
     assert res[0].severity == "high"
     assert res[0].subject == "192.168.1.5"
-    assert "outbound" in res[0].resolution_hint
+    assert "наружу" in res[0].resolution_hint
+    assert "Выгрузка" in res[0].likely_causes[0]
 
 
 # 2. Inbound download: 5 КБ out / 5 МБ in → high
@@ -52,7 +53,9 @@ def test_inbound_download_high():
     res = rule.find_contradictions(facts)
     assert len(res) == 1
     assert res[0].severity == "high"
-    assert "inbound" in res[0].resolution_hint
+    assert "внутрь" in res[0].resolution_hint
+    # Для загрузки первым объяснением не должна стоять выгрузка.
+    assert "Выгрузка" not in res[0].likely_causes[0]
 
 
 # 3. Средняя асимметрия: 1 МБ out / 60 КБ in → medium (ratio ~17)

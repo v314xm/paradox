@@ -59,6 +59,9 @@ SEVERITY_BY_TYPE: dict[str, str] = {
     "nxdomain_burst": "low",
     "typosquatting": "low",
     "ip_check_service": "low",
+    # Хост, чей поведенческий профиль выбивается из захвата. Статистика,
+    # не вердикт — severity low, дискриминатор здесь confidence.
+    "host_behavior_anomaly": "low",
 
     "kerberoasting": "high",
     "ad_recon": "medium",
@@ -343,6 +346,10 @@ PHASE_BY_TYPE: dict[str, str] = {
 
     # Impact
     "smtp_spam": "impact",
+
+    # Хост-аномалия: фаза неизвестна, пока профиль не скоррелирован
+    # с конкретной находкой.
+    "host_behavior_anomaly": "other",
 }
 
 PHASE_ORDER: dict[str, int] = {
@@ -404,6 +411,9 @@ CHAIN_ORDER: dict[str, int] = {
     "lateral_movement": 100,
     "large_transfer": 110,
     "smtp_spam": 120,
+    # Хост-аномалия — в конец TL;DR: статистическая подсказка, куда
+    # смотреть, а не разбор конкретной атаки.
+    "host_behavior_anomaly": 999,
 }
 CHAIN_UNKNOWN = 999
 

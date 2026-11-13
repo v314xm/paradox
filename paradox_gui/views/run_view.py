@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
 from paradox.analyzers.counterfactual import evaluate_what_if
 from paradox_gui.dialogs.carved_files_dialog import CarvedFilesDialog
 from paradox_gui.dialogs.contradiction_dialog import ContradictionDialog
+from paradox_gui.dialogs.explanation_dialog import ExplanationDialog
 from paradox_gui.dialogs.finding_dialog import FindingDialog
 from paradox_gui.dialogs.graph_dialog import GraphDialog
 from paradox_gui.dialogs.what_if_dialog import WhatIfDialog
@@ -178,6 +179,9 @@ class RunView(QWidget):
         # --- Противоречия ---
         self.contradictions = ContradictionsSection()
         self.contradictions.details_requested.connect(self._on_contra_details)
+        self.contradictions.explanation_requested.connect(
+            self._on_contra_explanation
+        )
         layout.addWidget(self.contradictions)
 
         # --- Findings ---
@@ -207,6 +211,9 @@ class RunView(QWidget):
         )
         self.finding_actions.details_requested.connect(
             self._on_finding_details
+        )
+        self.finding_actions.explanation_requested.connect(
+            self._on_finding_explanation
         )
         self.finding_actions.payload_requested.connect(
             self.payload_requested
@@ -503,6 +510,9 @@ class RunView(QWidget):
     def _on_contra_details(self, contra: dict) -> None:
         ContradictionDialog(contra, parent=self).exec()
 
+    def _on_contra_explanation(self, contra: dict) -> None:
+        ExplanationDialog(contra, parent=self).exec()
+
     def _on_carved_clicked(self) -> None:
         if not self._last_report:
             return
@@ -591,6 +601,9 @@ class RunView(QWidget):
 
     def _on_finding_details(self, finding: dict) -> None:
         FindingDialog(finding, parent=self).exec()
+
+    def _on_finding_explanation(self, finding: dict) -> None:
+        ExplanationDialog(finding, parent=self).exec()
 
     # =========================================================================
     # HANDLERS — управление состоянием

@@ -26,6 +26,7 @@ from paradox_gui.i18n import tr
 class ContradictionCard(QFrame):
     # object, а не dict — Signal(dict) в PySide6 работает через раз.
     details_requested = Signal(object)
+    explanation_requested = Signal(object)
 
     def __init__(self, contra: dict, parent=None) -> None:
         super().__init__(parent)
@@ -153,6 +154,12 @@ class ContradictionCard(QFrame):
     def _build_footer(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.addStretch(1)
+        explain = QPushButton(tr("contra.card_explain"))
+        explain.setObjectName("small")
+        explain.clicked.connect(
+            lambda: self.explanation_requested.emit(self._contra)
+        )
+        row.addWidget(explain)
         btn = QPushButton(tr("contra.card_details"))
         btn.setObjectName("small")
         btn.clicked.connect(lambda: self.details_requested.emit(self._contra))

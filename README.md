@@ -9,7 +9,7 @@
 
 Инструмент для оффлайн-разбора pcap. Ищет **противоречия между слоями данных** — DNS vs SNI, JA3 vs User-Agent, MAC vs IP, роли vs поведение. Показывает не только findings, но и то, что из них не сходится: pivot-хосты, ARP-spoof, domain-fronting, протокольные туннели.
 
-![Paradox GUI](docs/assets/main.png)
+![йцут](docs/assets/main.png)
 
 Эксплуатация — [docs/OPERATIONS.md](docs/OPERATIONS.md) · безопасность и модель
 доверия — [SECURITY.md](SECURITY.md) · сайт — [paradoxtool.ru](https://paradoxtool.ru).

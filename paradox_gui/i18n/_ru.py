@@ -393,6 +393,26 @@ STRINGS: dict[str, str] = {
     "finding.no_reasons": "Нет детального разбора (старый детектор или нет причин).",
     "finding.evidence_empty": "Evidence пусто.",
     "finding.close": "Закрыть",
+    "finding.explain": "Объяснение",
+
+    # --- Explanation Dialog ---
+    "explain.title": "Объяснение: {type}",
+    "explain.phase": "Фаза: {phase}",
+    "explain.what": "Что произошло",
+    "explain.why": "Почему это важно",
+    "explain.next": "Что делать дальше",
+    "explain.alternatives": "Альтернативные интерпретации",
+    "explain.beginner": "Как новичку",
+    "explain.toggle_beginner": "Как новичку",
+    "explain.toggle_alternatives": "Альтернативы",
+    "explain.confidence": "Уверенность",
+    "explain.copy": "Копировать",
+    "explain.copied": "Скопировано",
+    "explain.close": "Закрыть",
+    "explain.empty": (
+        "Объяснение недоступно: отчёт старого формата, а тип не описан "
+        "в каталоге."
+    ),
 
     # --- Contradiction Dialog ---
     "contra.title": "{rule} — {subject}",
@@ -436,6 +456,10 @@ STRINGS: dict[str, str] = {
     "run.act.tools": "Инструменты",
     "run.act.no_selection": "Выберите строку в таблице",
     "run.act.details": "Детали находки",
+    "run.act.explain": "Объяснение →",
+    "run.act.explain_tooltip": (
+        "Что произошло, почему это важно и что смотреть дальше"
+    ),
     "run.act.payload": "Код инжекта →",
     "run.act.payload_tooltip": "Открыть выдержку тела этой находки",
     "run.act.enrich": "Обогащение →",
@@ -505,6 +529,7 @@ STRINGS: dict[str, str] = {
     "what_if.apply": "Применить",
     "what_if.cancel": "Отмена",
     "contra.section_title": "Противоречия",
+    "contra.card_explain": "Объяснение",
     "contra.card_details": "Подробнее",
     "contra.card_no_facts": "Фактов нет.",
 
@@ -521,6 +546,7 @@ STRINGS: dict[str, str] = {
     "graph.legend_external": "Внешний",
     "graph.legend_subnet": "Подсеть / Другие",
     "graph.legend_finding": "Finding (Сработка)",
+    "graph.legend_role_deviation": "Отклонение от роли",
     "graph.reset": "Сброс",
     "graph.close": "Закрыть",
     "graph.tip_dblclick": "Двойной клик по узлу — история хоста.",
@@ -528,6 +554,7 @@ STRINGS: dict[str, str] = {
     "graph.edge_tip": "<b>Протокол:</b> {proto}{port}<br><b>Байт:</b> {nbytes}",
     "graph.time_value": "Время: {time}",
     "graph.events": "<b>Хронология событий:</b>",
+    "graph.role_deviation": "Отклонение от базовой роли",
     "graph.no_findings": "Нет сработок детекторов.",
     "graph.click_node": "Кликните на узел, чтобы увидеть детали.",
     "graph.render_error": "Ошибка отрисовки графа",

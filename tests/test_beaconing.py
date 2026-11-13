@@ -220,6 +220,18 @@ def test_beaconing_skips_allowlist_sni_doubleclick():
     assert findings == []
 
 
+def test_beaconing_skips_safebrowsing_cache():
+    """Chrome обновляет базы Safe Browsing по расписанию — не beaconing.
+
+    На FIRST-2015 (snort.log.1425572414) это давало finding:
+    safebrowsing-cache.google.com, 6 соединений за 2.6 ч, jitter 0.037.
+    """
+    flows = _regular_flows(n=5, interval=3600.0, byts=300)
+    state = _beacon_state(flows, sni="safebrowsing-cache.google.com")
+    findings = BeaconingDetector().run(state, Config())
+    assert findings == []
+
+
 def test_beaconing_skips_allowlist_http_host():
     """HTTP Host из allowlist → skip."""
     flows = _regular_flows(n=25, byts=200)

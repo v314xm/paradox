@@ -11,11 +11,13 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
+from paradox_gui.dialogs.explanation_dialog import ExplanationDialog
 from paradox_gui.i18n import tr
 
 
@@ -153,8 +155,17 @@ class FindingDialog(QDialog):
         close = box.button(QDialogButtonBox.StandardButton.Close)
         close.setText(tr("finding.close"))
         close.setDefault(True)
+
+        explain = QPushButton(tr("finding.explain"))
+        explain.setObjectName("small")
+        explain.clicked.connect(self._open_explanation)
+        box.addButton(explain, QDialogButtonBox.ButtonRole.ActionRole)
+
         box.rejected.connect(self.accept)
         return box
+
+    def _open_explanation(self) -> None:
+        ExplanationDialog(self._finding, parent=self).exec()
 
     # ---------- утилиты ----------
 

@@ -7,6 +7,7 @@ from paradox.aggregators.entities import build_entities
 from paradox.analyzers.absence import analyze_absence
 from paradox.config import Config
 from paradox.contradictions import run_all as run_contradictions
+from paradox.explain import explain_contradiction, explain_finding
 from paradox.models import CaptureState
 from paradox.pipeline.summarize import (
     _summarize_direction,
@@ -20,6 +21,25 @@ from paradox.reporters.flow_report import (
     build_http_report,
 )
 from paradox.timeline import build_timeline
+
+
+def _explained(
+    row: dict,
+    explain,
+    state: CaptureState,
+    kind: str,
+) -> dict:
+    """Добавить в строку отчёта человеческое объяснение.
+
+    Ошибка объяснения не должна стоить отчёта: считаем её в счётчике
+    extractor_errors рядом с ошибками детекторов и оставляем строку
+    как есть.
+    """
+    try:
+        row["explanation"] = explain(row).to_dict()
+    except Exception:
+        state.extractor_errors[f"explain:{kind}"] += 1
+    return row
 
 
 def _build_report(
@@ -132,6 +152,17 @@ def _build_report(
         ],
     }
 
+    finding_rows = [
+        _explained(f.to_dict(), explain_finding, state, "finding")
+        for f in findings
+    ]
+    contradiction_rows = [
+        _explained(
+            c.to_dict(), explain_contradiction, state, "contradiction",
+        )
+        for c in contradictions
+    ]
+
     return {
         "schema_version": "0.3.0",
         "provenance": provenance,
@@ -184,8 +215,8 @@ def _build_report(
         "http": http_report,
         "http_objects": http_objects_report,
         "carved_files": carved_report,
-        "findings": [f.to_dict() for f in findings],
-        "contradictions": [c.to_dict() for c in contradictions],
+        "findings": finding_rows,
+        "contradictions": contradiction_rows,
         "attack_graph": _attack_graph_dict,
         "timeline": [e.to_dict() for e in timeline_events],
         "absence": absence_report,

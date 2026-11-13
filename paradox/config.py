@@ -198,6 +198,24 @@ _VALIDATION_RULES: tuple[_ValidationRule, ...] = (
                     "suspicious_ports must be in range 1..65535"),
     _ValidationRule("dc_service_ports", _ports_in_range,
                     "dc_service_ports must be in range 1..65535"),
+    _ValidationRule("behavioral_contamination", _ratio,
+                    "behavioral_contamination must be in (0, 1]"),
+    _ValidationRule("behavioral_confidence_min", _ratio,
+                    "behavioral_confidence_min must be in (0, 1]"),
+    _ValidationRule("behavioral_min_flows", _positive,
+                    "behavioral_min_flows must be > 0"),
+    _ValidationRule("behavioral_min_hosts", _positive,
+                    "behavioral_min_hosts must be > 0"),
+    _ValidationRule("behavioral_max_findings", _positive,
+                    "behavioral_max_findings must be > 0"),
+    _ValidationRule("behavioral_seed", _non_negative,
+                    "behavioral_seed must be >= 0"),
+    _ValidationRule("role_scanner_min_targets", _positive,
+                    "role_scanner_min_targets must be > 0"),
+    _ValidationRule("role_scanner_min_ports", _positive,
+                    "role_scanner_min_ports must be > 0"),
+    _ValidationRule("role_server_min_bytes", _non_negative,
+                    "role_server_min_bytes must be >= 0"),
 )
 
 
@@ -563,6 +581,12 @@ class Config:
             "openx.net",
             "yimg.com",
             "licdn.com",
+            # Browser background updates: Chrome ходит за базами Safe
+            # Browsing по расписанию, с медленным режимом это давало
+            # ложный beaconing на чистом захвате (FIRST-2015).
+            "safebrowsing-cache.google.com",
+            "safebrowsing.googleapis.com",
+            "safebrowsing.google.com",
             # Microsoft / Skype
             "skypeassets.com",
             "skype.com",
@@ -1020,6 +1044,46 @@ class Config:
     # v0.9.0: писать iocs.txt/csv/json + suricata.rules + queries.txt
     # в output_dir после каждого прогона. Файлы маленькие, полезны.
     ioc_export_enabled: bool = True
+
+    # --- behavioral analysis (ML) ---
+    # Статистические аномалии поверх flow-признаков (Isolation Forest).
+    # По умолчанию выключено: статистика — подсказка для триажа, а не
+    # вердикт, и без калибровки на эталонных захватах она шумит.
+    #
+    # contamination — какая доля сессий считается аномальной. Это
+    # самосбывающийся прогноз (модель ВСЕГДА выдаст этот процент),
+    # поэтому ниже confidence_min находка не создаётся вовсе.
+    behavioral_enabled: bool = False
+    # Калибровка 2026-11-12 на трёх эталонах: 0.05 давал 7 FP на чистом
+    # FIRST-2015 (0 findings) и 23 на CyberCampTask; 0.02 снижает FP
+    # вдвое (5 и 14), сохраняя сигнал. Чистый захват всё равно даёт
+    # >=1 (тяжёлый хвост) — порогом это не лечится, нужен фильтр
+    # мультикаста/линк-локал (см. behavioral_analyzer).
+    behavioral_contamination: float = 0.02
+    # Минимальный confidence, при котором сессия считается статистическим
+    # выбросом и аннотирует совпавшие rule-находки (behavioral_corroborated).
+    behavioral_confidence_min: float = 0.7
+    # На захвате меньше этого числа flow Isolation Forest неустойчив:
+    # случайные выбросы неотличимы от реальных, слой молчит.
+    behavioral_min_flows: int = 50
+    # Host-level: профиль хоста строится только при таком числе
+    # внутренних хостов — на 2-3 хостах «аномалия профиля» бессмысленна.
+    behavioral_min_hosts: int = 10
+    # Верхний предохранитель: не заваливать отчёт статистическим шумом.
+    behavioral_max_findings: int = 50
+    # Детерминизм. A-Detector не задаёт random_state — результат у него
+    # меняется от прогона к прогону; для SOC-инструмента это неприемлемо.
+    behavioral_seed: int = 42
+
+    # --- role deviation (правило contradictions role_deviation) ---
+    # Сканером считается хост, инициировавший SYN к >= min_targets пар
+    # (dst_ip, dst_port) на >= min_ports разных портах. Критерий «разные
+    # порты» отличает сканер от браузера (сотни IP, но 1-2 порта).
+    role_scanner_min_targets: int = 20
+    role_scanner_min_ports: int = 5
+    # Минимум байт, отданных хостом на src_port 80/443/445, чтобы
+    # считать его «отвечающим как сервер». Отсекает голые handshake.
+    role_server_min_bytes: int = 256
 
     def __post_init__(self) -> None:
         # dga_allowlist = extra + tunnel-домены + ip-check сервисы.
