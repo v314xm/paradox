@@ -34,6 +34,16 @@ class FlowExtractor:
         ts = record.ts
         flow.packets += 1
         flow.bytes_sent += record.length
+        flow.bytes_sumsq += record.length * record.length
+
+        # Межпакетный интервал — только для не-первого пакета этого flow.
+        # flow.last_ts здесь ещё хранит таймстамп предыдущего пакета.
+        if flow.last_ts is not None:
+            gap = ts - flow.last_ts
+            if gap > 0:
+                flow.gap_sum += gap
+                flow.gap_sumsq += gap * gap
+                flow.gap_count += 1
 
         if flow.first_ts is None:
             flow.first_ts = ts

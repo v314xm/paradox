@@ -75,6 +75,10 @@ def merge_capture_states(
                     bytes_sent=flow.bytes_sent,
                     first_ts=flow.first_ts,
                     last_ts=flow.last_ts,
+                    bytes_sumsq=flow.bytes_sumsq,
+                    gap_sum=flow.gap_sum,
+                    gap_sumsq=flow.gap_sumsq,
+                    gap_count=flow.gap_count,
                     initiated_by_src=flow.initiated_by_src,
                     sni=flow.sni,
                     ja3=flow.ja3,
@@ -87,6 +91,10 @@ def merge_capture_states(
             else:
                 existing.packets += flow.packets
                 existing.bytes_sent += flow.bytes_sent
+                existing.bytes_sumsq += flow.bytes_sumsq
+                existing.gap_sum += flow.gap_sum
+                existing.gap_sumsq += flow.gap_sumsq
+                existing.gap_count += flow.gap_count
                 if flow.first_ts is not None:
                     if existing.first_ts is None or flow.first_ts < existing.first_ts:
                         existing.first_ts = flow.first_ts

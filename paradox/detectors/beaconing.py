@@ -49,7 +49,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 from paradox.config import Config
-from paradox.models import CaptureState, Finding
+from paradox.models import CaptureState, Finding, packet_size_cv
 from paradox.net_utils import is_internal_ip
 
 
@@ -61,6 +61,7 @@ class _BeaconGroup:
     host_set: set[str] = field(default_factory=set)
     total_bytes: int = 0
     total_packets: int = 0
+    total_bytes_sumsq: int = 0
     count: int = 0
 
     @property
@@ -163,6 +164,7 @@ class BeaconingDetector:
             group.per_flow_bytes.append(flow.bytes_sent)
             group.total_bytes += flow.bytes_sent
             group.total_packets += flow.packets
+            group.total_bytes_sumsq += flow.bytes_sumsq
             group.count += 1
             if flow.sni:
                 group.sni_set.add(flow.sni.lower())
@@ -262,6 +264,11 @@ class BeaconingDetector:
                 "unique_destinations": sorted(unique_dests),
                 "total_bytes": g.total_bytes,
                 "total_packets": g.total_packets,
+                "payload_cv": round(
+                    packet_size_cv(
+                        g.total_packets, g.total_bytes, g.total_bytes_sumsq,
+                    ), 3,
+                ),
             }
             if mode == "slow":
                 evidence["confidence_reasons"] = [

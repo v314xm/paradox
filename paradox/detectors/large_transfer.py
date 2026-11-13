@@ -11,7 +11,7 @@ LargeTransferDetector — аномально большой объём в одн
 Агрегация: пара (ip, port) + (ip, port), оба направления в один bucket.
 """
 from paradox.config import Config
-from paradox.models import CaptureState, Finding, FlowKey
+from paradox.models import CaptureState, Finding, FlowKey, packet_size_cv
 from paradox.net_utils import is_internal_ip
 
 # Если одна сторона >N× другой — считаем обмен односторонним.
@@ -138,6 +138,14 @@ class LargeTransferDetector:
                     "bytes_in": bytes_in,
                     "bytes_out": bytes_out,
                     "packets": flow.packets,
+                    "avg_pkt_size": round(
+                        flow.bytes_sent / flow.packets, 1
+                    ) if flow.packets else 0,
+                    "payload_cv": round(
+                        packet_size_cv(
+                            flow.packets, flow.bytes_sent, flow.bytes_sumsq,
+                        ), 3,
+                    ),
                     "direction": direction,
                     "sni": flow.sni,
                 },
@@ -184,6 +192,7 @@ class LargeTransferDetector:
                     "bytes_a_to_b": 0,
                     "bytes_b_to_a": 0,
                     "total_packets": 0,
+                    "total_bytes_sumsq": 0,
                     "flows": 0,
                     "sni": None,
                     "first_seen": None,
@@ -197,6 +206,7 @@ class LargeTransferDetector:
                 b["bytes_b_to_a"] += flow.bytes_sent
 
             b["total_packets"] += flow.packets
+            b["total_bytes_sumsq"] += flow.bytes_sumsq
             b["flows"] += 1
             if flow.sni and not b["sni"]:
                 b["sni"] = flow.sni
@@ -241,6 +251,14 @@ class LargeTransferDetector:
                     "bytes_in": bytes_in,
                     "bytes_out": bytes_out,
                     "total_packets": b["total_packets"],
+                    "avg_pkt_size": round(
+                        total / b["total_packets"], 1
+                    ) if b["total_packets"] else 0,
+                    "payload_cv": round(
+                        packet_size_cv(
+                            b["total_packets"], total, b["total_bytes_sumsq"],
+                        ), 3,
+                    ),
                     "flow_count": b["flows"],
                     "direction": direction,
                     "sni": b["sni"],

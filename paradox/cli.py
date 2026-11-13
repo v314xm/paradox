@@ -119,6 +119,15 @@ def main(argv: list[str] | None = None) -> None:
         help="Загрузить детекторы из ~/.paradox/plugins/*.py",
     )
     parser.add_argument(
+        "--behavioral",
+        action="store_true",
+        help=(
+            "Включить поведенческий анализ (Isolation Forest): усиливает "
+            "rule-находки, совпавшие со статистическими выбросами, и "
+            "помечает хосты с аномальным профилем (host_behavior_anomaly)"
+        ),
+    )
+    parser.add_argument(
         "--tls-keylog",
         type=Path,
         default=None,
@@ -157,6 +166,7 @@ def main(argv: list[str] | None = None) -> None:
 
     config = Config(
         plugins_enabled=args.plugins,
+        behavioral_enabled=args.behavioral,
         tls_keylog_path=str(keylog) if keylog else None,
     )
     pipeline = _pipeline()

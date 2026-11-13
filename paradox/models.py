@@ -1,5 +1,6 @@
 from collections import Counter
 from dataclasses import asdict, dataclass, field
+from math import sqrt
 from typing import Any, NamedTuple
 
 from paradox.taxonomy import SEVERITY_BY_TYPE as _SEVERITY_BY_TYPE
@@ -50,6 +51,20 @@ def _first_ip_from_aggregated(v):
         if isinstance(first, str):
             return first
     return None
+
+
+def packet_size_cv(packets: int, total_bytes: float, bytes_sumsq: float) -> float:
+    """Коэффициент вариации размера пакета (stddev/mean) из O(1)-сумм.
+
+    Постоянный размер пакетов (heartbeat C2) → 0.0, разнобой (browser,
+    стриминг) → заметно больше. Суммы собираются в FlowExtractor, чтобы
+    не хранить массив длин на сотни тысяч пакетов.
+    """
+    if packets <= 0 or total_bytes <= 0:
+        return 0.0
+    mean = total_bytes / packets
+    variance = max(0.0, bytes_sumsq / packets - mean * mean)
+    return sqrt(variance) / mean
 
 
 @dataclass
@@ -193,7 +208,15 @@ class FlowStats:
     first_ts: float | None = None
     last_ts: float | None = None
 
-
+    # Повременные/размерные агрегаты для behavioural-анализа.
+    # Хранятся как O(1)-суммы, а не полные массивы: на захвате в сотни
+    # тысяч пакетов список таймстампов раздул бы память без пользы.
+    #   bytes_sumsq — Σ (packet_length)^2, для stddev размера пакета;
+    #   gap_sum/gap_sumsq/gap_count — межпакетные интервалы (jitter).
+    bytes_sumsq: int = 0
+    gap_sum: float = 0.0
+    gap_sumsq: float = 0.0
+    gap_count: int = 0
 
     # инициатор сессии: True если src отправил первый SYN,
     # False если src получил SYN (то есть инициатор — dst),

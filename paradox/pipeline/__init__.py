@@ -43,6 +43,36 @@ __all__ = [
 ]
 
 
+def _run_behavioral(
+    state: CaptureState,
+    config: Config,
+    findings: list,
+) -> None:
+    """Поведенческий (ML) слой между детекторами и противоречиями.
+
+    Два эффекта:
+      1. аннотирует rule-находки поведенческим выбросом (corroborate),
+      2. создаёт host_behavior_anomaly для хостов с аномальным профилем.
+
+    По умолчанию выключен (behavioral_enabled=False) и не импортирует
+    ML-код вовсе. Ошибка слоя не валит прогон — считается в
+    summary.extractor_errors["behavioral"].
+    """
+    if not config.behavioral_enabled:
+        return
+    try:
+        from paradox.analyzers.behavioral_analyzer import (
+            BehavioralAnalyzer,
+            corroborate,
+        )
+
+        corroborate(findings, state, config)
+        findings.extend(BehavioralAnalyzer().score_hosts(state, config))
+    except Exception:
+        prev = state.extractor_errors["behavioral"]
+        state.extractor_errors["behavioral"] = prev + 1
+
+
 def run_pipeline(
     pcap_path: str | Path,
     config: Config,
@@ -66,6 +96,7 @@ def run_pipeline(
         on_phase=on_phase,
         detectors=detectors,
     )
+    _run_behavioral(state, config, findings)
 
     provenance = {
         "tool_version": __version__,
@@ -124,6 +155,7 @@ def run_multi_pipeline(
         should_stop=should_stop, on_phase=on_phase,
         detectors=detectors,
     )
+    _run_behavioral(state, config, findings)
 
     provenance = {
         "tool_version": __version__,
