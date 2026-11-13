@@ -26,5 +26,5 @@ def test_get_help_fallback():
     assert get_contradiction_help("nonexistent") == ""
 
 
-def test_count_is_twelve():
-    assert len(CONTRADICTION_HELP) == 12
+def test_count_is_thirteen():
+    assert len(CONTRADICTION_HELP) == 13

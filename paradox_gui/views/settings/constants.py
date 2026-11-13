@@ -47,7 +47,7 @@ _DETECTORS = (
     ("yara", "YARA"),
 )
 
-# 12 правил из paradox/contradictions/rules/.
+# 13 правил из paradox/contradictions/rules/.
 # Ключ — имя класса; analysis_worker фильтрует по type(r).__name__.
 _CONTRADICTIONS = (
     ("VictimMakesAttackRule",   "victim_makes_attack (PIVOT) — critical"),
@@ -63,4 +63,5 @@ _CONTRADICTIONS = (
     ("SniCertMismatchRule",     "sni_cert_mismatch (CN/SAN ≠ SNI) — medium"),
     ("SelfSignedCertRule",      "self_signed_cert — medium"),
     ("ExpiredCertRule",         "expired_cert — low"),
+    ("RoleDeviationRule",       "role_deviation (отклонение от роли) — high"),
 )

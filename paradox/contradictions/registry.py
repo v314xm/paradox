@@ -45,6 +45,9 @@ from paradox.contradictions.rules.j_self_signed_cert import (
 from paradox.contradictions.rules.k_expired_cert import (
     ExpiredCertRule,
 )
+from paradox.contradictions.rules.l_role_deviation import (
+    RoleDeviationRule,
+)
 from paradox.models import CaptureState, Finding
 
 # Контракт: правила STATELESS. extract_facts / find_contradictions
@@ -63,6 +66,7 @@ RULES: list[ContradictionRule] = [
     ReverseAsymmetryRule(),
     PortServiceMismatchRule(),
     DirectIpNoDnsRule(),
+    RoleDeviationRule(),
 ]
 
 

@@ -67,6 +67,8 @@ class InteractiveNode(QGraphicsEllipseItem):
 
         if "/" in ip:
             color = QColor(PALETTE["text_muted"])
+        elif "role_deviation" in roles:
+            color = QColor(PALETTE["danger"])
         elif "pivot" in roles or "attacker_candidate" in roles:
             color = QColor(PALETTE["danger"])
         elif "victim_candidate" in roles:
@@ -217,6 +219,7 @@ class GraphDialog(QDialog):
         legend = QLabel(
             f"{tr('graph.legend_title')}<br>"
             f"<span style='color:{PALETTE['danger']};'>●</span> {tr('graph.legend_attacker')}<br>"
+            f"<span style='color:{PALETTE['danger']};'>◉</span> {tr('graph.legend_role_deviation')}<br>"
             f"<span style='color:{SEVERITY['high']};'>●</span> {tr('graph.legend_victim')}<br>"
             f"<span style='color:{PALETTE['accent']};'>●</span> {tr('graph.legend_internal')}<br>"
             f"<span style='color:{PALETTE['text_muted']};'>●</span> {tr('graph.legend_external')}<br>"
@@ -504,7 +507,25 @@ class GraphDialog(QDialog):
                 f"{tr('graph.no_findings')}</p>"
             )
 
+        # role_deviation: поведение хоста противоречит базовой роли.
+        rd = self._role_deviation_for(ip)
+        if rd:
+            sev_color = SEVERITY.get(rd.get("severity", "medium"), SEVERITY["medium"])
+            html += (
+                f"<p style='color:{sev_color};'>⚠ {tr('graph.role_deviation')}</p>"
+            )
+            hint = rd.get("resolution_hint")
+            if hint:
+                html += f"<p style='color:{PALETTE['text_muted']};'>{hint}</p>"
+
         self.info_panel.setHtml(html)
+
+    def _role_deviation_for(self, ip: str) -> dict | None:
+        """Противоречие role_deviation для IP (если есть)."""
+        for c in self.report.get("contradictions") or []:
+            if c.get("rule") == "role_deviation" and c.get("subject") == ip:
+                return c
+        return None
 
     def reset_highlight(self):
         self.slider.setValue(100)

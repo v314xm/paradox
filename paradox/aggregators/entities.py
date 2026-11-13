@@ -356,6 +356,20 @@ def build_entities(
         if "scanner_tag" in tags:
             ent.roles.append("scanner_candidate")
 
+    # --- role_deviation: поведение противоречит базовой роли ---
+    # Роль на сущности нужна graph_dialog'у для раскраски узла; детали
+    # (роль по OUI, наблюдаемое поведение) лежат в самом противоречии.
+    if contradictions:
+        for c in contradictions:
+            if getattr(c, "rule", None) != "role_deviation":
+                continue
+            subject = getattr(c, "subject", None)
+            if not subject:
+                continue
+            ent = buckets.get(subject)
+            if ent is not None and "role_deviation" not in ent.roles:
+                ent.roles.append("role_deviation")
+
     # --- сортировка и разделение ---
     internal = sorted(
         (e for e in buckets.values() if e.is_internal),

@@ -35,6 +35,7 @@ from paradox.contradictions.facts_net import (
     extract_direct_ip_facts,
     extract_protocol_on_port_facts,
 )
+from paradox.contradictions.facts_role import extract_role_facts
 from paradox.contradictions.facts_tls import (
     _base_domain,
     _classify_ja3,
@@ -54,6 +55,7 @@ __all__ = [
     "extract_direct_ip_facts",
     "extract_ja3_ua_facts",
     "extract_protocol_on_port_facts",
+    "extract_role_facts",
     "extract_tls_cert_facts",
     "extract_tls_host_facts",
 ]

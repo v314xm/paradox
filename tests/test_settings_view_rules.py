@@ -55,9 +55,9 @@ def test_gui_has_no_orphan_rules():
     )
 
 
-def test_expected_count_is_twelve():
-    # Фиксируем текущее состояние: 12 правил в ядре v0.9.0.
-    assert len(_core_rule_names()) == 12
+def test_expected_count_is_thirteen():
+    # Фиксируем текущее состояние: 13 правил в ядре.
+    assert len(_core_rule_names()) == 13
 
 
 def test_nxdomain_window_in_thresholds_widget():
